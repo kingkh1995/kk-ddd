@@ -18,6 +18,11 @@
       <artifactId>op-user-domain</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.kkk.op.support</groupId>
+      <artifactId>op-support-models</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

@@ -26,11 +26,6 @@
       <artifactId>op-user-infrastructure</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.kkk.op.support</groupId>
-      <artifactId>op-support-models</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- 组件依赖 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
