@@ -36,7 +36,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public LongId save(@NotNull Account entity) {
         AccountDO data = accountDataConverter.toData(entity);
-        if (entity.getId() != null) {
+        if (data.getId() != null) {
             accountMapper.updateById(data);
         } else {
             accountMapper.insert(data);

@@ -21,6 +21,6 @@ public class LongId implements Identifier {
     }
 
     public Long getValue() {
-        return id;
+        return this.id;
     }
 }

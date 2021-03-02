@@ -1,7 +1,7 @@
 package com.kkk.op.support.interfaces;
 
 /**
- * Entity：拥有唯一标识符，以及业务行为的实体类，尽可能的由Types组成，
+ * Entity：拥有唯一标识和业务行为，尽可能的由Types组成
  * 实体类 marker 接口
  * @author KaiKoo
  */
