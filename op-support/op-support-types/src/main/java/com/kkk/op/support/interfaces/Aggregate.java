@@ -1,6 +1,7 @@
 package com.kkk.op.support.interfaces;
 
 /**
+ * Aggregate：Entity的聚合
  * 聚合根类 marker 接口
  * @author KaiKoo
  */

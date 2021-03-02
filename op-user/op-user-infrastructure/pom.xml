@@ -19,21 +19,10 @@
       <artifactId>op-user-domain</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.kkk.op.support</groupId>
-      <artifactId>op-support-tools</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- 组件依赖 -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-    </dependency>
     <dependency>
       <groupId>com.baomidou</groupId>
       <artifactId>mybatis-plus-boot-starter</artifactId>
-      <version>3.3.0</version>
     </dependency>
   </dependencies>
 

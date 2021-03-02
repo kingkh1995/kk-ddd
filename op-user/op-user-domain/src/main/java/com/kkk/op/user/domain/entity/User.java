@@ -2,11 +2,15 @@ package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.interfaces.Aggregate;
 import com.kkk.op.support.types.LongId;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
- *
+ * 用户
  * @author KaiKoo
  */
+@Data
+@Accessors(chain = true)
 public class User implements Aggregate<LongId> {
 
     private LongId id;
@@ -23,60 +27,16 @@ public class User implements Aggregate<LongId> {
 
     private String email;
 
+    /**
+     * 用户账号
+     */
+    private Account account;
+
     @Override
-    public LongId getId() {
-        return this.id;
-    }
-
-    public void setId(LongId id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public Byte getAge() {
-        return age;
-    }
-
-    public void setAge(Byte age) {
-        this.age = age;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public User snapshot() {
+        User snapshot = new User();
+        snapshot.setId(this.id)
+                .setName(this.name);
+        return snapshot;
     }
 }

@@ -3,7 +3,7 @@ package com.kkk.op.support.types;
 import com.kkk.op.support.interfaces.Identifier;
 
 /**
- *
+ * long类型Id
  * @author KaiKoo
  */
 public class LongId implements Identifier {

@@ -1,11 +1,9 @@
 package com.kkk.op.support.interfaces;
 
-import java.io.Serializable;
-
 /**
- * ID类型DP marker接口
+ * ID类型DP marker 接口
  * @author KaiKoo
  */
-public interface Identifier extends Serializable {
+public interface Identifier extends Type {
 
 }

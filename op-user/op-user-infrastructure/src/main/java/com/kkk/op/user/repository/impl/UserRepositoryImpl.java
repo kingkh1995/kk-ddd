@@ -2,11 +2,14 @@ package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.types.LongId;
+import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
+import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -17,10 +20,13 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final UserMapper userMapper;
     private final UserDataConverter userDataConverter;
+    private final AccountDataConverter accountDataConverter;
+
 
     public UserRepositoryImpl(UserMapper userMapper) {
         this.userMapper = userMapper;
         userDataConverter = UserDataConverter.getInstance();
+        accountDataConverter = AccountDataConverter.getInstance();
     }
 
     @Override
@@ -34,21 +40,23 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User find(LongId longId) {
-        return userDataConverter.fromData(userMapper.selectById(longId.getValue()));
+    public User find(@NotNull LongId longId) {
+        User user = userDataConverter.fromData(userMapper.selectById(longId.getValue()));
+        //todo... find account
+        return user;
     }
 
+    @Transactional
     @Override
-    public void remove(User aggregate) {
+    public void remove(@NotNull User aggregate) {
         userMapper.delete(Wrappers.query(userDataConverter.toData(aggregate)));
+        //todo... remove account
     }
 
+    @Transactional
     @Override
-    public void save(User aggregate) {
-        if (aggregate.getId() != null) {
-            userMapper.updateById(userDataConverter.toData(aggregate));
-        } else {
-            userMapper.insert(userDataConverter.toData(aggregate));
-        }
+    public LongId save(@NotNull User aggregate) {
+        return null;
     }
+
 }
