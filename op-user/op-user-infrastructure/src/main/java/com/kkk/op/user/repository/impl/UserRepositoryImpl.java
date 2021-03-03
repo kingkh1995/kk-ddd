@@ -2,6 +2,7 @@ package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.changeTracking.AggregateRepositorySupport;
+import com.kkk.op.support.changeTracking.ThreadLocalAggregateManager;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -26,7 +27,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
 
     public UserRepositoryImpl(UserMapper userMapper) {
-        super(User.class);
+        super(User.class, new ThreadLocalAggregateManager<>());
         this.userMapper = userMapper;
         userDataConverter = UserDataConverter.getInstance();
         accountDataConverter = AccountDataConverter.getInstance();
