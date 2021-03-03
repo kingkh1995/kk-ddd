@@ -1,6 +1,6 @@
 package com.kkk.op.support.types;
 
-import com.kkk.op.support.interfaces.Identifier;
+import com.kkk.op.support.markers.Identifier;
 
 /**
  * long类型Id

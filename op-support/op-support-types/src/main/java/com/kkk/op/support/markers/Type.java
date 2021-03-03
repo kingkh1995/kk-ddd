@@ -1,4 +1,4 @@
-package com.kkk.op.support.interfaces;
+package com.kkk.op.support.markers;
 
 /**
  * DP：等同与基本数据类型，具有不可变属性

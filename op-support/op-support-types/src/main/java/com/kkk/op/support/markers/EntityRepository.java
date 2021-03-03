@@ -1,4 +1,4 @@
-package com.kkk.op.support.interfaces;
+package com.kkk.op.support.markers;
 
 import javax.validation.constraints.NotNull;
 
@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
  * 实体类Repository
  * @author KaiKoo
  */
-public interface EntityRepository<T extends Entity, ID extends Identifier> {
+public interface EntityRepository<T extends Entity<ID>, ID extends Identifier> {
 
     /**
      * 通过 ID 寻找 Entity。

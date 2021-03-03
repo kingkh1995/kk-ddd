@@ -1,4 +1,4 @@
-package com.kkk.op.support.interfaces;
+package com.kkk.op.support.markers;
 
 /**
  * Entity：拥有唯一标识和业务行为，尽可能的由Types组成

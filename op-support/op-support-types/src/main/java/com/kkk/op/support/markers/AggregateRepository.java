@@ -1,4 +1,4 @@
-package com.kkk.op.support.interfaces;
+package com.kkk.op.support.markers;
 
 import javax.validation.constraints.NotNull;
 
@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
  * 聚合根类Repository
  * @author KaiKoo
  */
-public interface AggregateRepository<T extends Aggregate, ID extends Identifier> {
+public interface AggregateRepository<T extends Aggregate<ID>, ID extends Identifier> {
 
     /**
      * 将一个 Aggregate 附属到一个 Repository，让它变为可追踪。

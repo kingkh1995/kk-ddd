@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.entity;
 
-import com.kkk.op.support.interfaces.Aggregate;
+import com.kkk.op.support.markers.Aggregate;
 import com.kkk.op.support.types.LongId;
 import lombok.Data;
 import lombok.experimental.Accessors;
