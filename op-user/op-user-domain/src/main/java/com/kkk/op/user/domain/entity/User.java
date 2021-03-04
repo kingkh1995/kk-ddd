@@ -2,6 +2,7 @@ package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.markers.Aggregate;
 import com.kkk.op.support.types.LongId;
+import java.util.List;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -30,7 +31,7 @@ public class User implements Aggregate<LongId> {
     /**
      * 用户账号
      */
-    private Account account;
+    private List<Account> account;
 
     @Override
     public User snapshot() {
