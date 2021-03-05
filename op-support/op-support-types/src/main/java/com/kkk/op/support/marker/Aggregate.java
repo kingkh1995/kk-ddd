@@ -1,4 +1,4 @@
-package com.kkk.op.support.markers;
+package com.kkk.op.support.marker;
 
 /**
  * Aggregate：Entity的聚合

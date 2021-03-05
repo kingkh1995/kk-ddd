@@ -1,4 +1,4 @@
-package com.kkk.op.support.markers;
+package com.kkk.op.support.marker;
 
 /**
  * Entity：拥有唯一标识和业务行为，尽可能的由Types组成
@@ -11,7 +11,7 @@ public interface Entity<ID extends Identifier> extends Identifiable<ID> {
      * 获取快照
      * @return
      */
-    Entity snapshot();
+    Object snapshot();
 
 }
 

@@ -1,4 +1,4 @@
-package com.kkk.op.support.changeTracking.exception;
+package com.kkk.op.support.exception;
 
 /**
  * domain层业务异常

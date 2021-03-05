@@ -1,8 +1,8 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.changeTracking.AggregateRepositorySupport;
-import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.changeTracking.ThreadLocalAggregateTrackingManager;
+import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -25,7 +25,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
 
     public UserRepositoryImpl(UserMapper userMapper) {
-        super(new ThreadLocalAggregateTrackingManager<>());
+        super(new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         userDataConverter = UserDataConverter.getInstance();
         accountDataConverter = AccountDataConverter.getInstance();
@@ -43,7 +43,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
     @Override
     protected void onUpdate(User aggregate, EntityDiff diff) {
-
     }
 
     @Override

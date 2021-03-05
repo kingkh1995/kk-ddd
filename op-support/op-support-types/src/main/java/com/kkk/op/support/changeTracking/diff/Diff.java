@@ -1,18 +1,22 @@
 package com.kkk.op.support.changeTracking.diff;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- *
+ * 无 ObjectDiff 子类，意图在于减少内存消耗
  * @author KaiKoo
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public abstract class Diff<T> {
+public abstract class Diff {
+
+    private Object oldValue;
+
+    private Object newValue;
 
     private DiffType type;
 
+    public Diff(Object oldValue, Object newValue) {
+        this.oldValue = oldValue;
+        this.newValue = newValue;
+    }
 }
