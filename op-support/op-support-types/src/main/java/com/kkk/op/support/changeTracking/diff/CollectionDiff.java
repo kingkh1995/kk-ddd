@@ -24,7 +24,12 @@ public class CollectionDiff extends Diff {
         return this.list.size();
     }
 
+    @Override
     public boolean isEmpty() {
+        return this.isListEmpty();
+    }
+
+    public boolean isListEmpty() {
         return this.list.isEmpty();
     }
 

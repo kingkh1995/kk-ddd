@@ -88,8 +88,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         }
         // 做 diff
         EntityDiff diff = aggregateTrackingManager.detectChanges(aggregate);
-        // 需要 isEmpty & isSelfModified 组合判断
-        if (!diff.isEmpty() || diff.isSelfModified()) {
+        if (!diff.isEmpty()) {
             // 调用 UPDATE
             this.onUpdate(aggregate, diff);
             // 合并变更跟踪

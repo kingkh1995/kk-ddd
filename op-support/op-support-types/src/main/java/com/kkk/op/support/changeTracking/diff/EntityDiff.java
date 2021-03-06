@@ -15,14 +15,14 @@ import lombok.Setter;
 public class EntityDiff extends Diff {
 
     /**
-     * TBD... 优化判断逻辑 利用注解标识主数据的字段
      * 一个 Aggregate 由 Types 和 Entity 和 Collection 组成，Type组成其主数据
      * Modify状态下，如果所有Types均未被更新，则表示主数据未被更新，selfModified设为false，更新时则不更新主数据
      * Add Remove类型 selfModified 必然为true
+     * TBD... 优化判断逻辑 利用注解标识主数据的字段
      */
     @Getter
     @Setter
-    private boolean selfModified;
+    private boolean selfModified = false;
 
     /**
      * 多数情况下map可能为空，为节约内存，在put时才去创建一个 HashMap
@@ -34,25 +34,26 @@ public class EntityDiff extends Diff {
      */
     public final static EntityDiff EMPTY = new EmptyEntityDiff();
 
-    /**
-     * 仅供 EmptyEntityDiff 使用
-     */
-    private EntityDiff() {
-        super(null, null);
-        this.selfModified = false;
-    }
-
     public EntityDiff(Object oldValue, Object newValue) {
         super(oldValue, newValue);
-        // 默认为true
-        this.selfModified = true;
     }
 
     public int size() {
         return this.map.size();
     }
 
+    /**
+     * 组合判断
+     */
+    @Override
     public boolean isEmpty() {
+        return this.isMapEmpty() && !this.isSelfModified();
+    }
+
+    /**
+     * map是否为空
+     */
+    public boolean isMapEmpty() {
         return this.map.isEmpty();
     }
 
@@ -84,7 +85,7 @@ public class EntityDiff extends Diff {
     private static class EmptyEntityDiff extends EntityDiff {
 
         public EmptyEntityDiff() {
-            super();
+            super(null, null);
         }
 
         @Override

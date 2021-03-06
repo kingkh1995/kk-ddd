@@ -1,6 +1,7 @@
 # Version Info
 ### Ace
-- 搭建基础项目结构
+- 基础项目结构搭建
+- 基础组件开发
 - op-user项目DP设计
 - op-sales项目DP设计
 # Next Version

@@ -19,4 +19,9 @@ public abstract class Diff {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
+
+    /**
+     * diff是否为空
+     */
+    abstract boolean isEmpty();
 }
