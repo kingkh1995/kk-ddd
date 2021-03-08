@@ -26,7 +26,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     /**
      * 这几个方法是继承的子类应该去实现的 对应crud的实现
      */
-    protected abstract ID onInsert(@NotNull T aggregate);
+    protected abstract void onInsert(@NotNull T aggregate);
 
     protected abstract T onSelect(@NotNull ID id);
 
@@ -79,13 +79,12 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      * EntityRepository 的保存方法实现
      */
     @Override
-    public ID save(@NotNull T aggregate) {
+    public void save(@NotNull T aggregate) {
         // 如果没有 ID，直接插入
         if (aggregate.getId() == null) {
-            ID id = this.onInsert(aggregate);
+            this.onInsert(aggregate);
             // 添加跟踪
             this.attach(aggregate);
-            return id;
         }
         // 做 diff
         EntityDiff diff = aggregateTrackingManager.detectChanges(aggregate);
@@ -95,6 +94,5 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
             // 合并变更跟踪
             aggregateTrackingManager.merge(aggregate);
         }
-        return aggregate.getId();
     }
 }

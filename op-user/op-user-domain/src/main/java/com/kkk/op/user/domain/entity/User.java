@@ -31,7 +31,7 @@ public class User implements Aggregate<LongId> {
     /**
      * 用户账号
      */
-    private List<Account> account;
+    private List<Account> accounts;
 
     @Override
     public User snapshot() {

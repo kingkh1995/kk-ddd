@@ -20,7 +20,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     public AccountRepositoryImpl(AccountMapper accountMapper) {
         this.accountMapper = accountMapper;
-        accountDataConverter = AccountDataConverter.getInstance();
+        this.accountDataConverter = AccountDataConverter.getInstance();
     }
 
     @Override
@@ -34,13 +34,11 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public LongId save(@NotNull Account entity) {
+    public void save(@NotNull Account entity) {
         AccountDO data = accountDataConverter.toData(entity);
-        if (data.getId() != null) {
-            accountMapper.updateById(data);
-        } else {
+        if (data.getId() == null) {
             accountMapper.insert(data);
         }
-        return new LongId(data.getId());
+        accountMapper.updateById(data);
     }
 }

@@ -21,6 +21,6 @@ public interface EntityRepository<T extends Entity<ID>, ID extends Identifier> {
     /**
      * 保存一个 Entity
      */
-    ID save(@NotNull T entity);
+    void save(@NotNull T entity);
 
 }
