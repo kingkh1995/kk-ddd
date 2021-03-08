@@ -6,8 +6,9 @@ import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
 
 /**
- * 聚合根追踪manager接口
- * 建议DO类都加上乐观锁，防止并发冲突
+ * 聚合根追踪更新manager接口
+ * （建议DO类都加上乐观锁，防止并发冲突）
+ *
  * @author KaiKoo
  */
 public interface AggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier> {

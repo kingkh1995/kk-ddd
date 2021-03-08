@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Aggregate快照管理实现类
  * 使用ThreadLocal防止多个线程公用一份快照
+ *
  * @author KaiKoo
  */
 public class ThreadLocalAggregateSnapshotContext<T extends Aggregate<ID>, ID extends Identifier> implements
@@ -29,8 +30,10 @@ public class ThreadLocalAggregateSnapshotContext<T extends Aggregate<ID>, ID ext
     @Override
     public void putSnapshot(@NotNull T aggregate) {
         //获取快照
-        T snapshot = (T) aggregate.snapshot();
-        this.threadLocal.get().put(snapshot.getId(), snapshot);
+        if (aggregate.getId() != null) {
+            T snapshot = (T) aggregate.snapshot();
+            this.threadLocal.get().put(snapshot.getId(), snapshot);
+        }
     }
 
     @Override

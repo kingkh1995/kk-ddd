@@ -7,10 +7,9 @@ import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
 
 /**
+ * 对外提供追踪变更的功能，内部定义好追踪管理的方式，快照的管理交由AggregateSnapshotContext去实现
+ * 参考CacheManager设计，可以增加其他的接口实现来拓展功能
  *
- * 参考CacheManager设计
- * 对外提供追踪变更的功能，内部定义好追踪管理的方式，快照的操作交由AggregateSnapshotContext去实现
- * 增加其他的接口实现已拓展其他功能
  * @author KaiKoo
  */
 public abstract class AbstractAggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier>
@@ -40,17 +39,12 @@ public abstract class AbstractAggregateTrackingManager<T extends Aggregate<ID>, 
 
     @Override
     public void merge(@NotNull T aggregate) {
-        if (aggregate.getId() != null) {
-            this.context.putSnapshot(aggregate);
-        }
+        this.context.putSnapshot(aggregate);
     }
 
     @Override
     public EntityDiff detectChanges(@NotNull T aggregate) {
-        if (aggregate.getId() != null) {
-            return DiffUtil.diff(this.find(aggregate.getId()), aggregate);
-        }
-        return EntityDiff.EMPTY;
+        return DiffUtil.diff(this.find(aggregate.getId()), aggregate);
     }
 
     @Override

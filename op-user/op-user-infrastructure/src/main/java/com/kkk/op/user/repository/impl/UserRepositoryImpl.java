@@ -9,10 +9,11 @@ import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
+import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
 
 /**
- *
+ * Aggregate类Repository实现类
  * @author KaiKoo
  */
 @Repository
@@ -25,6 +26,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
 
     public UserRepositoryImpl(UserMapper userMapper) {
+        // 使用ThreadLocalAggregateTrackingManager
         super(new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         userDataConverter = UserDataConverter.getInstance();
@@ -32,21 +34,22 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     }
 
     @Override
-    protected LongId onInsert(User aggregate) {
+    protected LongId onInsert(@NotNull User aggregate) {
         return null;
     }
 
     @Override
-    protected User onSelect(LongId longId) {
+    protected User onSelect(@NotNull LongId longId) {
         return null;
     }
 
     @Override
-    protected void onUpdate(User aggregate, EntityDiff diff) {
+    protected void onUpdate(@NotNull User aggregate, @NotNull EntityDiff diff) {
+
     }
 
     @Override
-    protected void onDelete(User aggregate) {
+    protected void onDelete(@NotNull User aggregate) {
 
     }
 }

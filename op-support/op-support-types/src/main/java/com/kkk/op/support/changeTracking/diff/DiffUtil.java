@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -18,33 +17,33 @@ import javax.validation.constraints.NotNull;
 public class DiffUtil {
 
     /**
-     * 只保存了Entity类和Collection的对比信息
-     * TBD... 其他字段的对比信息是否添加待定
-     * 1）会增大内存消耗 2）详细的对比信息必要性不高
+     * 只保存了 Entity 和 Collection 的对比信息 1）减少内存消耗 2）详细的对比信息必要性不高
+     * TBD... Type类型字段的对比信息是否添加待定
+     *
+     * @return 如无对比不同则返回null
      */
     public static <T extends Entity> EntityDiff diff(T snapshot, T aggregate) {
         // 均无法标识返回Null
-        if (noneIdentifier(snapshot) && noneIdentifier(aggregate)) {
+        if (nullOrNotIdentified(snapshot) && nullOrNotIdentified(aggregate)) {
             return null;
         }
         final EntityDiff entityDiff = new EntityDiff(snapshot, aggregate);
         // snapshot无法标识，对比结果为新增
-        if (noneIdentifier(snapshot)) {
+        if (nullOrNotIdentified(snapshot)) {
             entityDiff.setType(DiffType.Added);
-            entityDiff.setSelfModified(true);
             return entityDiff;
         }
         // aggregate无法标识，对比结果为移除
-        if (noneIdentifier(aggregate)) {
+        if (nullOrNotIdentified(aggregate)) {
             entityDiff.setType(DiffType.Removed);
-            entityDiff.setSelfModified(true);
             return entityDiff;
         }
-        // 均可标识，但是标识符不一致，异常情况
+        // 均可标识，但是标识符不一致，正常情况下不可能发生
         if (!Objects.equals(snapshot.getId(), aggregate.getId())) {
             // todo... 待定
+            return null;
         }
-        // 类型不一致 对比结果为修改
+        // 类型不一致（同一个类的不同子类），不需对比，对比结果为修改，selfModified设为true
         if (!Objects.equals(snapshot.getClass(), aggregate.getClass())) {
             entityDiff.setType(DiffType.Modified);
             entityDiff.setSelfModified(true);
@@ -59,39 +58,45 @@ public class DiffUtil {
                 Object aObj = field.get(aggregate);
                 // 根据类型做不同的处理
                 if (sObj instanceof Entity) {
-                    EntityDiff diff = diff((Entity) sObj, (Entity) aObj);
-                    if (!diff.isEmpty()) {
-                        entityDiff.put(field.getName(), diff);
-                    }
+                    entityDiff.put(field.getName(), diff((Entity) sObj, (Entity) aObj));
                 } else if (sObj instanceof Collection) {
                     entityDiff.put(field.getName(), diff((Collection) sObj, (Collection) aObj));
                 } else {
-                    // 其他类型：Type和基本数据类型 etc.
-                    // 如果不同则修改 selfModified 参数，不添加到 EntityDiff 的 Map
+                    // 其他类型 Type （DP和基本数据类型，不应该有Map类型，设计中应该将Map替换为DP或Entity）
+                    // 如果存在不同则修改 selfModified 参数，不添加到 EntityDiff 的 Map
                     if (!entityDiff.isSelfModified() && !Objects.equals(sObj, aObj)) {
                         entityDiff.setSelfModified(true);
                     }
                 }
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 // CheckedException 转为 RuntimeException
                 throw new BussinessException(e);
             }
         }
         // 对比完成，判断对比结果
-        if (entityDiff.isEmpty()) {
-            return EntityDiff.EMPTY;
+        if (entityDiff.isEmpty() && !entityDiff.isSelfModified()) {
+            return null;
         }
         // 设置类型为 Modified 并返回对比结果
         entityDiff.setType(DiffType.Modified);
         return entityDiff;
     }
 
-    public static <T> CollectionDiff diff(@NotNull Collection<T> sCol,
-            @NotNull Collection<T> aCol) {
+    private static boolean nullOrNotIdentified(Entity entity) {
+        return entity == null || entity.getId() == null;
+    }
+
+    /**
+     *
+     * @param sCol 不能包含空元素
+     * @param aCol 不能包含空元素
+     * @return 如无对比不同则返回null
+     */
+    public static <T> CollectionDiff diff(Collection<T> sCol, Collection<T> aCol) {
         if (isEmpty(sCol) && isEmpty(aCol)) {
             return null;
         }
-        CollectionDiff collectionDiff = new CollectionDiff(sCol, aCol);
+        final CollectionDiff collectionDiff = new CollectionDiff(sCol, aCol);
         if (isEmpty(sCol)) {
             collectionDiff.setType(DiffType.Added);
             return collectionDiff;
@@ -100,47 +105,47 @@ public class DiffUtil {
             collectionDiff.setType(DiffType.Removed);
             return collectionDiff;
         }
+        // 开始对比
+        // 集合元素理应 全部为Type类型 或 全部为Entity类型，而不应该为Collection或者Map，设计时应被替换为DP或Entity
         Iterator<T> iterator = sCol.iterator();
         T obj = iterator.next();
-        Class<?> clazz = obj.getClass();
-        //为什么不对比所有元素的Class去快速失败，因为异常情况为少数，大部分情况都是正常，减少遍历次数
-    /*while (iterator.hasNext()) {
-        if (!Objects.equals(clazz, iterator.next().getClass())) {
-            collectionDiff.setType(DiffType.Modified);
-            return collectionDiff;
-        }
-    }
-    iterator = aCol.iterator();
-    while (iterator.hasNext()) {
-        if (!Objects.equals(clazz, iterator.next().getClass())) {
-            collectionDiff.setType(DiffType.Modified);
-            return collectionDiff;
-        }
-    }*/
         if (obj instanceof Entity) {
-            Iterator<T> sIterator = sCol.iterator();
+            // 如元素类型为Entity 根据Id去查找匹配
+            // 如元素并不全是Entity类型会出现转换异常，应该任由异常抛出，因为属于设计上不允许发生的异常
+            // 拼装sMap
             Map<Identifier, Entity> sMap = new HashMap<>();
-            while (sIterator.hasNext()) {
-                Entity entity = (Entity) sIterator.next();
-                if (entity.getId() != null) {
-                    sMap.put(entity.getId(), entity);
-                }
+            put2IdEntityMap(sMap, (Entity) obj);
+            while (iterator.hasNext()) {
+                // 快照不存在Id属于不正常情况，应该被忽略
+                put2IdEntityMap(sMap, (Entity) iterator.next());
             }
-            Iterator<T> aIterator = aCol.iterator();
+            // 拼装aMap
+            iterator = aCol.iterator();
             Map<Identifier, Entity> aMap = new HashMap();
-            while (aIterator.hasNext()) {
-                Entity entity = (Entity) aIterator.next();
-                if (entity.getId() != null) {
-                    aMap.put(entity.getId(), entity);
+            while (iterator.hasNext()) {
+                Entity entity = (Entity) iterator.next();
+                if (put2IdEntityMap(aMap, entity) == null) {
+                    // 不存在id，添加一个Add类型的EntityDiff
+                    EntityDiff diff = new EntityDiff(null, entity);
+                    diff.setType(DiffType.Added);
+                    collectionDiff.add(diff);
                 }
             }
-            Map<Identifier, Entity> unionMap = new HashMap();
-        } else {
-            if (!Objects.equals(sCol, aCol)) {
-                collectionDiff.setType(DiffType.Modified);
+            // 遍历 sMap 进行对比
+            // 不需要遍历aMap，aMap中没被访问到的情况是存在Id但是不存在快照，这在正常情况下不允许发生，应该被忽略
+            sMap.forEach((id, snapshot) -> collectionDiff.add(diff(snapshot, aMap.get(id))));
+            // 对比完成，判断对比结果
+            if (collectionDiff.isEmpty()) {
+                return null;
             }
-            return collectionDiff;
+        } else {
+            // 其他情况直接使用 equals 方法比较
+            if (Objects.equals(sCol, aCol)) {
+                return null;
+            }
         }
+        // 返回结果
+        collectionDiff.setType(DiffType.Modified);
         return collectionDiff;
     }
 
@@ -148,7 +153,10 @@ public class DiffUtil {
         return collection == null || collection.isEmpty();
     }
 
-    private static boolean noneIdentifier(Entity entity) {
-        return entity == null || entity.getId() == null;
+    private static Entity put2IdEntityMap(Map<Identifier, Entity> map, Entity entity) {
+        if (entity.getId() != null) {
+            return map.put(entity.getId(), entity);
+        }
+        return null;
     }
 }

@@ -10,6 +10,7 @@ import lombok.Getter;
 
 /**
  * AggregateRepository支持类，通过AggregateTrackingManager实现了追踪更新的功能
+ *
  * @author KaiKoo
  */
 public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends
@@ -25,13 +26,13 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     /**
      * 这几个方法是继承的子类应该去实现的 对应crud的实现
      */
-    protected abstract ID onInsert(T aggregate);
+    protected abstract ID onInsert(@NotNull T aggregate);
 
-    protected abstract T onSelect(ID id);
+    protected abstract T onSelect(@NotNull ID id);
 
-    protected abstract void onUpdate(T aggregate, EntityDiff diff);
+    protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
 
-    protected abstract void onDelete(T aggregate);
+    protected abstract void onDelete(@NotNull T aggregate);
 
     /**
      * 让查询出来的对象能够被追踪。
@@ -88,7 +89,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         }
         // 做 diff
         EntityDiff diff = aggregateTrackingManager.detectChanges(aggregate);
-        if (!diff.isEmpty()) {
+        if (diff != null) {
             // 调用 UPDATE
             this.onUpdate(aggregate, diff);
             // 合并变更跟踪

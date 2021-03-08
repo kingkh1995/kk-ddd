@@ -1,7 +1,7 @@
 package com.kkk.op.support.marker;
 
 /**
- * Entity：拥有唯一标识和业务行为，尽可能的由Types组成
+ * Entity：拥有唯一标识和业务行为，尽可能的由DP组成
  * 实体类 marker 接口
  * @author KaiKoo
  */

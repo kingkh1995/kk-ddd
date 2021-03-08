@@ -1,12 +1,14 @@
 package com.kkk.op.support.changeTracking.diff;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * 集合类对比信息（可以实现Collection接口）
+ *
  * @author KaiKoo
  */
 public class CollectionDiff extends Diff {
@@ -16,7 +18,7 @@ public class CollectionDiff extends Diff {
      */
     private List<Diff> list = Collections.EMPTY_LIST;
 
-    public CollectionDiff(Object oldValue, Object newValue) {
+    public CollectionDiff(Collection oldValue, Collection newValue) {
         super(oldValue, newValue);
     }
 
@@ -24,14 +26,10 @@ public class CollectionDiff extends Diff {
         return this.list.size();
     }
 
-    @Override
     public boolean isEmpty() {
-        return this.isListEmpty();
-    }
-
-    public boolean isListEmpty() {
         return this.list.isEmpty();
     }
+
 
     public boolean add(Diff diff) {
         if (diff == null) {

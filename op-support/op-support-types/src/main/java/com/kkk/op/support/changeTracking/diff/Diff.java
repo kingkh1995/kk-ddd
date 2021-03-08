@@ -4,6 +4,7 @@ import lombok.Data;
 
 /**
  * 无 ObjectDiff 子类，意图在于减少内存消耗
+ *
  * @author KaiKoo
  */
 @Data
@@ -20,8 +21,4 @@ public abstract class Diff {
         this.newValue = newValue;
     }
 
-    /**
-     * diff是否为空
-     */
-    abstract boolean isEmpty();
 }

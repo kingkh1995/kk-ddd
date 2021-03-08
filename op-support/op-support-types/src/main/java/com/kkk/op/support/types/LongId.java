@@ -1,6 +1,7 @@
 package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
+import javax.validation.ValidationException;
 
 /**
  * long类型Id
@@ -12,10 +13,10 @@ public class LongId implements Identifier {
 
     public LongId(Long id) {
         if (id == null) {
-            throw new IllegalArgumentException("id不能为空");
+            throw new ValidationException("id不能为空");
         }
         if (id <= 0) {
-            throw new IllegalArgumentException("id格式不合法");
+            throw new ValidationException("id格式不合法");
         }
         this.id = id;
     }

@@ -10,7 +10,7 @@ import com.kkk.op.user.repository.AccountRepository;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * Entity类Repository实现类
  * @author KaiKoo
  */
 public class AccountRepositoryImpl implements AccountRepository {

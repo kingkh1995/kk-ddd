@@ -5,7 +5,8 @@ import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
 
 /**
- * 聚合根快照管理context接口 （需要保证外界无法影响到快照的生命周期，特别是对快照的修改封闭）
+ * 聚合根快照管理context接口 （需要保证外界无法影响到快照的生命周期，对快照的修改封闭）
+ *
  * @author KaiKoo
  */
 public interface AggregateSnapshotContext<T extends Aggregate<ID>, ID extends Identifier> {
