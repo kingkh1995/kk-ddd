@@ -1,7 +1,8 @@
 package com.kkk.op.user.converter;
 
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.user.domain.entity.Account.AccountBuilder;
 import com.kkk.op.user.persistence.AccountDO;
 import java.util.Optional;
 
@@ -30,10 +31,10 @@ public class AccountDataConverter {
     }
 
     public Account fromData(AccountDO accountDO) {
-        Account entity = new Account();
-        entity.setId(Optional.ofNullable(accountDO.getId()).map(LongId::new).orElse(null));
-        entity.setUserId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null));
-        return entity;
+        AccountBuilder builder = Account.builder();
+        builder.id(Optional.ofNullable(accountDO.getId()).map(LongId::new).orElse(null))
+                .userId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null));
+        return builder.build();
     }
 
     public AccountDO toData(Account account) {

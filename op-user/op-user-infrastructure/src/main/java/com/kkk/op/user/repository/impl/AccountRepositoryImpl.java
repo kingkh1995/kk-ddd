@@ -1,7 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.persistence.AccountDO;

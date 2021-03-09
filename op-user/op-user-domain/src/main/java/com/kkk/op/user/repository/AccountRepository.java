@@ -1,7 +1,7 @@
 package com.kkk.op.user.repository;
 
 import com.kkk.op.support.marker.EntityRepository;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
 
 /**

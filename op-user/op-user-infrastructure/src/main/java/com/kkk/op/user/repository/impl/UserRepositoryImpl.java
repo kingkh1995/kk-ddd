@@ -7,7 +7,7 @@ import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,7 +41,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     private final AccountDataConverter accountDataConverter;
 
 
-    public UserRepositoryImpl(UserMapper userMapper, AccountMapper accountMapper) {
+    public UserRepositoryImpl(@Autowired UserMapper userMapper, @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
         super(new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;

@@ -1,4 +1,4 @@
-package com.kkk.op.support.types;
+package com.kkk.op.support.type;
 
 import com.kkk.op.support.marker.Identifier;
 import javax.validation.ValidationException;
