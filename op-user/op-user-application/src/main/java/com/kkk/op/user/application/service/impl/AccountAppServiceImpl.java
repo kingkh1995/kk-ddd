@@ -26,19 +26,24 @@ public class AccountAppServiceImpl implements AccountAppService {
 
     @Override
     public AccountDTO find(Long id) {
-        Account account = Account.builder().id(new LongId(id)).build().find(accountService);
-        return accountDTOAssembler.toDTO(account);
+        return accountDTOAssembler.toDTO(accountService.find(new LongId(id)));
     }
 
     @Override
-    public void remove(AccountDTO dto) {
-        Account account = accountDTOAssembler.fromDTO(dto);
+    public void remove(Long id) {
+        var account = Account.builder().id(new LongId(id)).build();
         account.remove(accountService);
     }
 
     @Override
-    public void save(AccountDTO dto) {
+    public Long save(AccountDTO dto) {
+        // 转换对象
         Account account = accountDTOAssembler.fromDTO(dto);
+        // 行为发生
         account.save(accountService);
+        //todo... 触发事件
+
+        // 返回id
+        return account.getId().getValue();
     }
 }

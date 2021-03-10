@@ -11,9 +11,10 @@ import lombok.Data;
 @Data
 public class AccountDTO implements Serializable {
 
-    @NotNull
     private Long id;
 
     @NotNull
     private Long userId;
+
+    private String status;
 }

@@ -1,2 +1,3 @@
-INSERT INTO account (id, user_id)
-VALUES (1, 1);
+INSERT INTO account (id, user_id, status)
+VALUES (1, 1, 'INIT'),
+       (2, 1, 'ACTIVE');

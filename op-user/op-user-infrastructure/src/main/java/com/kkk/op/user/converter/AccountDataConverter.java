@@ -2,7 +2,8 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.entity.Account.AccountBuilder;
+import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.domain.types.AccountStatus;
 import com.kkk.op.user.persistence.AccountDO;
 import java.util.Optional;
 
@@ -34,9 +35,10 @@ public class AccountDataConverter {
         if (accountDO == null) {
             return null;
         }
-        AccountBuilder builder = Account.builder();
+        var builder = Account.builder();
         builder.id(Optional.ofNullable(accountDO.getId()).map(LongId::new).orElse(null))
-                .userId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null));
+                .userId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null))
+                .status(new AccountStatus(accountDO.getStatus()));
         return builder.build();
     }
 
@@ -44,9 +46,11 @@ public class AccountDataConverter {
         if (account == null) {
             return null;
         }
-        AccountDO data = new AccountDO();
+        var data = new AccountDO();
         data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         data.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+        data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
+                .map(AccountStatusEnum::name).orElse(null));
         return data;
     }
 

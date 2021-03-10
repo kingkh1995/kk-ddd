@@ -14,10 +14,12 @@ import lombok.Data;
 @TableName("account")
 public class AccountDO {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.ASSIGN_ID)//默认实现雪花算法
     private Long id;
 
     private Long userId;
+
+    private String status;
 
     //todo... 乐观锁及逻辑删除
 

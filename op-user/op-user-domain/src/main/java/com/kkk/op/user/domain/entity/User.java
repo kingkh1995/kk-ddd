@@ -19,7 +19,7 @@ import lombok.ToString;
 @Builder
 public class User implements Aggregate<LongId> {
 
-    @Setter
+    @Setter //todo... 删除
     private LongId id;
 
     private String name;

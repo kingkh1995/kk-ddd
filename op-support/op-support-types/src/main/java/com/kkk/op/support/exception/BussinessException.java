@@ -11,4 +11,8 @@ public class BussinessException extends RuntimeException {
     public BussinessException(Throwable cause) {
         super(cause);
     }
+
+    public BussinessException(String message) {
+        super(message);
+    }
 }

@@ -2,26 +2,34 @@ package com.kkk.op.user.domain.service;
 
 import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
+import javax.validation.constraints.NotNull;
 
 /**
+ * domain service
  *
  * @author KaiKoo
  */
 public interface AccountService {
 
     /**
-     * 通过 ID 寻找 Entity。
+     * 通过 ID 查找
      */
     Account find(LongId id);
 
     /**
-     * 将一个 Entity 从 Repository 移除
+     * 移除
      */
-    void remove(Account entity);
+    void remove(@NotNull Account entity);
 
     /**
-     * 保存一个 Entity
+     * 保存
      */
-    void save(Account entity);
+    LongId save(@NotNull Account entity);
+
+    /**
+     *
+     * 判断是否允许更新
+     */
+    boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount);
 
 }

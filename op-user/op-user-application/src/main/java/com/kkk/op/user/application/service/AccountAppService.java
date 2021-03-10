@@ -3,24 +3,15 @@ package com.kkk.op.user.application.service;
 import com.kkk.op.support.models.dto.AccountDTO;
 
 /**
- *
+ * Application Service 供controller调用，参数使用dto和基本数据类型
  * @author KaiKoo
  */
 public interface AccountAppService {
 
-    /**
-     * 通过 ID 寻找 Entity。
-     */
     AccountDTO find(Long id);
 
-    /**
-     * 将一个 Entity 从 Repository 移除
-     */
-    void remove(AccountDTO dto);
+    void remove(Long id);
 
-    /**
-     * 保存一个 Entity
-     */
-    void save(AccountDTO dto);
+    Long save(AccountDTO dto);
 
 }

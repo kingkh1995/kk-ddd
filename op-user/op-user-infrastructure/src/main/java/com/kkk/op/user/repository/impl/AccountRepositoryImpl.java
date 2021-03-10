@@ -37,12 +37,13 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public void save(@NotNull Account entity) {
+    public LongId save(@NotNull Account entity) {
         AccountDO data = accountDataConverter.toData(entity);
         if (data.getId() == null) {
             accountMapper.insert(data);
-            return;
+            return new LongId(data.getId());
         }
         accountMapper.updateById(data);
+        return entity.getId();
     }
 }

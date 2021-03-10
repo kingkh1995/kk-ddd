@@ -40,8 +40,8 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     private final UserDataConverter userDataConverter;
     private final AccountDataConverter accountDataConverter;
 
-
-    public UserRepositoryImpl(@Autowired UserMapper userMapper, @Autowired AccountMapper accountMapper) {
+    public UserRepositoryImpl(@Autowired UserMapper userMapper,
+            @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
         super(new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
@@ -55,7 +55,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
      */
     @Transactional
     @Override
-    protected void onInsert(@NotNull User aggregate) {
+    protected LongId onInsert(@NotNull User aggregate) {
         // 插入User
         UserDO userDO = userDataConverter.toData(aggregate);
         userMapper.insert(userDO);
@@ -72,6 +72,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
                 account.setId(new LongId(accountDO.getId()));
             });
         }
+        return userId;
     }
 
     @Override

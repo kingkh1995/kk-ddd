@@ -14,7 +14,7 @@
 - 基础设施层，包括Persistence、Messaging、External等等，领域层与外部的媒介，是变更频次最低的模块。
 - 依赖Domain模块。
 #### Web模块
-- web项目，包含controller等。
+- web项目，包含controller等，不涉及任何业务相关的代码，仅仅提供web的实现以及网关认证，熔断限流，服务提供等等。
 - 依赖Application模块，同时依赖Infrastructure模块实现web功能，也依赖Models模块。
 
 

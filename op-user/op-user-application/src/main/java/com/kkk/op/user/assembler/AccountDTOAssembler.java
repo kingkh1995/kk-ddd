@@ -3,7 +3,8 @@ package com.kkk.op.user.assembler;
 import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.entity.Account.AccountBuilder;
+import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.domain.types.AccountStatus;
 import java.util.Optional;
 
 /**
@@ -34,7 +35,7 @@ public class AccountDTOAssembler {
         if (dto == null) {
             return null;
         }
-        AccountBuilder builder = Account.builder();
+        var builder = Account.builder();
         builder.id(Optional.ofNullable(dto.getId()).map(LongId::new).orElse(null))
                 .userId(Optional.ofNullable(dto.getUserId()).map(LongId::new).orElse(null));
         return builder.build();
@@ -44,9 +45,11 @@ public class AccountDTOAssembler {
         if (account == null) {
             return null;
         }
-        AccountDTO dto = new AccountDTO();
+        var dto = new AccountDTO();
         dto.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         dto.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+        dto.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
+                .map(AccountStatusEnum::name).orElse(null));
         return dto;
     }
 
