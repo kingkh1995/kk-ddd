@@ -66,7 +66,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         List<Account> accounts = aggregate.getAccounts();
         if (!CollectionUtils.isEmpty(accounts)) {
             accounts.forEach(account -> {
-                account.setUserId(userId);
                 AccountDO accountDO = accountDataConverter.toData(account);
                 accountMapper.insert(accountDO);
                 // 回填id
@@ -105,7 +104,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
                 }
                 if (entityDiff.getType() == DiffType.Added) {
                     Account newValue = (Account) entityDiff.getNewValue();
-                    newValue.setUserId(aggregate.getId());
                     AccountDO accountDO = accountDataConverter.toData(newValue);
                     accountMapper.insert(accountDO);
                     // 回填id

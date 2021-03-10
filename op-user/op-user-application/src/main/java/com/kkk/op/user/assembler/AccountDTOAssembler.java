@@ -31,6 +31,9 @@ public class AccountDTOAssembler {
     }
 
     public Account fromDTO(AccountDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         AccountBuilder builder = Account.builder();
         builder.id(Optional.ofNullable(dto.getId()).map(LongId::new).orElse(null))
                 .userId(Optional.ofNullable(dto.getUserId()).map(LongId::new).orElse(null));
@@ -38,6 +41,9 @@ public class AccountDTOAssembler {
     }
 
     public AccountDTO toDTO(Account account) {
+        if (account == null) {
+            return null;
+        }
         AccountDTO dto = new AccountDTO();
         dto.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         dto.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));

@@ -85,6 +85,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
             this.onInsert(aggregate);
             // 添加跟踪
             this.attach(aggregate);
+            return;
         }
         // 做 diff
         EntityDiff diff = aggregateTrackingManager.detectChanges(aggregate);

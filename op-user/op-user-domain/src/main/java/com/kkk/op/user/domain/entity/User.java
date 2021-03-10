@@ -3,17 +3,23 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.type.LongId;
 import java.util.List;
-import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 用户
  * @author KaiKoo
  */
-@Data
-@Accessors(chain = true)
+@EqualsAndHashCode
+@ToString
+@Getter
+@Builder
 public class User implements Aggregate<LongId> {
 
+    @Setter
     private LongId id;
 
     private String name;
@@ -31,13 +37,14 @@ public class User implements Aggregate<LongId> {
     /**
      * 用户账号
      */
+    @Setter
     private List<Account> accounts;
 
     @Override
     public User snapshot() {
-        User snapshot = new User();
-        snapshot.setId(this.id)
-                .setName(this.name);
-        return snapshot;
+        UserBuilder builder = User.builder();
+        builder.id(this.id)
+                .name(this.name);
+        return builder.build();
     }
 }

@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS account;
+
+CREATE TABLE account
+(
+    id      BIGINT(20) UNSIGNED NOT NULL COMMENT '主键ID',
+    user_id BIGINT(20) UNSIGNED NOT NULL COMMENT '用户ID',
+    PRIMARY KEY (id)
+);

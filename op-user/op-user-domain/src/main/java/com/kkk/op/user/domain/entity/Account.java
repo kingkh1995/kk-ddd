@@ -6,6 +6,7 @@ import com.kkk.op.user.domain.service.AccountService;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -18,6 +19,7 @@ import lombok.ToString;
 @Builder
 public class Account implements Entity<LongId> {
 
+    @Setter
     private LongId id;
 
     private LongId userId;

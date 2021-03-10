@@ -6,17 +6,20 @@ import com.kkk.op.user.application.service.AccountAppService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author KaiKoo
  */
+@Service
 public class AccountAppServiceImpl implements AccountAppService {
 
     private final AccountService accountService;
     private final AccountDTOAssembler accountDTOAssembler;
 
-    public AccountAppServiceImpl(AccountService accountService) {
+    public AccountAppServiceImpl(@Autowired AccountService accountService) {
         this.accountService = accountService;
         this.accountDTOAssembler = AccountDTOAssembler.getInstance();
     }

@@ -8,17 +8,20 @@ import com.kkk.op.user.persistence.AccountDO;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import javax.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 /**
  * Entity类Repository实现类
  * @author KaiKoo
  */
+@Repository
 public class AccountRepositoryImpl implements AccountRepository {
 
     private final AccountMapper accountMapper;
     private final AccountDataConverter accountDataConverter;
 
-    public AccountRepositoryImpl(AccountMapper accountMapper) {
+    public AccountRepositoryImpl(@Autowired AccountMapper accountMapper) {
         this.accountMapper = accountMapper;
         this.accountDataConverter = AccountDataConverter.getInstance();
     }
@@ -38,6 +41,7 @@ public class AccountRepositoryImpl implements AccountRepository {
         AccountDO data = accountDataConverter.toData(entity);
         if (data.getId() == null) {
             accountMapper.insert(data);
+            return;
         }
         accountMapper.updateById(data);
     }

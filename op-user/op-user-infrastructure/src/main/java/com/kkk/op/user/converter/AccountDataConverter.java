@@ -31,6 +31,9 @@ public class AccountDataConverter {
     }
 
     public Account fromData(AccountDO accountDO) {
+        if (accountDO == null) {
+            return null;
+        }
         AccountBuilder builder = Account.builder();
         builder.id(Optional.ofNullable(accountDO.getId()).map(LongId::new).orElse(null))
                 .userId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null));
@@ -38,6 +41,9 @@ public class AccountDataConverter {
     }
 
     public AccountDO toData(Account account) {
+        if (account == null) {
+            return null;
+        }
         AccountDO data = new AccountDO();
         data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         data.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
