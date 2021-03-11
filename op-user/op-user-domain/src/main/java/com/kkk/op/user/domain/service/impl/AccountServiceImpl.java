@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.service.impl;
 
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountModifyStrategyManager;
@@ -10,9 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 1.查询类方法不需要更新实体类的状态，所以不属于实体类的行为，直接在domain service中实现
+ * 1.查询类方法属于查询类实体类的行为，在对应的实体类中实现
  * 2.实体的行为仅涉及自身的状态变更，业务逻辑在实体类中
  * 3.多个实体的状态变更的行为业务逻辑在 domain service 中
+ * 4.该类只做组件调用，参数的合法性均放置到对应的实体类总
  *
  * @author KaiKoo
  */
@@ -30,10 +31,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account find(LongId id) {
-        if (id == null) {
-            return null;
-        }
+    public Account find(@NotNull LongId id) {
         return accountRepository.find(id);
     }
 

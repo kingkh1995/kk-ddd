@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.service;
 
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +14,7 @@ public interface AccountService {
     /**
      * 通过 ID 查找
      */
-    Account find(LongId id);
+    Account find(@NotNull LongId id);
 
     /**
      * 移除

@@ -1,6 +1,8 @@
 package com.kkk.op.user.application.service;
 
-import com.kkk.op.support.models.dto.AccountDTO;
+import com.kkk.op.support.models.user.AccountDTO;
+import com.kkk.op.support.models.user.AccountQueryDTO;
+import java.util.List;
 
 /**
  * Application Service 供controller调用，参数使用dto和基本数据类型
@@ -14,4 +16,5 @@ public interface AccountAppService {
 
     Long save(AccountDTO dto);
 
+    List<AccountDTO> list(AccountQueryDTO accountQueryDTO);
 }

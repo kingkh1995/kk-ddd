@@ -1,4 +1,4 @@
-package com.kkk.op.support.models.dto;
+package com.kkk.op.support.models.user;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;

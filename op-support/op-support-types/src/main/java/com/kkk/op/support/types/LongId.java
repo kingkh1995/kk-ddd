@@ -1,12 +1,16 @@
-package com.kkk.op.support.type;
+package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
 import javax.validation.ValidationException;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * long类型Id
  * @author KaiKoo
  */
+@ToString
+@EqualsAndHashCode
 public class LongId implements Identifier {
 
     private final Long id;

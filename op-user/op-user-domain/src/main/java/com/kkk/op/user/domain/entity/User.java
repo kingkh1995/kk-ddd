@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.marker.Aggregate;
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import java.util.List;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

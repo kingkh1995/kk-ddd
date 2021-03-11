@@ -1,11 +1,16 @@
 package com.kkk.op.user.application.service.impl;
 
-import com.kkk.op.support.models.dto.AccountDTO;
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.models.user.AccountDTO;
+import com.kkk.op.support.models.user.AccountQueryDTO;
+import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.types.PageSize;
 import com.kkk.op.user.application.service.AccountAppService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
+import com.kkk.op.user.query.entity.AccountQuery;
+import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +31,8 @@ public class AccountAppServiceImpl implements AccountAppService {
 
     @Override
     public AccountDTO find(Long id) {
-        return accountDTOAssembler.toDTO(accountService.find(new LongId(id)));
+        var query = AccountQuery.builder().id(new LongId(id)).build();
+        return accountDTOAssembler.toDTO(query.find(accountService));
     }
 
     @Override
@@ -41,9 +47,18 @@ public class AccountAppServiceImpl implements AccountAppService {
         Account account = accountDTOAssembler.fromDTO(dto);
         // 行为发生
         account.save(accountService);
-        //todo... 触发事件
+        // todo... 触发事件
 
         // 返回id
         return account.getId().getValue();
     }
+
+    @Override
+    public List<AccountDTO> list(AccountQueryDTO accountQueryDTO) {
+        var accountQuery = accountDTOAssembler.toQuery(accountQueryDTO);
+        List<Account> list = accountQuery.list(accountService);
+        // todo... 实现
+        return null;
+    }
+
 }
