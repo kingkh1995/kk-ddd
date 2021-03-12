@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.persistence.AccountDO;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import javax.validation.constraints.NotNull;
@@ -38,7 +37,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public LongId save(@NotNull Account entity) {
-        AccountDO data = accountDataConverter.toData(entity);
+        var data = accountDataConverter.toData(entity);
         if (data.getId() == null) {
             accountMapper.insert(data);
             return new LongId(data.getId());

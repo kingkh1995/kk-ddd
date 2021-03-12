@@ -42,7 +42,7 @@ public class User implements Aggregate<LongId> {
 
     @Override
     public User snapshot() {
-        UserBuilder builder = User.builder();
+        var builder = User.builder();
         builder.id(this.id)
                 .name(this.name);
         return builder.build();

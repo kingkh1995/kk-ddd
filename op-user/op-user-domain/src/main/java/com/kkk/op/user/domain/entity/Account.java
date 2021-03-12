@@ -3,7 +3,7 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Entity;
 import com.kkk.op.support.types.LongId;
-import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;
 import lombok.Builder;
@@ -36,7 +36,7 @@ public class Account implements Entity<LongId> {
 
     public void remove(AccountService accountService) {
         checkIdExist(accountService);
-        // todo... 变更操作
+        // todo... 业务逻辑 & 变更状态
         accountService.remove(this);
     }
 

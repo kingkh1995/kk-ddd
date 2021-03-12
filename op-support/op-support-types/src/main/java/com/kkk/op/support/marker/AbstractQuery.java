@@ -18,6 +18,6 @@ public abstract class AbstractQuery {
 
     private PageSize size;
 
-    // todo... 当前页 postive long
+    // todo... 当前页 current(postive long)
 
 }

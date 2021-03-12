@@ -3,10 +3,8 @@ package com.kkk.op.support.changeTracking.diff;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Entity;
 import com.kkk.op.support.marker.Identifier;
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,7 +25,7 @@ public class DiffUtil {
         if (nullOrNotIdentified(snapshot) && nullOrNotIdentified(aggregate)) {
             return null;
         }
-        final EntityDiff entityDiff = new EntityDiff(snapshot, aggregate);
+        final var entityDiff = new EntityDiff(snapshot, aggregate);
         // snapshot无法标识，对比结果为新增
         if (nullOrNotIdentified(snapshot)) {
             entityDiff.setType(DiffType.Added);
@@ -50,12 +48,12 @@ public class DiffUtil {
             return entityDiff;
         }
         // 开始对比
-        Field[] fields = snapshot.getClass().getDeclaredFields();
-        for (Field field : fields) {
+        var fields = snapshot.getClass().getDeclaredFields();
+        for (var field : fields) {
             field.setAccessible(true);
             try {
-                Object sObj = field.get(snapshot);
-                Object aObj = field.get(aggregate);
+                var sObj = field.get(snapshot);
+                var aObj = field.get(aggregate);
                 // 根据类型做不同的处理
                 if (sObj instanceof Entity) {
                     entityDiff.put(field.getName(), diff((Entity) sObj, (Entity) aObj));
@@ -96,7 +94,7 @@ public class DiffUtil {
         if (isEmpty(sCol) && isEmpty(aCol)) {
             return null;
         }
-        final CollectionDiff collectionDiff = new CollectionDiff(sCol, aCol);
+        final var collectionDiff = new CollectionDiff(sCol, aCol);
         if (isEmpty(sCol)) {
             collectionDiff.setType(DiffType.Added);
             return collectionDiff;
@@ -107,13 +105,13 @@ public class DiffUtil {
         }
         // 开始对比
         // 集合元素理应 全部为Type类型 或 全部为Entity类型，而不应该为Collection或者Map，设计时应被替换为DP或Entity
-        Iterator<T> iterator = sCol.iterator();
-        T obj = iterator.next();
+        var iterator = sCol.iterator();
+        var obj = iterator.next();
         if (obj instanceof Entity) {
             // 如元素类型为Entity 根据Id去查找匹配
             // 如元素并不全是Entity类型会出现转换异常，应该任由异常抛出，因为属于设计上不允许发生的异常
             // 拼装sMap
-            Map<Identifier, Entity> sMap = new HashMap<>();
+            var sMap = new HashMap<Identifier, Entity>();
             put2IdEntityMap(sMap, (Entity) obj);
             while (iterator.hasNext()) {
                 // 快照不存在Id属于不正常情况，应该被忽略
@@ -121,12 +119,12 @@ public class DiffUtil {
             }
             // 拼装aMap
             iterator = aCol.iterator();
-            Map<Identifier, Entity> aMap = new HashMap();
+            var aMap = new HashMap<Identifier, Entity>();
             while (iterator.hasNext()) {
-                Entity entity = (Entity) iterator.next();
+                var entity = (Entity) iterator.next();
                 if (put2IdEntityMap(aMap, entity) == null) {
                     // 不存在id，添加一个Add类型的EntityDiff
-                    EntityDiff diff = new EntityDiff(null, entity);
+                    var diff = new EntityDiff(null, entity);
                     diff.setType(DiffType.Added);
                     collectionDiff.add(diff);
                 }
@@ -139,8 +137,8 @@ public class DiffUtil {
                 return null;
             }
         } else {
-            // 其他情况直接使用 equals 方法比较
-            if (Objects.equals(sCol, aCol)) {
+            // 其他类型直接使用 deepEquals 方法比较
+            if (Objects.deepEquals(sCol, aCol)) {
                 return null;
             }
         }

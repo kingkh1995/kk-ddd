@@ -2,7 +2,6 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.User;
-import com.kkk.op.user.domain.entity.User.UserBuilder;
 import com.kkk.op.user.persistence.UserDO;
 import java.util.Optional;
 
@@ -34,7 +33,7 @@ public class UserDataConverter {
         if (userDO == null) {
             return null;
         }
-        UserBuilder builder = User.builder();
+        var builder = User.builder();
         builder.id(Optional.ofNullable(userDO.getId()).map(LongId::new).orElse(null));
         return builder.build();
     }
@@ -43,7 +42,7 @@ public class UserDataConverter {
         if (user == null) {
             return null;
         }
-        UserDO data = new UserDO();
+        var data = new UserDO();
         data.setId(Optional.ofNullable(user.getId()).map(LongId::getValue).orElse(null));
         return data;
     }

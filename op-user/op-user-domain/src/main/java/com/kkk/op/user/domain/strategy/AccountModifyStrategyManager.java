@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.strategy;
 
 import com.kkk.op.support.marker.AbstractStrategyManager;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.enums.AccountStatusEnum;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Strategy 不应该直接操作对象，而是通过返回计算后的值，在 Domain Service 里对对象进行操作
- *
+ * todo... 待优化
  * @author KaiKoo
  */
 @Component// 配合InitializingBean使用

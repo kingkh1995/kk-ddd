@@ -1,4 +1,4 @@
-package com.kkk.op.user.domain.enums;
+package com.kkk.op.user.enums;
 
 /**
  *

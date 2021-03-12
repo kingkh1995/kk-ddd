@@ -2,7 +2,7 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.types.AccountStatus;
 import com.kkk.op.user.persistence.AccountDO;
 import java.util.Optional;

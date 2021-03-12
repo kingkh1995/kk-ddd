@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
  * 查询实体
  * @author KaiKoo
  */
-@EqualsAndHashCode(callSuper = true) //todo... lombok注解研究
+@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Getter
 @SuperBuilder

@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.types;
 
 import com.kkk.op.support.marker.Type;
-import com.kkk.op.user.domain.enums.AccountStatusEnum;
+import com.kkk.op.user.enums.AccountStatusEnum;
 import javax.validation.ValidationException;
 
 /**

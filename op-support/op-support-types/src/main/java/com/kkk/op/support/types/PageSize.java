@@ -15,6 +15,7 @@ public class PageSize implements Type {
 
     private Long size;
 
+    // 默认最大查询条数
     private final static Long MAX_SIZE = 1000L;
 
     public PageSize(Long size) {

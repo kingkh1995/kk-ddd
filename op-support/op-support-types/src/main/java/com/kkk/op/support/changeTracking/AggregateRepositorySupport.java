@@ -57,7 +57,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public T find(@NotNull ID id) {
-        T aggregate = this.onSelect(id);
+        var aggregate = this.onSelect(id);
         // 添加跟踪
         if (aggregate != null) {
             this.attach(aggregate);
@@ -82,16 +82,16 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     public ID save(@NotNull T aggregate) {
         // 如果没有 ID，直接插入
         if (aggregate.getId() == null) {
-            ID id = this.onInsert(aggregate);
+            var id = this.onInsert(aggregate);
             // 添加跟踪
             this.attach(aggregate);
             return id;
         }
         // 做 diff
-        EntityDiff diff = aggregateTrackingManager.detectChanges(aggregate);
-        if (diff != null) {
+        var entityDiff = aggregateTrackingManager.detectChanges(aggregate);
+        if (entityDiff != null) {
             // 调用 UPDATE
-            this.onUpdate(aggregate, diff);
+            this.onUpdate(aggregate, entityDiff);
             // 合并变更跟踪
             aggregateTrackingManager.merge(aggregate);
         }

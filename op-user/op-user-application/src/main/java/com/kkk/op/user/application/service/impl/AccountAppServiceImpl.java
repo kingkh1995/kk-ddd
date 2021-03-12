@@ -3,14 +3,12 @@ package com.kkk.op.user.application.service.impl;
 import com.kkk.op.support.models.user.AccountDTO;
 import com.kkk.op.support.models.user.AccountQueryDTO;
 import com.kkk.op.support.types.LongId;
-import com.kkk.op.support.types.PageSize;
 import com.kkk.op.user.application.service.AccountAppService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.query.entity.AccountQuery;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +42,7 @@ public class AccountAppServiceImpl implements AccountAppService {
     @Override
     public Long save(AccountDTO dto) {
         // 转换对象
-        Account account = accountDTOAssembler.fromDTO(dto);
+        var account = accountDTOAssembler.fromDTO(dto);
         // 行为发生
         account.save(accountService);
         // todo... 触发事件
@@ -56,7 +54,7 @@ public class AccountAppServiceImpl implements AccountAppService {
     @Override
     public List<AccountDTO> list(AccountQueryDTO accountQueryDTO) {
         var accountQuery = accountDTOAssembler.toQuery(accountQueryDTO);
-        List<Account> list = accountQuery.list(accountService);
+        var list = accountQuery.list(accountService);
         // todo... 实现
         return null;
     }

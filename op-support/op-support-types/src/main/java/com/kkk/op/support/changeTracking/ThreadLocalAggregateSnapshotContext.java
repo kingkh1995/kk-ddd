@@ -31,14 +31,14 @@ public class ThreadLocalAggregateSnapshotContext<T extends Aggregate<ID>, ID ext
     public void putSnapshot(@NotNull T aggregate) {
         //获取快照
         if (aggregate.getId() != null) {
-            T snapshot = (T) aggregate.snapshot();
+            var snapshot = (T) aggregate.snapshot();
             this.threadLocal.get().put(snapshot.getId(), snapshot);
         }
     }
 
     @Override
     public T getSnapshot(@NotNull ID id) {
-        T snapshot = this.threadLocal.get().get(id);
+        var snapshot = this.threadLocal.get().get(id);
         //返回快照的快照，防止快照被修改
         return (T) snapshot.snapshot();
     }
