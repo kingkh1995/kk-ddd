@@ -41,8 +41,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public LongId save(@NotNull Account entity) {
-        return accountRepository.save(entity);
+    public void save(@NotNull Account entity) {
+        accountRepository.save(entity);
     }
 
     @Override

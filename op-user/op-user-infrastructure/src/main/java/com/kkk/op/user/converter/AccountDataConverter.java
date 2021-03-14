@@ -2,10 +2,13 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.types.AccountStatus;
+import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.persistence.AccountDO;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * todo... 待优化
@@ -54,4 +57,10 @@ public class AccountDataConverter {
         return data;
     }
 
+    public List<Account> fromDataList(List<AccountDO> accountDOList) {
+        if (accountDOList == null || accountDOList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return accountDOList.stream().map(this::fromData).collect(Collectors.toList());
+    }
 }

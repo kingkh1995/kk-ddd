@@ -8,7 +8,7 @@ import java.util.List;
  * Application Service 供controller调用，参数使用dto和基本数据类型
  * @author KaiKoo
  */
-public interface AccountAppService {
+public interface AccountApplicationService {
 
     AccountDTO find(Long id);
 

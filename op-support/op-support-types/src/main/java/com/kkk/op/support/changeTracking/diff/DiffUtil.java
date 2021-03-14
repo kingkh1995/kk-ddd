@@ -137,8 +137,8 @@ public class DiffUtil {
                 return null;
             }
         } else {
-            // 其他类型直接使用 deepEquals 方法比较
-            if (Objects.deepEquals(sCol, aCol)) {
+            // 其他类型直接使用 equals 方法比较
+            if (Objects.equals(sCol, aCol)) {
                 return null;
             }
         }

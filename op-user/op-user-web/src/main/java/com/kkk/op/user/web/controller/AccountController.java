@@ -2,7 +2,7 @@ package com.kkk.op.user.web.controller;
 
 import com.kkk.op.support.models.user.AccountDTO;
 import com.kkk.op.support.models.user.AccountQueryDTO;
-import com.kkk.op.user.application.service.AccountAppService;
+import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     @Autowired
-    private AccountAppService service;
+    private AccountApplicationService service;
 
     @GetMapping("/account/{id}")
     public AccountDTO findById(@PathVariable Long id) {

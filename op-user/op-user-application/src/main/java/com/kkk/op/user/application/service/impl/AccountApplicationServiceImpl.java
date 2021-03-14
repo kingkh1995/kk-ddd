@@ -3,7 +3,7 @@ package com.kkk.op.user.application.service.impl;
 import com.kkk.op.support.models.user.AccountDTO;
 import com.kkk.op.support.models.user.AccountQueryDTO;
 import com.kkk.op.support.types.LongId;
-import com.kkk.op.user.application.service.AccountAppService;
+import com.kkk.op.user.application.service.AccountApplicationService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service;
  * @author KaiKoo
  */
 @Service
-public class AccountAppServiceImpl implements AccountAppService {
+public class AccountApplicationServiceImpl implements AccountApplicationService {
 
     private final AccountService accountService;
     private final AccountDTOAssembler accountDTOAssembler;
 
-    public AccountAppServiceImpl(@Autowired AccountService accountService) {
+    public AccountApplicationServiceImpl(@Autowired AccountService accountService) {
         this.accountService = accountService;
         this.accountDTOAssembler = AccountDTOAssembler.getInstance();
     }

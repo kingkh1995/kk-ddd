@@ -15,7 +15,9 @@ import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -46,28 +48,26 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     }
 
     /**
-     * 插入操作后一定要回填Id，让aggregateTrackingManager能取到Id值
+     * 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值
      */
     @Transactional
     @Override
-    protected LongId onInsert(@NotNull User aggregate) {
+    protected void onInsert(@NotNull User aggregate) {
         // 插入User
         var userDO = userDataConverter.toData(aggregate);
         userMapper.insert(userDO);
-        // 回填id
-        var userId = new LongId(userDO.getId());
-        aggregate.setId(userId);
+        // 填补id
+        aggregate.fillInId(new LongId(userDO.getId()));
         // 循环插入Account
         var accounts = aggregate.getAccounts();
         if (!CollectionUtils.isEmpty(accounts)) {
             accounts.forEach(account -> {
                 var accountDO = accountDataConverter.toData(account);
                 accountMapper.insert(accountDO);
-                // 回填id
-                account.setId(new LongId(accountDO.getId()));
+                // 填补id
+                account.fillInId(new LongId(accountDO.getId()));
             });
         }
-        return userId;
     }
 
     @Override
@@ -88,23 +88,26 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         if (diff.isSelfModified()) {
             userMapper.updateById(userDataConverter.toData(aggregate));
         }
-        // 更新Account
+        // 处理Account
         var collectionDiff = (CollectionDiff) diff.get("accounts");
         if (collectionDiff != null) {
             var iterator = collectionDiff.iterator();
             while (iterator.hasNext()) {
                 var entityDiff = (EntityDiff) iterator.next();
+                // 移除情况
                 if (entityDiff.getType() == DiffType.Removed) {
                     var oldValue = (Account) entityDiff.getOldValue();
                     accountMapper.deleteById(oldValue.getId().getValue());
                 }
+                // 新增情况
                 if (entityDiff.getType() == DiffType.Added) {
                     var newValue = (Account) entityDiff.getNewValue();
                     var accountDO = accountDataConverter.toData(newValue);
                     accountMapper.insert(accountDO);
-                    // 回填id
-                    newValue.setId(new LongId(accountDO.getId()));
+                    // 填补id
+                    newValue.fillInId(new LongId(accountDO.getId()));
                 }
+                // 更新情况
                 if (entityDiff.getType() == DiffType.Modified) {
                     accountMapper.updateById(
                             accountDataConverter.toData((Account) entityDiff.getNewValue()));
@@ -124,5 +127,11 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         if (!CollectionUtils.isEmpty(accountIdList)) {
             accountMapper.deleteBatchIds(accountIdList);
         }
+    }
+
+    @Override
+    public List<User> list(@NotEmpty List<LongId> longIds) {
+        // todo... 一定要attach
+        return null;
     }
 }

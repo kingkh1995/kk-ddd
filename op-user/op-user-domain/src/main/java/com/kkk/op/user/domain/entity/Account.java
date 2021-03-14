@@ -3,9 +3,10 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Entity;
 import com.kkk.op.support.types.LongId;
-import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;
+import com.kkk.op.user.enums.AccountStatusEnum;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,9 +21,9 @@ import lombok.ToString;
 @ToString
 @Getter
 @Builder
-public class Account implements Entity<LongId> {
+public class Account extends Entity<LongId> {
 
-    @Setter//todo... 删除
+    @Setter(AccessLevel.PROTECTED)
     private LongId id;
 
     private LongId userId;
@@ -52,9 +53,7 @@ public class Account implements Entity<LongId> {
                 throw new BussinessException("不允许修改");
             }
         }
-        var id = accountService.save(this);
-        // 回填Id
-        this.id = id;
+        accountService.save(this);
     }
 
     private Account checkIdExist(AccountService accountService) {

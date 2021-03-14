@@ -3,6 +3,7 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.types.LongId;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,9 +18,9 @@ import lombok.ToString;
 @ToString
 @Getter
 @Builder
-public class User implements Aggregate<LongId> {
+public class User extends Aggregate<LongId> {
 
-    @Setter //todo... 删除
+    @Setter(AccessLevel.PROTECTED)
     private LongId id;
 
     private String name;

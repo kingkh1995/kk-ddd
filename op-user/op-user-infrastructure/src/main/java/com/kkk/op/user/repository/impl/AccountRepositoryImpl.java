@@ -6,6 +6,8 @@ import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
+import java.util.List;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,8 +28,8 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public Account find(@NotNull LongId longId) {
-        return accountDataConverter.fromData(accountMapper.selectById(longId.getValue()));
+    public Account find(@NotNull LongId id) {
+        return accountDataConverter.fromData(accountMapper.selectById(id.getValue()));
     }
 
     @Override
@@ -36,13 +38,20 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public LongId save(@NotNull Account entity) {
+    public void save(@NotNull Account entity) {
         var data = accountDataConverter.toData(entity);
         if (data.getId() == null) {
             accountMapper.insert(data);
-            return new LongId(data.getId());
+            // 填补id
+            entity.fillInId(new LongId(data.getId()));
+            return;
         }
         accountMapper.updateById(data);
-        return entity.getId();
     }
+
+    @Override
+    public List<Account> list(@NotEmpty List<LongId> ids) {
+        return accountDataConverter.fromDataList(accountMapper.selectBatchIds(ids));
+    }
+
 }

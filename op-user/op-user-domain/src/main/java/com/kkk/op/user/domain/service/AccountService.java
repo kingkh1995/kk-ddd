@@ -24,7 +24,7 @@ public interface AccountService {
     /**
      * 保存
      */
-    LongId save(@NotNull Account entity);
+    void save(@NotNull Account entity);
 
     /**
      *
