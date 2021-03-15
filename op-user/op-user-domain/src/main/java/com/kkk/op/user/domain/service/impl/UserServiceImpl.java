@@ -5,6 +5,7 @@ import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> list(@NotEmpty List<LongId> ids) {
+    public List<User> list(@NotEmpty Set<LongId> ids) {
         return userRepository.list(ids);
     }
 

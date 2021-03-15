@@ -3,6 +3,7 @@ package com.kkk.op.user.domain.service;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.User;
 import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -20,7 +21,7 @@ public interface UserService {
     /**
      * 通过 IDs 查找
      */
-    List<User> list(@NotEmpty List<LongId> ids);
+    List<User> list(@NotEmpty Set<LongId> ids);
 
     /**
      * 移除

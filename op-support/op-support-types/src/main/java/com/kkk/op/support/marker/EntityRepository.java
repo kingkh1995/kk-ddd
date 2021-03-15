@@ -1,6 +1,7 @@
 package com.kkk.op.support.marker;
 
 import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -28,5 +29,5 @@ public interface EntityRepository<T extends Entity<ID>, ID extends Identifier> {
     /**
      * 通过 IDs 批量寻找 Entity
      */
-    List<T> list(@NotEmpty List<ID> ids);
+    List<T> list(@NotEmpty Set<ID> ids);
 }

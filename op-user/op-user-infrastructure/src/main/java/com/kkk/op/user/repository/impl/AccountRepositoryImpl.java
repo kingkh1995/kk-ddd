@@ -7,6 +7,7 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
+import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class AccountRepositoryImpl implements AccountRepository {
     }
 
     @Override
-    public List<Account> list(@NotEmpty List<LongId> ids) {
+    public List<Account> list(@NotEmpty Set<LongId> ids) {
         return accountDataConverter.fromDataList(accountMapper.selectBatchIds(ids));
     }
 

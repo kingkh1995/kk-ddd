@@ -16,6 +16,7 @@ import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -130,7 +131,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     }
 
     @Override
-    public List<User> list(@NotEmpty List<LongId> longIds) {
+    public List<User> list(@NotEmpty Set<LongId> ids) {
         // todo... 一定要attach
         return null;
     }
