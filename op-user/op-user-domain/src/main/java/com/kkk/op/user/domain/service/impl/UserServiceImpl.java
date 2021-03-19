@@ -25,22 +25,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User find(@NotNull LongId id) {
-        return userRepository.find(id);
+    public User find(@NotNull LongId longId) {
+        return userRepository.find(longId);
     }
 
     @Override
-    public List<User> list(@NotEmpty Set<LongId> ids) {
-        return userRepository.list(ids);
+    public void remove(@NotNull User user) {
+        userRepository.remove(user);
     }
 
     @Override
-    public void remove(@NotNull User entity) {
-        userRepository.remove(entity);
+    public void save(@NotNull User user) {
+        userRepository.save(user);
     }
 
     @Override
-    public void save(@NotNull User entity) {
-        userRepository.save(entity);
+    public List<User> list(@NotEmpty Set<LongId> longIds) {
+        return userRepository.list(longIds);
     }
 }

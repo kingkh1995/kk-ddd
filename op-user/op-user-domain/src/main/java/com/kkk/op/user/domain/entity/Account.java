@@ -42,6 +42,7 @@ public class Account extends Entity<LongId> {
     }
 
     public void save(AccountService accountService) {
+        // todo...参数校验 调用valid方法
         if (this.id == null) {
             // 新增逻辑
             // 设置初始状态

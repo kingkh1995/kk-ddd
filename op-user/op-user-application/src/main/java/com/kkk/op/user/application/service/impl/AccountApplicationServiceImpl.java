@@ -52,8 +52,8 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public List<AccountDTO> list(AccountQueryDTO accountQueryDTO) {
-        var accountQuery = accountDTOAssembler.toQuery(accountQueryDTO);
+    public List<AccountDTO> list(AccountQueryDTO queryDTO) {
+        var accountQuery = accountDTOAssembler.toQuery(queryDTO);
         var list = accountQuery.list(accountService);
         // todo... 实现
         return null;

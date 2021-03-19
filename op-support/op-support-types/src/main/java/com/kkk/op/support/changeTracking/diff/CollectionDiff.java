@@ -22,10 +22,6 @@ public class CollectionDiff extends Diff {
         super(oldValue, newValue);
     }
 
-    public int size() {
-        return this.list.size();
-    }
-
     public boolean isEmpty() {
         return this.list.isEmpty();
     }

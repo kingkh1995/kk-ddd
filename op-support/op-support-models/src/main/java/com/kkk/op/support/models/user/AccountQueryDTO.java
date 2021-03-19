@@ -16,4 +16,6 @@ public class AccountQueryDTO extends AbstractQueryDTO {
 
     private String status;
 
+    private Long[] ids;
+
 }

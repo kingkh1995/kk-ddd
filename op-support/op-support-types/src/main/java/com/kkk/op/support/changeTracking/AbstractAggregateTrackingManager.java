@@ -4,6 +4,7 @@ import com.kkk.op.support.changeTracking.diff.DiffUtil;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.marker.Identifier;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -19,7 +20,7 @@ public abstract class AbstractAggregateTrackingManager<T extends Aggregate<ID>, 
 
     public AbstractAggregateTrackingManager(
             AggregateSnapshotContext context) {
-        this.context = context;
+        this.context = Objects.requireNonNull(context);
     }
 
     @Override

@@ -36,10 +36,6 @@ public class EntityDiff extends Diff {
         super(oldValue, newValue);
     }
 
-    public int size() {
-        return this.map.size();
-    }
-
     public boolean isEmpty() {
         return this.map.isEmpty();
     }

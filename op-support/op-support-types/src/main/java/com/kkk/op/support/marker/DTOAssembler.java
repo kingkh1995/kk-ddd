@@ -1,7 +1,10 @@
 package com.kkk.op.support.marker;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -13,7 +16,20 @@ public interface DTOAssembler<T extends Entity, V> {
 
     T fromDTO(V dto);
 
-    List<V> toDTO(Collection<T> entityCol);
+    default List<V> toDTO(Collection<T> entityCol) {
+        if (entityCol == null || entityCol.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        return entityCol.stream().filter(Objects::nonNull).map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 
-    List<T> fromDTO(Collection<V> dtoCol);
+    default List<T> fromDTO(Collection<V> dtoCol) {
+        if (dtoCol == null || dtoCol.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        return dtoCol.stream().filter(Objects::nonNull).map(this::fromDTO)
+                .collect(Collectors.toList());
+    }
+
 }

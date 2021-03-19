@@ -10,10 +10,10 @@ import javax.validation.ValidationException;
  */
 public class AccountStatus implements Type {
 
-    private AccountStatusEnum statusEnum;
+    private final AccountStatusEnum statusEnum;
 
     public AccountStatus(String status) {
-        if (status == null || status.strip().isEmpty()) {
+        if (status == null || status.isBlank()) {
             throw new ValidationException("status不能为空");
         }
         var statusEnum = AccountStatusEnum.valueOf(status);

@@ -19,8 +19,8 @@ public class LongId implements Identifier {
         if (id == null) {
             throw new ValidationException("id不能为空");
         }
-        if (id <= 0) {
-            throw new ValidationException("id格式不合法");
+        if (id < 1) {
+            throw new ValidationException("id必须大于0");
         }
         this.id = id;
     }

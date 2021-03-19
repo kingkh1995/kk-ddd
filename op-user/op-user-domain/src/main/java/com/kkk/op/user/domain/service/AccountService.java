@@ -1,5 +1,6 @@
 package com.kkk.op.user.domain.service;
 
+import com.kkk.op.support.marker.EntityService;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import javax.validation.constraints.NotNull;
@@ -9,22 +10,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public interface AccountService {
-
-    /**
-     * 通过 ID 查找
-     */
-    Account find(@NotNull LongId id);
-
-    /**
-     * 移除
-     */
-    void remove(@NotNull Account entity);
-
-    /**
-     * 保存
-     */
-    void save(@NotNull Account entity);
+public interface AccountService extends EntityService<Account, LongId> {
 
     /**
      *

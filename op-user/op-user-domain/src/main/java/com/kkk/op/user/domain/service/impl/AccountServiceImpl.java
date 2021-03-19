@@ -5,6 +5,9 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountModifyStrategyManager;
 import com.kkk.op.user.repository.AccountRepository;
+import java.util.List;
+import java.util.Set;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,13 +39,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void remove(@NotNull Account entity) {
-        accountRepository.remove(entity);
+    public void remove(@NotNull Account account) {
+        accountRepository.remove(account);
     }
 
     @Override
-    public void save(@NotNull Account entity) {
-        accountRepository.save(entity);
+    public void save(@NotNull Account account) {
+        accountRepository.save(account);
+    }
+
+    @Override
+    public List<Account> list(@NotEmpty Set<LongId> longIds) {
+        return null;
     }
 
     @Override

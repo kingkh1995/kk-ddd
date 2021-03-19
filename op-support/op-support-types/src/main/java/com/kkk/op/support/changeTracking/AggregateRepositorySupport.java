@@ -4,6 +4,7 @@ import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.Identifier;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +21,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     private AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
     public AggregateRepositorySupport(AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-        this.aggregateTrackingManager = aggregateTrackingManager;
+        this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
 
     /**

@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -23,12 +22,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class AccountQuery extends AbstractQuery {
 
-    @Setter//todo... 删除
     private LongId id;
 
     private LongId userId;
 
     private AccountStatus status;
+
+    private List<LongId> ids;
 
     public Account find(AccountService accountService) {
         // find by id

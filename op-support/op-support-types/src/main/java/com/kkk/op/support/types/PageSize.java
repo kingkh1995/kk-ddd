@@ -13,7 +13,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class PageSize implements Type {
 
-    private Long size;
+    private final Long size;
 
     // todo... 改为可配置，并且是不同项目不同配置
     // 默认最大查询条数
