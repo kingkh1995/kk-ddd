@@ -12,7 +12,12 @@ import java.util.Objects;
  *
  * @author KaiKoo
  */
-public class DiffUtil {
+public final class DiffUtil {// 工具类声明为 final
+
+    // 保证不能被实例化，同时防止反射机制创建对象
+    private DiffUtil() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * 只保存了 Entity 和 Collection 的对比信息 1）减少内存消耗 2）详细的对比信息必要性不高

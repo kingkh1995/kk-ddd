@@ -17,7 +17,7 @@ public class PageSize implements Type {
 
     // todo... 改为可配置，并且是不同项目不同配置
     // 默认最大查询条数
-    private final static Long MAX_SIZE = 1000L;
+    private final static transient Long MAX_SIZE = 1000L;
 
     public PageSize(Long size) {
         if (size == null) {

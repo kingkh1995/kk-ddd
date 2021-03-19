@@ -33,10 +33,13 @@ import org.springframework.util.CollectionUtils;
 public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId> implements
         UserRepository {
 
+    private final UserDataConverter userDataConverter = UserDataConverter.INSTANCE;
+
+    private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
+
     private final UserMapper userMapper;
+
     private final AccountMapper accountMapper;
-    private final UserDataConverter userDataConverter;
-    private final AccountDataConverter accountDataConverter;
 
     public UserRepositoryImpl(@Autowired UserMapper userMapper,
             @Autowired AccountMapper accountMapper) {
@@ -44,8 +47,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         super(new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
-        this.userDataConverter = UserDataConverter.getInstance();
-        this.accountDataConverter = AccountDataConverter.getInstance();
     }
 
     /**

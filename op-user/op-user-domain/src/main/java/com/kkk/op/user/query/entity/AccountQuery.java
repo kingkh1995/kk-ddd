@@ -1,6 +1,6 @@
 package com.kkk.op.user.query.entity;
 
-import com.kkk.op.support.marker.AbstractQuery;
+import com.kkk.op.support.bean.AbstractQuery;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;

@@ -19,12 +19,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountApplicationServiceImpl implements AccountApplicationService {
 
+    private final AccountDTOAssembler accountDTOAssembler = AccountDTOAssembler.INSTANCE;
+
     private final AccountService accountService;
-    private final AccountDTOAssembler accountDTOAssembler;
 
     public AccountApplicationServiceImpl(@Autowired AccountService accountService) {
         this.accountService = accountService;
-        this.accountDTOAssembler = AccountDTOAssembler.getInstance();
     }
 
     @Override

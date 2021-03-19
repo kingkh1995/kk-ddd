@@ -1,66 +1,80 @@
 package com.kkk.op.user.converter;
 
+import com.kkk.op.support.bean.DataConvertSupport;
+import com.kkk.op.support.marker.DataConverter;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountStatus;
 import com.kkk.op.user.enums.AccountStatusEnum;
 import com.kkk.op.user.persistence.AccountDO;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 
 /**
- * todo... 待优化
+ * 使用Enum实现单例模式
+ *
+ * todo... 使用 mapstruct 实现赋值
+ *
  * @author KaiKoo
  */
-public class AccountDataConverter {
+public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
 
-    //使用volatile解决双重检查问题
-    private static volatile AccountDataConverter INSTANCE;
+    INSTANCE;
 
-    //构造方法设置为私有
-    private AccountDataConverter() {
+    // 设置为 transient
+    private final static transient DataConverter<Account, AccountDO> CONVERT_SUPPORT = new AccountDataConverterSupport();
+
+    @Override
+    public AccountDO toData(Account account) {
+        return CONVERT_SUPPORT.toData(account);
     }
 
-    public static AccountDataConverter getInstance() {
-        if (INSTANCE == null) {
-            synchronized (AccountDataConverter.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new AccountDataConverter();
-                }
+    @Override
+    public Account fromData(AccountDO data) {
+        return CONVERT_SUPPORT.fromData(data);
+    }
+
+    @Override
+    public List<AccountDO> toData(Collection<Account> entityCol) {
+        return CONVERT_SUPPORT.toData(entityCol);
+    }
+
+    @Override
+    public List<Account> fromData(Collection<AccountDO> dataCol) {
+        return CONVERT_SUPPORT.fromData(dataCol);
+    }
+
+    // 使用私有内部类实现
+    private static class AccountDataConverterSupport extends
+            DataConvertSupport<Account, AccountDO> {
+
+        private AccountDataConverterSupport() {
+            // 防止利用反射机制调用
+            if (CONVERT_SUPPORT != null) {
+                throw new UnsupportedOperationException();
             }
         }
-        return INSTANCE;
-    }
 
-    public Account fromData(AccountDO accountDO) {
-        if (accountDO == null) {
-            return null;
+        @Override
+        protected AccountDO buildDataFromEntity(@NotNull Account account) {
+            var data = new AccountDO();
+            data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
+            data.setUserId(
+                    Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+            data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
+                    .map(AccountStatusEnum::name).orElse(null));
+            return data;
         }
-        var builder = Account.builder();
-        builder.id(Optional.ofNullable(accountDO.getId()).map(LongId::new).orElse(null))
-                .userId(Optional.ofNullable(accountDO.getUserId()).map(LongId::new).orElse(null))
-                .status(new AccountStatus(accountDO.getStatus()));
-        return builder.build();
-    }
 
-    public AccountDO toData(Account account) {
-        if (account == null) {
-            return null;
+        @Override
+        protected Account buildEntityFromData(@NotNull AccountDO data) {
+            var builder = Account.builder();
+            builder.id(Optional.ofNullable(data.getId()).map(LongId::new).orElse(null))
+                    .userId(Optional.ofNullable(data.getUserId()).map(LongId::new).orElse(null))
+                    .status(new AccountStatus(data.getStatus()));
+            return builder.build();
         }
-        var data = new AccountDO();
-        data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
-        data.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
-        data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
-                .map(AccountStatusEnum::name).orElse(null));
-        return data;
-    }
-
-    public List<Account> fromDataList(List<AccountDO> accountDOList) {
-        if (accountDOList == null || accountDOList.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return accountDOList.stream().map(this::fromData).collect(Collectors.toList());
     }
 }

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public interface AccountModifyStrategy {
 
     /**
-     * 获取政策对应的状态枚举
+     * 获取该策略对应的枚举
      */
     AccountStatusEnum getStatusEnum();
 

@@ -20,12 +20,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AccountRepositoryImpl implements AccountRepository {
 
+    private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
+
     private final AccountMapper accountMapper;
-    private final AccountDataConverter accountDataConverter;
 
     public AccountRepositoryImpl(@Autowired AccountMapper accountMapper) {
         this.accountMapper = accountMapper;
-        this.accountDataConverter = AccountDataConverter.getInstance();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public List<Account> list(@NotEmpty Set<LongId> ids) {
-        return accountDataConverter.fromDataList(accountMapper.selectBatchIds(ids));
+        return accountDataConverter.fromData(accountMapper.selectBatchIds(ids));
     }
 
 }

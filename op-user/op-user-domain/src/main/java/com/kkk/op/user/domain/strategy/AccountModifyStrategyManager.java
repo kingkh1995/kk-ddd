@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.strategy;
 
-import com.kkk.op.support.marker.AbstractStrategyManager;
+import com.kkk.op.support.bean.AbstractStrategyManager;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.enums.AccountStatusEnum;
 import java.util.EnumMap;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class AccountModifyStrategyManager extends AbstractStrategyManager {
 
     // 使用 EnumMap
-    private final EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap = new EnumMap<>(
+    private final transient EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap = new EnumMap<>(
             AccountStatusEnum.class);
 
     @Override
@@ -36,6 +36,5 @@ public class AccountModifyStrategyManager extends AbstractStrategyManager {
         }
         return false;
     }
-
 
 }
