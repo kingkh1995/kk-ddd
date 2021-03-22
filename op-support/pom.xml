@@ -5,14 +5,14 @@
   <parent>
     <artifactId>op-root</artifactId>
     <groupId>com.kkk.op</groupId>
-    <version>ACE</version>
+    <version>ACE-SNAPSHOT</version>
     <relativePath>../op-root/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kkk.op.support</groupId>
   <artifactId>op-support</artifactId>
   <packaging>pom</packaging>
-  <version>ACE</version>
+  <version>ACE-SNAPSHOT</version>
   <name>op-support-parent</name>
 
   <modules>

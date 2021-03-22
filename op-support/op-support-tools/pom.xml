@@ -5,12 +5,12 @@
   <parent>
     <artifactId>op-support</artifactId>
     <groupId>com.kkk.op.support</groupId>
-    <version>ACE</version>
+    <version>ACE-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>op-support-tools</artifactId>
   <packaging>jar</packaging>
-  <version>ACE</version>
+  <version>ACE-SNAPSHOT</version>
 
 
 </project>
