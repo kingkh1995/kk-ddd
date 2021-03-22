@@ -1,10 +1,13 @@
 # Version Info
 ### Ace
-- 搭建基础项目结构
-- op-user项目DP设计
-- op-sales项目DP设计
+- 基础项目结构搭建
+- 基础组件开发
+# TODO
+- 代码自动生成
 # Next Version
 - Brook
+    - op-user项目DP设计
+    - op-sales项目DP设计
 - Chopper
 - Doflamingo
 - Enel

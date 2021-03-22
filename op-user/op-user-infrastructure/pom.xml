@@ -5,12 +5,12 @@
   <parent>
     <artifactId>op-user</artifactId>
     <groupId>com.kkk.op.user</groupId>
-    <version>ACE</version>
+    <version>ACE-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>op-user-infrastructure</artifactId>
   <packaging>jar</packaging>
-  <version>ACE</version>
+  <version>ACE-SNAPSHOT</version>
 
   <dependencies>
     <!-- 内部依赖 -->
@@ -19,13 +19,15 @@
       <artifactId>op-user-domain</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.kkk.op.support</groupId>
-      <artifactId>op-support-tools</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- 组件依赖 -->
-
+    <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
   </dependencies>
 
 

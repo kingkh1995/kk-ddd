@@ -12,7 +12,7 @@
   <groupId>com.kkk.op</groupId>
   <artifactId>op-root</artifactId>
   <packaging>pom</packaging>
-  <version>ACE</version>
+  <version>ACE-SNAPSHOT</version>
   <name>op-root</name>
   <description>KKK-OP-ROOT</description>
 
@@ -40,8 +40,24 @@
     </pluginManagement>
   </build>
 
+  <!--依赖管理-->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>3.4.2</version>
+      </dependency>
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-boot-starter</artifactId>
+        <version>3.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>30.1-jre</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

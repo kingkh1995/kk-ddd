@@ -5,14 +5,14 @@
   <parent>
     <artifactId>op-root</artifactId>
     <groupId>com.kkk.op</groupId>
-    <version>ACE</version>
+    <version>ACE-SNAPSHOT</version>
     <relativePath>../op-root/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kkk.op.support</groupId>
   <artifactId>op-support</artifactId>
   <packaging>pom</packaging>
-  <version>ACE</version>
+  <version>ACE-SNAPSHOT</version>
   <name>op-support-parent</name>
 
   <modules>
@@ -20,5 +20,33 @@
     <module>op-support-models</module>
     <module>op-support-tools</module>
   </modules>
+
+  <dependencies>
+    <!--基础依赖-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+  </dependencies>
 
 </project>
