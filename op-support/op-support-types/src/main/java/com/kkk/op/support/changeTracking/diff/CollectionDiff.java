@@ -26,13 +26,12 @@ public class CollectionDiff extends Diff {
         return this.list.isEmpty();
     }
 
-
     public boolean add(Diff diff) {
         if (diff == null) {
             return false;
         }
-        if (this.isEmpty()) {
-            list = new ArrayList<>();
+        if (this.list.isEmpty()) {
+            this.list = new ArrayList<>();
         }
         return this.list.add(diff);
     }

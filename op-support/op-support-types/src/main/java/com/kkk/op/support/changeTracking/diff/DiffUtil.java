@@ -27,17 +27,17 @@ public final class DiffUtil {// 工具类声明为 final
      */
     public static <T extends Entity> EntityDiff diff(T snapshot, T aggregate) {
         // 均无法标识返回Null
-        if (nullOrNotIdentified(snapshot) && nullOrNotIdentified(aggregate)) {
+        if (isNullOrUnidentified(snapshot) && isNullOrUnidentified(aggregate)) {
             return null;
         }
         final var entityDiff = new EntityDiff(snapshot, aggregate);
         // snapshot无法标识，对比结果为新增
-        if (nullOrNotIdentified(snapshot)) {
+        if (isNullOrUnidentified(snapshot)) {
             entityDiff.setType(DiffType.Added);
             return entityDiff;
         }
         // aggregate无法标识，对比结果为移除
-        if (nullOrNotIdentified(aggregate)) {
+        if (isNullOrUnidentified(aggregate)) {
             entityDiff.setType(DiffType.Removed);
             return entityDiff;
         }
@@ -85,10 +85,6 @@ public final class DiffUtil {// 工具类声明为 final
         return entityDiff;
     }
 
-    private static boolean nullOrNotIdentified(Entity entity) {
-        return entity == null || entity.getId() == null;
-    }
-
     /**
      *
      * @param sCol 不能包含空元素
@@ -96,15 +92,15 @@ public final class DiffUtil {// 工具类声明为 final
      * @return 如无对比不同则返回null
      */
     public static <T> CollectionDiff diff(Collection<T> sCol, Collection<T> aCol) {
-        if (isEmpty(sCol) && isEmpty(aCol)) {
+        if (isNullOrEmpty(sCol) && isNullOrEmpty(aCol)) {
             return null;
         }
         final var collectionDiff = new CollectionDiff(sCol, aCol);
-        if (isEmpty(sCol)) {
+        if (isNullOrEmpty(sCol)) {
             collectionDiff.setType(DiffType.Added);
             return collectionDiff;
         }
-        if (isEmpty(aCol)) {
+        if (isNullOrEmpty(aCol)) {
             collectionDiff.setType(DiffType.Removed);
             return collectionDiff;
         }
@@ -127,7 +123,7 @@ public final class DiffUtil {// 工具类声明为 final
             var aMap = new HashMap<Identifier, Entity>();
             while (iterator.hasNext()) {
                 var entity = (Entity) iterator.next();
-                if (put2IdEntityMap(aMap, entity) == null) {
+                if (put2IdEntityMap(aMap, entity) == null && entity != null) {
                     // 不存在id，添加一个Add类型的EntityDiff
                     var diff = new EntityDiff(null, entity);
                     diff.setType(DiffType.Added);
@@ -152,12 +148,17 @@ public final class DiffUtil {// 工具类声明为 final
         return collectionDiff;
     }
 
-    private static boolean isEmpty(Collection collection) {
+
+    private static boolean isNullOrUnidentified(Entity entity) {
+        return entity == null || entity.getId() == null;
+    }
+
+    private static boolean isNullOrEmpty(Collection collection) {
         return collection == null || collection.isEmpty();
     }
 
     private static Entity put2IdEntityMap(Map<Identifier, Entity> map, Entity entity) {
-        if (entity.getId() != null) {
+        if (!isNullOrUnidentified(entity)) {
             return map.put(entity.getId(), entity);
         }
         return null;

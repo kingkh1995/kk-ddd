@@ -4,7 +4,7 @@ import com.kkk.op.support.marker.DataConverter;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountStatus;
-import com.kkk.op.user.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.persistence.AccountDO;
 import java.util.Optional;
 

@@ -1,8 +1,7 @@
 package com.kkk.op.user.domain.types;
 
 import com.kkk.op.support.marker.Type;
-import com.kkk.op.user.enums.AccountStatusEnum;
-import javax.validation.ValidationException;
+import com.kkk.op.support.enums.AccountStatusEnum;
 
 /**
  * 枚举值也封装为DP
@@ -14,18 +13,19 @@ public class AccountStatus implements Type {
 
     public AccountStatus(String status) {
         if (status == null || status.isBlank()) {
-            throw new ValidationException("status不能为空");
+            throw new IllegalArgumentException("status不能为空");
         }
-        var statusEnum = AccountStatusEnum.valueOf(status);
-        if (statusEnum == null) {
-            throw new ValidationException("status值不合法");
+        // valueOf 方法不会返回 null，会抛出异常
+        try {
+            this.statusEnum = AccountStatusEnum.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("不存在status对应的枚举值");
         }
-        this.statusEnum = statusEnum;
     }
 
     public AccountStatus(AccountStatusEnum statusEnum) {
         if (statusEnum == null) {
-            throw new ValidationException("statusEnum不能为空");
+            throw new IllegalArgumentException("statusEnum不能为空");
         }
         this.statusEnum = statusEnum;
     }

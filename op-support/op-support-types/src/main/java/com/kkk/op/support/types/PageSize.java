@@ -1,7 +1,6 @@
 package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Type;
-import javax.validation.ValidationException;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -21,13 +20,13 @@ public class PageSize implements Type {
 
     public PageSize(Long size) {
         if (size == null) {
-            throw new ValidationException("size不能为空");
+            throw new IllegalArgumentException("size不能为空");
         }
         if (size < 1) {
-            throw new ValidationException("size必须大于0");
+            throw new IllegalArgumentException("size必须大于0");
         }
         if (size > MAX_SIZE) {
-            throw new ValidationException(String.format("size最大值不能超过%d", MAX_SIZE));
+            throw new IllegalArgumentException(String.format("size最大值不能超过%d", MAX_SIZE));
         }
         this.size = size;
     }

@@ -5,7 +5,8 @@ import com.kkk.op.support.marker.Entity;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;
-import com.kkk.op.user.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStatusEnum;
+import javax.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,25 +36,36 @@ public class Account extends Entity<LongId> {
         return this.builder().id(this.id).userId(this.userId).status(this.status).build();
     }
 
+    @Override
+    public void validate() {
+        // userId不能为null
+        if (this.userId == null) {
+            throw new ValidationException("userId不能为空");
+        }
+    }
+
     public void remove(AccountService accountService) {
-        checkIdExist(accountService);
+        this.checkIdExist(accountService);
         // todo... 业务逻辑 & 变更状态
         accountService.remove(this);
     }
 
     public void save(AccountService accountService) {
-        // todo...参数校验 调用valid方法
+        // validate
+        this.validate();
+        // handle
         if (this.id == null) {
             // 新增逻辑
             // 设置初始状态
             this.status = new AccountStatus(AccountStatusEnum.INIT);
         } else {
             // 更新逻辑
-            var oldAccount = checkIdExist(accountService);
+            var oldAccount = this.checkIdExist(accountService);
             if (!accountService.allowModify(oldAccount, this)) {
                 throw new BussinessException("不允许修改");
             }
         }
+        // save
         accountService.save(this);
     }
 

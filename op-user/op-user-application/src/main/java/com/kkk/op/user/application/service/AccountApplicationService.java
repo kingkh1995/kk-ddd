@@ -17,4 +17,5 @@ public interface AccountApplicationService {
     Long save(AccountDTO dto);
 
     List<AccountDTO> list(AccountQueryDTO queryDTO);
+
 }

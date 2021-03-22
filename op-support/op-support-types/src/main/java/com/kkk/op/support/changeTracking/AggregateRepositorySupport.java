@@ -89,12 +89,12 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
             return;
         }
         // 做 diff
-        var entityDiff = aggregateTrackingManager.detectChanges(aggregate);
+        var entityDiff = this.aggregateTrackingManager.detectChanges(aggregate);
         if (entityDiff != null) {
             // 调用 UPDATE
             this.onUpdate(aggregate, entityDiff);
             // 合并变更跟踪
-            aggregateTrackingManager.merge(aggregate);
+            this.aggregateTrackingManager.merge(aggregate);
         }
     }
 }

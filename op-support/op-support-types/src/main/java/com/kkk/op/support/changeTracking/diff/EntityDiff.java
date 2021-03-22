@@ -52,7 +52,7 @@ public class EntityDiff extends Diff {
         if (diff == null) {
             return null;
         }
-        if (this.isEmpty()) {
+        if (this.map.isEmpty()) {
             this.map = new HashMap<>();
         }
         return this.map.put(fieldName, diff);

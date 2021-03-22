@@ -1,7 +1,6 @@
 package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
-import javax.validation.ValidationException;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -17,10 +16,10 @@ public class LongId implements Identifier {
 
     public LongId(Long id) {
         if (id == null) {
-            throw new ValidationException("id不能为空");
+            throw new IllegalArgumentException("id不能为空");
         }
         if (id < 1) {
-            throw new ValidationException("id必须大于0");
+            throw new IllegalArgumentException("id必须大于0");
         }
         this.id = id;
     }

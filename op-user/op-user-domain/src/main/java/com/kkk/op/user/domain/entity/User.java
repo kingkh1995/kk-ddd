@@ -12,6 +12,8 @@ import lombok.ToString;
 
 /**
  * 用户
+ * todo...
+ *
  * @author KaiKoo
  */
 @EqualsAndHashCode
@@ -43,9 +45,13 @@ public class User extends Aggregate<LongId> {
 
     @Override
     public User snapshot() {
-        var builder = User.builder();
+        var builder = this.builder();
         builder.id(this.id)
                 .name(this.name);
         return builder.build();
+    }
+
+    @Override
+    public void validate() {
     }
 }

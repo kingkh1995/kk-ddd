@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.strategy;
 
 import com.kkk.op.support.bean.AbstractStrategyManager;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStatusEnum;
 import java.util.EnumMap;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
@@ -22,15 +22,15 @@ public class AccountModifyStrategyManager extends AbstractStrategyManager {
     @Override
     public void afterPropertiesSet() {
         // 构造map
-        if (modifyStrategyMap.isEmpty()) {
-            applicationContext.getBeansOfType(AccountModifyStrategy.class)
-                    .forEach((s, accountModifyStrategy) -> modifyStrategyMap
+        if (this.modifyStrategyMap.isEmpty()) {
+            this.applicationContext.getBeansOfType(AccountModifyStrategy.class)
+                    .forEach((s, accountModifyStrategy) -> this.modifyStrategyMap
                             .put(accountModifyStrategy.getStatusEnum(), accountModifyStrategy));
         }
     }
 
     public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-        var accountModifyStrategy = modifyStrategyMap.get(oldAccount.getStatus().getValue());
+        var accountModifyStrategy = this.modifyStrategyMap.get(oldAccount.getStatus().getValue());
         if (accountModifyStrategy != null) {
             return accountModifyStrategy.allowModify(oldAccount, newAccount);
         }

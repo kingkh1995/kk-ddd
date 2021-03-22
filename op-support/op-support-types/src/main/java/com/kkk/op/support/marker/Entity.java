@@ -11,9 +11,15 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
 
     /**
      * 获取快照
-     * @return
      */
     public abstract Object snapshot();
+
+    /**
+     * 验证该实体类参数是否合法
+     *
+     * @throws javax.validation.ValidationException
+     */
+    public abstract void validate();
 
     /**
      * 设置id
@@ -26,7 +32,7 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
             throw new BussinessException("id已存在不能填补");
         }
         if (id == null) {
-            throw new BussinessException("id不能填补为null");
+            throw new IllegalArgumentException("id不能填补为null");
         }
         this.setId(id);
     }
