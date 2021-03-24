@@ -15,8 +15,8 @@ import java.util.Objects;
 public final class DiffUtil {// 工具类声明为 final
 
     // 保证不能被实例化，同时防止反射机制创建对象
-    private DiffUtil() {
-        throw new UnsupportedOperationException();
+    private DiffUtil() throws IllegalAccessException {
+        throw new IllegalAccessException();
     }
 
     /**
