@@ -55,7 +55,7 @@ public final class DiffUtil {// 工具类声明为 final
         // 开始对比
         var fields = snapshot.getClass().getDeclaredFields();
         for (var field : fields) {
-            field.setAccessible(true);
+            field.trySetAccessible();
             try {
                 var sObj = field.get(snapshot);
                 var aObj = field.get(aggregate);
@@ -110,7 +110,6 @@ public final class DiffUtil {// 工具类声明为 final
         var obj = iterator.next();
         if (obj instanceof Entity) {
             // 如元素类型为Entity 根据Id去查找匹配
-            // 如元素并不全是Entity类型会出现转换异常，应该任由异常抛出，因为属于设计上不允许发生的异常
             // 拼装sMap
             var sMap = new HashMap<Identifier, Entity>();
             put2IdEntityMap(sMap, (Entity) obj);
