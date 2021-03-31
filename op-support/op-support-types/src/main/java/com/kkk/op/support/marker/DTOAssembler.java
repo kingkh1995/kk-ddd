@@ -16,7 +16,7 @@ public interface DTOAssembler<T extends Entity, V> {
 
     T fromDTO(V dto);
 
-    default List<V> toDTO(Collection<T> entityCol) {
+    default List<V> toDTO(Collection<? extends T> entityCol) {
         if (entityCol == null || entityCol.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
@@ -24,7 +24,7 @@ public interface DTOAssembler<T extends Entity, V> {
                 .collect(Collectors.toList());
     }
 
-    default List<T> fromDTO(Collection<V> dtoCol) {
+    default List<T> fromDTO(Collection<? extends V> dtoCol) {
         if (dtoCol == null || dtoCol.isEmpty()) {
             return Collections.EMPTY_LIST;
         }

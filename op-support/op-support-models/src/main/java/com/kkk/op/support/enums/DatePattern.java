@@ -29,29 +29,29 @@ public enum DatePattern {
             return null;
         }
         text = text.strip();
-        if (this.formatter == null) {
-            Long epochSecond;
-            try {
-                epochSecond = Long.valueOf(text);
-            } catch (NumberFormatException e) {
-                // 转为DateTimeException
-                throw new DateTimeException(e.getMessage(), e);
-            }
-            // 默认为当前时区
-            return Instant.ofEpochSecond(epochSecond).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        if (this.formatter != null) {
+            return LocalDateTime.parse(text, this.formatter);
         }
-        return LocalDateTime.parse(text, this.formatter);
+        Long epochSecond;
+        try {
+            epochSecond = Long.valueOf(text);
+        } catch (NumberFormatException e) {
+            // 转为DateTimeException
+            throw new DateTimeException(e.getMessage(), e);
+        }
+        // 默认为当前时区
+        return Instant.ofEpochSecond(epochSecond).atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     public String format(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             return "";
         }
-        if (this.formatter == null) {
-            // 默认为当前时区
-            return String.valueOf(localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond());
+        if (this.formatter != null) {
+            return localDateTime.format(this.formatter);
         }
-        return localDateTime.format(this.formatter);
+        // 默认为当前时区
+        return String.valueOf(localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond());
     }
 
 

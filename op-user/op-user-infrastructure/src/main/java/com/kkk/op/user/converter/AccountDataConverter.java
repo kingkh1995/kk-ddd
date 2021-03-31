@@ -23,9 +23,9 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
             return null;
         }
         var data = new AccountDO();
-        data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
+        data.setId(Optional.ofNullable(account.getId()).map(LongId::getId).orElse(null));
         data.setUserId(
-                Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+                Optional.ofNullable(account.getUserId()).map(LongId::getId).orElse(null));
         data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
                 .map(AccountStatusEnum::name).orElse(null));
         data.setCreateTime(Optional.ofNullable(account.getCreateTime()).map(DateUtil::toTimestamp)

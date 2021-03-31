@@ -12,7 +12,7 @@
 - 纯POJO模块，依赖Domain模块和Models模块。
 #### Infrastructure模块
 - 基础设施层，包括Persistence、Messaging、External等领域层接口的具体实现，是领域层与外部的媒介，属于变更频次最低的模块。
-- 依赖Domain模块以及其他外部框架。
+- 依赖Domain模块和Dependencies模块以及其他外部框架。
 #### Web模块
 - web项目，包含Controller等，不涉及任何业务相关的代码，仅仅提供web的实现以及微服务架构中网关层的功能。
 - 集成Application模块和Infrastructure模块，分别作为服务提供和服务实现，对domain模块应该是不可知的。

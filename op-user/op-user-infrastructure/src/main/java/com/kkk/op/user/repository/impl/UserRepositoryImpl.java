@@ -75,10 +75,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     @Override
     protected User onSelect(@NotNull LongId longId) {
         // 查询User
-        var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()));
+        var user = userDataConverter.fromData(userMapper.selectById(longId.getId()));
         // 查询Account
         user.setAccounts(new ArrayList<>());
-        accountMapper.selectByMap(ImmutableMap.of("user_id", longId.getValue())).forEach(
+        accountMapper.selectByMap(ImmutableMap.of("user_id", longId.getId())).forEach(
                 accountDO -> user.getAccounts().add(accountDataConverter.fromData(accountDO)));
         return user;
     }
@@ -99,7 +99,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
                 // 移除情况
                 if (entityDiff.getType() == DiffType.Removed) {
                     var oldValue = (Account) entityDiff.getOldValue();
-                    accountMapper.deleteById(oldValue.getId().getValue());
+                    accountMapper.deleteById(oldValue.getId().getId());
                 }
                 // 新增情况
                 if (entityDiff.getType() == DiffType.Added) {
@@ -122,10 +122,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     @Override
     protected void onDelete(@NotNull User aggregate) {
         // 删除User
-        userMapper.deleteById(aggregate.getId().getValue());
+        userMapper.deleteById(aggregate.getId().getId());
         // 删除Account
         var accountIdList = aggregate.getAccounts().stream().map(Account::getId)
-                .map(LongId::getValue).collect(Collectors.toList());
+                .map(LongId::getId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(accountIdList)) {
             accountMapper.deleteBatchIds(accountIdList);
         }

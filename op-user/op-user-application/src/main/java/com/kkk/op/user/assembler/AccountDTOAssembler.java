@@ -33,9 +33,9 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
             return null;
         }
         var dto = new AccountDTO();
-        dto.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
+        dto.setId(Optional.ofNullable(account.getId()).map(LongId::getId).orElse(null));
         dto.setUserId(
-                Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+                Optional.ofNullable(account.getUserId()).map(LongId::getId).orElse(null));
         dto.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
                 .map(AccountStatusEnum::name).orElse(null));
         dto.setCreateTime(Optional.ofNullable(account.getCreateTime()).map(DateUtil::toEpochSecond)

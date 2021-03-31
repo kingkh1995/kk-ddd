@@ -20,7 +20,7 @@ public enum UserDataConverter implements DataConverter<User, UserDO> {
             return null;
         }
         var data = new UserDO();
-        data.setId(Optional.ofNullable(user.getId()).map(LongId::getValue).orElse(null));
+        data.setId(Optional.ofNullable(user.getId()).map(LongId::getId).orElse(null));
         return data;
     }
 

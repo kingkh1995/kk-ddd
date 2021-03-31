@@ -1,5 +1,7 @@
-package com.kkk.op.support.tools;
+package com.kkk.op.support.bean;
 
+import com.kkk.op.support.exception.BussinessException;
+import com.kkk.op.support.marker.DistributedReentrantLock;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +16,11 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 /**
  * 分布式锁实现
+ * todo... 可重入锁实现
  * @author KaiKoo
  */
 @Slf4j
-public class DistributedLock {
+public class RedisDistributedReentrantLock implements DistributedReentrantLock {
 
     private final StringRedisTemplate redisTemplate;
 
@@ -35,7 +38,7 @@ public class DistributedLock {
     @Setter
     private TimeUnit lockTimeUnit = TimeUnit.SECONDS;
 
-    public DistributedLock(StringRedisTemplate redisTemplate) {
+    public RedisDistributedReentrantLock(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -48,7 +51,7 @@ public class DistributedLock {
 
     // 生成 UUID 作为 RequestId 并保存在 ThreadLocal 中 释放锁的时候再取出值做对比
     private String generateRequestId(String key) {
-        String uuid = UUID.randomUUID().toString();
+        var uuid = UUID.randomUUID().toString();
         context.get().put(key, uuid);
         return uuid;
     }
@@ -64,14 +67,14 @@ public class DistributedLock {
     /**
      * 获取锁，失败不重试
      */
-    public boolean tryLock(String key) {
-        return this.tryLock(key, 0);
+    public void tryLock(@NotBlank String key) {
+        this.tryLock(key, 0);
     }
 
     /**
      * 获取锁，失败则自旋重试
      */
-    public boolean tryLock(@NotBlank String key, int retry) {
+    public void tryLock(@NotBlank String key, int retry) {
         var locked = false;
         var i = 0;
         retry = retry > maxRetryTimes ? maxRetryTimes : retry;
@@ -86,26 +89,34 @@ public class DistributedLock {
             locked = this.lock(key, requestId);
             retry--;
         }
-        return locked;
+        if (!locked) {
+            throw new BussinessException("服务繁忙请稍后再试！");
+        }
     }
 
     private final static String SCRIPT =
             "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 
     /**
-     * 使用lua脚本进行原子解锁
+     * 使用lua脚本进行原子释放锁
      *
      * 解决问题：如果锁已自动释放请求仍未执行完，则可能会让被其他线程获取到该锁，必须保证不能释放掉别人加的锁
      * （同时业务逻辑中也要通过乐观锁或其他方式避免并发问题发生）
      */
-    public boolean unlock(@NotBlank String key) {
+    public void unlock(@NotBlank String key) {
         var requestId = getRequestId(key);
         if (requestId == null) {
-            return false;
+            return;
         }
-        Long result = redisTemplate
-                .execute(new DefaultRedisScript<>(SCRIPT, Long.class), Arrays.asList(key),
-                        Arrays.asList(requestId));
-        return result > 0;
+        try {
+            var result = redisTemplate
+                    .execute(new DefaultRedisScript<>(SCRIPT, Long.class), Arrays.asList(key),
+                            Arrays.asList(requestId));
+            if (result < 1) {
+                log.warn(String.format("execute return %d!", result));
+            }
+        } catch (Exception e) {
+            log.warn("unlock error!", e);
+        }
     }
 }

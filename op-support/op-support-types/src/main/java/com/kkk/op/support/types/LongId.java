@@ -2,6 +2,7 @@ package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 
 /**
@@ -12,6 +13,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class LongId implements Identifier {
 
+    @Getter
     private final Long id;
 
     public LongId(Long id) {
@@ -24,7 +26,8 @@ public class LongId implements Identifier {
         this.id = id;
     }
 
-    public Long getValue() {
-        return this.id;
+    @Override
+    public String getValue() {
+        return this.id.toString();
     }
 }
