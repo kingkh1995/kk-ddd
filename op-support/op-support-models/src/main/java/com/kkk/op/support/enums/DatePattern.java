@@ -1,9 +1,8 @@
 package com.kkk.op.support.enums;
 
+import com.kkk.op.support.tools.DateUtil;
 import java.time.DateTimeException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,8 +16,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DatePattern {
 
-    timpstamp(null), // 秒级时间戳
-    yyyy_MM_dd_HH_mm_ss(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+    epochSecond(null),
+    yyyy_MM_dd_HH_mm_ss(DateUtil.yyyy_MM_dd_HH_mm_ss),
     ;
 
     @Getter
@@ -39,8 +38,7 @@ public enum DatePattern {
             // 转为DateTimeException
             throw new DateTimeException(e.getMessage(), e);
         }
-        // 默认为当前时区
-        return Instant.ofEpochSecond(epochSecond).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return DateUtil.toLocalDateTime(epochSecond);
     }
 
     public String format(LocalDateTime localDateTime) {
@@ -50,8 +48,7 @@ public enum DatePattern {
         if (this.formatter != null) {
             return localDateTime.format(this.formatter);
         }
-        // 默认为当前时区
-        return String.valueOf(localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond());
+        return String.valueOf(DateUtil.toEpochSecond(localDateTime));
     }
 
 

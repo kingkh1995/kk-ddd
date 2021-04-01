@@ -1,10 +1,17 @@
 package com.kkk.op.support.changeTracking;
 
+import com.kkk.op.support.bean.EntityRepositorySupport;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.marker.AggregateRepository;
+import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.DistributedReentrantLock;
 import com.kkk.op.support.marker.Identifier;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,26 +21,19 @@ import lombok.Getter;
  *
  * @author KaiKoo
  */
-public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends
-        Identifier> implements AggregateRepository<T, ID> {
+public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends Identifier>
+        extends EntityRepositorySupport<T, ID> implements AggregateRepository<T, ID> {
 
     @Getter(AccessLevel.PROTECTED)
     private AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
-    public AggregateRepositorySupport(AggregateTrackingManager<T, ID> aggregateTrackingManager) {
+    public AggregateRepositorySupport(
+            DistributedReentrantLock distributedReentrantLock,
+            CacheManager<T> cacheManager,
+            AggregateTrackingManager<T, ID> aggregateTrackingManager) {
+        super(distributedReentrantLock, cacheManager);
         this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
-
-    /**
-     * 这几个方法是继承的子类应该去实现的 对应crud的实现
-     */
-    protected abstract void onInsert(@NotNull T aggregate);
-
-    protected abstract T onSelect(@NotNull ID id);
-
-    protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
-
-    protected abstract void onDelete(@NotNull T aggregate);
 
     /**
      * 让查询出来的对象能够被追踪。
@@ -58,7 +58,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public T find(@NotNull ID id) {
-        var aggregate = this.onSelect(id);
+        var aggregate = super.find(id);
         // 添加跟踪
         if (aggregate != null) {
             this.attach(aggregate);
@@ -71,7 +71,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public void remove(@NotNull T aggregate) {
-        this.onDelete(aggregate);
+        super.remove(aggregate);
         // 解除跟踪
         this.detach(aggregate);
     }
@@ -81,20 +81,49 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public void save(@NotNull T aggregate) {
-        // 如果没有 ID，直接插入
+        // 如果没有 ID，直接插入 不需要获取分布式锁
         if (aggregate.getId() == null) {
             this.onInsert(aggregate);
             // 添加跟踪
             this.attach(aggregate);
             return;
         }
+        // update操作
         // 做 diff
         var entityDiff = this.aggregateTrackingManager.detectChanges(aggregate);
-        if (entityDiff != null) {
-            // 调用 UPDATE
-            this.onUpdate(aggregate, entityDiff);
-            // 合并变更跟踪
-            this.aggregateTrackingManager.merge(aggregate);
+        if (entityDiff == null) {
+            return;
         }
+        if (!this.isAutoCaching()) {
+            this.onUpdate(aggregate, entityDiff);
+        } else {
+            var key = aggregate.getId().getValue();
+            this.getDistributedReentrantLock().tryLock(key);
+            try {
+                this.getCacheManager().cacheRemove(key);
+                this.onUpdate(aggregate, entityDiff);
+                // todo... 发送消息，延迟双删
+            } catch (Exception e) {
+                throw new BussinessException(e);
+            } finally {
+                this.getDistributedReentrantLock().unlock(key);
+            }
+        }
+        // 合并跟踪变更
+        this.aggregateTrackingManager.merge(aggregate);
+    }
+
+    protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
+
+    @Override
+    protected final void onUpdate(@NotNull T aggregate) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<T> list(@NotEmpty Set<ID> ids) {
+        var list = super.list(ids);
+        // todo... 一定要attach
+        return null;
     }
 }

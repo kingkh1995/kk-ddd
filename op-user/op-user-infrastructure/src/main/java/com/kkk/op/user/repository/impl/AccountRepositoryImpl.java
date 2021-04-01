@@ -49,15 +49,16 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     }
 
     @Override
-    protected void onInsertOrUpdate(@NotNull Account entity) {
+    protected void onInsert(@NotNull Account entity) {
         var data = accountDataConverter.toData(entity);
-        if (data.getId() != null) {
-            accountMapper.updateById(data);
-            return;
-        }
         accountMapper.insert(data);
         // 填补id
         entity.fillInId(new LongId(data.getId()));
+    }
+
+    @Override
+    protected void onUpdate(@NotNull Account entity) {
+        accountMapper.updateById(accountDataConverter.toData(entity));
     }
 
     @Override

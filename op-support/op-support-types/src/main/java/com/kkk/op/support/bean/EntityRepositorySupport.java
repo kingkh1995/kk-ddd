@@ -8,6 +8,7 @@ import com.kkk.op.support.marker.Entity;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -40,15 +41,15 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     private final boolean autoCaching;
 
     {
-        Cacheable annotation = this.getClass().getAnnotation(Cacheable.class);
-        autoCaching = annotation == null ? false : annotation.autoCaching();
+        var annotation = this.getClass().getAnnotation(Cacheable.class);
+        this.autoCaching = annotation == null ? false : annotation.autoCaching();
     }
 
     public EntityRepositorySupport(
             DistributedReentrantLock distributedReentrantLock,
             CacheManager<T> cacheManager) {
-        this.distributedReentrantLock = distributedReentrantLock;
-        this.cacheManager = cacheManager;
+        this.distributedReentrantLock = Objects.requireNonNull(distributedReentrantLock);
+        this.cacheManager = Objects.requireNonNull(cacheManager);
     }
 
     /**
@@ -59,7 +60,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
 
     protected abstract void onDelete(@NotNull T entity);
 
-    protected abstract void onInsertOrUpdate(@NotNull T entity);
+    protected abstract void onInsert(@NotNull T entity);
+
+    protected abstract void onUpdate(@NotNull T entity);
 
     protected abstract List<T> onSelectByIds(@NotEmpty Set<ID> ids);
 
@@ -107,15 +110,21 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
 
     @Override
     public void save(@NotNull T entity) {
+        // insert操作不需要获取分布式锁
+        if (entity.getId() == null) {
+            this.onInsert(entity);
+            return;
+        }
+        // update操作
         if (!this.autoCaching) {
-            this.onDelete(entity);
+            this.onUpdate(entity);
             return;
         }
         var key = entity.getId().getValue();
         this.distributedReentrantLock.tryLock(key);
         try {
             this.cacheManager.cacheRemove(key);
-            this.onInsertOrUpdate(entity);
+            this.onUpdate(entity);
             // todo... 发送消息，延迟双删
             return;
         } catch (Exception e) {
@@ -127,7 +136,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
 
     @Override
     public List<T> list(@NotEmpty Set<ID> ids) {
-        //todo... 批量加锁 or 单个加锁 or 异步加载缓存
+        //todo... 批量加锁 or 单个加锁
         return this.onSelectByIds(ids);
     }
 

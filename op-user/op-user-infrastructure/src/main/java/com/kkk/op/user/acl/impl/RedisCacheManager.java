@@ -1,6 +1,8 @@
 package com.kkk.op.user.acl.impl;
 
 import com.kkk.op.support.marker.CacheManager;
+import java.util.Objects;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,6 +11,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RedisCacheManager<T> implements CacheManager<T> {
+
+    private StringRedisTemplate stringRedisTemplate;
+
+    public RedisCacheManager(
+            StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = Objects.requireNonNull(stringRedisTemplate);
+    }
 
     @Override
     public boolean cachePut(String key, T t) {

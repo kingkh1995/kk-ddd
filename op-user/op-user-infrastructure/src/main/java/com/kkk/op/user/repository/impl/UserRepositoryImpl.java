@@ -6,6 +6,8 @@ import com.kkk.op.support.changeTracking.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.DistributedReentrantLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -41,10 +43,13 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
     private final AccountMapper accountMapper;
 
-    public UserRepositoryImpl(@Autowired UserMapper userMapper,
+    public UserRepositoryImpl(
+            @Autowired DistributedReentrantLock distributedReentrantLock,
+            @Autowired CacheManager<User> cacheManager,
+            @Autowired UserMapper userMapper,
             @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
-        super(new ThreadLocalAggregateTrackingManager());
+        super(distributedReentrantLock, cacheManager, new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
     }
@@ -70,6 +75,11 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
                 account.fillInId(new LongId(accountDO.getId()));
             });
         }
+    }
+
+    @Override
+    protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
+        return null;
     }
 
     @Override
@@ -131,9 +141,4 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         }
     }
 
-    @Override
-    public List<User> list(@NotEmpty Set<LongId> ids) {
-        // todo... 一定要attach
-        return null;
-    }
 }

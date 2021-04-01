@@ -24,7 +24,8 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
 
     private final StringRedisTemplate redisTemplate;
 
-    private final ThreadLocal<Map<String, String>> context = ThreadLocal.withInitial(HashMap::new);
+    private final ThreadLocal<Map<String, LockInfo>> lockContext = ThreadLocal
+            .withInitial(HashMap::new);
 
     @Setter
     private int maxRetryTimes = 3;
@@ -33,13 +34,21 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
     private long sleepInterval = 500L;
 
     @Setter
-    private long lockTime = 10L;
+    private long expireTime = 10L;
 
     @Setter
-    private TimeUnit lockTimeUnit = TimeUnit.SECONDS;
+    private TimeUnit expireTimeUnit = TimeUnit.SECONDS;
 
     public RedisDistributedReentrantLock(StringRedisTemplate redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    private static class LockInfo {
+
+        private int count = 1;
+
+        private String requestId = UUID.randomUUID().toString();
+
     }
 
     // 睡眠时间递增，并且取随机值，防止雪崩
@@ -49,49 +58,51 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
                 .nextLong((long) (interval * 0.8), (long) (interval * 1.2));
     }
 
-    // 生成 UUID 作为 RequestId 并保存在 ThreadLocal 中 释放锁的时候再取出值做对比
-    private String generateRequestId(String key) {
-        var uuid = UUID.randomUUID().toString();
-        context.get().put(key, uuid);
-        return uuid;
-    }
-
-    private String getRequestId(String key) {
-        return context.get().get(key);
+    private LockInfo getLockInfo(String key) {
+        return this.lockContext.get().get(key);
     }
 
     private boolean lock(String key, String requestId) {
-        return redisTemplate.opsForValue().setIfAbsent(key, requestId, lockTime, lockTimeUnit);
+        return redisTemplate.opsForValue().setIfAbsent(key, requestId, expireTime, expireTimeUnit);
     }
 
     /**
      * 获取锁，失败不重试
      */
     public void tryLock(@NotBlank String key) {
-        this.tryLock(key, 0);
+        if (!this.tryLock(key, 0)) {
+            throw new BussinessException("服务繁忙请稍后再试！");
+        }
     }
 
     /**
      * 获取锁，失败则自旋重试
      */
-    public void tryLock(@NotBlank String key, int retry) {
-        var locked = false;
-        var i = 0;
+    public boolean tryLock(@NotBlank String key, int retry) {
+        // 可重入锁，判断该线程是否获取到了锁
+        var lockInfo = this.getLockInfo(key);
+        if (lockInfo != null) {
+            lockInfo.count++;
+            return true;
+        }
+        // 重试次数
         retry = retry > maxRetryTimes ? maxRetryTimes : retry;
-        var requestId = generateRequestId(key);
-        locked = this.lock(key, requestId);
-        while (!locked && retry > 0) {
+        // 获取锁
+        lockInfo = new LockInfo();
+        var locked = this.lock(key, lockInfo.requestId);
+        for (var i = 0; !locked && retry > 0; i++, retry--) {
             try {
-                Thread.sleep(generateSleepMills(i++));
+                Thread.sleep(generateSleepMills(i));
             } catch (InterruptedException e) {
                 log.error(String.format("线程【%s】睡眠被中断！", Thread.currentThread().getName()), e);
             }
-            locked = this.lock(key, requestId);
-            retry--;
+            locked = this.lock(key, lockInfo.requestId);
         }
-        if (!locked) {
-            throw new BussinessException("服务繁忙请稍后再试！");
+        if (locked) {
+            // 获取到锁保存锁信息
+            this.lockContext.get().put(key, lockInfo);
         }
+        return locked;
     }
 
     private final static String SCRIPT =
@@ -104,19 +115,26 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
      * （同时业务逻辑中也要通过乐观锁或其他方式避免并发问题发生）
      */
     public void unlock(@NotBlank String key) {
-        var requestId = getRequestId(key);
-        if (requestId == null) {
+        var lockInfo = this.getLockInfo(key);
+        if (lockInfo == null) {
             return;
         }
+        if (--lockInfo.count > 0) {
+            return;
+        }
+        // 释放锁
         try {
             var result = redisTemplate
                     .execute(new DefaultRedisScript<>(SCRIPT, Long.class), Arrays.asList(key),
-                            Arrays.asList(requestId));
+                            lockInfo.requestId);
             if (result < 1) {
                 log.warn(String.format("execute return %d!", result));
             }
         } catch (Exception e) {
             log.warn("unlock error!", e);
+        } finally {
+            this.lockContext.get().remove(key);
         }
     }
+
 }

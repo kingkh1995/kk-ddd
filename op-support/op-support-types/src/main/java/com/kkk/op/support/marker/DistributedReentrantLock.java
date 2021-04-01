@@ -16,7 +16,7 @@ public interface DistributedReentrantLock {
     /**
      * 获取锁，失败则自旋重试
      */
-    void tryLock(@NotBlank String key, int retry);
+    boolean tryLock(@NotBlank String key, int retry);
 
     /**
      * 释放锁（不抛出异常）

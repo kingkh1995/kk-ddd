@@ -24,6 +24,6 @@ public abstract class AbstractQueryDTO implements Serializable {
      */
     @Getter
     @Setter
-    protected DatePattern datePattern = DatePattern.timpstamp;
+    protected DatePattern datePattern = DatePattern.epochSecond;
 
 }

@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -13,11 +14,16 @@ import javax.validation.constraints.NotNull;
  */
 public final class DateUtil {
 
+    // 静态DateTimeFormatter变量
+    public final static DateTimeFormatter yyyy_MM_dd_HH_mm_ss = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private DateUtil() throws IllegalAccessException {
         throw new IllegalAccessException();
     }
 
     public static LocalDateTime toLocalDateTime(long epochSecond) {
+        // 默认当前时区
         return toLocalDateTime(epochSecond, ZoneId.systemDefault());
     }
 
@@ -26,6 +32,7 @@ public final class DateUtil {
     }
 
     public static LocalDateTime toLocalDateTime(Timestamp timestamp) {
+        // 默认当前时区
         return toLocalDateTime(timestamp, ZoneId.systemDefault());
     }
 
@@ -34,6 +41,7 @@ public final class DateUtil {
     }
 
     public static Timestamp toTimestamp(@NotNull LocalDateTime localDateTime) {
+        // 默认当前时区
         return toTimestamp(localDateTime, ZoneId.systemDefault());
     }
 
@@ -43,6 +51,7 @@ public final class DateUtil {
     }
 
     public static Timestamp toTimestamp(@NotNull @NotNull LocalDate localDate) {
+        // 默认当前时区
         return toTimestamp(localDate, ZoneId.systemDefault());
     }
 
@@ -52,6 +61,7 @@ public final class DateUtil {
     }
 
     public static long toEpochSecond(@NotNull LocalDateTime localDateTime) {
+        // 默认当前时区
         return toEpochSecond(localDateTime, ZoneId.systemDefault());
     }
 
@@ -60,6 +70,7 @@ public final class DateUtil {
     }
 
     public static long toEpochSecond(@NotNull LocalDate localDate) {
+        // 默认当前时区
         return toEpochSecond(localDate, ZoneId.systemDefault());
     }
 
