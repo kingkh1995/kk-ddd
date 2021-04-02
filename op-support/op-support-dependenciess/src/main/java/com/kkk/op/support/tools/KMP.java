@@ -8,10 +8,10 @@ import javax.validation.constraints.NotEmpty;
 
 /**
  * KMP算法查找字符串
- * todo... 有bug，待实现
+ * fixme... 有bug，待实现
  * @author KaiKoo
  */
-public final class KMP {
+public class KMP {
 
     /**
      * 辅助数组
