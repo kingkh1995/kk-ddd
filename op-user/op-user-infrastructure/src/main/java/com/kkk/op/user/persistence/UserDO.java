@@ -14,7 +14,7 @@ import lombok.Data;
 @TableName("user")
 public class UserDO {
 
-    @TableId(type = IdType.INPUT)
+    @TableId(type = IdType.ASSIGN_ID)//默认雪花算法实现
     private Long id;
 
     private String name;

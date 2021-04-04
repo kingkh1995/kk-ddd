@@ -16,7 +16,7 @@ public interface DataConverter<T extends Entity, P> {
 
     T fromData(P data);
 
-    default List<P> toData(Collection<T> entityCol) {
+    default List<P> toData(Collection<? extends T> entityCol) {
         if (entityCol == null || entityCol.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
@@ -24,7 +24,7 @@ public interface DataConverter<T extends Entity, P> {
                 .collect(Collectors.toList());
     }
 
-    default List<T> fromData(Collection<P> dataCol) {
+    default List<T> fromData(Collection<? extends P> dataCol) {
         if (dataCol == null || dataCol.isEmpty()) {
             return Collections.EMPTY_LIST;
         }

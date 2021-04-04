@@ -12,4 +12,12 @@
   <packaging>jar</packaging>
   <version>ACE-SNAPSHOT</version>
 
+  <dependencies>
+    <dependency>
+      <groupId>com.kkk.op.support</groupId>
+      <artifactId>op-support-dependencies</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
 </project>

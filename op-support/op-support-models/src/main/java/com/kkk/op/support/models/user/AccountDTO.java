@@ -17,4 +17,8 @@ public class AccountDTO implements Serializable {
     private Long userId;
 
     private String status;
+
+    // 日期类默认转换为时间戳
+    private Long createTime;
+
 }

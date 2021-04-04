@@ -5,8 +5,10 @@ import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -28,7 +30,13 @@ public class AccountQuery extends AbstractQuery {
 
     private AccountStatus status;
 
-    private List<LongId> ids;
+    private Set<LongId> ids;
+
+    // 日期查询区间开始（包含）
+    private LocalDateTime createTimeStart;
+
+    // 日期查询区间结束（不包含）
+    private LocalDateTime createTimeEnd;
 
     public Account find(AccountService accountService) {
         // find by id
@@ -40,6 +48,7 @@ public class AccountQuery extends AbstractQuery {
     }
 
     public List<Account> list(AccountService accountService) {
+        System.out.println(this.toString());
         // todo... list by fields
         return Collections.EMPTY_LIST;
     }

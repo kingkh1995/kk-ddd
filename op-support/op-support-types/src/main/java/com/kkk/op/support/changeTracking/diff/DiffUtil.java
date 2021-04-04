@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javax.validation.constraints.NotEmpty;
 
 /**
  *
@@ -15,8 +16,8 @@ import java.util.Objects;
 public final class DiffUtil {// 工具类声明为 final
 
     // 保证不能被实例化，同时防止反射机制创建对象
-    private DiffUtil() {
-        throw new UnsupportedOperationException();
+    private DiffUtil() throws IllegalAccessException {
+        throw new IllegalAccessException();
     }
 
     /**
@@ -55,14 +56,14 @@ public final class DiffUtil {// 工具类声明为 final
         // 开始对比
         var fields = snapshot.getClass().getDeclaredFields();
         for (var field : fields) {
-            field.setAccessible(true);
+            field.trySetAccessible();
             try {
                 var sObj = field.get(snapshot);
                 var aObj = field.get(aggregate);
                 // 根据类型做不同的处理
-                if (sObj instanceof Entity) {
+                if (sObj instanceof Entity && aObj instanceof Entity) {
                     entityDiff.put(field.getName(), diff((Entity) sObj, (Entity) aObj));
-                } else if (sObj instanceof Collection) {
+                } else if (sObj instanceof Collection && aObj instanceof Collection) {
                     entityDiff.put(field.getName(), diff((Collection) sObj, (Collection) aObj));
                 } else {
                     // 其他类型 Type （DP和基本数据类型，不应该有Map类型，设计中应该将Map替换为DP或Entity）
@@ -104,34 +105,25 @@ public final class DiffUtil {// 工具类声明为 final
             collectionDiff.setType(DiffType.Removed);
             return collectionDiff;
         }
-        // 开始对比
-        // 集合元素理应 全部为Type类型 或 全部为Entity类型，而不应该为Collection或者Map，设计时应被替换为DP或Entity
-        var iterator = sCol.iterator();
-        var obj = iterator.next();
-        if (obj instanceof Entity) {
+        // 开始对比 集合元素应该 全部为Type类型 或 全部为Entity类型，而不应该为Collection或者Map，设计时应被替换为DP或Entity
+        // 判断所有元素是否全是Entity并过滤空元素 运行时已经擦除了泛型信息，所以无法通过反射获取到实际的类型
+        if (allEntity(aCol) && allEntity(sCol)) {
             // 如元素类型为Entity 根据Id去查找匹配
-            // 如元素并不全是Entity类型会出现转换异常，应该任由异常抛出，因为属于设计上不允许发生的异常
             // 拼装sMap
             var sMap = new HashMap<Identifier, Entity>();
-            put2IdEntityMap(sMap, (Entity) obj);
-            while (iterator.hasNext()) {
-                // 快照不存在Id属于不正常情况，应该被忽略
-                put2IdEntityMap(sMap, (Entity) iterator.next());
-            }
+            sCol.stream().filter(Objects::nonNull).forEach(t -> put2IdEntityMap(sMap, (Entity) t));
             // 拼装aMap
-            iterator = aCol.iterator();
             var aMap = new HashMap<Identifier, Entity>();
-            while (iterator.hasNext()) {
-                var entity = (Entity) iterator.next();
-                if (put2IdEntityMap(aMap, entity) == null && entity != null) {
+            aCol.stream().filter(Objects::nonNull).forEach(t -> {
+                var entity = (Entity) t;
+                if (put2IdEntityMap(aMap, entity) == null) {
                     // 不存在id，添加一个Add类型的EntityDiff
                     var diff = new EntityDiff(null, entity);
                     diff.setType(DiffType.Added);
                     collectionDiff.add(diff);
                 }
-            }
-            // 遍历 sMap 进行对比
-            // 不需要遍历aMap，aMap中没被访问到的情况是存在Id但是不存在快照，这在正常情况下不允许发生，应该被忽略
+            });
+            // 遍历sMap进行对比，aMap中没被访问到的情况是存在Id但是不存在快照，这在正常情况下不允许发生，应该被忽略
             sMap.forEach((id, snapshot) -> collectionDiff.add(diff(snapshot, aMap.get(id))));
             // 对比完成，判断对比结果
             if (collectionDiff.isEmpty()) {
@@ -153,14 +145,19 @@ public final class DiffUtil {// 工具类声明为 final
         return entity == null || entity.getId() == null;
     }
 
-    private static boolean isNullOrEmpty(Collection collection) {
+    private static boolean isNullOrEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
 
+    private static boolean allEntity(@NotEmpty Collection<?> collection) {
+        return collection.stream().filter(Objects::nonNull).allMatch(o -> o instanceof Entity);
+    }
+
     private static Entity put2IdEntityMap(Map<Identifier, Entity> map, Entity entity) {
-        if (!isNullOrUnidentified(entity)) {
-            return map.put(entity.getId(), entity);
+        // 快照不存在Id属于不正常情况，应该被忽略
+        if (isNullOrUnidentified(entity)) {
+            return null;
         }
-        return null;
+        return map.put(entity.getId(), entity);
     }
 }

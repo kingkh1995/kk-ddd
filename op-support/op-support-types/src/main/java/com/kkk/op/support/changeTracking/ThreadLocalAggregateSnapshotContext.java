@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Aggregate快照管理实现类
  * 使用ThreadLocal防止多个线程公用一份快照
+ * todo... 内存泄漏怎么解决？（ThreadLocal中的数据何时remove）
  *
  * @author KaiKoo
  */
