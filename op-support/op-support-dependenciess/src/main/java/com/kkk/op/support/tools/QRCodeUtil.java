@@ -145,16 +145,17 @@ public final class QRCodeUtil {
         logoImage.flush();
     }
 
-    // 默认为 QRCodeWriter
+    // 二维码生成writer
     private final static Writer WRITER;
 
-    // 默认hints配置
+    // hints配置
     private final static Map<EncodeHintType, Object> HINTS;
 
-    // 保留logo图片原始颜色
+    // 矩阵转绘图对象配置
     private final static MatrixToImageConfig CONFIG;
 
     static {
+        // 默认为 QRCodeWriter
         WRITER = new QRCodeWriter();
         HINTS = new HashMap<>();
         // 设置编码格式
