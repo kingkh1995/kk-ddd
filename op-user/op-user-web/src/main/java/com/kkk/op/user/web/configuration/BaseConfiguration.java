@@ -1,7 +1,7 @@
 package com.kkk.op.user.web.configuration;
 
-import com.kkk.op.support.bean.RedisDistributedReentrantLock;
-import com.kkk.op.support.marker.DistributedReentrantLock;
+import com.kkk.op.support.bean.RedisDistributedLock;
+import com.kkk.op.support.marker.DistributedLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +16,12 @@ public class BaseConfiguration {
 
     // 配置分布式可重入锁bean
     @Bean
-    public DistributedReentrantLock distributedReentrantLock(
+    public DistributedLock distributedLock(
             @Autowired StringRedisTemplate stringRedisTemplate) {
-        var redisDistributedReentrantLock = new RedisDistributedReentrantLock(stringRedisTemplate);
-        // 设置自定义参数
-        redisDistributedReentrantLock.setMaxRetryTimes(2);
-        return redisDistributedReentrantLock;
+        var builder = RedisDistributedLock.builder()
+                .redisTemplate(stringRedisTemplate)
+                .sleepInterval(300L);
+        return builder.build();
     }
 
 }

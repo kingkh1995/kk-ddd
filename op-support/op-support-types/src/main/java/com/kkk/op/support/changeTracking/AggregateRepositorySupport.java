@@ -1,12 +1,12 @@
 package com.kkk.op.support.changeTracking;
 
+import com.kkk.op.support.bean.Aggregate;
 import com.kkk.op.support.bean.EntityRepositorySupport;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.marker.Aggregate;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.CacheManager;
-import com.kkk.op.support.marker.DistributedReentrantLock;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
 import java.util.Objects;
@@ -28,10 +28,10 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     private AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
     public AggregateRepositorySupport(
-            DistributedReentrantLock distributedReentrantLock,
+            DistributedLock distributedLock,
             CacheManager<T> cacheManager,
             AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-        super(distributedReentrantLock, cacheManager);
+        super(distributedLock, cacheManager);
         this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
 
@@ -98,15 +98,16 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
             this.onUpdate(aggregate, entityDiff);
         } else {
             var key = aggregate.getId().getValue();
-            this.getDistributedReentrantLock().tryLock(key);
-            try {
-                this.getCacheManager().cacheRemove(key);
-                this.onUpdate(aggregate, entityDiff);
-                // todo... 发送消息，延迟双删
-            } catch (Exception e) {
-                throw new BussinessException(e);
-            } finally {
-                this.getDistributedReentrantLock().unlock(key);
+            if (this.getDistributedLock().tryLock(key)) {
+                try {
+                    this.getCacheManager().cacheRemove(key);
+                    this.onUpdate(aggregate, entityDiff);
+                    // todo... 发送消息，延迟双删
+                } finally {
+                    this.getDistributedLock().unlock(key);
+                }
+            } else {
+                throw new BussinessException("服务繁忙请稍后再试！");
             }
         }
         // 合并跟踪变更

@@ -18,16 +18,25 @@
       <artifactId>op-support-types</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--redis-->
+    <!--todo... 关闭自动配置-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
+    <!--redisson-->
+    <!--todo... 关闭自动配置-->
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson-spring-boot-starter</artifactId>
+      <version>3.14.1</version>
+    </dependency>
+    <!--zxing-->
     <dependency>
       <groupId>com.google.zxing</groupId>
       <artifactId>javase</artifactId>
       <version>3.4.1</version>
     </dependency>
   </dependencies>
-
 
 </project>

@@ -1,5 +1,6 @@
 package com.kkk.op.support.marker;
 
+import com.kkk.op.support.bean.Entity;
 import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;

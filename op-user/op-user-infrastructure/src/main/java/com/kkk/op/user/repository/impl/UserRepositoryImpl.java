@@ -7,7 +7,7 @@ import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.CacheManager;
-import com.kkk.op.support.marker.DistributedReentrantLock;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -44,12 +44,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     private final AccountMapper accountMapper;
 
     public UserRepositoryImpl(
-            @Autowired DistributedReentrantLock distributedReentrantLock,
+            @Autowired DistributedLock distributedLock,
             @Autowired CacheManager<User> cacheManager,
             @Autowired UserMapper userMapper,
             @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
-        super(distributedReentrantLock, cacheManager, new ThreadLocalAggregateTrackingManager());
+        super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
     }

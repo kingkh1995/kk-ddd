@@ -1,46 +1,76 @@
 package com.kkk.op.support.bean;
 
-import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.marker.DistributedReentrantLock;
+import com.kkk.op.support.marker.DistributedLock;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
-import lombok.Setter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 /**
- * 分布式锁实现
- * todo... 可重入锁实现
+ * 基于redis的分布式锁实现 （适用于redis单机模式，或者对可用性要求不是特别高）
+ * 集群模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了
+ *
+ * todo... watchdog:自动延长锁时间
+ *
  * @author KaiKoo
  */
 @Slf4j
-public class RedisDistributedReentrantLock implements DistributedReentrantLock {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class RedisDistributedLock implements DistributedLock {
 
-    private final StringRedisTemplate redisTemplate;
+    private long sleepInterval;
+
+    private long expireMills;
+
+    private StringRedisTemplate redisTemplate;
 
     private final ThreadLocal<Map<String, LockInfo>> lockContext = ThreadLocal
             .withInitial(HashMap::new);
 
-    @Setter
-    private int maxRetryTimes = 3;
+    public static Builder builder() {
+        return new Builder();
+    }
 
-    @Setter
-    private long sleepInterval = 500L;
+    // Builder模式
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public final static class Builder {
 
-    @Setter
-    private long expireTime = 10L;
+        private long sleepInterval = 200L;
 
-    @Setter
-    private TimeUnit expireTimeUnit = TimeUnit.SECONDS;
+        private long expireMills = 10L * 1000L;
 
-    public RedisDistributedReentrantLock(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+        private StringRedisTemplate redisTemplate;
+
+        public Builder sleepInterval(long sleepInterval) {
+            this.sleepInterval = sleepInterval;
+            return this;
+        }
+
+        public Builder expireMills(long expireMills) {
+            this.expireMills = expireMills;
+            return this;
+        }
+
+        public Builder redisTemplate(StringRedisTemplate redisTemplate) {
+            this.redisTemplate = redisTemplate;
+            return this;
+        }
+
+        public RedisDistributedLock build() {
+            var redisDistributedLock = new RedisDistributedLock();
+            redisDistributedLock.sleepInterval = this.sleepInterval;
+            redisDistributedLock.expireMills = this.expireMills;
+            redisDistributedLock.redisTemplate = Objects.requireNonNull(this.redisTemplate);
+            return redisDistributedLock;
+        }
     }
 
     private static class LockInfo {
@@ -51,48 +81,36 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
 
     }
 
-    // 睡眠时间递增，并且取随机值，防止雪崩
-    private long generateSleepMills(int i) {
-        var interval = sleepInterval << i;
-        return ThreadLocalRandom.current()
-                .nextLong((long) (interval * 0.8), (long) (interval * 1.2));
-    }
-
     private LockInfo getLockInfo(String key) {
         return this.lockContext.get().get(key);
     }
 
     private boolean lock(String key, String requestId) {
-        return redisTemplate.opsForValue().setIfAbsent(key, requestId, expireTime, expireTimeUnit);
-    }
-
-    /**
-     * 获取锁，失败不重试
-     */
-    public void tryLock(@NotBlank String key) {
-        if (!this.tryLock(key, 0)) {
-            throw new BussinessException("服务繁忙请稍后再试！");
-        }
+        return this.redisTemplate.opsForValue()
+                .setIfAbsent(key, requestId, expireMills, TimeUnit.MILLISECONDS);
     }
 
     /**
      * 获取锁，失败则自旋重试
      */
-    public boolean tryLock(@NotBlank String key, int retry) {
+    @Override
+    public boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit) {
         // 可重入锁，判断该线程是否获取到了锁
         var lockInfo = this.getLockInfo(key);
         if (lockInfo != null) {
             lockInfo.count++;
             return true;
         }
-        // 重试次数
-        retry = retry > maxRetryTimes ? maxRetryTimes : retry;
         // 获取锁
+        unit = unit == null ? TimeUnit.MILLISECONDS : unit;
+        var waitMills = unit.toMillis(waitTime);
         lockInfo = new LockInfo();
         var locked = this.lock(key, lockInfo.requestId);
-        for (var i = 0; !locked && retry > 0; i++, retry--) {
+        for (var i = 0; !locked && waitMills > 0; i++) {
             try {
-                Thread.sleep(generateSleepMills(i));
+                var interval = generateSleepMills(i, this.sleepInterval);
+                Thread.sleep(interval);
+                waitMills -= interval;
             } catch (InterruptedException e) {
                 log.error(String.format("线程【%s】睡眠被中断！", Thread.currentThread().getName()), e);
             }
@@ -124,7 +142,7 @@ public class RedisDistributedReentrantLock implements DistributedReentrantLock {
         }
         // 释放锁
         try {
-            var result = redisTemplate
+            var result = this.redisTemplate
                     .execute(new DefaultRedisScript<>(SCRIPT, Long.class), Arrays.asList(key),
                             lockInfo.requestId);
             if (result < 1) {

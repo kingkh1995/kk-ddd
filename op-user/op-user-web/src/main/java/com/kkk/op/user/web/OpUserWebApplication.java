@@ -1,6 +1,7 @@
 package com.kkk.op.user.web;
 
 import org.mybatis.spring.annotation.MapperScan;
+import org.redisson.spring.starter.RedissonAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,7 +11,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 // 依赖调整为 springfox-boot-starter 地址修改为 /swagger-ui/index.html & /v3/api-docs
 @ComponentScan("com.kkk.op.user")// 扫描所有模块组件
 @MapperScan("com.kkk.op.user.persistence.mapper")// Mybatis扫描Mapper
-@SpringBootApplication
+@SpringBootApplication(exclude = {RedissonAutoConfiguration.class})
 public class OpUserWebApplication {
 
     public static void main(String[] args) {
