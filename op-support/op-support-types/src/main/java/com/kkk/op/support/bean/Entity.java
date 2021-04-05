@@ -1,6 +1,8 @@
-package com.kkk.op.support.marker;
+package com.kkk.op.support.bean;
 
 import com.kkk.op.support.exception.BussinessException;
+import com.kkk.op.support.marker.Identifiable;
+import com.kkk.op.support.marker.Identifier;
 
 /**
  * Entity：拥有唯一标识和业务行为，尽可能的由DP组成

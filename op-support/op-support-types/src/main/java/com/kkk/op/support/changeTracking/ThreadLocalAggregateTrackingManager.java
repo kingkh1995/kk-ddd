@@ -1,6 +1,6 @@
 package com.kkk.op.support.changeTracking;
 
-import com.kkk.op.support.marker.Aggregate;
+import com.kkk.op.support.bean.Aggregate;
 import com.kkk.op.support.marker.Identifier;
 
 /**

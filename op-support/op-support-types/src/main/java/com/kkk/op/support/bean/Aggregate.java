@@ -1,4 +1,6 @@
-package com.kkk.op.support.marker;
+package com.kkk.op.support.bean;
+
+import com.kkk.op.support.marker.Identifier;
 
 /**
  * Aggregate：Entity的聚合

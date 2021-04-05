@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.bean.EntityRepositorySupport;
 import com.kkk.op.support.marker.CacheManager;
-import com.kkk.op.support.marker.DistributedReentrantLock;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -31,10 +31,10 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     private final AccountMapper accountMapper;
 
     public AccountRepositoryImpl(
-            @Autowired DistributedReentrantLock distributedReentrantLock,
+            @Autowired DistributedLock distributedLock,
             @Autowired CacheManager<Account> cacheManager,
             @Autowired AccountMapper accountMapper) {
-        super(distributedReentrantLock, cacheManager);
+        super(distributedLock, cacheManager);
         this.accountMapper = accountMapper;
     }
 

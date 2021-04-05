@@ -3,8 +3,7 @@ package com.kkk.op.support.bean;
 import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.CacheManager;
-import com.kkk.op.support.marker.DistributedReentrantLock;
-import com.kkk.op.support.marker.Entity;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
@@ -32,7 +31,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         Identifier> implements EntityRepository<T, ID> {
 
     @Getter(AccessLevel.PROTECTED)
-    private DistributedReentrantLock distributedReentrantLock;
+    private DistributedLock distributedLock;
 
     @Getter(AccessLevel.PROTECTED)
     private CacheManager<T> cacheManager;
@@ -46,9 +45,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     }
 
     public EntityRepositorySupport(
-            DistributedReentrantLock distributedReentrantLock,
+            DistributedLock distributedLock,
             CacheManager<T> cacheManager) {
-        this.distributedReentrantLock = Objects.requireNonNull(distributedReentrantLock);
+        this.distributedLock = Objects.requireNonNull(distributedLock);
         this.cacheManager = Objects.requireNonNull(cacheManager);
     }
 
@@ -76,15 +75,16 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         if (entity != null) {
             return entity;
         }
-        this.distributedReentrantLock.tryLock(key);
-        try {
-            entity = this.onSelect(id);
-            this.cacheManager.cachePut(key, entity);
-            return entity;
-        } catch (Exception e) {
-            throw new BussinessException(e);
-        } finally {
-            this.distributedReentrantLock.unlock(key);
+        if (this.distributedLock.tryLock(key)) {
+            try {
+                entity = this.onSelect(id);
+                this.cacheManager.cachePut(key, entity);
+                return entity;
+            } finally {
+                this.distributedLock.unlock(key);
+            }
+        } else {
+            throw new BussinessException("服务繁忙请稍后再试！");
         }
     }
 
@@ -95,16 +95,17 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             return;
         }
         var key = entity.getId().getValue();
-        this.distributedReentrantLock.tryLock(key);
-        try {
-            this.cacheManager.cacheRemove(key);
-            this.onDelete(entity);
-            // todo... 发送消息，延迟双删
-            return;
-        } catch (Exception e) {
-            throw new BussinessException(e);
-        } finally {
-            this.distributedReentrantLock.unlock(key);
+        if (this.distributedLock.tryLock(key)) {
+            try {
+                this.cacheManager.cacheRemove(key);
+                this.onDelete(entity);
+                // todo... 发送消息，延迟双删
+                return;
+            } finally {
+                this.distributedLock.unlock(key);
+            }
+        } else {
+            throw new BussinessException("服务繁忙请稍后再试！");
         }
     }
 
@@ -121,16 +122,17 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             return;
         }
         var key = entity.getId().getValue();
-        this.distributedReentrantLock.tryLock(key);
-        try {
-            this.cacheManager.cacheRemove(key);
-            this.onUpdate(entity);
-            // todo... 发送消息，延迟双删
-            return;
-        } catch (Exception e) {
-            throw new BussinessException(e);
-        } finally {
-            this.distributedReentrantLock.unlock(key);
+        if (this.distributedLock.tryLock(key)) {
+            try {
+                this.cacheManager.cacheRemove(key);
+                this.onUpdate(entity);
+                // todo... 发送消息，延迟双删
+                return;
+            } finally {
+                this.distributedLock.unlock(key);
+            }
+        } else {
+            throw new BussinessException("服务繁忙请稍后再试！");
         }
     }
 

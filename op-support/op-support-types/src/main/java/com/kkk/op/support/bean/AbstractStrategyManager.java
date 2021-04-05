@@ -1,5 +1,6 @@
 package com.kkk.op.support.bean;
 
+import java.util.Objects;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -16,6 +17,6 @@ public abstract class AbstractStrategyManager implements InitializingBean, Appli
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        this.applicationContext = Objects.requireNonNull(applicationContext);
     }
 }

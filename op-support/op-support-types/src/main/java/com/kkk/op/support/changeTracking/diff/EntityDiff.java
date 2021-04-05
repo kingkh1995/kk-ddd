@@ -1,6 +1,6 @@
 package com.kkk.op.support.changeTracking.diff;
 
-import com.kkk.op.support.marker.Entity;
+import com.kkk.op.support.bean.Entity;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
