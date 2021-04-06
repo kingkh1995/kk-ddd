@@ -4,8 +4,8 @@ import com.kkk.op.support.marker.DistributedLock;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 
@@ -15,40 +15,18 @@ import org.redisson.api.RedissonClient;
  * @author KaiKoo
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class RedissonDistributedLock implements DistributedLock {
 
-    private long expireMills;
+    @Default
+    private long expireMills = 10L * 1000L;
 
     private RedissonClient client;
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public final static class Builder {
-
-        private long expireMills = 10L * 1000L;
-
-        private RedissonClient client;
-
-        public Builder expireMills(long expireMills) {
-            this.expireMills = expireMills;
-            return this;
-        }
-
-        public Builder RedissonClient(RedissonClient client) {
-            this.client = client;
-            return this;
-        }
-
-        public RedissonDistributedLock build() {
-            var redissonDistributedLock = new RedissonDistributedLock();
-            redissonDistributedLock.expireMills = this.expireMills;
-            redissonDistributedLock.client = Objects.requireNonNull(this.client);
-            return redissonDistributedLock;
-        }
+    // 供builder使用
+    private RedissonDistributedLock(long expireMills, RedissonClient client) {
+        this.expireMills = expireMills;
+        this.client = Objects.requireNonNull(client);
     }
 
     @Override

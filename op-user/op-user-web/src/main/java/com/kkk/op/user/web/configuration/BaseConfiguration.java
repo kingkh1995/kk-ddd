@@ -20,7 +20,7 @@ public class BaseConfiguration {
             @Autowired StringRedisTemplate stringRedisTemplate) {
         var builder = RedisDistributedLock.builder()
                 .redisTemplate(stringRedisTemplate)
-                .sleepInterval(300L);
+                .sleepInterval(200L);
         return builder.build();
     }
 
