@@ -47,14 +47,18 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     public EntityRepositorySupport(
             DistributedLock distributedLock,
             CacheManager<T> cacheManager) {
-        this.distributedLock = Objects.requireNonNull(distributedLock);
-        this.cacheManager = Objects.requireNonNull(cacheManager);
+        // 开启自动缓存时才校验
+        if (this.isAutoCaching()) {
+            Objects.requireNonNull(distributedLock);
+            Objects.requireNonNull(cacheManager);
+        }
+        this.distributedLock = distributedLock;
+        this.cacheManager = cacheManager;
     }
 
     /**
      * 这几个方法是继承的子类应该去实现的 对应crud的实现
      */
-
     protected abstract T onSelect(@NotNull ID id);
 
     protected abstract void onDelete(@NotNull T entity);

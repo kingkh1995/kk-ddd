@@ -1,7 +1,6 @@
-package com.kkk.op.support.changeTracking;
+package com.kkk.op.support.bean;
 
-import com.kkk.op.support.bean.Aggregate;
-import com.kkk.op.support.bean.EntityRepositorySupport;
+import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.AggregateRepository;
@@ -114,6 +113,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         this.aggregateTrackingManager.merge(aggregate);
     }
 
+    /**
+     * 重新定义update的实现，注意update前一定要查询一下。
+     */
     protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
 
     @Override
@@ -127,4 +129,5 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         // todo... 一定要attach
         return null;
     }
+
 }

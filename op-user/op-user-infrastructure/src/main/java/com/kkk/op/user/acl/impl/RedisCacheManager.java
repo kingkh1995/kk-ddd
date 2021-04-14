@@ -3,13 +3,12 @@ package com.kkk.op.user.acl.impl;
 import com.kkk.op.support.marker.CacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
 
 /**
  * todo... 实现 & 服务降级 设置为公共bean
  * @author KaiKoo
  */
-@Component
+//@Component // fixme... 暂时未开放redis功能
 public class RedisCacheManager<T> implements CacheManager<T> {
 
     private StringRedisTemplate stringRedisTemplate;
