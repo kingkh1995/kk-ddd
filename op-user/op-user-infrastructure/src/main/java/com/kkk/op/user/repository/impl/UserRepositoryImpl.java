@@ -3,7 +3,7 @@ package com.kkk.op.user.repository.impl;
 import com.google.common.collect.ImmutableMap;
 import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.bean.AggregateRepositorySupport;
-import com.kkk.op.support.changeTracking.ThreadLocalAggregateTrackingManager;
+import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;

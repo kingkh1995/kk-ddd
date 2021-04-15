@@ -1,6 +1,7 @@
-package com.kkk.op.support.changeTracking;
+package com.kkk.op.support.bean;
 
-import com.kkk.op.support.bean.Aggregate;
+import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
+import com.kkk.op.support.changeTracking.talsc.ThreadLocalAggregateSnapshotContext;
 import com.kkk.op.support.marker.Identifier;
 
 /**

@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Builder.Default;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -26,7 +25,6 @@ import org.springframework.data.redis.core.script.RedisScript;
  */
 @Slf4j
 @Builder
-@ToString
 public class RedisDistributedLock implements DistributedLock {
 
     @Default
