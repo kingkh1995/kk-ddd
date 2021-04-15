@@ -1,7 +1,7 @@
 package com.kkk.op.support.changeTracking.diff;
 
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.bean.Entity;
+import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.marker.Identifier;
 import java.util.Collection;
 import java.util.HashMap;

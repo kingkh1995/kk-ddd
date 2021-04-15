@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.strategy;
 
-import com.kkk.op.support.bean.AbstractStrategyManager;
+import com.kkk.op.support.base.AbstractStrategyManager;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.support.enums.AccountStatusEnum;
 import java.util.EnumMap;
