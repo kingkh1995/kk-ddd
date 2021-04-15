@@ -2,7 +2,7 @@ package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.annotations.Cacheable;
-import com.kkk.op.support.bean.EntityRepositorySupport;
+import com.kkk.op.support.base.EntityRepositorySupport;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;

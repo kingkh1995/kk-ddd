@@ -1,4 +1,4 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.base;
 
 import com.kkk.op.support.types.PageSize;
 import lombok.EqualsAndHashCode;

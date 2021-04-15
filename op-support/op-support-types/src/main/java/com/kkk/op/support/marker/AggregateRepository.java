@@ -1,6 +1,6 @@
 package com.kkk.op.support.marker;
 
-import com.kkk.op.support.bean.Aggregate;
+import com.kkk.op.support.base.Aggregate;
 import javax.validation.constraints.NotNull;
 
 /**

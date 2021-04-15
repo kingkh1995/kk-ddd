@@ -1,4 +1,4 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.exception.BussinessException;

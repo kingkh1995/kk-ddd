@@ -1,6 +1,6 @@
 package com.kkk.op.support.changeTracking.talsc;
 
-import com.kkk.op.support.bean.Aggregate;
+import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.marker.Identifier;
 import java.util.HashSet;
 import java.util.Map;

@@ -1,15 +1,13 @@
 package com.kkk.op.support.changeTracking.talsc;
 
-import com.kkk.op.support.bean.Aggregate;
+import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
 import com.kkk.op.support.marker.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * Aggregate快照管理实现类
@@ -22,11 +20,16 @@ import org.springframework.context.ApplicationContextAware;
  * @author KaiKoo
  */
 public class ThreadLocalAggregateSnapshotContext<T extends Aggregate<ID>, ID extends Identifier> implements
-        AggregateSnapshotContext<T, ID>, ApplicationContextAware {
+        AggregateSnapshotContext<T, ID>{
 
     private final ThreadLocal<Map<ID, T>> threadLocal = ThreadLocal.withInitial(HashMap::new);
 
     private ApplicationContext applicationContext;
+
+    public ThreadLocalAggregateSnapshotContext(
+            ApplicationContext applicationContext) {
+        this.applicationContext = Objects.requireNonNull(applicationContext);
+    }
 
     @Override
     public boolean existSnapshot(@NotNull ID id) {
@@ -56,8 +59,4 @@ public class ThreadLocalAggregateSnapshotContext<T extends Aggregate<ID>, ID ext
         return (T) snapshot.snapshot();
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = Objects.requireNonNull(applicationContext);
-    }
 }

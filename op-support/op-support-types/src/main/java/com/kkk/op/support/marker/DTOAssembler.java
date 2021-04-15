@@ -1,6 +1,6 @@
 package com.kkk.op.support.marker;
 
-import com.kkk.op.support.bean.Entity;
+import com.kkk.op.support.base.Entity;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
