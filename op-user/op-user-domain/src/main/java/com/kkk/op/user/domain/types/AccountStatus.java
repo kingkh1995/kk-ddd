@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.types;
 
-import com.kkk.op.support.marker.Type;
 import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.marker.Type;
 
 /**
  * 枚举值也封装为DP
@@ -33,4 +33,5 @@ public class AccountStatus implements Type {
     public AccountStatusEnum getValue() {
         return this.statusEnum;
     }
+
 }

@@ -5,12 +5,12 @@
   <parent>
     <artifactId>op-user</artifactId>
     <groupId>com.kkk.op.user</groupId>
-    <version>ACE-SNAPSHOT</version>
+    <version>ACE-PRE</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>op-user-application</artifactId>
   <packaging>jar</packaging>
-  <version>ACE-SNAPSHOT</version>
+  <version>ACE-PRE</version>
 
   <dependencies>
     <dependency>

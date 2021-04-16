@@ -1,7 +1,7 @@
 package com.kkk.op.support.changeTracking;
 
-import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.base.Aggregate;
+import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
 
