@@ -1,6 +1,6 @@
 package com.kkk.op.support.bean;
 
-import com.kkk.op.support.changeTracking.talsc.TlascHolder;
+import com.kkk.op.support.changeTracking.ThreadLocalAggregateSnapshotContextRecorder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -13,8 +13,8 @@ public class ThreadLocalAggregateSnapshotRemoveInterceptor implements HandlerInt
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
-            Object handler, Exception ex) throws Exception {
-        TlascHolder.remove();
+            Object handler, Exception ex) {
+        ThreadLocalAggregateSnapshotContextRecorder.remove();
     }
 
 }

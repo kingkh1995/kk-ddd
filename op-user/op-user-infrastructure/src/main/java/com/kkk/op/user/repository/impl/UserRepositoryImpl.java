@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -48,11 +47,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 //            @Autowired DistributedLock distributedLock,
 //            @Autowired CacheManager<User> cacheManager,
             @Autowired UserMapper userMapper,
-            @Autowired AccountMapper accountMapper,
-            @Autowired ApplicationContext applicationContext) {
+            @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
 //        super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager());
-        super(null, null, new ThreadLocalAggregateTrackingManager(applicationContext));
+        super(null, null, new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
     }

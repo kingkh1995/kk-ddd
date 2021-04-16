@@ -1,8 +1,8 @@
 package com.kkk.op.user.domain.entity;
 
+import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;

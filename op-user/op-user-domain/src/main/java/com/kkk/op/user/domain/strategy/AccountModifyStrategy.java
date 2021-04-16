@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.strategy;
 
-import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.user.domain.entity.Account;
 import javax.validation.constraints.NotNull;
 
 /**
