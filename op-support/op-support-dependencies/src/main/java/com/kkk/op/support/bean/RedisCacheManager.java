@@ -1,11 +1,11 @@
-package com.kkk.op.user.acl.impl;
+package com.kkk.op.support.bean;
 
 import com.kkk.op.support.marker.CacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * todo... 实现 & 服务降级 设置为公共bean
+ * todo... 实现 & 服务降级
  * @author KaiKoo
  */
 //@Component // fixme... 暂时未开放redis功能
