@@ -1,7 +1,7 @@
 package com.kkk.op.user.web.configuration;
 
 import com.kkk.op.support.bean.RedisDistributedLock;
-import com.kkk.op.support.bean.ThreadLocalAggregateSnapshotRemoveInterceptor;
+import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.DistributedLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
     // 添加拦截器清楚变更追踪的快照缓存
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ThreadLocalAggregateSnapshotRemoveInterceptor())
+        registry.addInterceptor(new ThreadLocalRemoveInterceptor())
                 .addPathPatterns("/api/**");
     }
 

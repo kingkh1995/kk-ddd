@@ -1,20 +1,21 @@
 package com.kkk.op.support.bean;
 
-import com.kkk.op.support.changeTracking.ThreadLocalAggregateSnapshotContextRecorder;
+import com.kkk.op.support.tools.ThreadLocalRecorder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * ThreadLocalAggregateSnapshot移除拦截器
+ * ThreadLocal移除拦截器
+ * 线程池会复用ThreadLocal，需要在一次请求完成之后执行remove操作
  * @author KaiKoo
  */
-public class ThreadLocalAggregateSnapshotRemoveInterceptor implements HandlerInterceptor {
+public class ThreadLocalRemoveInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
             Object handler, Exception ex) {
-        ThreadLocalAggregateSnapshotContextRecorder.remove();
+        ThreadLocalRecorder.remove();
     }
 
 }
