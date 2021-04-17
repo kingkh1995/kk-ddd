@@ -35,7 +35,8 @@ public class RedisDistributedLock implements DistributedLock {
 
     private StringRedisTemplate redisTemplate;
 
-    private final ThreadLocal<Map<String, LockInfo>> lockContext = ThreadLocal
+    // ThreadLocal使用时尽量用static修饰
+    private final static ThreadLocal<Map<String, LockInfo>> LOCK_CONTEXT = ThreadLocal
             .withInitial(HashMap::new);
 
     // 供builder使用
@@ -61,7 +62,7 @@ public class RedisDistributedLock implements DistributedLock {
     }
 
     private LockInfo getLockInfo(String key) {
-        return this.lockContext.get().get(key);
+        return this.LOCK_CONTEXT.get().get(key);
     }
 
     private boolean lock(String key, String requestId) {
@@ -97,7 +98,7 @@ public class RedisDistributedLock implements DistributedLock {
         }
         if (locked) {
             // 获取到锁保存锁信息
-            this.lockContext.get().put(key, lockInfo);
+            this.LOCK_CONTEXT.get().put(key, lockInfo);
             // 开启watchdog
             watching(lockInfo);
         }
@@ -132,7 +133,7 @@ public class RedisDistributedLock implements DistributedLock {
         } catch (Exception e) {
             log.warn("unlock error!", e);
         } finally {
-            this.lockContext.get().remove(key);
+            this.LOCK_CONTEXT.get().remove(key);
         }
     }
 
