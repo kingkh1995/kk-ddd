@@ -20,6 +20,57 @@
     <java.version>11</java.version>
   </properties>
 
+  <modules>
+    <module>../op-support</module>
+    <module>../op-user</module>
+    <module>../op-sales</module>
+  </modules>
+
+  <!-- mvn clean install -Dmaven.test.skip=true -->
+  <!--依赖管理-->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+        <version>2021.1</version>
+        <type>pom</type>
+        <scope>import</scope> <!--maven是单继承，使用import相当于继承多个父项目-->
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>3.4.2</version>
+      </dependency>
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-boot-starter</artifactId>
+        <version>3.0.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>30.1-jre</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <!--配置aliyun仓库-->
+  <repositories>
+    <repository>
+      <id>maven-ali</id>
+      <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <!--maven插件管理-->
   <build>
     <pluginManagement>
@@ -39,26 +90,5 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <!--依赖管理-->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-boot-starter</artifactId>
-        <version>3.4.2</version>
-      </dependency>
-      <dependency>
-        <groupId>io.springfox</groupId>
-        <artifactId>springfox-boot-starter</artifactId>
-        <version>3.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>30.1-jre</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
 </project>

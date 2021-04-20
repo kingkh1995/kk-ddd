@@ -14,7 +14,7 @@
 
 #### Application模块
 
-- 包含Application Service，不涉及任何业务逻辑，职责仅仅是组件编排。
+- 包含Application Service，不涉及任何业务逻辑，职责仅仅是组件编排，入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写操作，不返回结果）等Entity，出参为DTO。
 - 纯POJO模块，依赖Domain模块和Models模块。
 
 #### Infrastructure模块
@@ -24,7 +24,7 @@
 
 #### Web模块
 
-- web项目，包含Controller等，不涉及任何业务相关的代码，仅仅提供web的实现以及微服务架构中网关层的功能。
+- 对外接口层，web项目，包含Controller、Provider、Scheduler、MessageListener等，不涉及任何业务相关的代码，职责是服务提供、协议转化、统一鉴权、会话管理、服务限流、异常处理、日志记录等。
 - 集成Application模块和Infrastructure模块，分别作为服务提供和服务实现，对domain模块应该是不可知的。
 
 
