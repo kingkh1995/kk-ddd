@@ -1,5 +1,6 @@
 package com.kkk.op.support.types;
 
+import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

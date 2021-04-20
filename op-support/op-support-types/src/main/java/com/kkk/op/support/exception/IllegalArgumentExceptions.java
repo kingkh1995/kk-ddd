@@ -1,4 +1,4 @@
-package com.kkk.op.support.types;
+package com.kkk.op.support.exception;
 
 /**
  *
@@ -18,8 +18,8 @@ public final class IllegalArgumentExceptions {
         return new IllegalArgumentException(getPrefix(prefix) + "格式不正确！");
     }
 
-    public static IllegalArgumentException forInvalidValue(String prefix) {
-        return new IllegalArgumentException(getPrefix(prefix) + "值不合法！");
+    public static IllegalArgumentException forInvalidEnum(String prefix) {
+        return new IllegalArgumentException(getPrefix(prefix) + "枚举值不合法！");
     }
 
     public static IllegalArgumentException forMaxValue(String prefix, Number max,
