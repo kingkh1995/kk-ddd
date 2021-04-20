@@ -33,9 +33,9 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
             return null;
         }
         var dto = new AccountDTO();
-        dto.setId(Optional.ofNullable(account.getId()).map(LongId::getId).orElse(null));
+        dto.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         dto.setUserId(
-                Optional.ofNullable(account.getUserId()).map(LongId::getId).orElse(null));
+                Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
         dto.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
                 .map(AccountStatusEnum::name).orElse(null));
         dto.setCreateTime(Optional.ofNullable(account.getCreateTime()).map(DateUtil::toEpochSecond)
@@ -48,8 +48,8 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         // Entity是有行为的，所以需要保证不能返回null
         var builder = Account.builder();
         if (dto != null) {
-            builder.id(Optional.ofNullable(dto.getId()).map(LongId::new).orElse(null))
-                    .userId(Optional.ofNullable(dto.getUserId()).map(LongId::new).orElse(null))
+            builder.id(Optional.ofNullable(dto.getId()).map(LongId::valueOf).orElse(null))
+                    .userId(Optional.ofNullable(dto.getUserId()).map(LongId::valueOf).orElse(null))
                     .status(Optional.ofNullable(dto.getStatus()).filter(s -> !s.isBlank())
                             .map(AccountStatus::new).orElse(null))
                     .createTime(
@@ -66,11 +66,11 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         // Query是有行为的，所以需要保证不能返回null
         var builder = AccountQuery.builder();
         if (accountQueryDTO != null) {
-            builder.id(Optional.ofNullable(accountQueryDTO.getId()).map(LongId::new).orElse(null))
-                    .userId(Optional.ofNullable(accountQueryDTO.getUserId()).map(LongId::new)
+            builder.id(Optional.ofNullable(accountQueryDTO.getId()).map(LongId::valueOf).orElse(null))
+                    .userId(Optional.ofNullable(accountQueryDTO.getUserId()).map(LongId::valueOf)
                             .orElse(null)).status(Optional.ofNullable(accountQueryDTO.getStatus())
                     .filter(s -> !s.isBlank()).map(AccountStatus::new).orElse(null))
-                    .size(Optional.ofNullable(accountQueryDTO.getSize()).map(PageSize::new)
+                    .size(Optional.ofNullable(accountQueryDTO.getSize()).map(PageSize::valueOf)
                             .orElse(null))
                     .ids(Optional.ofNullable(accountQueryDTO.getIds())
                             .map(array -> Arrays.stream(array).filter(Objects::nonNull)

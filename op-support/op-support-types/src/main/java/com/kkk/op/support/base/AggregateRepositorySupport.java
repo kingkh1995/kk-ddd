@@ -17,6 +17,7 @@ import lombok.Getter;
 
 /**
  * AggregateRepository支持类，通过AggregateTrackingManager实现了追踪更新的功能
+ * 缓存和快照需要同时存在，快照只能自己修改，缓存可以被共同修改。
  *
  * @author KaiKoo
  */
@@ -96,7 +97,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         if (!this.isAutoCaching()) {
             this.onUpdate(aggregate, entityDiff);
         } else {
-            var key = aggregate.getId().getValue();
+            var key = this.generateCacheKey(aggregate.getId());
             if (this.getDistributedLock().tryLock(key)) {
                 try {
                     this.getCacheManager().cacheRemove(key);

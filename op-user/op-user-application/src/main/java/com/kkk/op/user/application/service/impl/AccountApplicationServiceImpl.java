@@ -29,13 +29,13 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
 
     @Override
     public AccountDTO find(Long id) {
-        var query = AccountQuery.builder().id(new LongId(id)).build();
+        var query = AccountQuery.builder().id(LongId.valueOf(id)).build();
         return accountDTOAssembler.toDTO(query.find(accountService));
     }
 
     @Override
     public void remove(Long id) {
-        var account = Account.builder().id(new LongId(id)).build();
+        var account = Account.builder().id(LongId.valueOf(id)).build();
         account.remove(accountService);
     }
 
@@ -48,7 +48,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
         // todo... 触发事件
 
         // 返回id
-        return account.getId().getId();
+        return account.getId().getValue();
     }
 
     @Override

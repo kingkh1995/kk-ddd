@@ -56,6 +56,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         this.cacheManager = cacheManager;
     }
 
+    protected abstract String generateCacheKey(@NotNull ID id);
+
     /**
      * 这几个方法是继承的子类应该去实现的 对应crud的实现
      */
@@ -74,7 +76,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         if (!this.autoCaching) {
             return this.onSelect(id);
         }
-        var key = id.getValue();
+        var key = this.generateCacheKey(id);
         var entity = this.cacheManager.cacheGet(key);
         if (entity != null) {
             return entity;
@@ -98,7 +100,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             this.onDelete(entity);
             return;
         }
-        var key = entity.getId().getValue();
+        var key = this.generateCacheKey(entity.getId());
         if (this.distributedLock.tryLock(key)) {
             try {
                 this.cacheManager.cacheRemove(key);
@@ -125,7 +127,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             this.onUpdate(entity);
             return;
         }
-        var key = entity.getId().getValue();
+        var key = this.generateCacheKey(entity.getId());
         if (this.distributedLock.tryLock(key)) {
             try {
                 this.cacheManager.cacheRemove(key);

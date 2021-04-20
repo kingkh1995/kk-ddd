@@ -6,6 +6,6 @@ package com.kkk.op.support.marker;
  */
 public interface Identifier extends Type {
 
-    String getValue();
+    String stringValue();
 
 }
