@@ -3,7 +3,6 @@ package com.kkk.op.user.web.controller;
 import com.kkk.op.support.models.command.AccountCreateCommand;
 import com.kkk.op.support.models.command.AccountUpdateCommand;
 import com.kkk.op.support.models.dto.AccountDTO;
-import com.kkk.op.support.models.query.AccountPageQuery;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -73,10 +72,15 @@ public class AccountController {
         return service.queryAccountById(id);
     }
 
-    @PostMapping("/accounts")
-    public List<AccountDTO> queryList(@RequestBody AccountPageQuery pageQuery) {
-        log.info("query account list:{}", pageQuery);
-        return null;
+    /**
+     * 查询用户下的所有账号
+     * @param userId
+     * @return
+     */
+    @GetMapping("/user/{userId}/accounts")
+    public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
+        log.info("query accounts by userId:{}", userId);
+        return service.queryAccountsByUserId(userId);
     }
 
 }
