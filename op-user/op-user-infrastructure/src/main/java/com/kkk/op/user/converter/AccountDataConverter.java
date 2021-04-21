@@ -40,7 +40,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
             builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null))
                     .userId(Optional.ofNullable(data.getUserId()).map(LongId::valueOf).orElse(null))
                     .status(Optional.ofNullable(data.getStatus()).filter(s -> !s.isBlank())
-                            .map(AccountStatus::new).orElse(null))
+                            .map(AccountStatus::valueOf).orElse(null))
                     .createTime(
                             Optional.ofNullable(data.getCreateTime()).map(DateUtil::toLocalDateTime)
                                     .orElse(null));

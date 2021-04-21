@@ -2,7 +2,7 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
@@ -34,7 +34,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     private DistributedLock distributedLock;
 
     @Getter(AccessLevel.PROTECTED)
-    private CacheManager<T> cacheManager;
+    private Cache<T> cache;
 
     @Getter(AccessLevel.PROTECTED)
     private final boolean autoCaching;
@@ -46,14 +46,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
 
     public EntityRepositorySupport(
             DistributedLock distributedLock,
-            CacheManager<T> cacheManager) {
+            Cache<T> cache) {
         // 开启自动缓存时才校验
         if (this.isAutoCaching()) {
             Objects.requireNonNull(distributedLock);
-            Objects.requireNonNull(cacheManager);
+            Objects.requireNonNull(cache);
         }
         this.distributedLock = distributedLock;
-        this.cacheManager = cacheManager;
+        this.cache = cache;
     }
 
     protected abstract String generateCacheKey(@NotNull ID id);
@@ -77,14 +77,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             return this.onSelect(id);
         }
         var key = this.generateCacheKey(id);
-        var entity = this.cacheManager.cacheGet(key);
+        var entity = this.cache.get(key);
         if (entity != null) {
             return entity;
         }
         if (this.distributedLock.tryLock(key)) {
             try {
                 entity = this.onSelect(id);
-                this.cacheManager.cachePut(key, entity);
+                this.cache.put(key, entity);
                 return entity;
             } finally {
                 this.distributedLock.unlock(key);
@@ -103,7 +103,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         var key = this.generateCacheKey(entity.getId());
         if (this.distributedLock.tryLock(key)) {
             try {
-                this.cacheManager.cacheRemove(key);
+                this.cache.remove(key);
                 this.onDelete(entity);
                 // todo... 发送消息，延迟双删
                 return;
@@ -130,7 +130,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         var key = this.generateCacheKey(entity.getId());
         if (this.distributedLock.tryLock(key)) {
             try {
-                this.cacheManager.cacheRemove(key);
+                this.cache.remove(key);
                 this.onUpdate(entity);
                 // todo... 发送消息，延迟双删
                 return;

@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 1.查询类方法属于查询类实体类的行为，在对应的实体类中实现
+ * 1.查询类方法在专门的 query service中实现，为了不至于太复杂，直接放在 domain service 中
  * 2.实体的行为仅涉及自身的状态变更，业务逻辑在实体类中
  * 3.多个实体的状态变更的行为业务逻辑在 domain service 中
  * 4.该类只做组件调用，参数的合法性均放置到对应的实体类总

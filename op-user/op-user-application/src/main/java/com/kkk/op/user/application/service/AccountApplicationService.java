@@ -1,8 +1,8 @@
 package com.kkk.op.user.application.service;
 
-import com.kkk.op.support.models.user.AccountDTO;
-import com.kkk.op.support.models.user.AccountQueryDTO;
-import java.util.List;
+import com.kkk.op.support.models.command.AccountCreateCommand;
+import com.kkk.op.support.models.command.AccountUpdateCommand;
+import com.kkk.op.support.models.dto.AccountDTO;
 
 /**
  * todo...
@@ -11,12 +11,12 @@ import java.util.List;
  */
 public interface AccountApplicationService {
 
-    AccountDTO find(Long id);
+    long createAccount(AccountCreateCommand createCommand);
 
-    void remove(Long id);
+    void updateAccount(AccountUpdateCommand updateCommand);
 
-    Long save(AccountDTO dto);
+    void deleteAccount(Long id);
 
-    List<AccountDTO> list(AccountQueryDTO queryDTO);
+    AccountDTO queryAccountById(Long id);
 
 }

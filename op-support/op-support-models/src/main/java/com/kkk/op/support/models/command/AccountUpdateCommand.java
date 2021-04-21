@@ -1,4 +1,4 @@
-package com.kkk.op.support.models.user;
+package com.kkk.op.support.models.command;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
@@ -9,16 +9,12 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
-public class AccountDTO implements Serializable {
+public class AccountUpdateCommand implements Serializable {
 
+    @NotNull
     private Long id;
 
     @NotNull
     private Long userId;
-
-    private String status;
-
-    // 日期类默认转换为时间戳
-    private Long createTime;
 
 }

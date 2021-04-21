@@ -34,7 +34,7 @@ public final class IllegalArgumentExceptions {
                 String.format("%s必须大于%s%s！", getPrefix(prefix), included ? "等于" : "", min));
     }
 
-    public static String getPrefix(String prefix) {
+    private static String getPrefix(String prefix) {
         return prefix == null || prefix.isBlank() ? "value" : prefix;
     }
 

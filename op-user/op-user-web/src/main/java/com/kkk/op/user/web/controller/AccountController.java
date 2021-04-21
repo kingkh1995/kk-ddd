@@ -1,7 +1,9 @@
 package com.kkk.op.user.web.controller;
 
-import com.kkk.op.support.models.user.AccountDTO;
-import com.kkk.op.support.models.user.AccountQueryDTO;
+import com.kkk.op.support.models.command.AccountCreateCommand;
+import com.kkk.op.support.models.command.AccountUpdateCommand;
+import com.kkk.op.support.models.dto.AccountDTO;
+import com.kkk.op.support.models.query.AccountPageQuery;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,29 +30,53 @@ public class AccountController {
     @Autowired
     private AccountApplicationService service;
 
-    @GetMapping("/account/{id}")
-    public AccountDTO findById(@PathVariable Long id) {
-        log.info("find by id:{}", id);
-        return service.find(id);
-    }
-
-    @DeleteMapping("/account/{id}")
-    public void remove(@PathVariable Long id) {
-        log.info("remove by id:{}", id);
-        service.remove(id);
-    }
-
+    /**
+     * create POST
+     * @param createCommand
+     * @return
+     */
     @PostMapping("/account")
-    public Long save(@RequestBody @Validated AccountDTO dto) {
-        log.info("save dto:{}", dto);
-        return service.save(dto);
+    public long create(@RequestBody @Validated AccountCreateCommand createCommand) {
+        log.info("account create command:{}", createCommand);
+        return service.createAccount(createCommand);
     }
 
-    @GetMapping("/accounts/{userId}")
-    public List<AccountDTO> listByUserId(@PathVariable Long userId) {
-        log.info("list by userId:{}", userId);
-        var accountQueryDTO = new AccountQueryDTO();
-        accountQueryDTO.setUserId(userId);
-        return service.list(accountQueryDTO);
+    /**
+     * update PUT
+     * @param updateCommand
+     * @return
+     */
+    @PutMapping("/account")
+    public void update(@RequestBody @Validated AccountUpdateCommand updateCommand) {
+        log.info("account update command:{}", updateCommand);
+        service.updateAccount(updateCommand);
     }
+
+    /**
+     * Delete DELETE
+     * @param id
+     */
+    @DeleteMapping("/account/{id}")
+    public void delete(@PathVariable Long id) {
+        log.info("delete account by id:{}", id);
+        service.deleteAccount(id);
+    }
+
+    /**
+     * query GET
+     * @param id
+     * @return
+     */
+    @GetMapping("/account/{id}")
+    public AccountDTO queryById(@PathVariable Long id) {
+        log.info("query account by id:{}", id);
+        return service.queryAccountById(id);
+    }
+
+    @PostMapping("/accounts")
+    public List<AccountDTO> queryList(@RequestBody AccountPageQuery pageQuery) {
+        log.info("query account list:{}", pageQuery);
+        return null;
+    }
+
 }
