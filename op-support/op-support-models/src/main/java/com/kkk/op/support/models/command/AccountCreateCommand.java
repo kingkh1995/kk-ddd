@@ -1,7 +1,6 @@
 package com.kkk.op.support.models.command;
 
 import java.io.Serializable;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -10,8 +9,5 @@ import lombok.Data;
  */
 @Data
 public class AccountCreateCommand implements Serializable {
-
-    @NotNull
-    private Long userId;
 
 }

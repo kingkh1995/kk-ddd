@@ -3,6 +3,7 @@ package com.kkk.op.user.application.service;
 import com.kkk.op.support.models.command.AccountCreateCommand;
 import com.kkk.op.support.models.command.AccountUpdateCommand;
 import com.kkk.op.support.models.dto.AccountDTO;
+import com.kkk.op.support.types.LongId;
 import java.util.List;
 
 /**
@@ -12,13 +13,13 @@ import java.util.List;
  */
 public interface AccountApplicationService {
 
-    long createAccount(AccountCreateCommand createCommand);
+    long createAccount(LongId userId, AccountCreateCommand createCommand);
 
-    void updateAccount(AccountUpdateCommand updateCommand);
+    void updateAccount(LongId userId, LongId accountId, AccountUpdateCommand updateCommand);
 
     void deleteAccount(Long id);
 
-    AccountDTO queryAccountById(Long id);
+    AccountDTO queryAccount(Long id);
 
     List<AccountDTO> queryAccountsByUserId(Long userId);
 

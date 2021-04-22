@@ -28,10 +28,11 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public long createAccount(AccountCreateCommand createCommand) {
+    public long createAccount(LongId userId,
+            AccountCreateCommand createCommand) {
         // 转换对象
         var account = Account.builder()
-                .userId(LongId.valueOf(createCommand.getUserId()))
+                .userId(userId)
                 .build();
         // 行为发生
         account.save(accountService);
@@ -42,11 +43,12 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public void updateAccount(AccountUpdateCommand updateCommand) {
+    public void updateAccount(LongId userId, LongId accountId,
+            AccountUpdateCommand updateCommand) {
         // 转换对象
         var account = Account.builder()
-                .id(LongId.valueOf(updateCommand.getId()))
-                .userId(LongId.valueOf(updateCommand.getUserId()))
+                .id(accountId)
+                .userId(userId)
                 .build();
         // 行为发生
         account.save(accountService);
@@ -61,7 +63,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public AccountDTO queryAccountById(Long id) {
+    public AccountDTO queryAccount(Long id) {
         return accountDTOAssembler.toDTO(accountService.find(LongId.valueOf(id)));
     }
 

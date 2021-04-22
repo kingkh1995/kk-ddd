@@ -3,10 +3,12 @@ package com.kkk.op.user.web.controller;
 import com.kkk.op.support.models.command.AccountCreateCommand;
 import com.kkk.op.support.models.command.AccountUpdateCommand;
 import com.kkk.op.support.models.dto.AccountDTO;
+import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,61 +17,70 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- *
+ * 对外接口层
+ * todo...鉴权限流等
  * @author KaiKoo
  */
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class AccountController {
 
     @Autowired
     private AccountApplicationService service;
 
     /**
-     * create POST
+     * POST 新增资源
      * @param createCommand
      * @return
      */
-    @PostMapping("/account")
-    public long create(@RequestBody @Validated AccountCreateCommand createCommand) {
-        log.info("account create command:{}", createCommand);
-        return service.createAccount(createCommand);
+    @PostMapping("/user/{userId}/account")
+    @ResponseStatus(HttpStatus.CREATED) //201
+    public long create(@PathVariable Long userId,
+            @RequestBody @Validated AccountCreateCommand createCommand) {
+        log.info("userId：{}，account create command：{}", userId, createCommand);
+        return service.createAccount(LongId.valueOf(userId), createCommand);
     }
 
     /**
-     * update PUT
+     * PUT 全量更新资源
      * @param updateCommand
      * @return
      */
-    @PutMapping("/account")
-    public void update(@RequestBody @Validated AccountUpdateCommand updateCommand) {
-        log.info("account update command:{}", updateCommand);
-        service.updateAccount(updateCommand);
+    @PutMapping("/user/{userId}/account/{accountId}")
+    @ResponseStatus(HttpStatus.ACCEPTED) //202
+    public void update(@PathVariable Long userId, @PathVariable Long accountId,
+            @RequestBody @Validated AccountUpdateCommand updateCommand) {
+        log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId,
+                updateCommand);
+        service.updateAccount(LongId.valueOf(userId), LongId.valueOf(accountId), updateCommand);
     }
 
     /**
-     * Delete DELETE
-     * @param id
+     * Delete 删除资源
+     * @param accountId
      */
-    @DeleteMapping("/account/{id}")
-    public void delete(@PathVariable Long id) {
-        log.info("delete account by id:{}", id);
-        service.deleteAccount(id);
+    @DeleteMapping("/user/{userId}/account/{accountId}")
+    @ResponseStatus(HttpStatus.ACCEPTED) //202
+    public void delete(@PathVariable Long userId, @PathVariable Long accountId) {
+        log.info("userId：{}，delete account by accountId；{}", userId, accountId);
+        service.deleteAccount(accountId);
     }
 
     /**
-     * query GET
-     * @param id
+     * GET 获取资源
+     * @param accountId
      * @return
      */
-    @GetMapping("/account/{id}")
-    public AccountDTO queryById(@PathVariable Long id) {
-        log.info("query account by id:{}", id);
-        return service.queryAccountById(id);
+    @GetMapping("/user/{userId}/account/{accountId}")
+    @ResponseStatus(HttpStatus.OK) //200
+    public AccountDTO queryById(@PathVariable Long userId, @PathVariable Long accountId) {
+        log.info("userId：{}，query account by accountId；{}", userId, accountId);
+        return service.queryAccount(accountId);
     }
 
     /**
