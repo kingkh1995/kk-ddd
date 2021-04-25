@@ -1,11 +1,13 @@
 package com.kkk.op.user.web.controller;
 
-import com.kkk.op.support.models.command.AccountCreateCommand;
-import com.kkk.op.support.models.command.AccountUpdateCommand;
+import com.kkk.op.support.models.command.AccountModifyCommand;
+import com.kkk.op.support.models.command.AccountModifyCommand.Create;
+import com.kkk.op.support.models.command.AccountModifyCommand.Update;
 import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
+import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")
+@Validated // 校验 @PathVariable @RequestParam
 public class AccountController {
 
     @Autowired
@@ -40,10 +43,10 @@ public class AccountController {
      */
     @PostMapping("/user/{userId}/account")
     @ResponseStatus(HttpStatus.CREATED) //201
-    public long create(@PathVariable Long userId,
-            @RequestBody @Validated AccountCreateCommand createCommand) {
+    public long create(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+            @RequestBody @Validated(Create.class) AccountModifyCommand createCommand) {
         log.info("userId：{}，account create command：{}", userId, createCommand);
-        return service.createAccount(LongId.valueOf(userId), createCommand);
+        return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
     }
 
     /**
@@ -53,8 +56,9 @@ public class AccountController {
      */
     @PutMapping("/user/{userId}/account/{accountId}")
     @ResponseStatus(HttpStatus.ACCEPTED) //202
-    public void update(@PathVariable Long userId, @PathVariable Long accountId,
-            @RequestBody @Validated AccountUpdateCommand updateCommand) {
+    public void update(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+            @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
+            @RequestBody @Validated(Update.class) AccountModifyCommand updateCommand) {
         log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId,
                 updateCommand);
         service.updateAccount(LongId.valueOf(userId), LongId.valueOf(accountId), updateCommand);
@@ -66,9 +70,10 @@ public class AccountController {
      */
     @DeleteMapping("/user/{userId}/account/{accountId}")
     @ResponseStatus(HttpStatus.ACCEPTED) //202
-    public void delete(@PathVariable Long userId, @PathVariable Long accountId) {
+    public void delete(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+            @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
         log.info("userId：{}，delete account by accountId；{}", userId, accountId);
-        service.deleteAccount(accountId);
+        service.deleteAccount(LongId.valueOf(accountId));
     }
 
     /**
@@ -78,9 +83,11 @@ public class AccountController {
      */
     @GetMapping("/user/{userId}/account/{accountId}")
     @ResponseStatus(HttpStatus.OK) //200
-    public AccountDTO queryById(@PathVariable Long userId, @PathVariable Long accountId) {
+    public AccountDTO queryById(
+            @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+            @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
         log.info("userId：{}，query account by accountId；{}", userId, accountId);
-        return service.queryAccount(accountId);
+        return service.queryAccount(LongId.valueOf(accountId));
     }
 
     /**

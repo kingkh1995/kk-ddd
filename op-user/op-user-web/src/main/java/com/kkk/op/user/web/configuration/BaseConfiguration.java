@@ -3,7 +3,11 @@ package com.kkk.op.user.web.configuration;
 import com.kkk.op.support.bean.RedisDistributedLock;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.DistributedLock;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import org.hibernate.validator.HibernateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -31,6 +35,13 @@ public class BaseConfiguration implements WebMvcConfigurer {
                 .redisTemplate(stringRedisTemplate)
                 .sleepInterval(200L);
         return builder.build();
+    }
+
+    //配置valiator快速失败
+    @Bean
+    public Validator validator() {
+        return Validation.byProvider(HibernateValidator.class).configure()
+                .failFast(true).buildValidatorFactory().getValidator();
     }
 
 }

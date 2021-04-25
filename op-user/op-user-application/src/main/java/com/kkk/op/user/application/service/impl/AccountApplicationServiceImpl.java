@@ -1,7 +1,6 @@
 package com.kkk.op.user.application.service.impl;
 
-import com.kkk.op.support.models.command.AccountCreateCommand;
-import com.kkk.op.support.models.command.AccountUpdateCommand;
+import com.kkk.op.support.models.command.AccountModifyCommand;
 import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
@@ -29,7 +28,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
 
     @Override
     public long createAccount(LongId userId,
-            AccountCreateCommand createCommand) {
+            AccountModifyCommand createCommand) {
         // 转换对象
         var account = Account.builder()
                 .userId(userId)
@@ -44,7 +43,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
 
     @Override
     public void updateAccount(LongId userId, LongId accountId,
-            AccountUpdateCommand updateCommand) {
+            AccountModifyCommand updateCommand) {
         // 转换对象
         var account = Account.builder()
                 .id(accountId)
@@ -57,14 +56,14 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public void deleteAccount(Long id) {
-        var account = Account.builder().id(LongId.valueOf(id)).build();
+    public void deleteAccount(LongId id) {
+        var account = Account.builder().id(id).build();
         account.remove(accountService);
     }
 
     @Override
-    public AccountDTO queryAccount(Long id) {
-        return accountDTOAssembler.toDTO(accountService.find(LongId.valueOf(id)));
+    public AccountDTO queryAccount(LongId id) {
+        return accountDTOAssembler.toDTO(accountService.find(id));
     }
 
     @Override
