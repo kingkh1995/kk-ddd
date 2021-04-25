@@ -38,8 +38,6 @@ public class AccountController {
 
     /**
      * POST 新增资源
-     * @param createCommand
-     * @return
      */
     @PostMapping("/user/{userId}/account")
     @ResponseStatus(HttpStatus.CREATED) //201
@@ -51,8 +49,6 @@ public class AccountController {
 
     /**
      * PUT 全量更新资源
-     * @param updateCommand
-     * @return
      */
     @PutMapping("/user/{userId}/account/{accountId}")
     @ResponseStatus(HttpStatus.ACCEPTED) //202
@@ -66,10 +62,9 @@ public class AccountController {
 
     /**
      * Delete 删除资源
-     * @param accountId
      */
     @DeleteMapping("/user/{userId}/account/{accountId}")
-    @ResponseStatus(HttpStatus.ACCEPTED) //202
+    @ResponseStatus(HttpStatus.NO_CONTENT) //204
     public void delete(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
             @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
         log.info("userId：{}，delete account by accountId；{}", userId, accountId);
@@ -78,8 +73,6 @@ public class AccountController {
 
     /**
      * GET 获取资源
-     * @param accountId
-     * @return
      */
     @GetMapping("/user/{userId}/account/{accountId}")
     @ResponseStatus(HttpStatus.OK) //200
@@ -92,8 +85,6 @@ public class AccountController {
 
     /**
      * 查询用户下的所有账号
-     * @param userId
-     * @return
      */
     @GetMapping("/user/{userId}/accounts")
     public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
