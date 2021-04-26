@@ -4,7 +4,7 @@
 
 ### 依赖管理
 - JDK: 11
-- Spring Boot: 2.4.3
+- Spring Boot: 2.4.5
 - Spring Cloud Alibaba: 2021.1
 - Swagger: 3.0.0
 - Guava: 30.1-jre
