@@ -23,9 +23,9 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
             return null;
         }
         var data = new AccountDO();
-        data.setId(Optional.ofNullable(account.getId()).map(LongId::getId).orElse(null));
+        data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
         data.setUserId(
-                Optional.ofNullable(account.getUserId()).map(LongId::getId).orElse(null));
+                Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
         data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
                 .map(AccountStatusEnum::name).orElse(null));
         data.setCreateTime(Optional.ofNullable(account.getCreateTime()).map(DateUtil::toTimestamp)
@@ -37,10 +37,10 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
     public Account fromData(AccountDO data) {
         var builder = Account.builder();
         if (data != null) {
-            builder.id(Optional.ofNullable(data.getId()).map(LongId::new).orElse(null))
-                    .userId(Optional.ofNullable(data.getUserId()).map(LongId::new).orElse(null))
+            builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null))
+                    .userId(Optional.ofNullable(data.getUserId()).map(LongId::valueOf).orElse(null))
                     .status(Optional.ofNullable(data.getStatus()).filter(s -> !s.isBlank())
-                            .map(AccountStatus::new).orElse(null))
+                            .map(AccountStatus::valueOf).orElse(null))
                     .createTime(
                             Optional.ofNullable(data.getCreateTime()).map(DateUtil::toLocalDateTime)
                                     .orElse(null));

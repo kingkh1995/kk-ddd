@@ -16,8 +16,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DatePattern {
 
-    epochSecond(null),
+    EpochMilli(null),
     yyyy_MM_dd_HH_mm_ss(DateUtil.yyyy_MM_dd_HH_mm_ss),
+    yyyy_MM_dd_HH_mm_ss_SSS(DateUtil.yyyy_MM_dd_HH_mm_ss_SSS),
     ;
 
     @Getter
@@ -31,14 +32,15 @@ public enum DatePattern {
         if (this.formatter != null) {
             return LocalDateTime.parse(text, this.formatter);
         }
-        Long epochSecond;
+        //  parse epochMilli
+        Long epochMilli;
         try {
-            epochSecond = Long.valueOf(text);
+            epochMilli = Long.valueOf(text);
         } catch (NumberFormatException e) {
             // 转为DateTimeException
             throw new DateTimeException(e.getMessage(), e);
         }
-        return DateUtil.toLocalDateTime(epochSecond);
+        return DateUtil.toLocalDateTime(epochMilli);
     }
 
     public String format(LocalDateTime localDateTime) {
@@ -48,7 +50,8 @@ public enum DatePattern {
         if (this.formatter != null) {
             return localDateTime.format(this.formatter);
         }
-        return String.valueOf(DateUtil.toEpochSecond(localDateTime));
+        // format epochMilli
+        return String.valueOf(DateUtil.toEpochMilli(localDateTime));
     }
 
 

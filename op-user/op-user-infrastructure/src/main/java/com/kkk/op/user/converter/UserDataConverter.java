@@ -20,7 +20,7 @@ public enum UserDataConverter implements DataConverter<User, UserDO> {
             return null;
         }
         var data = new UserDO();
-        data.setId(Optional.ofNullable(user.getId()).map(LongId::getId).orElse(null));
+        data.setId(Optional.ofNullable(user.getId()).map(LongId::getValue).orElse(null));
         return data;
     }
 
@@ -28,7 +28,7 @@ public enum UserDataConverter implements DataConverter<User, UserDO> {
     public User fromData(UserDO data) {
         var builder = User.builder();
         if (data != null) {
-            builder.id(Optional.ofNullable(data.getId()).map(LongId::new).orElse(null));
+            builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null));
             return builder.build();
         }
         return builder.build();

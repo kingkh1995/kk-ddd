@@ -35,7 +35,8 @@ public class RedisDistributedLock implements DistributedLock {
 
     private StringRedisTemplate redisTemplate;
 
-    private final ThreadLocal<Map<String, LockInfo>> lockContext = ThreadLocal
+    // ThreadLocal使用时尽量用static修饰
+    private final static ThreadLocal<Map<String, LockInfo>> LOCK_CONTEXT = ThreadLocal
             .withInitial(HashMap::new);
 
     // 供builder使用
@@ -48,20 +49,14 @@ public class RedisDistributedLock implements DistributedLock {
 
     private static class LockInfo {
 
-        private String key;
-
         private String requestId = UUID.randomUUID().toString();
 
         private int count = 1;
 
-        public LockInfo(String key) {
-            this.key = key;
-        }
-
     }
 
     private LockInfo getLockInfo(String key) {
-        return this.lockContext.get().get(key);
+        return this.LOCK_CONTEXT.get().get(key);
     }
 
     private boolean lock(String key, String requestId) {
@@ -83,7 +78,7 @@ public class RedisDistributedLock implements DistributedLock {
         // 获取锁
         unit = unit == null ? TimeUnit.MILLISECONDS : unit;
         var waitMills = unit.toMillis(waitTime);
-        lockInfo = new LockInfo(key);
+        lockInfo = new LockInfo();
         var locked = this.lock(key, lockInfo.requestId);
         for (var i = 0; !locked && waitMills > 0; i++) {
             try {
@@ -96,10 +91,12 @@ public class RedisDistributedLock implements DistributedLock {
             locked = this.lock(key, lockInfo.requestId);
         }
         if (locked) {
-            // 获取到锁保存锁信息
-            this.lockContext.get().put(key, lockInfo);
+            // 获取到锁 则保存锁信息
+            var map = this.LOCK_CONTEXT.get();
+            map.put(key, lockInfo);
             // 开启watchdog
-            watching(lockInfo);
+            // todo... 使用更好的方案传递ThreadLocal
+            watching(key, map);
         }
         return locked;
     }
@@ -127,16 +124,19 @@ public class RedisDistributedLock implements DistributedLock {
             var result = this.redisTemplate
                     .execute(UNLOCK_SCRIPT, Collections.singletonList(key), lockInfo.requestId);
             if (result < 1) {
-                log.warn(String.format("execute return %d!", result));
+                log.warn("execute return " + result);
             }
         } catch (Exception e) {
             log.warn("unlock error!", e);
         } finally {
-            this.lockContext.get().remove(key);
+            this.LOCK_CONTEXT.get().remove(key);
         }
     }
 
-    private final ScheduledExecutorService WATCH_DOG = Executors
+    /**
+     * todo... 在线程池中让InheritableThreadLocal能生效 或者释放锁之后让task不执行
+     */
+    private final static ScheduledExecutorService WATCH_DOG = Executors
             .newSingleThreadScheduledExecutor(r -> {
                 // 设置为守护线程
                 var t = Executors.defaultThreadFactory().newThread(r);
@@ -148,15 +148,20 @@ public class RedisDistributedLock implements DistributedLock {
             "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2]) else return 0 end",
             Long.class);
 
-    private void watching(LockInfo lockInfo) {
+    private void watching(String key, Map<String, LockInfo> map) {
         WATCH_DOG.schedule(() -> {
             try {
+                var lockInfo = map.get(key);
+                // 大多数情况下已经释放了锁 直接return
+                if (lockInfo == null) {
+                    return;
+                }
                 var result = this.redisTemplate
-                        .execute(WATCH_DOG_SCRIPT, Collections.singletonList(lockInfo.key),
+                        .execute(WATCH_DOG_SCRIPT, Collections.singletonList(key),
                                 lockInfo.requestId, expireMills);
                 // 如果延长成功，继续watch
                 if (result > 0) {
-                    watching(lockInfo);
+                    watching(key, map);
                 }
             } catch (Exception e) {
                 log.warn("watch dog error!", e);

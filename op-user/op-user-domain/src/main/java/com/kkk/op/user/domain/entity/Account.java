@@ -60,7 +60,7 @@ public class Account extends Entity<LongId> {
         if (this.id == null) {
             // 新增逻辑
             // 设置初始状态
-            this.status = new AccountStatus(AccountStatusEnum.INIT);
+            this.status = AccountStatus.valueOf(AccountStatusEnum.INIT);
             this.createTime = LocalDateTime.now();
         } else {
             // 更新逻辑

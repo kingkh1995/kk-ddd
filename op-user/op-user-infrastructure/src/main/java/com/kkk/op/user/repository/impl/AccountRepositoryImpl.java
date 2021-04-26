@@ -38,8 +38,13 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     }
 
     @Override
+    protected String generateCacheKey(LongId longId) {
+        return "op-user:account:" + longId.stringValue();
+    }
+
+    @Override
     protected Account onSelect(@NotNull LongId longId) {
-        return accountDataConverter.fromData(accountMapper.selectById(longId.getId()));
+        return accountDataConverter.fromData(accountMapper.selectById(longId.getValue()));
     }
 
     @Override
@@ -52,7 +57,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
         var data = accountDataConverter.toData(entity);
         accountMapper.insert(data);
         // 填补id
-        entity.fillInId(new LongId(data.getId()));
+        entity.fillInId(LongId.valueOf(data.getId()));
     }
 
     @Override

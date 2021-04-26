@@ -4,7 +4,7 @@ import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.AggregateRepository;
-import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
@@ -17,6 +17,7 @@ import lombok.Getter;
 
 /**
  * AggregateRepository支持类，通过AggregateTrackingManager实现了追踪更新的功能
+ * 缓存和快照需要同时存在，快照只能自己修改，缓存可以被共同修改。
  *
  * @author KaiKoo
  */
@@ -28,9 +29,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
     public AggregateRepositorySupport(
             DistributedLock distributedLock,
-            CacheManager<T> cacheManager,
+            Cache<T> cache,
             AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-        super(distributedLock, cacheManager);
+        super(distributedLock, cache);
         this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
 
@@ -96,10 +97,10 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         if (!this.isAutoCaching()) {
             this.onUpdate(aggregate, entityDiff);
         } else {
-            var key = aggregate.getId().getValue();
+            var key = this.generateCacheKey(aggregate.getId());
             if (this.getDistributedLock().tryLock(key)) {
                 try {
-                    this.getCacheManager().cacheRemove(key);
+                    this.getCache().remove(key);
                     this.onUpdate(aggregate, entityDiff);
                     // todo... 发送消息，延迟双删
                 } finally {

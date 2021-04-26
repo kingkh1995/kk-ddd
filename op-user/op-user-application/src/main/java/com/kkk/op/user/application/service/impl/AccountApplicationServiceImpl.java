@@ -1,13 +1,12 @@
 package com.kkk.op.user.application.service.impl;
 
-import com.kkk.op.support.models.user.AccountDTO;
-import com.kkk.op.support.models.user.AccountQueryDTO;
+import com.kkk.op.support.models.command.AccountModifyCommand;
+import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
-import com.kkk.op.user.query.entity.AccountQuery;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,33 +27,47 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     }
 
     @Override
-    public AccountDTO find(Long id) {
-        var query = AccountQuery.builder().id(new LongId(id)).build();
-        return accountDTOAssembler.toDTO(query.find(accountService));
-    }
-
-    @Override
-    public void remove(Long id) {
-        var account = Account.builder().id(new LongId(id)).build();
-        account.remove(accountService);
-    }
-
-    @Override
-    public Long save(AccountDTO dto) {
+    public long createAccount(LongId userId,
+            AccountModifyCommand createCommand) {
         // 转换对象
-        var account = accountDTOAssembler.fromDTO(dto);
+        var account = Account.builder()
+                .userId(userId)
+                .build();
         // 行为发生
         account.save(accountService);
         // todo... 触发事件
 
         // 返回id
-        return account.getId().getId();
+        return account.getId().getValue();
     }
 
     @Override
-    public List<AccountDTO> list(AccountQueryDTO queryDTO) {
-        var accountQuery = accountDTOAssembler.toQuery(queryDTO);
-        var list = accountQuery.list(accountService);
+    public void updateAccount(LongId userId, LongId accountId,
+            AccountModifyCommand updateCommand) {
+        // 转换对象
+        var account = Account.builder()
+                .id(accountId)
+                .userId(userId)
+                .build();
+        // 行为发生
+        account.save(accountService);
+        // todo... 触发事件
+
+    }
+
+    @Override
+    public void deleteAccount(LongId id) {
+        var account = Account.builder().id(id).build();
+        account.remove(accountService);
+    }
+
+    @Override
+    public AccountDTO queryAccount(LongId id) {
+        return accountDTOAssembler.toDTO(accountService.find(id));
+    }
+
+    @Override
+    public List<AccountDTO> queryAccountsByUserId(Long userId) {
         // todo... 实现
         return null;
     }
