@@ -39,7 +39,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
 
     @Override
     protected String generateCacheKey(LongId longId) {
-        return String.format("op-user:account:%s", longId.stringValue());
+        return "op-user:account:" + longId.stringValue();
     }
 
     @Override

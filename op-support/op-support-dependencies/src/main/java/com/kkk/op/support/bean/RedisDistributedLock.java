@@ -124,7 +124,7 @@ public class RedisDistributedLock implements DistributedLock {
             var result = this.redisTemplate
                     .execute(UNLOCK_SCRIPT, Collections.singletonList(key), lockInfo.requestId);
             if (result < 1) {
-                log.warn(String.format("execute return %d!", result));
+                log.warn("execute return " + result);
             }
         } catch (Exception e) {
             log.warn("unlock error!", e);

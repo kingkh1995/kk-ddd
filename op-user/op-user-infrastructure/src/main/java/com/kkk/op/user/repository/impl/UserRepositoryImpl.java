@@ -85,7 +85,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
     @Override
     protected String generateCacheKey(LongId longId) {
-        return String.format("op-user:user:%s", longId.stringValue());
+        return "op-user:user:" + longId.stringValue();
     }
 
     @Override

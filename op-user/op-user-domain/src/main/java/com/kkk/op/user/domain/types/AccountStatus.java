@@ -23,15 +23,15 @@ public class AccountStatus implements Type {
         return valueOf(s, null);
     }
 
-    public static AccountStatus valueOf(String s, String prefix) {
+    public static AccountStatus valueOf(String s, String fieldName) {
         if (s == null || s.isBlank()) {
-            throw IllegalArgumentExceptions.forNull(prefix);
+            throw IllegalArgumentExceptions.forNull(fieldName);
         }
         // valueOf 方法不会返回 null，会抛出异常
         try {
             return new AccountStatus(AccountStatusEnum.valueOf(s));
         } catch (IllegalArgumentException e) {
-            throw IllegalArgumentExceptions.forInvalidEnum(prefix);
+            throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
         }
     }
 
@@ -39,9 +39,9 @@ public class AccountStatus implements Type {
         return valueOf(accountStatusEnum, null);
     }
 
-    public static AccountStatus valueOf(AccountStatusEnum accountStatusEnum, String prefix) {
+    public static AccountStatus valueOf(AccountStatusEnum accountStatusEnum, String fieldName) {
         if (accountStatusEnum == null) {
-            throw IllegalArgumentExceptions.forNull(prefix);
+            throw IllegalArgumentExceptions.forNull(fieldName);
         }
         return new AccountStatus(accountStatusEnum);
     }

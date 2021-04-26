@@ -10,16 +10,16 @@ public class PageSize extends RangedLong {
     // 默认最大查询条数
     private final static transient Long MAX_SIZE = 1000L;
 
-    protected PageSize(Long l, String prefix) {
-        super(l, prefix, 1L, MAX_SIZE);
+    protected PageSize(Long l, String fieldName) {
+        super(l, fieldName, 1L, MAX_SIZE);
     }
 
     public static PageSize valueOf(Long l) {
         return valueOf(l, null);
     }
 
-    public static PageSize valueOf(Long l, String prefix) {
-        return new PageSize(l, prefix);
+    public static PageSize valueOf(Long l, String fieldName) {
+        return new PageSize(l, fieldName);
     }
 
 }

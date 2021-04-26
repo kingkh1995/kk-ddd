@@ -9,8 +9,8 @@ import com.kkk.op.support.marker.Identifier;
  */
 public class LongId extends RangedLong implements Identifier {
 
-    protected LongId(Long l, String prefix) {
-        super(l, prefix, 1L, null);
+    protected LongId(Long l, String fieldName) {
+        super(l, fieldName, 1L, null);
     }
 
     /**
@@ -21,16 +21,16 @@ public class LongId extends RangedLong implements Identifier {
         return valueOf(l, null);
     }
 
-    public static LongId valueOf(Long l, String prefix) {
-        return new LongId(l, prefix);
+    public static LongId valueOf(Long l, String fieldName) {
+        return new LongId(l, fieldName);
     }
 
     public static LongId valueOf(String s) {
         return valueOf(s, null);
     }
 
-    public static LongId valueOf(String s, String prefix) {
-        return new LongId(parseLong(s, prefix), prefix);
+    public static LongId valueOf(String s, String fieldName) {
+        return new LongId(parseLong(s, fieldName), fieldName);
     }
 
     @Override

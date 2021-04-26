@@ -10,32 +10,34 @@ public final class IllegalArgumentExceptions {
         throw new IllegalAccessException();
     }
 
-    public static IllegalArgumentException forNull(String prefix) {
-        return new IllegalArgumentException(getPrefix(prefix) + "不能为空！");
+    public static IllegalArgumentException forNull(String fieldName) {
+        return new IllegalArgumentException(getFieldName(fieldName) + "不能为空！");
     }
 
-    public static IllegalArgumentException forWrongPattern(String prefix) {
-        return new IllegalArgumentException(getPrefix(prefix) + "格式不正确！");
+    public static IllegalArgumentException forWrongPattern(String fieldName) {
+        return new IllegalArgumentException(getFieldName(fieldName) + "格式不正确！");
     }
 
-    public static IllegalArgumentException forInvalidEnum(String prefix) {
-        return new IllegalArgumentException(getPrefix(prefix) + "枚举值不合法！");
+    public static IllegalArgumentException forInvalidEnum(String fieldName) {
+        return new IllegalArgumentException(getFieldName(fieldName) + "枚举值不合法！");
     }
 
-    public static IllegalArgumentException forMaxValue(String prefix, Number max,
+    public static IllegalArgumentException forMaxValue(String fieldName, Number max,
             boolean included) {
-        return new IllegalArgumentException(
-                String.format("%s必须小于%s%s！", getPrefix(prefix), included ? "等于" : "", max));
+        var sb = new StringBuilder(getFieldName(fieldName)).append("必须小于")
+                .append(included ? "等于" : "").append(max);
+        return new IllegalArgumentException(sb.toString());
     }
 
-    public static IllegalArgumentException forMinValue(String prefix, Number min,
+    public static IllegalArgumentException forMinValue(String fieldName, Number min,
             boolean included) {
-        return new IllegalArgumentException(
-                String.format("%s必须大于%s%s！", getPrefix(prefix), included ? "等于" : "", min));
+        var sb = new StringBuilder(getFieldName(fieldName)).append("必须大于")
+                .append(included ? "等于" : "").append(min);
+        return new IllegalArgumentException(sb.toString());
     }
 
-    private static String getPrefix(String prefix) {
-        return prefix == null || prefix.isBlank() ? "value" : prefix;
+    private static String getFieldName(String fieldName) {
+        return fieldName == null || fieldName.isBlank() ? "value" : fieldName;
     }
 
 }

@@ -60,6 +60,7 @@ public final class DiffUtil {// 工具类声明为 final
             try {
                 var sObj = field.get(snapshot);
                 var aObj = field.get(aggregate);
+                // todo... 处理null的特殊场景 instanceof关键字如果obj为null会直接返回false
                 // 根据类型做不同的处理
                 if (sObj instanceof Entity && aObj instanceof Entity) {
                     entityDiff.put(field.getName(), diff((Entity) sObj, (Entity) aObj));
