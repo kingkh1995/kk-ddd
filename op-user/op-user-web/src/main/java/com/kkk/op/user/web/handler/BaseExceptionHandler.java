@@ -1,11 +1,13 @@
 package com.kkk.op.user.web.handler;
 
 import com.kkk.op.support.exception.BussinessException;
+import java.net.BindException;
 import java.time.DateTimeException;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -33,20 +35,28 @@ public class BaseExceptionHandler {
         return exception.getMessage();
     }
 
-    // 参数校验异常
-    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class,
-            ValidationException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleValidationException(Exception exception) {
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public String handleValidationException(ValidationException exception) {
         log.warn("ValidationException =>", exception);
+        return exception.getMessage();
+    }
+
+    // 参数校验异常 请求未进入controller
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class,
+            HttpMessageNotReadableException.class, BindException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleBadRequest(Exception exception) {
+        log.warn("Bad Request =>", exception);
         if (exception instanceof MethodArgumentNotValidException) {
             return ((MethodArgumentNotValidException) exception).getBindingResult().getFieldError()
                     .getDefaultMessage();
-        } else if (exception instanceof ConstraintViolationException) {
+        }
+        if (exception instanceof ConstraintViolationException) {
             return ((ConstraintViolationException) exception).getConstraintViolations()
                     .stream().findAny().get().getMessage();
         }
-        return exception.getMessage();
+        return "请求参数不合法！";
     }
 
     @ExceptionHandler(BussinessException.class)

@@ -60,11 +60,10 @@ public final class DiffUtil {// 工具类声明为 final
             try {
                 var sObj = field.get(snapshot);
                 var aObj = field.get(aggregate);
-                // todo... 处理null的特殊场景 instanceof关键字如果obj为null会直接返回false
                 // 根据类型做不同的处理
-                if (sObj instanceof Entity && aObj instanceof Entity) {
+                if (sObj instanceof Entity || aObj instanceof Entity) { // instanceof如果obj为null会直接返回false 所以需要使用 ||
                     entityDiff.put(field.getName(), diff((Entity) sObj, (Entity) aObj));
-                } else if (sObj instanceof Collection && aObj instanceof Collection) {
+                } else if (sObj instanceof Collection || aObj instanceof Collection) {
                     entityDiff.put(field.getName(), diff((Collection) sObj, (Collection) aObj));
                 } else {
                     // 其他类型 Type （DP和基本数据类型，不应该有Map类型，设计中应该将Map替换为DP或Entity）
@@ -151,6 +150,7 @@ public final class DiffUtil {// 工具类声明为 final
     }
 
     private static boolean allEntity(@NotEmpty Collection<?> collection) {
+        // 需要过滤null
         return collection.stream().filter(Objects::nonNull).allMatch(o -> o instanceof Entity);
     }
 

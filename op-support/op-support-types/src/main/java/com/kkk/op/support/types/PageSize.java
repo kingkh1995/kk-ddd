@@ -1,9 +1,12 @@
 package com.kkk.op.support.types;
 
+import lombok.EqualsAndHashCode;
+
 /**
  *
  * @author KaiKoo
  */
+@EqualsAndHashCode(callSuper = true)
 public class PageSize extends RangedLong {
 
     // todo... 改为可配置，并且是不同项目不同配置

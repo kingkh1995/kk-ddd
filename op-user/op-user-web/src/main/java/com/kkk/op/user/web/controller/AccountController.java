@@ -1,8 +1,8 @@
 package com.kkk.op.user.web.controller;
 
 import com.kkk.op.support.models.command.AccountModifyCommand;
-import com.kkk.op.support.models.command.AccountModifyCommand.Create;
-import com.kkk.op.support.models.command.AccountModifyCommand.Update;
+import com.kkk.op.support.models.command.CreateGroup;
+import com.kkk.op.support.models.command.UpdateGroup;
 import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
@@ -42,7 +42,7 @@ public class AccountController {
     @PostMapping("/user/{userId}/account")
     @ResponseStatus(HttpStatus.CREATED) //201
     public long create(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-            @RequestBody @Validated(Create.class) AccountModifyCommand createCommand) {
+            @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
         log.info("userId：{}，account create command：{}", userId, createCommand);
         return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
     }
@@ -54,7 +54,7 @@ public class AccountController {
     @ResponseStatus(HttpStatus.ACCEPTED) //202
     public void update(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
             @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
-            @RequestBody @Validated(Update.class) AccountModifyCommand updateCommand) {
+            @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
         log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId,
                 updateCommand);
         service.updateAccount(LongId.valueOf(userId), LongId.valueOf(accountId), updateCommand);

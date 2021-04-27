@@ -2,6 +2,7 @@ package com.kkk.op.support.models.command;
 
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import lombok.Data;
 
 /**
@@ -12,17 +13,13 @@ import lombok.Data;
 @Data
 public class AccountModifyCommand implements Serializable {
 
-    @NotBlank(message = "test0不能为空！", groups = Update.class)
+    @Null(message = "id必须为空！", groups = CreateGroup.class)
+    private Long id;
+
+    @NotBlank(message = "test0不能为空！", groups = UpdateGroup.class)
     private String test0;
 
-    @NotBlank(message = "test1不能为空！", groups = {Create.class, Update.class})
+    @NotBlank(message = "test1不能为空！", groups = {CreateGroup.class, UpdateGroup.class})
     private String test1;
 
-    public interface Update {
-
-    }
-
-    public interface Create {
-
-    }
 }
