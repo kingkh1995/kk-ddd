@@ -1,0 +1,20 @@
+package com.kkk.op.support.models.command;
+
+import java.io.Serializable;
+import java.util.List;
+import javax.validation.Valid;
+import lombok.Data;
+import lombok.experimental.Delegate;
+
+/**
+ * todo...
+ * @author KaiKoo
+ */
+@Data
+public class UserModifyCommand implements Serializable {
+
+    @Valid
+    @Delegate //声明注解校验集合内对象
+    private List<AccountModifyCommand> accountModifyCommandList;
+
+}

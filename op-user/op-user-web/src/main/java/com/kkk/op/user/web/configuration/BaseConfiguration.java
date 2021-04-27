@@ -40,8 +40,9 @@ public class BaseConfiguration implements WebMvcConfigurer {
     //配置valiator快速失败
     @Bean
     public Validator validator() {
+        // todo... debug暂时设置为快速失败
         return Validation.byProvider(HibernateValidator.class).configure()
-                .failFast(true).buildValidatorFactory().getValidator();
+                .failFast(false).buildValidatorFactory().getValidator();
     }
 
 }

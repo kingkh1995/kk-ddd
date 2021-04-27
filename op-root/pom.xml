@@ -95,17 +95,10 @@
     <!--插件管理-->
     <pluginManagement>
       <plugins>
+        <!--web项目需要配置springboot插件-->
         <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
-          <!--执行repackage-->
-          <executions>
-            <execution>
-              <goals>
-                <goal>repackage</goal>
-              </goals>
-            </execution>
-          </executions>
           <!--排除lombok依赖-->
           <configuration>
             <excludes>
