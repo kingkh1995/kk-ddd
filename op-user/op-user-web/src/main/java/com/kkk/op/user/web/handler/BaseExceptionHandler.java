@@ -21,24 +21,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class BaseExceptionHandler {
 
-    @ExceptionHandler(DateTimeException.class)
-    @ResponseStatus(HttpStatus.OK)
-    public String handleDateTimeException(DateTimeException exception) {
-        log.warn("DateTimeException =>", exception);
-        return exception.getMessage();
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.OK)
-    public String handleIllegalArgumentException(IllegalArgumentException exception) {
-        log.warn("IllegalArgumentException =>", exception);
-        return exception.getMessage();
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.OK)
-    public String handleValidationException(ValidationException exception) {
-        log.warn("ValidationException =>", exception);
+    // 先决条件失败
+    @ExceptionHandler({DateTimeException.class, ValidationException.class,
+            IllegalArgumentException.class})
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+    public String handlePreconditionFailed(Exception exception) {
+        log.warn("Precondition Failed =>", exception);
         return exception.getMessage();
     }
 

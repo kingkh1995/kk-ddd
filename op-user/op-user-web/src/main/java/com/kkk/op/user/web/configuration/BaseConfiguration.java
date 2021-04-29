@@ -1,6 +1,6 @@
 package com.kkk.op.user.web.configuration;
 
-import com.kkk.op.support.bean.IPControlHandler;
+import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.RedisDistributedLock;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.DistributedLock;
@@ -29,8 +29,10 @@ public class BaseConfiguration implements WebMvcConfigurer {
     // 添加拦截器清楚变更追踪的快照缓存
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**");
-        registry.addInterceptor(new IPControlHandler(ipControlSwtich)).addPathPatterns("/api/**");
+        registry.addInterceptor(new IPControlInterceptor(ipControlSwtich))
+                .addPathPatterns("/api/**"); // 最先执行
+        registry.addInterceptor(new ThreadLocalRemoveInterceptor())
+                .addPathPatterns("/api/**"); // 最后执行
     }
 
     // 配置分布式可重入锁bean // fixme... 暂时未开放redis功能

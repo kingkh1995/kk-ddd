@@ -17,14 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * IP限流，使用Guava Cache & RateLimiter
+ * IP限流，使用 Guava Cache & RateLimiter
  *
  * @author KaiKoo
  */
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
-public class IPControlHandler implements HandlerInterceptor {
+public class IPControlInterceptor implements HandlerInterceptor {
 
     /**
      * 限流开关
