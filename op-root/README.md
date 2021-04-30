@@ -12,6 +12,7 @@
 - swagger: 3.0.0
 - mybatis-plus: 3.4.2
 - redisson: 3.15.4
+- mapstruct：1.4.2.Final
 
 #### 工具包（support-dependencies项目中定义）
 
