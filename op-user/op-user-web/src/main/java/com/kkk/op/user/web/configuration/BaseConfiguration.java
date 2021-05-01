@@ -22,14 +22,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class BaseConfiguration implements WebMvcConfigurer {
 
-    //todo... 配合nacos配置实时刷新
+    //todo... 配合nacos配置中心实时刷新
     @Value("${ip_control_switch:true}")
     private boolean ipControlSwtich;
+
+    // 注入IPControlInterceptor实现自动刷新配置
+    @Bean
+    public IPControlInterceptor ipControlInterceptor() {
+        return new IPControlInterceptor(ipControlSwtich);
+    }
 
     // 添加拦截器清楚变更追踪的快照缓存
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new IPControlInterceptor(ipControlSwtich))
+        registry.addInterceptor(ipControlInterceptor())
                 .addPathPatterns("/api/**"); // 最先执行
         registry.addInterceptor(new ThreadLocalRemoveInterceptor())
                 .addPathPatterns("/api/**"); // 最后执行

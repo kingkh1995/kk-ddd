@@ -31,8 +31,8 @@ public class IPControlInterceptor implements HandlerInterceptor {
      */
     private boolean controlSwitch = true;
 
-    private final static LoadingCache<String, RateLimiter> CACHE = CacheBuilder
-            .newBuilder().expireAfterAccess(10L, TimeUnit.SECONDS)
+    private final static LoadingCache<String, RateLimiter> CACHE = CacheBuilder.newBuilder()
+            .expireAfterAccess(10L, TimeUnit.SECONDS)
             // 并发级别是指可以同时写缓存的线程数，设置为cpu核心数
             .concurrencyLevel(Runtime.getRuntime().availableProcessors())
             // 设置为软引用，在内存不足时回收缓存
@@ -41,7 +41,7 @@ public class IPControlInterceptor implements HandlerInterceptor {
             .initialCapacity(1 << 10)
             // 需要设置最大容量，软引用对象数量不能太多，对性能有影响
             .maximumSize(1 << 14)
-            // 使用Supplier初始化RateLimiter
+            // 使用Supplier初始化RateLimiter，限制每秒访问一次
             .build(CacheLoader.from(() -> RateLimiter.create(1D)));
 
     // 对写请求做IP限流
