@@ -17,7 +17,7 @@ public final class ThreadLocalRecorder {
         throw new IllegalAccessException();
     }
 
-    private final static ThreadLocal<Set<ThreadLocal>> RECORDER = ThreadLocal
+    private final static ThreadLocal<Set<ThreadLocal<?>>> RECORDER = ThreadLocal
             .withInitial(HashSet::new);
 
     /**
