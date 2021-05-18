@@ -139,6 +139,7 @@ public class RedisDistributedLock implements DistributedLock {
         }
     }
 
+    // todo... 使用ThreadPoolExecutor构造方法创建
     private final static ScheduledExecutorService WATCH_DOG = Executors
             .newSingleThreadScheduledExecutor(r -> {
                 // 设置为守护线程
