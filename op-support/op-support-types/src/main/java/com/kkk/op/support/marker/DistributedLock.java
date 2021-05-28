@@ -7,8 +7,8 @@ import javax.validation.constraints.NotBlank;
 /**
  * 三种实现：
  *  1. setNx操作
- *  2. redlock
- *  3. zoolkeoper todo...
+ *  2. redlock（redisson实现）
+ *  3. zookeeper // todo...
  *
  * @author KaiKoo
  */
