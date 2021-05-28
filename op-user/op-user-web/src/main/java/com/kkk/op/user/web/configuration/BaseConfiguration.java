@@ -32,7 +32,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
         return new IPControlInterceptor(ipControlSwtich);
     }
 
-    // 添加拦截器清楚变更追踪的快照缓存
+    // 拦截器配置
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(ipControlInterceptor())
@@ -54,7 +54,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
     //配置valiator快速失败
     @Bean
     public Validator validator() {
-        // todo... debug暂时设置为快速失败
+        // todo... debug时设置为不快速失败 通过配置或开关控制
         return Validation.byProvider(HibernateValidator.class).configure()
                 .failFast(false).buildValidatorFactory().getValidator();
     }

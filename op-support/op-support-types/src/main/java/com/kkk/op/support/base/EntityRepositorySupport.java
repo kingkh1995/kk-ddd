@@ -90,7 +90,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
                 this.distributedLock.unlock(key);
             }
         } else {
-            throw new BussinessException("服务繁忙请稍后再试！");
+            // 获取不到分布式锁则直接查数据库
+            // todo... 查询请求串行化，防止缓存击穿
+            return this.onSelect(id);
         }
     }
 
@@ -111,7 +113,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
                 this.distributedLock.unlock(key);
             }
         } else {
-            throw new BussinessException("服务繁忙请稍后再试！");
+            throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
     }
 
@@ -138,7 +140,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
                 this.distributedLock.unlock(key);
             }
         } else {
-            throw new BussinessException("服务繁忙请稍后再试！");
+            throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
     }
 

@@ -1,6 +1,5 @@
 package com.kkk.op.support.base;
 
-import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Identifiable;
 import com.kkk.op.support.marker.Identifier;
 
@@ -31,7 +30,7 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
     @Override
     public void fillInId(ID id) {
         if (this.getId() != null) {
-            throw new BussinessException("id已存在不能填补");
+            return;
         }
         if (id == null) {
             throw new IllegalArgumentException("id不能填补为null");

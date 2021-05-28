@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
@@ -19,7 +20,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 
 /**
  * 基于redis的分布式锁实现 （适用于redis单机模式，或者对可用性要求不是特别高）
- * 集群模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了
+ * 主从模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了
  *
  * @author KaiKoo
  */
@@ -52,6 +53,8 @@ public class RedisDistributedLock implements DistributedLock {
         private String requestId = UUID.randomUUID().toString();
 
         private int count = 1;
+
+        private Future<?> future;
 
     }
 
@@ -95,8 +98,7 @@ public class RedisDistributedLock implements DistributedLock {
             var map = this.LOCK_CONTEXT.get();
             map.put(key, lockInfo);
             // 开启watchdog
-            // todo... 使用更好的方案传递ThreadLocal
-            watching(key, map);
+            watching(key);
         }
         return locked;
     }
@@ -129,13 +131,15 @@ public class RedisDistributedLock implements DistributedLock {
         } catch (Exception e) {
             log.warn("unlock error!", e);
         } finally {
-            this.LOCK_CONTEXT.get().remove(key);
+            var lockInfoMap = this.LOCK_CONTEXT.get();
+            // 中断任务
+            lockInfoMap.get(key).future.cancel(true);
+            // 移除Key
+            lockInfoMap.remove(key);
         }
     }
 
-    /**
-     * todo... 在线程池中让InheritableThreadLocal能生效 或者释放锁之后让task不执行
-     */
+    // todo... 使用ThreadPoolExecutor构造方法创建
     private final static ScheduledExecutorService WATCH_DOG = Executors
             .newSingleThreadScheduledExecutor(r -> {
                 // 设置为守护线程
@@ -148,10 +152,11 @@ public class RedisDistributedLock implements DistributedLock {
             "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2]) else return 0 end",
             Long.class);
 
-    private void watching(String key, Map<String, LockInfo> map) {
-        WATCH_DOG.schedule(() -> {
+    private void watching(String key) {
+        var lockInfo = this.LOCK_CONTEXT.get().get(key);
+        // 保存future 在释放锁的时候中断线程
+        lockInfo.future = WATCH_DOG.schedule(() -> {
             try {
-                var lockInfo = map.get(key);
                 // 大多数情况下已经释放了锁 直接return
                 if (lockInfo == null) {
                     return;
@@ -161,7 +166,7 @@ public class RedisDistributedLock implements DistributedLock {
                                 lockInfo.requestId, expireMills);
                 // 如果延长成功，继续watch
                 if (result > 0) {
-                    watching(key, map);
+                    watching(key);
                 }
             } catch (Exception e) {
                 log.warn("watch dog error!", e);
