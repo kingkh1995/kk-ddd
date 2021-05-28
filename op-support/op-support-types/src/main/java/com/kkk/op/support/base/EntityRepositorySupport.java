@@ -91,6 +91,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             }
         } else {
             // 获取不到分布式锁则直接查数据库
+            // todo... 查询请求串行化，防止缓存击穿
             return this.onSelect(id);
         }
     }
