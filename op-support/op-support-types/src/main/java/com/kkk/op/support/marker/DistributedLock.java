@@ -1,5 +1,6 @@
 package com.kkk.op.support.marker;
 
+import com.kkk.op.support.function.Worker;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
@@ -15,14 +16,36 @@ import javax.validation.constraints.NotBlank;
 public interface DistributedLock {
 
     /**
-     * 尝试获取锁，失败不重试
+     * 获取锁并执行一段工作，获取锁失败立即返回，执行完成自动释放锁。
+     */
+    default boolean tryWork(@NotBlank String key, Worker worker) {
+        return this.tryWork(key, 0L, TimeUnit.MILLISECONDS, worker);
+    }
+
+    /**
+     * 获取锁并执行一段工作，获取锁失败则阻塞指定时间，执行完成自动释放锁。
+     */
+    default boolean tryWork(@NotBlank String key, long waitTime, TimeUnit unit, Worker worker) {
+        if (this.tryLock(key, waitTime, unit)) {
+            try {
+                worker.work();
+                return true;
+            } finally {
+                this.unlock(key);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 尝试获取锁，失败立即返回
      */
     default boolean tryLock(@NotBlank String key) {
         return this.tryLock(key, 0L, TimeUnit.MILLISECONDS);
     }
 
     /**
-     * 尝试获取锁，失败则重试指定时间
+     * 尝试获取锁，失败阻塞则阻塞指定时间
      */
     boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit);
 

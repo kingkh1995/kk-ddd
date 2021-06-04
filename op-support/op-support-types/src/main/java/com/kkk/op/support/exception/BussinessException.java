@@ -2,7 +2,7 @@ package com.kkk.op.support.exception;
 
 /**
  * domain层业务异常
- * todo... 待开发
+ * todo... 待设计
  *
  * @author KaiKoo
  */

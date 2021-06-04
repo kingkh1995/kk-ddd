@@ -1,12 +1,12 @@
 package com.kkk.op.user.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
-import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.base.AggregateRepositorySupport;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -31,7 +31,7 @@ import org.springframework.util.CollectionUtils;
  * @author KaiKoo
  */
 @Repository
-@Cacheable(autoCaching = false) // fixme... 暂时未开放redis功能
+//@AutoCached //todo...
 public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId> implements
         UserRepository {
 
@@ -44,13 +44,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     private final AccountMapper accountMapper;
 
     public UserRepositoryImpl(
-//            @Autowired DistributedLock distributedLock,
-//            @Autowired CacheManager<User> cacheManager,
+            @Autowired DistributedLock distributedLock,
+//            @Autowired Cache<User> cache,
             @Autowired UserMapper userMapper,
             @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
-//        super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager());
-        super(null, null, new ThreadLocalAggregateTrackingManager());
+        super(distributedLock, null, new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
     }
@@ -81,11 +80,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     @Override
     protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
         return null;
-    }
-
-    @Override
-    protected String generateCacheKey(LongId longId) {
-        return "op-user:user:" + longId.stringValue();
     }
 
     @Override

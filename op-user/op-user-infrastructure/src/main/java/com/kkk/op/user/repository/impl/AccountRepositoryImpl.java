@@ -1,8 +1,8 @@
 package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.kkk.op.support.annotations.Cacheable;
 import com.kkk.op.support.base.EntityRepositorySupport;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Repository;
  * @author KaiKoo
  */
 @Repository
-@Cacheable(autoCaching = false) // fixme... 暂时未开放redis功能
 public class AccountRepositoryImpl extends EntityRepositorySupport<Account, LongId> implements
         AccountRepository {
 
@@ -29,17 +28,10 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     private final AccountMapper accountMapper;
 
     public AccountRepositoryImpl(
-//            @Autowired DistributedLock distributedLock,
-//            @Autowired CacheManager<Account> cacheManager,
+            @Autowired DistributedLock distributedLock,
             @Autowired AccountMapper accountMapper) {
-//        super(distributedLock, cacheManager);
-        super(null, null);
+        super(distributedLock, null);
         this.accountMapper = accountMapper;
-    }
-
-    @Override
-    protected String generateCacheKey(LongId longId) {
-        return "op-user:account:" + longId.stringValue();
     }
 
     @Override

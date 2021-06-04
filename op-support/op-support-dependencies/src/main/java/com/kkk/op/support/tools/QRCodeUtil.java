@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 二维码工具类
- * todo... 待完善
+ *
  * @author KaiKoo
  */
 @Slf4j

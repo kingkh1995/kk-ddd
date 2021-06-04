@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * todo... 实现 & 服务降级
+ * todo... 待实现
  * @author KaiKoo
  */
 public class RedisCache<T> implements Cache<T> {
