@@ -57,7 +57,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         this.autocached = this.getClass().getAnnotation(AutoCached.class) != null;
         // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
         var type = (ParameterizedType) this.getClass().getGenericSuperclass();
-        // 设置entityClazz
+        // 设置tClazz
         this.tClazz = (Class) type.getActualTypeArguments()[0];
         // 设置cacheKeyPrefix
         var split = this.tClazz.getCanonicalName().split("\\.");
@@ -78,7 +78,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         this.distributedLock = Objects.requireNonNull(distributedLock);
     }
 
-    protected String generateLockName(@NotNull ID id) {
+    public String generateLockName(@NotNull ID id) {
         return "LOCK:" + this.getKeyPrefix() + id.stringValue();
     }
 
