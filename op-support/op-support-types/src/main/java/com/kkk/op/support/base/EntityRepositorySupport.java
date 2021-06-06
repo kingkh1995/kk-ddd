@@ -2,15 +2,18 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotations.AutoCached;
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -30,51 +33,63 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
-        Identifier> implements EntityRepository<T, ID> {
+        Identifier> implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
+
+    /**
+     * 用于生成 cache key 和 lock name
+     */
+    @Getter(AccessLevel.PROTECTED)
+    private final String keyPrefix;
+
+    @Getter(AccessLevel.PROTECTED)
+    private final Class<?> tClazz;
 
     @Getter(AccessLevel.PROTECTED)
     private DistributedLock distributedLock;
 
-    @Getter(AccessLevel.PROTECTED)
-    private Cache<T> cache;
+    private CacheManager cacheManager;
 
     @Getter(AccessLevel.PROTECTED)
     private final boolean autocached;
 
-    @Getter(AccessLevel.PROTECTED)
-    private final String cacheKeyPrefix;
-
     {
+        // 设置autocached
         this.autocached = this.getClass().getAnnotation(AutoCached.class) != null;
-        // 设置cacheKeyPrefix
-        // 获取到泛型父类，即EntityRepositorySupport<具体的Entity, 具体的Identifier> 为参数化类型
+        // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
         var type = (ParameterizedType) this.getClass().getGenericSuperclass();
-        // 因为是具体的类，所有转换为Class
-        var split = ((Class) type.getActualTypeArguments()[0]).getCanonicalName().split("\\.");
+        // 设置entityClazz
+        this.tClazz = (Class) type.getActualTypeArguments()[0];
+        // 设置cacheKeyPrefix
+        var split = this.tClazz.getCanonicalName().split("\\.");
         var className = split[split.length - 1];
-        cacheKeyPrefix =
+        this.keyPrefix =
                 split.length > 4 ? String.format("%s:%s:", split[3].toUpperCase(), className)
                         : className;
     }
 
     public EntityRepositorySupport(
             DistributedLock distributedLock,
-            Cache<T> cache) {
+            CacheManager cacheManager) {
         // 开启自动缓存时才校验
         if (this.isAutocached()) {
-            Objects.requireNonNull(cache);
+            Objects.requireNonNull(cacheManager);
         }
-        this.cache = cache;
+        this.cacheManager = cacheManager;
         this.distributedLock = Objects.requireNonNull(distributedLock);
     }
 
-    protected String generateCacheKey(@NotNull ID id) {
-        return cacheKeyPrefix + id.stringValue();
+    public String generateLockName(@NotNull ID id) {
+        return "LOCK:" + this.getKeyPrefix() + id.stringValue();
     }
 
     //==============================================================================================
-    // 这几个方法是继承的子类应该去实现的 对应crud的实现
-    protected abstract T onSelect(@NotNull ID id); // select操作由子类自行实现防止缓存击穿
+
+    /**
+     * 以下方法是继承的子类应该去实现的 对应crud的实现
+     * todo... 由子类自行实现查询操作防止缓存击穿 三种方式：1、分布式锁 2、顺序队列 3、信号量
+     */
+
+    protected abstract T onSelect(@NotNull ID id); //
 
     protected abstract void onDelete(@NotNull T entity);
 
@@ -83,6 +98,36 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     protected abstract void onUpdate(@NotNull T entity);
 
     protected abstract List<T> onSelectByIds(@NotEmpty Set<ID> ids);
+
+    //==============================================================================================
+
+    /**
+     * 以下是Cache相关
+     */
+
+    protected CacheManager getCacheManager() {
+        return Objects.requireNonNull(this.cacheManager);
+    }
+
+    @Override
+    public void cachePut(@NotNull T t) {
+        this.getCacheManager().put(this.generateCacheKey(t.getId()), t);
+    }
+
+    @Override
+    public T cacheGet(@NotNull ID id) {
+        return (T) this.getCacheManager().get(this.generateCacheKey(id), this.getTClazz());
+    }
+
+    @Override
+    public boolean cacheRemove(@NotNull T t) {
+        return this.getCacheManager().remove(this.generateCacheKey(t.getId()));
+    }
+
+    public String generateCacheKey(@NotNull ID id) {
+        return this.getKeyPrefix() + id.stringValue();
+    }
+
     //==============================================================================================
 
     @Override
@@ -90,26 +135,25 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         if (!this.isAutocached()) {
             return this.onSelect(id);
         }
-        var key = this.generateCacheKey(id);
-        var entity = this.getCache().get(key);
+        var entity = this.cacheGet(id);
         if (entity != null) {
             return entity;
         }
         entity = this.onSelect(id);
-        this.cache.put(key, entity);
+        this.cachePut(entity);
         return entity;
     }
 
     @Override
     public void remove(@NotNull T entity) {
-        var key = this.generateCacheKey(entity.getId());
-        boolean finished = this.getDistributedLock().tryWork(key, () -> {
-            if (this.isAutocached()) {
-                this.getCache().doubleRemove(key, () -> this.onDelete(entity));
-            } else {
-                this.onDelete(entity);
-            }
-        });
+        boolean finished = this.getDistributedLock()
+                .tryWork(this.generateLockName(entity.getId()), () -> {
+                    if (this.isAutocached()) {
+                        this.cacheDoubleRemove(entity, () -> this.onDelete(entity));
+                    } else {
+                        this.onDelete(entity);
+                    }
+                });
         if (!finished) {
             throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
@@ -128,14 +172,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     // 定义一个update0方法，使用函数式接口，使得update实现可以随意替换
     protected void update0(@NotNull T entity, Consumer<T> consumer) {
         // update操作
-        var key = this.generateCacheKey(entity.getId());
-        boolean finished = this.getDistributedLock().tryWork(key, () -> {
-            if (this.isAutocached()) {
-                this.getCache().doubleRemove(key, () -> consumer.accept(entity));
-            } else {
-                consumer.accept(entity);
-            }
-        });
+        boolean finished = this.getDistributedLock()
+                .tryWork(this.generateLockName(entity.getId()), () -> {
+                    if (this.isAutocached()) {
+                        this.cacheDoubleRemove(entity, () -> consumer.accept(entity));
+                    } else {
+                        consumer.accept(entity);
+                    }
+                });
         if (!finished) {
             throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
@@ -143,8 +187,30 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
 
     @Override
     public List<T> list(@NotEmpty Set<ID> ids) {
-        //todo... 批量加锁 or 单个加锁
-        return this.onSelectByIds(ids);
+        if (!this.isAutocached()) {
+            return this.onSelectByIds(ids);
+        }
+        // 有缓存情况下
+        // ArrayList初始容量指定为ids的大小
+        var list = new ArrayList<T>(ids.size());
+        // 先查缓存 存在则直接取缓存
+        ids = ids.stream().filter((id) -> {
+            var t = this.cacheGet(id);
+            if (t == null) {
+                return true;
+            } else {
+                list.add(t);
+                return false;
+            }
+        }).collect(Collectors.toSet());
+        // 不存在缓存的去查数据库，并加载缓存
+        if (!ids.isEmpty()) {
+            this.onSelectByIds(ids).forEach((t) -> {
+                list.add(t);
+                this.cachePut(t);
+            });
+        }
+        return list;
     }
 
 }

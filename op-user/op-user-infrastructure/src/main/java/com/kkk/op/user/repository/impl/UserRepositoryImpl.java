@@ -1,11 +1,13 @@
 package com.kkk.op.user.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
+import com.kkk.op.support.annotations.AutoCached;
 import com.kkk.op.support.base.AggregateRepositorySupport;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
@@ -30,8 +32,8 @@ import org.springframework.util.CollectionUtils;
  * Aggregate类Repository实现类
  * @author KaiKoo
  */
+@AutoCached // 开启自动缓存功能
 @Repository
-//@AutoCached //todo...
 public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId> implements
         UserRepository {
 
@@ -45,11 +47,11 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
     public UserRepositoryImpl(
             @Autowired DistributedLock distributedLock,
-//            @Autowired Cache<User> cache,
+            @Autowired CacheManager cacheManager,
             @Autowired UserMapper userMapper,
             @Autowired AccountMapper accountMapper) {
         // 使用ThreadLocalAggregateTrackingManager
-        super(distributedLock, null, new ThreadLocalAggregateTrackingManager());
+        super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager());
         this.userMapper = userMapper;
         this.accountMapper = accountMapper;
     }

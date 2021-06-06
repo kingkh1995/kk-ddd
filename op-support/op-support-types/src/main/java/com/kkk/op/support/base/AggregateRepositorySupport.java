@@ -3,7 +3,7 @@ package com.kkk.op.support.base;
 import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.AggregateRepository;
-import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
@@ -28,9 +28,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
     public AggregateRepositorySupport(
             DistributedLock distributedLock,
-            Cache<T> cache,
+            CacheManager cacheManager,
             AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-        super(distributedLock, cache);
+        super(distributedLock, cacheManager);
         this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
 
@@ -93,13 +93,14 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         if (entityDiff == null) {
             return;
         }
-        super.update0(aggregate, (T) -> this.onUpdate(aggregate, entityDiff));
+        super.update0(aggregate, (t) -> this.onUpdate(t, entityDiff));
         // 合并跟踪变更
         this.getAggregateTrackingManager().merge(aggregate);
     }
 
     /**
-     * 重新定义update的实现，注意update前一定要查询一下。
+     * 重新定义update的实现，父类的方法设置为不支持的操作。
+     * 注意update前一定要查询一下。
      */
     protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
 

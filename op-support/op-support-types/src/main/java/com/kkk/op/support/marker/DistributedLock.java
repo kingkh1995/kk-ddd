@@ -18,20 +18,20 @@ public interface DistributedLock {
     /**
      * 获取锁并执行一段工作，获取锁失败立即返回，执行完成自动释放锁。
      */
-    default boolean tryWork(@NotBlank String key, Worker worker) {
-        return this.tryWork(key, 0L, TimeUnit.MILLISECONDS, worker);
+    default boolean tryWork(@NotBlank String name, Worker worker) {
+        return this.tryWork(name, 0L, TimeUnit.MILLISECONDS, worker);
     }
 
     /**
      * 获取锁并执行一段工作，获取锁失败则阻塞指定时间，执行完成自动释放锁。
      */
-    default boolean tryWork(@NotBlank String key, long waitTime, TimeUnit unit, Worker worker) {
-        if (this.tryLock(key, waitTime, unit)) {
+    default boolean tryWork(@NotBlank String name, long waitTime, TimeUnit unit, Worker worker) {
+        if (this.tryLock(name, waitTime, unit)) {
             try {
                 worker.work();
                 return true;
             } finally {
-                this.unlock(key);
+                this.unlock(name);
             }
         }
         return false;
@@ -40,19 +40,19 @@ public interface DistributedLock {
     /**
      * 尝试获取锁，失败立即返回
      */
-    default boolean tryLock(@NotBlank String key) {
-        return this.tryLock(key, 0L, TimeUnit.MILLISECONDS);
+    default boolean tryLock(@NotBlank String name) {
+        return this.tryLock(name, 0L, TimeUnit.MILLISECONDS);
     }
 
     /**
      * 尝试获取锁，失败阻塞则阻塞指定时间
      */
-    boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit);
+    boolean tryLock(@NotBlank String name, long waitTime, TimeUnit unit);
 
     /**
      * 释放锁
      */
-    void unlock(@NotBlank String key);
+    void unlock(@NotBlank String name);
 
     // 睡眠时间递增，并且取随机值，防止雪崩
     default long generateSleepMills(int i, long waitInterval) {

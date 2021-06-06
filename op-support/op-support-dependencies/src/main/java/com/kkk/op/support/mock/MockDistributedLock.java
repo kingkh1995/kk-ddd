@@ -10,12 +10,12 @@ import java.util.concurrent.TimeUnit;
 public class MockDistributedLock implements DistributedLock {
 
     @Override
-    public boolean tryLock(String key, long waitTime, TimeUnit unit) {
+    public boolean tryLock(String name, long waitTime, TimeUnit unit) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void unlock(String key) {
+    public void unlock(String name) {
         throw new UnsupportedOperationException();
     }
 }

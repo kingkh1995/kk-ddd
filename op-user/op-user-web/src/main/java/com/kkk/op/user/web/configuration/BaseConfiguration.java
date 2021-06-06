@@ -2,7 +2,9 @@ package com.kkk.op.user.web.configuration;
 
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
+import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.mock.MockCacheManager;
 import com.kkk.op.support.mock.MockDistributedLock;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -51,6 +53,12 @@ public class BaseConfiguration implements WebMvcConfigurer {
                 .sleepInterval(200L);
         return builder.build();
     }*/
+
+    // 配置CacheManager // fixme... 暂时Mock住
+    @Bean
+    public CacheManager cacheManager() {
+        return new MockCacheManager();
+    }
 
     //配置valiator快速失败
     @Bean

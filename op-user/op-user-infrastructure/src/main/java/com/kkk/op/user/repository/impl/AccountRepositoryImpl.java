@@ -2,6 +2,7 @@ package com.kkk.op.user.repository.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.base.EntityRepositorySupport;
+import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
@@ -29,8 +30,9 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
 
     public AccountRepositoryImpl(
             @Autowired DistributedLock distributedLock,
+            @Autowired CacheManager cacheManager,
             @Autowired AccountMapper accountMapper) {
-        super(distributedLock, null);
+        super(distributedLock, cacheManager);
         this.accountMapper = accountMapper;
     }
 
