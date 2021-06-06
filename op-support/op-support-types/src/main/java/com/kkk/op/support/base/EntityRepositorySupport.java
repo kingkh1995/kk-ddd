@@ -78,7 +78,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         this.distributedLock = Objects.requireNonNull(distributedLock);
     }
 
-    public String generateLockName(@NotNull ID id) {
+    protected String generateLockName(@NotNull ID id) {
         return "LOCK:" + this.getKeyPrefix() + id.stringValue();
     }
 
