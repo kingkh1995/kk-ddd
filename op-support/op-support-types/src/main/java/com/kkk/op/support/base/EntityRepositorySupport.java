@@ -35,22 +35,22 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         Identifier> implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
-    /**
-     * 用于生成 cache key 和 lock name
-     */
-    @Getter(AccessLevel.PROTECTED)
-    private final String keyPrefix;
-
     @Getter(AccessLevel.PROTECTED)
     private final Class<?> tClazz;
 
     @Getter(AccessLevel.PROTECTED)
     private DistributedLock distributedLock;
 
+    @Getter(AccessLevel.PROTECTED)
+    private final String lockNamePrefix;
+
     private CacheManager cacheManager;
 
     @Getter(AccessLevel.PROTECTED)
     private final boolean autocached;
+
+    @Getter(AccessLevel.PROTECTED)
+    private final String cacheKeyPrefix;
 
     {
         // 设置autocached
@@ -62,9 +62,10 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         // 设置cacheKeyPrefix
         var split = this.tClazz.getCanonicalName().split("\\.");
         var className = split[split.length - 1];
-        this.keyPrefix =
+        this.cacheKeyPrefix =
                 split.length > 4 ? String.format("%s:%s:", split[3].toUpperCase(), className)
                         : className;
+        this.lockNamePrefix = "LOCK:" + this.cacheKeyPrefix;
     }
 
     public EntityRepositorySupport(
@@ -79,7 +80,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     }
 
     public String generateLockName(@NotNull ID id) {
-        return "LOCK:" + this.getKeyPrefix() + id.stringValue();
+        return this.getLockNamePrefix() + id.stringValue();
     }
 
     //==============================================================================================
@@ -102,7 +103,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     //==============================================================================================
 
     /**
-     * 以下是Cache相关
+     * 以下是Cache相关方法
      */
 
     protected CacheManager getCacheManager() {
@@ -125,7 +126,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     }
 
     public String generateCacheKey(@NotNull ID id) {
-        return this.getKeyPrefix() + id.stringValue();
+        return this.getCacheKeyPrefix() + id.stringValue();
     }
 
     //==============================================================================================
