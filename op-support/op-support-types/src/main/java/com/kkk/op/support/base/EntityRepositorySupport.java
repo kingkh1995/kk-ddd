@@ -53,7 +53,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         var split = ((Class) type.getActualTypeArguments()[0]).getCanonicalName().split("\\.");
         var className = split[split.length - 1];
         cacheKeyPrefix =
-                split.length > 4 ? String.format("%s:%s:", split[3], className) : className;
+                split.length > 4 ? String.format("%s:%s:", split[3].toUpperCase(), className)
+                        : className;
     }
 
     public EntityRepositorySupport(
@@ -102,16 +103,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
     @Override
     public void remove(@NotNull T entity) {
         var key = this.generateCacheKey(entity.getId());
-        boolean b = this.getDistributedLock().tryWork(key, () -> {
+        boolean finished = this.getDistributedLock().tryWork(key, () -> {
             if (this.isAutocached()) {
-                this.getCache().remove(key);
-                this.onDelete(entity);
-                // todo... 延迟双删
+                cacheDoubleRemove(key, () -> this.onDelete(entity));
             } else {
                 this.onDelete(entity);
             }
         });
-        if (!b) {
+        if (!finished) {
             throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
     }
@@ -126,22 +125,27 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         this.update0(entity, () -> this.onUpdate(entity));
     }
 
-    // 定义一个update0方法，使用函数式接口，实现update实现随意替换
+    // 定义一个update0方法，使用函数式接口，使得update实现可以随意替换
     protected void update0(@NotNull T entity, Worker worker) {
         // update操作
         var key = this.generateCacheKey(entity.getId());
-        boolean b = this.getDistributedLock().tryWork(key, () -> {
+        boolean finished = this.getDistributedLock().tryWork(key, () -> {
             if (this.isAutocached()) {
-                this.getCache().remove(key);
-                worker.work();
-                // todo... 延迟双删
+                cacheDoubleRemove(key, worker);
             } else {
                 worker.work();
             }
         });
-        if (!b) {
+        if (!finished) {
             throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
+    }
+
+    // todo... 缓存双删
+    protected void cacheDoubleRemove(String key, Worker worker) {
+        this.getCache().remove(key);
+        worker.work();
+        // 延迟删除
     }
 
     @Override
