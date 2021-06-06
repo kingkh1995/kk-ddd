@@ -93,9 +93,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         if (entityDiff == null) {
             return;
         }
-        super.update0(aggregate, () -> {
-            this.onUpdate(aggregate, entityDiff);
-        });
+        super.update0(aggregate, (T) -> this.onUpdate(aggregate, entityDiff));
         // 合并跟踪变更
         this.getAggregateTrackingManager().merge(aggregate);
     }

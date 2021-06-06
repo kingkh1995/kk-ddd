@@ -2,7 +2,6 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotations.AutoCached;
 import com.kkk.op.support.exception.BussinessException;
-import com.kkk.op.support.function.Worker;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
@@ -11,6 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -105,7 +105,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
         var key = this.generateCacheKey(entity.getId());
         boolean finished = this.getDistributedLock().tryWork(key, () -> {
             if (this.isAutocached()) {
-                cacheDoubleRemove(key, () -> this.onDelete(entity));
+                this.getCache().doubleRemove(key, () -> this.onDelete(entity));
             } else {
                 this.onDelete(entity);
             }
@@ -122,30 +122,23 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends
             this.onInsert(entity);
             return;
         }
-        this.update0(entity, () -> this.onUpdate(entity));
+        this.update0(entity, this::onUpdate);
     }
 
     // 定义一个update0方法，使用函数式接口，使得update实现可以随意替换
-    protected void update0(@NotNull T entity, Worker worker) {
+    protected void update0(@NotNull T entity, Consumer<T> consumer) {
         // update操作
         var key = this.generateCacheKey(entity.getId());
         boolean finished = this.getDistributedLock().tryWork(key, () -> {
             if (this.isAutocached()) {
-                cacheDoubleRemove(key, worker);
+                this.getCache().doubleRemove(key, () -> consumer.accept(entity));
             } else {
-                worker.work();
+                consumer.accept(entity);
             }
         });
         if (!finished) {
             throw new BussinessException("尝试的人太多了，请稍后再试！");
         }
-    }
-
-    // todo... 缓存双删
-    protected void cacheDoubleRemove(String key, Worker worker) {
-        this.getCache().remove(key);
-        worker.work();
-        // 延迟删除
     }
 
     @Override
