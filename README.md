@@ -26,3 +26,13 @@
 
 - 对外接口层，web项目，包含Controller、Provider、Scheduler、MessageListener等，不涉及任何业务相关的代码，职责是服务提供、协议转化、统一鉴权、会话管理、服务限流、异常处理、日志记录等。
 - 集成Application模块和Infrastructure模块，分别作为服务提供和服务实现，对domain模块应该是不可知的。
+
+## 图示
+
+### Repository体系类结构图
+
+![](/files/repository_struct.png)
+
+### ChangeTracking流程图
+
+![](/files/change_tracking_flow.png)
