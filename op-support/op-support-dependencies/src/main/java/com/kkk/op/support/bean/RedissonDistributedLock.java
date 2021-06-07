@@ -30,10 +30,10 @@ public class RedissonDistributedLock implements DistributedLock {
     }
 
     @Override
-    public boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit) {
+    public boolean tryLock(@NotBlank String name, long waitTime, TimeUnit unit) {
         // 获取锁
         unit = unit == null ? TimeUnit.MILLISECONDS : unit;
-        var lock = this.client.getLock(key);
+        var lock = this.client.getLock(name);
         var locked = false;
         try {
             return lock.tryLock(unit.toMillis(waitTime), this.expireMills, TimeUnit.MILLISECONDS);
@@ -44,7 +44,8 @@ public class RedissonDistributedLock implements DistributedLock {
     }
 
     @Override
-    public void unlock(@NotBlank String key) {
-        this.client.getLock(key).unlock();
+    public void unlock(@NotBlank String name) {
+        this.client.getLock(name).unlock();
     }
+
 }

@@ -2,9 +2,8 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
-import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.AggregateRepository;
-import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
@@ -29,9 +28,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
     public AggregateRepositorySupport(
             DistributedLock distributedLock,
-            Cache<T> cache,
+            CacheManager cacheManager,
             AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-        super(distributedLock, cache);
+        super(distributedLock, cacheManager);
         this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
     }
 
@@ -41,7 +40,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public void attach(@NotNull T aggregate) {
-        this.aggregateTrackingManager.attach(aggregate);
+        this.getAggregateTrackingManager().attach(aggregate);
     }
 
     /**
@@ -50,7 +49,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public void detach(@NotNull T aggregate) {
-        this.aggregateTrackingManager.detach(aggregate);
+        this.getAggregateTrackingManager().detach(aggregate);
     }
 
     /**
@@ -81,7 +80,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
      */
     @Override
     public void save(@NotNull T aggregate) {
-        // 如果没有 ID，直接插入 不需要获取分布式锁
+        // insert操作
         if (aggregate.getId() == null) {
             this.onInsert(aggregate);
             // 添加跟踪
@@ -90,32 +89,18 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
         }
         // update操作
         // 做 diff
-        var entityDiff = this.aggregateTrackingManager.detectChanges(aggregate);
+        var entityDiff = this.getAggregateTrackingManager().detectChanges(aggregate);
         if (entityDiff == null) {
             return;
         }
-        if (!this.isAutoCaching()) {
-            this.onUpdate(aggregate, entityDiff);
-        } else {
-            var key = this.generateCacheKey(aggregate.getId());
-            if (this.getDistributedLock().tryLock(key)) {
-                try {
-                    this.getCache().remove(key);
-                    this.onUpdate(aggregate, entityDiff);
-                    // todo... 发送消息，延迟双删
-                } finally {
-                    this.getDistributedLock().unlock(key);
-                }
-            } else {
-                throw new BussinessException("服务繁忙请稍后再试！");
-            }
-        }
+        super.update0(aggregate, (t) -> this.onUpdate(t, entityDiff));
         // 合并跟踪变更
-        this.aggregateTrackingManager.merge(aggregate);
+        this.getAggregateTrackingManager().merge(aggregate);
     }
 
     /**
-     * 重新定义update的实现，注意update前一定要查询一下。
+     * 重新定义update的实现，父类的方法设置为不支持的操作。
+     * 注意update前一定要查询一下。
      */
     protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
 

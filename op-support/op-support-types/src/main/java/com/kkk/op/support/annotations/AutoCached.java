@@ -11,9 +11,6 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Cacheable {
-
-    // 默认为true
-    boolean autoCaching() default true;
+public @interface AutoCached {
 
 }

@@ -71,9 +71,9 @@ public class RedisDistributedLock implements DistributedLock {
      * 获取锁，失败则自旋重试
      */
     @Override
-    public boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit) {
+    public boolean tryLock(@NotBlank String name, long waitTime, TimeUnit unit) {
         // 可重入锁，判断该线程是否获取到了锁
-        var lockInfo = this.getLockInfo(key);
+        var lockInfo = this.getLockInfo(name);
         if (lockInfo != null) {
             lockInfo.count++;
             return true;
@@ -82,7 +82,7 @@ public class RedisDistributedLock implements DistributedLock {
         unit = unit == null ? TimeUnit.MILLISECONDS : unit;
         var waitMills = unit.toMillis(waitTime);
         lockInfo = new LockInfo();
-        var locked = this.lock(key, lockInfo.requestId);
+        var locked = this.lock(name, lockInfo.requestId);
         for (var i = 0; !locked && waitMills > 0; i++) {
             try {
                 var interval = generateSleepMills(i, this.sleepInterval);
@@ -91,14 +91,14 @@ public class RedisDistributedLock implements DistributedLock {
             } catch (InterruptedException e) {
                 log.error(String.format("线程【%s】睡眠被中断！", Thread.currentThread().getName()), e);
             }
-            locked = this.lock(key, lockInfo.requestId);
+            locked = this.lock(name, lockInfo.requestId);
         }
         if (locked) {
             // 获取到锁 则保存锁信息
             var map = this.LOCK_CONTEXT.get();
-            map.put(key, lockInfo);
+            map.put(name, lockInfo);
             // 开启watchdog
-            watching(key);
+            watching(name);
         }
         return locked;
     }
@@ -113,8 +113,8 @@ public class RedisDistributedLock implements DistributedLock {
      * 解决问题：如果锁已自动释放请求仍未执行完，则可能会让被其他线程获取到该锁，必须保证不能释放掉别人加的锁
      * （同时业务逻辑中也要通过乐观锁或其他方式避免并发问题发生）
      */
-    public void unlock(@NotBlank String key) {
-        var lockInfo = this.getLockInfo(key);
+    public void unlock(@NotBlank String name) {
+        var lockInfo = this.getLockInfo(name);
         if (lockInfo == null) {
             return;
         }
@@ -124,7 +124,7 @@ public class RedisDistributedLock implements DistributedLock {
         // 释放锁
         try {
             var result = this.redisTemplate
-                    .execute(UNLOCK_SCRIPT, Collections.singletonList(key), lockInfo.requestId);
+                    .execute(UNLOCK_SCRIPT, Collections.singletonList(name), lockInfo.requestId);
             if (result < 1) {
                 log.warn("execute return " + result);
             }
@@ -133,9 +133,9 @@ public class RedisDistributedLock implements DistributedLock {
         } finally {
             var lockInfoMap = this.LOCK_CONTEXT.get();
             // 中断任务
-            lockInfoMap.get(key).future.cancel(true);
+            lockInfoMap.get(name).future.cancel(true);
             // 移除Key
-            lockInfoMap.remove(key);
+            lockInfoMap.remove(name);
         }
     }
 

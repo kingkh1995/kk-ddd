@@ -1,5 +1,6 @@
 package com.kkk.op.support.marker;
 
+import com.kkk.op.support.function.Worker;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
@@ -15,21 +16,43 @@ import javax.validation.constraints.NotBlank;
 public interface DistributedLock {
 
     /**
-     * 尝试获取锁，失败不重试
+     * 获取锁并执行一段工作，获取锁失败立即返回，执行完成自动释放锁。
      */
-    default boolean tryLock(@NotBlank String key) {
-        return this.tryLock(key, 0L, TimeUnit.MILLISECONDS);
+    default boolean tryWork(@NotBlank String name, Worker worker) {
+        return this.tryWork(name, 0L, TimeUnit.MILLISECONDS, worker);
     }
 
     /**
-     * 尝试获取锁，失败则重试指定时间
+     * 获取锁并执行一段工作，获取锁失败则阻塞指定时间，执行完成自动释放锁。
      */
-    boolean tryLock(@NotBlank String key, long waitTime, TimeUnit unit);
+    default boolean tryWork(@NotBlank String name, long waitTime, TimeUnit unit, Worker worker) {
+        if (this.tryLock(name, waitTime, unit)) {
+            try {
+                worker.work();
+                return true;
+            } finally {
+                this.unlock(name);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 尝试获取锁，失败立即返回
+     */
+    default boolean tryLock(@NotBlank String name) {
+        return this.tryLock(name, 0L, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 尝试获取锁，失败阻塞则阻塞指定时间
+     */
+    boolean tryLock(@NotBlank String name, long waitTime, TimeUnit unit);
 
     /**
      * 释放锁
      */
-    void unlock(@NotBlank String key);
+    void unlock(@NotBlank String name);
 
     // 睡眠时间递增，并且取随机值，防止雪崩
     default long generateSleepMills(int i, long waitInterval) {

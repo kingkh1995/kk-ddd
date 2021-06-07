@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 二维码工具类
- * todo... 待完善
+ *
  * @author KaiKoo
  */
 @Slf4j
@@ -215,8 +215,8 @@ public final class QRCodeUtil {
     private static BufferedImage makeRoundedCorner(BufferedImage image, int cornerRadius,
             int margin,
             Color color) {
-        int w = image.getWidth();
-        int h = image.getHeight();
+        var w = image.getWidth();
+        var h = image.getHeight();
         // 构建一个原始图片尺寸的新绘图对象
         var output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         // 绘图
@@ -228,8 +228,8 @@ public final class QRCodeUtil {
         // 设置圆角
         g2.fill(new RoundRectangle2D.Float(0, 0, w, h, cornerRadius, cornerRadius));
         // 将原始图片绘制到新的图片上面
-        int x = w * margin / 200;
-        int y = h * margin / 200;
+        var x = w * margin / 200;
+        var y = h * margin / 200;
         g2.setComposite(AlphaComposite.SrcAtop);
         g2.drawImage(image, x, y, w - 2 * x, h - 2 * y, null);
         g2.dispose();
