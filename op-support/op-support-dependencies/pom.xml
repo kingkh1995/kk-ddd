@@ -18,6 +18,11 @@
       <artifactId>op-support-types</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.kkk.op.support</groupId>
+      <artifactId>op-support-tools</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!--redis--> <!--不传递该依赖，因为功能是可选的-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -29,12 +34,6 @@
       <groupId>org.redisson</groupId>
       <artifactId>redisson-spring-boot-starter</artifactId>
       <optional>true</optional>
-    </dependency>
-    <!--zxing-->
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>javase</artifactId>
-      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

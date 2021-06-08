@@ -16,9 +16,10 @@
   <name>op-support-parent</name>
 
   <modules>
+    <module>op-support-tools</module>
+    <module>op-support-types</module>
     <module>op-support-models</module>
     <module>op-support-dependencies</module>
-    <module>op-support-types</module>
   </modules>
 
   <dependencies>

@@ -1,6 +1,7 @@
 package com.kkk.op.support.tools;
 
 /**
+ * todo... 转为Comparable 集合查找
  *
  * @author KaiKoo
  */
