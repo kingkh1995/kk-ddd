@@ -6,11 +6,11 @@
   <parent>
     <artifactId>op-user</artifactId>
     <groupId>com.kkk.op.user</groupId>
-    <version>ACE-PRE</version>
+    <version>Ace.GA</version>
   </parent>
   <groupId>com.kkk.op.user</groupId>
   <artifactId>op-user-web</artifactId>
-  <version>ACE-PRE</version>
+  <version>Ace.GA</version>
   <name>op-user-web</name>
   <description>KKK-OP-USER-WEB</description>
 
