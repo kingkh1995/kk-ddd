@@ -5,20 +5,21 @@
   <parent>
     <artifactId>op-root</artifactId>
     <groupId>com.kkk.op</groupId>
-    <version>ACE-PRE</version>
+    <version>Ace.GA</version>
     <relativePath>../op-root/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kkk.op.support</groupId>
   <artifactId>op-support</artifactId>
   <packaging>pom</packaging>
-  <version>ACE-PRE</version>
+  <version>Ace.GA</version>
   <name>op-support-parent</name>
 
   <modules>
+    <module>op-support-tools</module>
+    <module>op-support-types</module>
     <module>op-support-models</module>
     <module>op-support-dependencies</module>
-    <module>op-support-types</module>
   </modules>
 
   <dependencies>

@@ -5,17 +5,22 @@
   <parent>
     <artifactId>op-support</artifactId>
     <groupId>com.kkk.op.support</groupId>
-    <version>ACE-PRE</version>
+    <version>Ace.GA</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>op-support-dependencies</artifactId>
   <packaging>jar</packaging>
-  <version>ACE-PRE</version>
+  <version>Ace.GA</version>
 
   <dependencies>
     <dependency>
       <groupId>com.kkk.op.support</groupId>
       <artifactId>op-support-types</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.kkk.op.support</groupId>
+      <artifactId>op-support-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!--redis--> <!--不传递该依赖，因为功能是可选的-->
@@ -29,12 +34,6 @@
       <groupId>org.redisson</groupId>
       <artifactId>redisson-spring-boot-starter</artifactId>
       <optional>true</optional>
-    </dependency>
-    <!--zxing-->
-    <dependency>
-      <groupId>com.google.zxing</groupId>
-      <artifactId>javase</artifactId>
-      <version>3.4.1</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>

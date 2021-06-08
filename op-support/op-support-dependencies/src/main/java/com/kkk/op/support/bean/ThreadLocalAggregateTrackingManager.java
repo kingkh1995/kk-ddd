@@ -4,7 +4,6 @@ import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
 import com.kkk.op.support.marker.Identifier;
-import com.kkk.op.support.tools.ThreadLocalRecorder;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.NotNull;

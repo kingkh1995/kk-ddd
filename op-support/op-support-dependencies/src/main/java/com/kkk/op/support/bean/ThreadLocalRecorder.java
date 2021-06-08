@@ -1,4 +1,4 @@
-package com.kkk.op.support.tools;
+package com.kkk.op.support.bean;
 
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.marker.Identifier;
