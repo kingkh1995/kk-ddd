@@ -5,7 +5,7 @@ package com.kkk.op.support.tools;
  *
  * @author KaiKoo
  */
-public class ArrayUtil {
+public final class ArrayUtil {
 
     private ArrayUtil() throws IllegalAccessException {
         throw new IllegalAccessException();

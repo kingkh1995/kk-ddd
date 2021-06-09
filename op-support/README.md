@@ -4,9 +4,7 @@
 
 ### tools
 
-> 工具类包
-
-- utils类
+> 静态工具类
 
 ### types （domain模块引用）
 
@@ -16,7 +14,7 @@
 
 - Marker接口
 - 数据模型的基类
-- 追踪变更支持
+- 变更追踪支持
 - 业务异常类
 
 ### models （application模块引用，依赖support-tools）
@@ -29,4 +27,4 @@
 
 ### dependencies （infrastructure模块引用，依赖support-types、support-tools）
 
-> 基础设施层使用的各种Beans
+> 供基础设施层使用的Bean

@@ -5,8 +5,6 @@
 - 用户服务：user
 - 促销服务：sales
 
-## [版本信息](/versioninfo.md)
-
 ## 服务架构
 
 ### Domain模块
@@ -46,3 +44,5 @@
 ### ChangeTracking流程图
 
 ![](/files/change_tracking_flow.png)
+
+## [版本信息](/version_info.md)
