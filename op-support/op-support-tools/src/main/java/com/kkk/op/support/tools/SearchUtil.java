@@ -280,6 +280,7 @@ public final class SearchUtil {
                 }
                 return arr[index];
             }
+            // 使用快速三向切分快排
             swap(arr, index, lo);
             var i = lo;
             var j = hi + 1;
@@ -316,22 +317,23 @@ public final class SearchUtil {
                     swap(arr, --q, j);
                 }
             }
-            // 交换等于的区间到中间
             // 循环终止时，j处的数必定小于pivot，因为如果等于pivot会和小于pivot的数交换
             // 故此时(p, j]区间小于pivot [j+1, q)区间大于pivot
+            // 先判断不交换
             i = j + 1;
             var left = j - p + lo;
-            var right = hi - q + 1 + j;
+            var right = j + hi - q + 1 + j;
             if (left <= index && right >= index) {
                 return pivot;
             }
+            // 交换等于的区间到中间
             for (int k = lo; k <= p; k++) {
                 swap(arr, k, j--);
             }
             for (int k = hi; k >= q; k--) {
                 swap(arr, k, i++);
             }
-            // [lo, j]小于 [i, hi]大于
+            // 交换完之后，[lo, j]小于pivot [i, hi]大于pivot
             if (index <= j) {
                 hi = j;
             } else if (index >= i) {
@@ -351,7 +353,6 @@ public final class SearchUtil {
 
     public static long quickSelect(long[] arr, int k) {
         rangeCheck(arr.length, k);
-        // k < 5 或 k > arr.length - 5 使用冒泡排序
         if (k < 5) {
             var isSorted = false;
             for (var i = 0; i < k && !isSorted; i++) {
@@ -382,7 +383,6 @@ public final class SearchUtil {
 
     private static long quickSelect(long[] arr, int index, int lo, int hi) {
         while (true) {
-            // 少于五个元素直接进行插入排序
             if (hi - lo + 1 < 5) {
                 var n = hi - lo + 1;
                 for (var i = lo; i - lo < n; i++) {
@@ -399,27 +399,22 @@ public final class SearchUtil {
             var q = hi + 1;
             var pivot = arr[lo];
             while (true) {
-                // 从左边开始找到第一个大于等于pivot的数
                 while (arr[++i] < pivot) {
                     if (i == hi) {
                         break;
                     }
                 }
-                // 从右边开始找到第一个小于等于pivot的数
                 while (arr[--j] > pivot) {
                     if (j == lo) {
                         break;
                     }
                 }
-                // 相遇有两种情况，在中间相遇，肯定等于pivot，第二种情况在hi处相遇，此时不一定等于。
-                // 如果i j 相遇，且等于pivot，则交换到等于pivot的区间
                 if (i == j && arr[i] == pivot) {
                     swap(arr, ++p, i);
                 }
                 if (i >= j) {
                     break;
                 }
-                // 和普通的partiion方法一样，交换i j
                 swap(arr, i, j);
                 if (arr[i] == pivot) {
                     swap(arr, ++p, i);
@@ -428,12 +423,9 @@ public final class SearchUtil {
                     swap(arr, --q, j);
                 }
             }
-            // 交换等于的区间到中间
-            // 循环终止时，j处的数必定小于pivot，因为如果等于pivot会和小于pivot的数交换
-            // 故此时(p, j]区间小于pivot [j+1, q)区间大于pivot
             i = j + 1;
             var left = j - p + lo;
-            var right = hi - q + 1 + j;
+            var right = j + hi - q + 1;
             if (left <= index && right >= index) {
                 return pivot;
             }
@@ -443,7 +435,6 @@ public final class SearchUtil {
             for (int k = hi; k >= q; k--) {
                 swap(arr, k, i++);
             }
-            // [lo, j]小于 [i, hi]大于
             if (index <= j) {
                 hi = j;
             } else if (index >= i) {
@@ -463,7 +454,6 @@ public final class SearchUtil {
 
     public static <T> T quickSelect(T[] arr, int k, Comparator<? super T> c) {
         rangeCheck(arr.length, k);
-        // k < 5 或 k > arr.length - 5 使用冒泡排序
         if (k < 5) {
             var isSorted = false;
             for (var i = 0; i < k && !isSorted; i++) {
@@ -494,7 +484,6 @@ public final class SearchUtil {
 
     private static <T> T quickSelect(T[] arr, int index, int lo, int hi, Comparator<? super T> c) {
         while (true) {
-            // 少于五个元素直接进行插入排序
             if (hi - lo + 1 < 5) {
                 var n = hi - lo + 1;
                 for (var i = lo; i - lo < n; i++) {
@@ -511,27 +500,22 @@ public final class SearchUtil {
             var q = hi + 1;
             var pivot = arr[lo];
             while (true) {
-                // 从左边开始找到第一个大于等于pivot的数
                 while (c.compare(arr[++i], pivot) < 0) {
                     if (i == hi) {
                         break;
                     }
                 }
-                // 从右边开始找到第一个小于等于pivot的数
                 while (c.compare(arr[--j], pivot) > 0) {
                     if (j == lo) {
                         break;
                     }
                 }
-                // 相遇有两种情况，在中间相遇，肯定等于pivot，第二种情况在hi处相遇，此时不一定等于。
-                // 如果i j 相遇，且等于pivot，则交换到等于pivot的区间
                 if (i == j && arr[i] == pivot) {
                     swap(arr, ++p, i);
                 }
                 if (i >= j) {
                     break;
                 }
-                // 和普通的partiion方法一样，交换i j
                 swap(arr, i, j);
                 if (arr[i] == pivot) {
                     swap(arr, ++p, i);
@@ -540,12 +524,9 @@ public final class SearchUtil {
                     swap(arr, --q, j);
                 }
             }
-            // 交换等于的区间到中间
-            // 循环终止时，j处的数必定小于pivot，因为如果等于pivot会和小于pivot的数交换
-            // 故此时(p, j]区间小于pivot [j+1, q)区间大于pivot
             i = j + 1;
             var left = j - p + lo;
-            var right = hi - q + 1 + j;
+            var right = j + hi - q + 1;
             if (left <= index && right >= index) {
                 return pivot;
             }
@@ -555,7 +536,6 @@ public final class SearchUtil {
             for (int k = hi; k >= q; k--) {
                 swap(arr, k, i++);
             }
-            // [lo, j]小于 [i, hi]大于
             if (index <= j) {
                 hi = j;
             } else if (index >= i) {
@@ -576,7 +556,6 @@ public final class SearchUtil {
 
     public static <T> T quickSelect(List<T> list, int k, Comparator<? super T> c) {
         rangeCheck(list.size(), k);
-        // k < 5 或 k > arr.length - 5 使用冒泡排序
         if (k < 5) {
             var isSorted = false;
             for (var i = 0; i < k && !isSorted; i++) {
@@ -608,7 +587,6 @@ public final class SearchUtil {
     private static <T> T quickSelect(List<T> list, int index, int lo, int hi,
             Comparator<? super T> c) {
         while (true) {
-            // 少于五个元素直接进行插入排序
             if (hi - lo + 1 < 5) {
                 var n = hi - lo + 1;
                 for (var i = lo; i - lo < n; i++) {
@@ -625,27 +603,22 @@ public final class SearchUtil {
             var q = hi + 1;
             var pivot = list.get(lo);
             while (true) {
-                // 从左边开始找到第一个大于等于pivot的数
                 while (c.compare(list.get(++i), pivot) < 0) {
                     if (i == hi) {
                         break;
                     }
                 }
-                // 从右边开始找到第一个小于等于pivot的数
                 while (c.compare(list.get(--j), pivot) > 0) {
                     if (j == lo) {
                         break;
                     }
                 }
-                // 相遇有两种情况，在中间相遇，肯定等于pivot，第二种情况在hi处相遇，此时不一定等于。
-                // 如果i j 相遇，且等于pivot，则交换到等于pivot的区间
                 if (i == j && list.get(i) == pivot) {
                     swap(list, ++p, i);
                 }
                 if (i >= j) {
                     break;
                 }
-                // 和普通的partiion方法一样，交换i j
                 swap(list, i, j);
                 if (list.get(i) == pivot) {
                     swap(list, ++p, i);
@@ -654,12 +627,9 @@ public final class SearchUtil {
                     swap(list, --q, j);
                 }
             }
-            // 交换等于的区间到中间
-            // 循环终止时，j处的数必定小于pivot，因为如果等于pivot会和小于pivot的数交换
-            // 故此时(p, j]区间小于pivot [j+1, q)区间大于pivot
             i = j + 1;
             var left = j - p + lo;
-            var right = hi - q + 1 + j;
+            var right = j + hi - q + 1;
             if (left <= index && right >= index) {
                 return pivot;
             }
@@ -669,7 +639,6 @@ public final class SearchUtil {
             for (int k = hi; k >= q; k--) {
                 swap(list, k, i++);
             }
-            // [lo, j]小于 [i, hi]大于
             if (index <= j) {
                 hi = j;
             } else if (index >= i) {
