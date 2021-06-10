@@ -222,6 +222,10 @@ public final class SearchUtil {
 
     //==============================================================================================
 
+    /**
+     * 快速查找第k小的元素
+     */
+
     private static void rangeCheck(int arrayLength, int k) {
         if (k > arrayLength || k < 1) {
             throw new IllegalArgumentException();
