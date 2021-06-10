@@ -222,8 +222,6 @@ public final class SearchUtil {
 
     //==============================================================================================
 
-    //todo... 使用快速三向切分快排找到第n大的数
-
     private static void rangeCheck(int arrayLength, int k) {
         if (k > arrayLength || k < 1) {
             throw new IllegalArgumentException();
