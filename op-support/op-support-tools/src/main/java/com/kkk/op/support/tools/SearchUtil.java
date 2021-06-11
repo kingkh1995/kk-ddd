@@ -82,16 +82,16 @@ public final class SearchUtil {
     /**
      * 斐波那契查找 效率与二分查找一致 对磁盘比较友好
      */
-    public static int fbSearch(int[] arr, int key) {
-        return fbSearch0(arr, 0, arr.length - 1, key);
+    public static int fibSearch(int[] arr, int key) {
+        return fibSearch0(arr, 0, arr.length - 1, key);
     }
 
-    public static int fbSearch(int[] arr, int fromIndex, int toIndex, int key) {
+    public static int fibSearch(int[] arr, int fromIndex, int toIndex, int key) {
         rangeCheck(arr.length, fromIndex, toIndex);
-        return fbSearch0(arr, fromIndex, toIndex--, key);
+        return fibSearch0(arr, fromIndex, toIndex--, key);
     }
 
-    private static int fbSearch0(int[] arr, int lo, int hi, int key) {
+    private static int fibSearch0(int[] arr, int lo, int hi, int key) {
         var length = arr.length;
         if (length == 1) {
             return arr[0] == key ? 0 : -1;
@@ -123,16 +123,16 @@ public final class SearchUtil {
         }
     }
 
-    public static int fbSearch(long[] arr, int key) {
-        return fbSearch0(arr, 0, arr.length - 1, key);
+    public static int fibSearch(long[] arr, int key) {
+        return fibSearch0(arr, 0, arr.length - 1, key);
     }
 
-    public static int fbSearch(long[] arr, int fromIndex, int toIndex, int key) {
+    public static int fibSearch(long[] arr, int fromIndex, int toIndex, int key) {
         rangeCheck(arr.length, fromIndex, toIndex);
-        return fbSearch0(arr, fromIndex, toIndex--, key);
+        return fibSearch0(arr, fromIndex, toIndex--, key);
     }
 
-    private static int fbSearch0(long[] arr, int lo, int hi, int key) {
+    private static int fibSearch0(long[] arr, int lo, int hi, int key) {
         var length = arr.length;
         if (length == 1) {
             return arr[0] == key ? 0 : -1;
@@ -163,17 +163,17 @@ public final class SearchUtil {
         }
     }
 
-    public static <T> int fbSearch(T[] arr, T key, Comparator<? super T> c) {
-        return fbSearch0(arr, 0, arr.length - 1, key, c);
+    public static <T> int fibSearch(T[] arr, T key, Comparator<? super T> c) {
+        return fibSearch0(arr, 0, arr.length - 1, key, c);
     }
 
-    public static <T> int fbSearch(T[] arr, int fromIndex, int toIndex, T key,
+    public static <T> int fibSearch(T[] arr, int fromIndex, int toIndex, T key,
             Comparator<? super T> c) {
         rangeCheck(arr.length, fromIndex, toIndex);
-        return fbSearch0(arr, fromIndex, toIndex--, key, c);
+        return fibSearch0(arr, fromIndex, toIndex--, key, c);
     }
 
-    private static <T> int fbSearch0(T[] arr, int lo, int hi, T key, Comparator<? super T> c) {
+    private static <T> int fibSearch0(T[] arr, int lo, int hi, T key, Comparator<? super T> c) {
         var length = arr.length;
         if (length == 1) {
             return arr[0] == key ? 0 : -1;
@@ -204,17 +204,17 @@ public final class SearchUtil {
         }
     }
 
-    public static <T> int fbSearch(List<T> list, T key, Comparator<? super T> c) {
-        return fbSearch0(list, 0, list.size() - 1, key, c);
+    public static <T> int fibSearch(List<T> list, T key, Comparator<? super T> c) {
+        return fibSearch0(list, 0, list.size() - 1, key, c);
     }
 
-    public static <T> int fbSearch(List<T> list, int fromIndex, int toIndex, T key,
+    public static <T> int fibSearch(List<T> list, int fromIndex, int toIndex, T key,
             Comparator<? super T> c) {
         rangeCheck(list.size(), fromIndex, toIndex);
-        return fbSearch0(list, fromIndex, toIndex--, key, c);
+        return fibSearch0(list, fromIndex, toIndex--, key, c);
     }
 
-    private static <T> int fbSearch0(List<T> list, int lo, int hi, T key, Comparator<? super T> c) {
+    private static <T> int fibSearch0(List<T> list, int lo, int hi, T key, Comparator<? super T> c) {
         var length = list.size();
         if (length == 1) {
             return list.get(0) == key ? 0 : -1;
