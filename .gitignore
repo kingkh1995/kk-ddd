@@ -13,8 +13,8 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 *.iml
-*/mvnw
-*/mvnw.cmd
+**/mvnw
+**/mvnw.cmd
 HELP.md
 
 
