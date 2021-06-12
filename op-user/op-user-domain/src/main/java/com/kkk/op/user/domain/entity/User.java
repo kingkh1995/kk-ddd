@@ -3,6 +3,7 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.types.LongId;
 import java.util.List;
+import javax.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 用户
+ * 用户 <br>
  * todo...
  *
  * @author KaiKoo
@@ -22,36 +23,31 @@ import lombok.ToString;
 @Builder
 public class User extends Aggregate<LongId> {
 
-    @Setter(AccessLevel.PROTECTED)
-    private LongId id;
+  @Setter(AccessLevel.PROTECTED)
+  private LongId id;
 
-    private String name;
+  private final String name;
 
-    private String username;
+  private final String username;
 
-    private String password;
+  private final String password;
 
-    private String gender;
+  private final String gender;
 
-    private Byte age;
+  private final Byte age;
 
-    private String email;
+  private final String email;
 
-    /**
-     * 用户账号
-     */
-    @Setter
-    private List<Account> accounts;
+  /** 用户账号 */
+  @Setter private List<Account> accounts;
 
-    @Override
-    public User snapshot() {
-        var builder = this.builder();
-        builder.id(this.id)
-                .name(this.name);
-        return builder.build();
-    }
+  @Override
+  public User snapshot() {
+    var builder = builder();
+    builder.id(this.id).name(this.name);
+    return builder.build();
+  }
 
-    @Override
-    public void validate() {
-    }
+  @Override
+  public void validate() throws ValidationException {}
 }

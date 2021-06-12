@@ -6,11 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * EntityRepository缓存标识注解
+ * Repository自动缓存功能开启注解
+ *
  * @author KaiKoo
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AutoCached {
-
-}
+public @interface AutoCached {}

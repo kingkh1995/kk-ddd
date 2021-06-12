@@ -12,10 +12,6 @@ import javax.validation.constraints.NotNull;
  */
 public interface AccountService extends EntityService<Account, LongId> {
 
-    /**
-     *
-     * 判断是否允许更新
-     */
-    boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount);
-
+  /** 判断是否允许更新 */
+  boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount);
 }

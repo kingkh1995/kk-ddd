@@ -16,6 +16,7 @@
   <name>op-support-parent</name>
 
   <modules>
+    <module>op-support-enums</module>
     <module>op-support-tools</module>
     <module>op-support-types</module>
     <module>op-support-models</module>

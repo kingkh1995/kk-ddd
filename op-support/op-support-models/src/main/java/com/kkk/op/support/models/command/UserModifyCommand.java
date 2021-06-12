@@ -14,8 +14,6 @@ import lombok.experimental.Delegate;
 @Data
 public class UserModifyCommand implements Serializable {
 
-    @Valid
-    @Delegate //声明注解校验集合内对象
-    private List<AccountModifyCommand> accountModifyCommandList;
-
+  @Valid @Delegate // 声明注解校验集合内对象
+  private List<AccountModifyCommand> accountModifyCommandList;
 }

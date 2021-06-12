@@ -13,10 +13,10 @@ import org.springframework.context.ApplicationContextAware;
  */
 public abstract class AbstractStrategyManager implements InitializingBean, ApplicationContextAware {
 
-    protected ApplicationContext applicationContext;
+  protected ApplicationContext applicationContext;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = Objects.requireNonNull(applicationContext);
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = Objects.requireNonNull(applicationContext);
+  }
 }

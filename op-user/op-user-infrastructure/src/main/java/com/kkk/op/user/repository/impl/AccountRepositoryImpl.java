@@ -18,50 +18,50 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Entity类Repository实现类
+ *
  * @author KaiKoo
  */
 @Repository
-public class AccountRepositoryImpl extends EntityRepositorySupport<Account, LongId> implements
-        AccountRepository {
+public class AccountRepositoryImpl extends EntityRepositorySupport<Account, LongId>
+    implements AccountRepository {
 
-    private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
+  private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
 
-    private final AccountMapper accountMapper;
+  private final AccountMapper accountMapper;
 
-    public AccountRepositoryImpl(
-            @Autowired DistributedLock distributedLock,
-            @Autowired CacheManager cacheManager,
-            @Autowired AccountMapper accountMapper) {
-        super(distributedLock, cacheManager);
-        this.accountMapper = accountMapper;
-    }
+  public AccountRepositoryImpl(
+      @Autowired DistributedLock distributedLock,
+      @Autowired CacheManager cacheManager,
+      @Autowired AccountMapper accountMapper) {
+    super(distributedLock, cacheManager);
+    this.accountMapper = accountMapper;
+  }
 
-    @Override
-    protected Account onSelect(@NotNull LongId longId) {
-        return accountDataConverter.fromData(accountMapper.selectById(longId.getValue()));
-    }
+  @Override
+  protected Account onSelect(@NotNull LongId longId) {
+    return accountDataConverter.fromData(accountMapper.selectById(longId.getValue()));
+  }
 
-    @Override
-    protected void onDelete(@NotNull Account entity) {
-        accountMapper.delete(Wrappers.query(accountDataConverter.toData(entity)));
-    }
+  @Override
+  protected void onDelete(@NotNull Account entity) {
+    accountMapper.delete(Wrappers.query(accountDataConverter.toData(entity)));
+  }
 
-    @Override
-    protected void onInsert(@NotNull Account entity) {
-        var data = accountDataConverter.toData(entity);
-        accountMapper.insert(data);
-        // 填补id
-        entity.fillInId(LongId.valueOf(data.getId()));
-    }
+  @Override
+  protected void onInsert(@NotNull Account entity) {
+    var data = accountDataConverter.toData(entity);
+    accountMapper.insert(data);
+    // 填补id
+    entity.fillInId(LongId.valueOf(data.getId()));
+  }
 
-    @Override
-    protected void onUpdate(@NotNull Account entity) {
-        accountMapper.updateById(accountDataConverter.toData(entity));
-    }
+  @Override
+  protected void onUpdate(@NotNull Account entity) {
+    accountMapper.updateById(accountDataConverter.toData(entity));
+  }
 
-    @Override
-    protected List<Account> onSelectByIds(@NotEmpty Set<LongId> longIds) {
-        return accountDataConverter.fromData(accountMapper.selectBatchIds(longIds));
-    }
-
+  @Override
+  protected List<Account> onSelectByIds(@NotEmpty Set<LongId> longIds) {
+    return accountDataConverter.fromData(accountMapper.selectBatchIds(longIds));
+  }
 }

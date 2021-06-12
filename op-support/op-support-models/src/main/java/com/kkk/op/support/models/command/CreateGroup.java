@@ -5,6 +5,4 @@ package com.kkk.op.support.models.command;
  *
  * @author KaiKoo
  */
-public interface CreateGroup {
-
-}
+public interface CreateGroup {}

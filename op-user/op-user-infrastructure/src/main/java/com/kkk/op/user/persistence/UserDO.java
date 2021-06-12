@@ -14,20 +14,19 @@ import lombok.Data;
 @TableName("user")
 public class UserDO {
 
-    //    @TableId(type = IdType.ASSIGN_ID)//默认雪花算法实现
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  // IdType.ASSIGN_ID 默认雪花算法实现
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    private String username;
+  private String username;
 
-    private String password;
+  private String password;
 
-    private String gender;
+  private String gender;
 
-    private Byte age;
+  private Byte age;
 
-    private String email;
-
+  private String email;
 }

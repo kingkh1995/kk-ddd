@@ -9,10 +9,9 @@ import javax.validation.constraints.NotBlank;
  */
 public interface CacheManager {
 
-    void put(@NotBlank String key, Object obj);
+  void put(@NotBlank String key, Object obj);
 
-    Object get(@NotBlank String key, Class<?> clazz);
+  Object get(@NotBlank String key, Class<?> clazz);
 
-    boolean remove(@NotBlank String key);
-
+  boolean remove(@NotBlank String key);
 }

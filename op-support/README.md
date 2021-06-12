@@ -2,11 +2,15 @@
 
 > 基础组件支持项目
 
+### enums
+
+> 公共枚举类
+
 ### tools
 
 > 静态工具类
 
-### types （domain模块引用）
+### types （domain模块引用，依赖support-enums）
 
 > 可公用（可对外暴露）的DP
 
@@ -17,7 +21,7 @@
 - 变更追踪支持
 - 业务异常类
 
-### models （application模块引用，依赖support-tools）
+### models （application模块引用，依赖support-tools、support-enums）
 
 > 对外暴露的数据模型
 

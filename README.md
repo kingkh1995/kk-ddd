@@ -9,14 +9,14 @@
 
 ### Domain模块
 
-核心业务逻辑的集中地，包含有状态的Entity、领域服务Domain Service、以及Infrastructure模块的接口类。
-  
+核心业务逻辑的集中地，包含有状态的Entity、领域服务DomainService、以及Infrastructure模块的接口类。
+
 > 纯POJO模块，不依赖项目内其他模块，仅引用Types模块。
 
 ### Application模块
 
-包含Application Service，不涉及任何业务逻辑，职责仅仅是组件编排，入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写操作，不返回结果）等Entity，出参为DTO。
-  
+包含ApplicationService，不涉及任何业务逻辑，职责仅仅是组件编排，入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写操作，不返回结果）等Entity，出参为DTO。
+
 > 纯POJO模块，直接引用Domain模块和Models模块。
 
 ### Infrastructure模块

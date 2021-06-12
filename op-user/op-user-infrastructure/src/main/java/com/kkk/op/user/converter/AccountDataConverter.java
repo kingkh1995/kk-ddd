@@ -10,41 +10,48 @@ import com.kkk.op.user.persistence.AccountDO;
 import java.util.Optional;
 
 /**
+ * <br>
  *
  * @author KaiKoo
  */
 public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
+  INSTANCE;
 
-    INSTANCE;
-
-    @Override
-    public AccountDO toData(Account account) {
-        if (account == null) {
-            return null;
-        }
-        var data = new AccountDO();
-        data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
-        data.setUserId(
-                Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
-        data.setStatus(Optional.ofNullable(account.getStatus()).map(AccountStatus::getValue)
-                .map(AccountStatusEnum::name).orElse(null));
-        data.setCreateTime(Optional.ofNullable(account.getCreateTime()).map(DateUtil::toTimestamp)
-                .orElse(null));
-        return data;
+  @Override
+  public AccountDO toData(Account account) {
+    if (account == null) {
+      return null;
     }
+    var data = new AccountDO();
+    data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
+    data.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
+    data.setStatus(
+        Optional.ofNullable(account.getStatus())
+            .map(AccountStatus::getValue)
+            .map(AccountStatusEnum::name)
+            .orElse(null));
+    data.setCreateTime(
+        Optional.ofNullable(account.getCreateTime()).map(DateUtil::toTimestamp).orElse(null));
+    return data;
+  }
 
-    @Override
-    public Account fromData(AccountDO data) {
-        var builder = Account.builder();
-        if (data != null) {
-            builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null))
-                    .userId(Optional.ofNullable(data.getUserId()).map(LongId::valueOf).orElse(null))
-                    .status(Optional.ofNullable(data.getStatus()).filter(s -> !s.isBlank())
-                            .map(AccountStatus::valueOf).orElse(null))
-                    .createTime(
-                            Optional.ofNullable(data.getCreateTime()).map(DateUtil::toLocalDateTime)
-                                    .orElse(null));
-        }
-        return builder.build();
+  @Override
+  public Account fromData(AccountDO data) {
+    var builder = Account.builder();
+    if (data != null) {
+      builder
+          .id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null))
+          .userId(Optional.ofNullable(data.getUserId()).map(LongId::valueOf).orElse(null))
+          .status(
+              Optional.ofNullable(data.getStatus())
+                  .filter(s -> !s.isBlank())
+                  .map(AccountStatus::valueOf)
+                  .orElse(null))
+          .createTime(
+              Optional.ofNullable(data.getCreateTime())
+                  .map(DateUtil::toLocalDateTime)
+                  .orElse(null));
     }
+    return builder.build();
+  }
 }

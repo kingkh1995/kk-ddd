@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * todo...
+ *
  * @author KaiKoo
  */
 @Slf4j
@@ -26,25 +27,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+  @Autowired private UserService userService;
 
-    @PostMapping("/user")
-    @ResponseStatus(HttpStatus.CREATED) //201
-    public long createUser(
-            @RequestBody @Validated(CreateGroup.class) UserModifyCommand createCommand) {
-        log.info("user create command：{}", createCommand);
-        //todo... 实现
-        return 0;
-    }
+  @PostMapping("/user")
+  @ResponseStatus(HttpStatus.CREATED) // 201
+  public long createUser(
+      @RequestBody @Validated(CreateGroup.class) UserModifyCommand createCommand) {
+    log.info("user create command：{}", createCommand);
+    // todo... 实现
+    return 0;
+  }
 
-    @PutMapping("/user/{userId}")
-    @ResponseStatus(HttpStatus.ACCEPTED) //202
-    public long updateUser(@PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-            @RequestBody @Validated(UpdateGroup.class) UserModifyCommand updateCommand) {
-        log.info("userId：{}，user update command：{}", userId, updateCommand);
-        //todo... 实现
-        return 0;
-    }
-
+  @PutMapping("/user/{userId}")
+  @ResponseStatus(HttpStatus.ACCEPTED) // 202
+  public long updateUser(
+      @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+      @RequestBody @Validated(UpdateGroup.class) UserModifyCommand updateCommand) {
+    log.info("userId：{}，user update command：{}", userId, updateCommand);
+    // todo... 实现
+    return 0;
+  }
 }

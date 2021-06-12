@@ -8,6 +8,4 @@ import com.kkk.op.user.persistence.UserDO;
  *
  * @author KaiKoo
  */
-public interface UserMapper extends BaseMapper<UserDO> {
-
-}
+public interface UserMapper extends BaseMapper<UserDO> {}

@@ -1,20 +1,22 @@
 package com.kkk.op.support.models.query;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
+ * <br>
  *
  * @author KaiKoo
  */
-@Data
+@Getter
+@Setter
 public class AccountPageQuery extends AbstractPageQuery {
 
-    private Long id;
+  private Long id;
 
-    private Long userId;
+  private Long userId;
 
-    private String status;
+  private String status;
 
-    private Long[] ids;
-
+  private Long[] ids;
 }

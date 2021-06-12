@@ -12,35 +12,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
+ * <br>
  *
  * @author KaiKoo
  */
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public UserServiceImpl(@Autowired UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+  public UserServiceImpl(@Autowired UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
-    @Override
-    public User find(@NotNull LongId longId) {
-        return userRepository.find(longId);
-    }
+  @Override
+  public User find(@NotNull LongId longId) {
+    return userRepository.find(longId);
+  }
 
-    @Override
-    public void remove(@NotNull User user) {
-        userRepository.remove(user);
-    }
+  @Override
+  public void remove(@NotNull User user) {
+    userRepository.remove(user);
+  }
 
-    @Override
-    public void save(@NotNull User user) {
-        userRepository.save(user);
-    }
+  @Override
+  public void save(@NotNull User user) {
+    userRepository.save(user);
+  }
 
-    @Override
-    public List<User> list(@NotEmpty Set<LongId> longIds) {
-        return userRepository.list(longIds);
-    }
+  @Override
+  public List<User> list(@NotEmpty Set<LongId> longIds) {
+    return userRepository.list(longIds);
+  }
 }

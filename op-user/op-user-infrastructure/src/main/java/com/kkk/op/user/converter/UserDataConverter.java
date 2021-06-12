@@ -7,30 +7,30 @@ import com.kkk.op.user.persistence.UserDO;
 import java.util.Optional;
 
 /**
+ * <br>
  *
  * @author KaiKoo
  */
 public enum UserDataConverter implements DataConverter<User, UserDO> {
+  INSTANCE;
 
-    INSTANCE;
-
-    @Override
-    public UserDO toData(User user) {
-        if (user == null) {
-            return null;
-        }
-        var data = new UserDO();
-        data.setId(Optional.ofNullable(user.getId()).map(LongId::getValue).orElse(null));
-        return data;
+  @Override
+  public UserDO toData(User user) {
+    if (user == null) {
+      return null;
     }
+    var data = new UserDO();
+    data.setId(Optional.ofNullable(user.getId()).map(LongId::getValue).orElse(null));
+    return data;
+  }
 
-    @Override
-    public User fromData(UserDO data) {
-        var builder = User.builder();
-        if (data != null) {
-            builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null));
-            return builder.build();
-        }
-        return builder.build();
+  @Override
+  public User fromData(UserDO data) {
+    var builder = User.builder();
+    if (data != null) {
+      builder.id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null));
+      return builder.build();
     }
+    return builder.build();
+  }
 }

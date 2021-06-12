@@ -9,28 +9,32 @@ import java.util.stream.Collectors;
 
 /**
  * DataConverter marker接口
+ *
  * @author KaiKoo
  */
-public interface DataConverter<T extends Entity, P> {
+public interface DataConverter<T extends Entity<?>, P> {
 
-    P toData(T t);
+  P toData(T t);
 
-    T fromData(P data);
+  T fromData(P data);
 
-    default List<P> toData(Collection<? extends T> entityCol) {
-        if (entityCol == null || entityCol.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        return entityCol.stream().filter(Objects::nonNull).map(this::toData)
-                .collect(Collectors.toList());
+  default List<P> toData(Collection<? extends T> entityCol) {
+    if (entityCol == null || entityCol.isEmpty()) {
+      return Collections.EMPTY_LIST;
     }
+    return entityCol.stream()
+        .filter(Objects::nonNull)
+        .map(this::toData)
+        .collect(Collectors.toList());
+  }
 
-    default List<T> fromData(Collection<? extends P> dataCol) {
-        if (dataCol == null || dataCol.isEmpty()) {
-            return Collections.EMPTY_LIST;
-        }
-        return dataCol.stream().filter(Objects::nonNull).map(this::fromData)
-                .collect(Collectors.toList());
+  default List<T> fromData(Collection<? extends P> dataCol) {
+    if (dataCol == null || dataCol.isEmpty()) {
+      return Collections.EMPTY_LIST;
     }
-
+    return dataCol.stream()
+        .filter(Objects::nonNull)
+        .map(this::fromData)
+        .collect(Collectors.toList());
+  }
 }

@@ -5,9 +5,8 @@ import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.User;
 
 /**
+ * <br>
  *
  * @author KaiKoo
  */
-public interface UserRepository extends AggregateRepository<User, LongId> {
-
-}
+public interface UserRepository extends AggregateRepository<User, LongId> {}

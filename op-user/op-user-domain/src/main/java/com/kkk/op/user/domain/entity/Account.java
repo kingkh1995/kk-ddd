@@ -17,6 +17,7 @@ import lombok.ToString;
 
 /**
  * 用户账号
+ *
  * @author KaiKoo
  */
 @EqualsAndHashCode
@@ -25,60 +26,60 @@ import lombok.ToString;
 @Builder
 public class Account extends Entity<LongId> {
 
-    @Setter(AccessLevel.PROTECTED)
-    private LongId id;
+  @Setter(AccessLevel.PROTECTED)
+  private LongId id;
 
-    private LongId userId;
+  private final LongId userId;
 
-    private AccountStatus status;
+  private AccountStatus status;
 
-    private LocalDateTime createTime;
+  private LocalDateTime createTime;
 
-    @Override
-    public Account snapshot() {
-        return this.builder().id(this.id).userId(this.userId).status(this.status).build();
+  @Override
+  public Account snapshot() {
+    return builder().id(this.id).userId(this.userId).status(this.status).build();
+  }
+
+  @Override
+  public void validate() throws ValidationException {
+    // userId不能为null
+    if (this.userId == null) {
+      throw new ValidationException("userId不能为空");
     }
+  }
 
-    @Override
-    public void validate() {
-        // userId不能为null
-        if (this.userId == null) {
-            throw new ValidationException("userId不能为空");
-        }
-    }
+  public void remove(AccountService accountService) {
+    this.checkIdExist(accountService);
+    // todo... 业务逻辑 & 变更状态
+    accountService.remove(this);
+  }
 
-    public void remove(AccountService accountService) {
-        this.checkIdExist(accountService);
-        // todo... 业务逻辑 & 变更状态
-        accountService.remove(this);
+  public void save(AccountService accountService) {
+    // validate
+    this.validate();
+    // handle
+    if (this.id == null) {
+      // 新增逻辑
+      // 设置初始状态
+      this.status = AccountStatus.valueOf(AccountStatusEnum.INIT);
+      this.createTime = LocalDateTime.now();
+    } else {
+      // 更新逻辑
+      var oldAccount = this.checkIdExist(accountService);
+      if (!accountService.allowModify(oldAccount, this)) {
+        throw new BussinessException("不允许修改");
+      }
     }
+    // save
+    accountService.save(this);
+  }
 
-    public void save(AccountService accountService) {
-        // validate
-        this.validate();
-        // handle
-        if (this.id == null) {
-            // 新增逻辑
-            // 设置初始状态
-            this.status = AccountStatus.valueOf(AccountStatusEnum.INIT);
-            this.createTime = LocalDateTime.now();
-        } else {
-            // 更新逻辑
-            var oldAccount = this.checkIdExist(accountService);
-            if (!accountService.allowModify(oldAccount, this)) {
-                throw new BussinessException("不允许修改");
-            }
-        }
-        // save
-        accountService.save(this);
+  private Account checkIdExist(AccountService accountService) {
+    Account account = accountService.find(this.id);
+    // 逻辑校验
+    if (account == null) {
+      throw new BussinessException("id不存在");
     }
-
-    private Account checkIdExist(AccountService accountService) {
-        Account account = accountService.find(this.id);
-        // 逻辑校验
-        if (account == null) {
-            throw new BussinessException("id不存在");
-        }
-        return account;
-    }
+    return account;
+  }
 }

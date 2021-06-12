@@ -7,7 +7,8 @@ import java.sql.Timestamp;
 import lombok.Data;
 
 /**
- * account PO类字段和字段类型要求与数据库完全一致
+ * account <br>
+ * PO类字段和字段类型要求与数据库完全一致
  *
  * @author KaiKoo
  */
@@ -15,16 +16,16 @@ import lombok.Data;
 @TableName("account")
 public class AccountDO {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private Long userId;
+  private Long userId;
 
-    private String status;
+  private String status;
 
-    //timestamp 和 datetime 均对应 Timestamp
-    private Timestamp createTime;
+  // timestamp 和 datetime 均对应 Timestamp
+  private Timestamp createTime;
 
-    //todo... 乐观锁及逻辑删除
+  // todo... 乐观锁及逻辑删除
 
 }
