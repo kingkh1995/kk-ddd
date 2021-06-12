@@ -3,6 +3,9 @@ package com.kkk.op.support.tools;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -67,34 +70,15 @@ public final class SearchUtil {
     }
   }
 
-  private static void rangeCheck(int arrayLength, int fromIndex, int toIndex) {
-    if (fromIndex > toIndex) {
-      throw new IllegalArgumentException("fromIndex(" + fromIndex + ") > toIndex(" + toIndex + ")");
-    }
-    if (fromIndex < 0) {
-      throw new ArrayIndexOutOfBoundsException(fromIndex);
-    }
-    if (toIndex > arrayLength) {
-      throw new ArrayIndexOutOfBoundsException(toIndex);
-    }
-  }
-
   /** 斐波那契查找 效率与二分查找一致 对磁盘比较友好 */
   public static int fibSearch(int[] arr, int key) {
-    return fibSearch0(arr, 0, arr.length - 1, key);
-  }
-
-  public static int fibSearch(int[] arr, int fromIndex, int toIndex, int key) {
-    rangeCheck(arr.length, fromIndex, toIndex);
-    return fibSearch0(arr, fromIndex, --toIndex, key);
-  }
-
-  private static int fibSearch0(int[] arr, int lo, int hi, int key) {
     var length = arr.length;
     if (length == 1) {
       return arr[0] == key ? 0 : -1;
     }
     var k = getFibIndex(length) - 1;
+    var lo = 0;
+    var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ.get(k) - 1;
       if (safeGet(arr, mid) < key) {
@@ -104,38 +88,63 @@ public final class SearchUtil {
         k = k - 2;
         hi = mid - 1;
       } else {
-        return mid > length ? length - 1 : mid;
+        // 等于情况还要额外判断一次
+        return mid >= length ? length - 1 : mid;
       }
     }
-    return -1;
+    // 不存在时返回
+    return -(lo + 1);
+  }
+
+  // 找出大于等于key的最小值
+  public static OptionalInt ceil(int[] arr, int key) {
+    var i = fibSearch(arr, key);
+    // key存在
+    if (i >= 0) {
+      return OptionalInt.of(key);
+    }
+    // 因为如果查找不到返回-(lo + 1) 求出lo的值
+    i = -i - 1;
+    if (i < arr.length) {
+      return OptionalInt.of(arr[i]);
+    }
+    return OptionalInt.empty();
+  }
+
+  // 找出小于等于key的最大值
+  public static OptionalInt floor(int[] arr, int key) {
+    var i = fibSearch(arr, key);
+    // key存在
+    if (i >= 0) {
+      return OptionalInt.of(key);
+    }
+    // 因为如果查找不到返回-(lo + 1) 求出lo-1的值
+    i = -i - 2;
+    if (i >= 0) {
+      return OptionalInt.of(safeGet(arr, i));
+    }
+    return OptionalInt.empty();
   }
 
   // 安全获取数组元素，超出范围取两端
   private static int safeGet(int[] arr, int index) {
-    if (index < 0) {
-      return arr[0];
-    } else if (index >= arr.length) {
+    if (index >= arr.length) {
       return arr[arr.length - 1];
-    } else {
+    } else if (index >= 0) {
       return arr[index];
+    } else {
+      return arr[0];
     }
   }
 
-  public static int fibSearch(long[] arr, int key) {
-    return fibSearch0(arr, 0, arr.length - 1, key);
-  }
-
-  public static int fibSearch(long[] arr, int fromIndex, int toIndex, int key) {
-    rangeCheck(arr.length, fromIndex, toIndex);
-    return fibSearch0(arr, fromIndex, --toIndex, key);
-  }
-
-  private static int fibSearch0(long[] arr, int lo, int hi, int key) {
+  public static int fibSearch(long[] arr, long key) {
     var length = arr.length;
     if (length == 1) {
       return arr[0] == key ? 0 : -1;
     }
     var k = getFibIndex(length) - 1;
+    var lo = 0;
+    var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ.get(k) - 1;
       if (safeGet(arr, mid) < key) {
@@ -145,38 +154,54 @@ public final class SearchUtil {
         k = k - 2;
         hi = mid - 1;
       } else {
-        return mid > length ? length - 1 : mid;
+        return mid >= length ? length - 1 : mid;
       }
     }
-    return -1;
+    return -(lo + 1);
+  }
+
+  public static OptionalLong ceil(long[] arr, long key) {
+    var i = fibSearch(arr, key);
+    if (i >= 0) {
+      return OptionalLong.of(key);
+    }
+    i = -i - 1;
+    if (i < arr.length) {
+      return OptionalLong.of(arr[i]);
+    }
+    return OptionalLong.empty();
+  }
+
+  public static OptionalLong floor(long[] arr, long key) {
+    var i = fibSearch(arr, key);
+    if (i >= 0) {
+      return OptionalLong.of(key);
+    }
+    i = -i - 2;
+    if (i >= 0) {
+      return OptionalLong.of(safeGet(arr, i));
+    }
+    return OptionalLong.empty();
   }
 
   private static long safeGet(long[] arr, int index) {
-    if (index < 0) {
-      return arr[0];
-    } else if (index >= arr.length) {
+    if (index >= arr.length) {
       return arr[arr.length - 1];
-    } else {
+    } else if (index >= 0) {
       return arr[index];
+    } else {
+      return arr[0];
     }
   }
 
   public static <T> int fibSearch(T[] arr, T key, Comparator<? super T> c) {
-    return fibSearch0(arr, 0, arr.length - 1, key, c);
-  }
-
-  public static <T> int fibSearch(
-      T[] arr, int fromIndex, int toIndex, T key, Comparator<? super T> c) {
-    rangeCheck(arr.length, fromIndex, toIndex);
-    return fibSearch0(arr, fromIndex, --toIndex, key, c);
-  }
-
-  private static <T> int fibSearch0(T[] arr, int lo, int hi, T key, Comparator<? super T> c) {
     var length = arr.length;
     if (length == 1) {
       return arr[0] == key ? 0 : -1;
     }
     var k = getFibIndex(length) - 1;
+    var lo = 0;
+    var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ.get(k) - 1;
       if (c.compare(safeGet(arr, mid), key) < 0) {
@@ -186,38 +211,54 @@ public final class SearchUtil {
         k = k - 2;
         hi = mid - 1;
       } else {
-        return mid > length ? length - 1 : mid;
+        return mid >= length ? length - 1 : mid;
       }
     }
-    return -1;
+    return -(lo + 1);
+  }
+
+  public static <T> Optional<T> ceil(T[] arr, T key, Comparator<? super T> c) {
+    var i = fibSearch(arr, key, c);
+    if (i >= 0) {
+      return Optional.of(key);
+    }
+    i = -i - 1;
+    if (i < arr.length) {
+      return Optional.of(arr[i]);
+    }
+    return Optional.empty();
+  }
+
+  public static <T> Optional<T> floor(T[] arr, T key, Comparator<? super T> c) {
+    var i = fibSearch(arr, key, c);
+    if (i >= 0) {
+      return Optional.of(key);
+    }
+    i = -i - 2;
+    if (i >= 0) {
+      return Optional.of(safeGet(arr, i));
+    }
+    return Optional.empty();
   }
 
   private static <T> T safeGet(T[] arr, int index) {
-    if (index < 0) {
-      return arr[0];
-    } else if (index >= arr.length) {
+    if (index >= arr.length) {
       return arr[arr.length - 1];
-    } else {
+    } else if (index >= 0) {
       return arr[index];
+    } else {
+      return arr[0];
     }
   }
 
   public static <T> int fibSearch(List<T> list, T key, Comparator<? super T> c) {
-    return fibSearch0(list, 0, list.size() - 1, key, c);
-  }
-
-  public static <T> int fibSearch(
-      List<T> list, int fromIndex, int toIndex, T key, Comparator<? super T> c) {
-    rangeCheck(list.size(), fromIndex, toIndex);
-    return fibSearch0(list, fromIndex, --toIndex, key, c);
-  }
-
-  private static <T> int fibSearch0(List<T> list, int lo, int hi, T key, Comparator<? super T> c) {
     var length = list.size();
     if (length == 1) {
       return list.get(0) == key ? 0 : -1;
     }
     var k = getFibIndex(length) - 1;
+    var lo = 0;
+    var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ.get(k) - 1;
       if (c.compare(safeGet(list, mid), key) < 0) {
@@ -227,19 +268,43 @@ public final class SearchUtil {
         k = k - 2;
         hi = mid - 1;
       } else {
-        return mid > length ? length - 1 : mid;
+        return mid >= length ? length - 1 : mid;
       }
     }
-    return -1;
+    return -(lo + 1);
+  }
+
+  public static <T> Optional<T> ceil(List<T> list, T key, Comparator<? super T> c) {
+    var i = fibSearch(list, key, c);
+    if (i >= 0) {
+      return Optional.of(key);
+    }
+    i = -i - 1;
+    if (i < list.size()) {
+      return Optional.of(list.get(i));
+    }
+    return Optional.empty();
+  }
+
+  public static <T> Optional<T> floor(List<T> list, T key, Comparator<? super T> c) {
+    var i = fibSearch(list, key, c);
+    if (i >= 0) {
+      return Optional.of(key);
+    }
+    i = -i - 2;
+    if (i >= 0) {
+      return Optional.of(safeGet(list, i));
+    }
+    return Optional.empty();
   }
 
   private static <T> T safeGet(List<T> list, int index) {
-    if (index < 0) {
-      return list.get(0);
-    } else if (index >= list.size()) {
+    if (index >= list.size()) {
       return list.get(list.size() - 1);
-    } else {
+    } else if (index >= 0) {
       return list.get(index);
+    } else {
+      return list.get(0);
     }
   }
 }
