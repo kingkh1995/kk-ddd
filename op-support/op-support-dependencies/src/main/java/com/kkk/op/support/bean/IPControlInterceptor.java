@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -22,12 +20,14 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @author KaiKoo
  */
 @Slf4j
-@NoArgsConstructor
-@AllArgsConstructor
 public class IPControlInterceptor implements HandlerInterceptor {
 
   /** 限流开关 */
-  private final boolean controlSwitch = true;
+  private boolean controlSwitch;
+
+  public IPControlInterceptor(boolean controlSwitch) {
+    this.controlSwitch = controlSwitch;
+  }
 
   private static final LoadingCache<String, RateLimiter> CACHE =
       CacheBuilder.newBuilder()
