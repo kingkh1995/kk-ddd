@@ -1,12 +1,12 @@
 package com.kkk.op.support.tools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 查找工具类
@@ -19,30 +19,29 @@ public final class SearchUtil {
     throw new IllegalAccessException();
   }
 
-  private static final List<Integer> FIBSEQ =
-      new CopyOnWriteArrayList<>(new Integer[] {1, 1, 2, 3, 5, 8, 13, 21, 34, 55});
+  private static int[] FIBSEQ = new int[] {1, 1, 2, 3, 5, 8, 13, 21, 34, 55};
 
   // 返回大于等于 length 的第一个斐波那契数的索引
   private static int getFibIndex(int length) {
     if (length < 2) {
       throw new IllegalArgumentException();
     }
-    if (length > FIBSEQ.get(FIBSEQ.size() - 1)) {
+    if (length > FIBSEQ[FIBSEQ.length - 1]) {
       fibGrow(length);
     }
     // 二分查找
     var lo = 0;
-    var hi = FIBSEQ.size() - 1;
+    var hi = FIBSEQ.length - 1;
     while (lo <= hi) {
       var mid = (hi + lo) >>> 1;
-      if (FIBSEQ.get(mid) >= length) {
-        if (FIBSEQ.get(mid - 1) < length) {
+      if (FIBSEQ[mid] >= length) {
+        if (FIBSEQ[mid - 1] < length) {
           return mid;
         } else {
           hi = mid - 1;
         }
       } else {
-        if (FIBSEQ.get(mid + 1) >= length) {
+        if (FIBSEQ[mid + 1] >= length) {
           return mid + 1;
         } else {
           lo = mid + 1;
@@ -52,25 +51,30 @@ public final class SearchUtil {
     return hi;
   }
 
+  //  参考CopyOnWriteArrayList设计
   private static synchronized void fibGrow(int length) {
     // 再次判断
-    var i = FIBSEQ.size() - 1;
-    if (length > FIBSEQ.get(i)) {
+    var oldLen = FIBSEQ.length;
+    if (length > FIBSEQ[oldLen - 1]) {
       var tempList = new ArrayList<Integer>();
-      var n = FIBSEQ.get(i - 1) + FIBSEQ.get(i);
+      var n = FIBSEQ[oldLen - 2] + FIBSEQ[oldLen - 1];
       tempList.add(n);
       var j = 0;
-      n = FIBSEQ.get(i) + tempList.get(j++);
+      n = FIBSEQ[oldLen - 1] + tempList.get(j++);
       tempList.add(n);
       while (n < length) {
         n = tempList.get(j - 1) + tempList.get(j++);
         tempList.add(n);
       }
-      FIBSEQ.addAll(tempList);
+      var newArr = Arrays.copyOf(FIBSEQ, oldLen + tempList.size());
+      for (var i = 0; i < tempList.size(); i++) {
+        newArr[i + oldLen] = tempList.get(i);
+      }
+      FIBSEQ = newArr;
     }
   }
 
-  /** 斐波那契查找 效率与二分查找一致 对磁盘比较友好 */
+  /** 斐波那契查找 效率与二分查找一致 对磁盘查找比较友好 */
   public static int fibSearch(int[] arr, int key) {
     var length = arr.length;
     if (length == 1) {
@@ -80,7 +84,7 @@ public final class SearchUtil {
     var lo = 0;
     var hi = length - 1;
     while (lo <= hi) {
-      var mid = lo + FIBSEQ.get(k) - 1;
+      var mid = lo + FIBSEQ[k] - 1;
       if (safeGet(arr, mid) < key) {
         k = k - 1;
         lo = mid + 1;
@@ -146,7 +150,7 @@ public final class SearchUtil {
     var lo = 0;
     var hi = length - 1;
     while (lo <= hi) {
-      var mid = lo + FIBSEQ.get(k) - 1;
+      var mid = lo + FIBSEQ[k] - 1;
       if (safeGet(arr, mid) < key) {
         k = k - 1;
         lo = mid + 1;
@@ -203,7 +207,7 @@ public final class SearchUtil {
     var lo = 0;
     var hi = length - 1;
     while (lo <= hi) {
-      var mid = lo + FIBSEQ.get(k) - 1;
+      var mid = lo + FIBSEQ[k] - 1;
       if (c.compare(safeGet(arr, mid), key) < 0) {
         k = k - 1;
         lo = mid + 1;
@@ -260,7 +264,7 @@ public final class SearchUtil {
     var lo = 0;
     var hi = length - 1;
     while (lo <= hi) {
-      var mid = lo + FIBSEQ.get(k) - 1;
+      var mid = lo + FIBSEQ[k] - 1;
       if (c.compare(safeGet(list, mid), key) < 0) {
         k = k - 1;
         lo = mid + 1;
