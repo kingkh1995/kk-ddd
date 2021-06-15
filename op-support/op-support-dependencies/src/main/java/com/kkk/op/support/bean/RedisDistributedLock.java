@@ -29,7 +29,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 @Builder
 public class RedisDistributedLock implements DistributedLock {
 
-  @Default private long sleepInterval = 1L << 8;
+  @Default private long sleepInterval = 200;
 
   @Default private long expireMills = 10L * 1000L;
 

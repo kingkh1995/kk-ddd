@@ -1,12 +1,12 @@
 package com.kkk.op.support.tools;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.Stream;
 
 /**
  * 查找工具类
@@ -21,19 +21,58 @@ public final class SearchUtil {
 
   private static int[] FIBSEQ = new int[] {1, 1, 2, 3, 5, 8, 13, 21, 34, 55};
 
+  private static int FIB_MAX = 55; // 缓存一下最大值
+
+  @Deprecated // 使用Stream Api实现，效率不行
+  private static synchronized void fibGrow0(int length) {
+    // 再次判断
+    var oldLen = FIBSEQ.length;
+    if (length > FIBSEQ[oldLen - 1]) {
+      FIBSEQ =
+          Stream.concat(
+                  Arrays.stream(FIBSEQ).boxed(),
+                  // 使用无限流构造斐波那契数列
+                  Stream.iterate(
+                          new int[] {FIBSEQ[oldLen - 1], FIBSEQ[oldLen - 2] + FIBSEQ[oldLen - 1]},
+                          ints -> ints[0] < length, // 终止条件
+                          ints -> new int[] {ints[1], ints[0] + ints[1]})
+                      .map(ints -> ints[1]))
+              .mapToInt(Integer::intValue)
+              .toArray();
+    }
+  }
+
+  private static synchronized void fibGrow(int length) {
+    while (length > FIB_MAX) {
+      grow();
+    }
+  }
+
+  private static void grow() {
+    // 参考ArrayList每次扩大到1.5倍
+    var oldLen = FIBSEQ.length;
+    var newArr = Arrays.copyOf(FIBSEQ, oldLen + (oldLen >> 1));
+    for (var i = oldLen; i < newArr.length; i++) {
+      newArr[i] = newArr[i - 1] + newArr[i - 2];
+    }
+    // 参考CopyOnWriteArrayList添加数据完成才赋值
+    FIBSEQ = newArr;
+    FIB_MAX = newArr[newArr.length - 1];
+  }
+
   // 返回大于等于 length 的第一个斐波那契数的索引
   private static int getFibIndex(int length) {
     if (length < 2) {
       throw new IllegalArgumentException();
     }
-    if (length > FIBSEQ[FIBSEQ.length - 1]) {
+    if (length > FIB_MAX) {
       fibGrow(length);
     }
     // 二分查找
     var lo = 0;
     var hi = FIBSEQ.length - 1;
     while (lo <= hi) {
-      var mid = (hi + lo) >>> 1;
+      var mid = (hi + lo) >> 1;
       if (FIBSEQ[mid] >= length) {
         if (FIBSEQ[mid - 1] < length) {
           return mid;
@@ -49,29 +88,6 @@ public final class SearchUtil {
       }
     }
     return hi;
-  }
-
-  //  参考CopyOnWriteArrayList设计
-  private static synchronized void fibGrow(int length) {
-    // 再次判断
-    var oldLen = FIBSEQ.length;
-    if (length > FIBSEQ[oldLen - 1]) {
-      var tempList = new ArrayList<Integer>();
-      var n = FIBSEQ[oldLen - 2] + FIBSEQ[oldLen - 1];
-      tempList.add(n);
-      var j = 0;
-      n = FIBSEQ[oldLen - 1] + tempList.get(j++);
-      tempList.add(n);
-      while (n < length) {
-        n = tempList.get(j - 1) + tempList.get(j++);
-        tempList.add(n);
-      }
-      var newArr = Arrays.copyOf(FIBSEQ, oldLen + tempList.size());
-      for (var i = 0; i < tempList.size(); i++) {
-        newArr[i + oldLen] = tempList.get(i);
-      }
-      FIBSEQ = newArr;
-    }
   }
 
   /** 斐波那契查找 效率与二分查找一致 对磁盘查找比较友好 */
