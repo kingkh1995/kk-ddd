@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -29,15 +30,14 @@ public final class SearchUtil {
     var oldLen = FIBSEQ.length;
     if (length > FIBSEQ[oldLen - 1]) {
       FIBSEQ =
-          Stream.concat(
-                  Arrays.stream(FIBSEQ).boxed(),
+          IntStream.concat(
+                  Arrays.stream(FIBSEQ),
                   // 使用无限流构造斐波那契数列
                   Stream.iterate(
                           new int[] {FIBSEQ[oldLen - 1], FIBSEQ[oldLen - 2] + FIBSEQ[oldLen - 1]},
                           ints -> ints[0] < length, // 终止条件
                           ints -> new int[] {ints[1], ints[0] + ints[1]})
-                      .map(ints -> ints[1]))
-              .mapToInt(Integer::intValue)
+                      .mapToInt(ints -> ints[1]))
               .toArray();
     }
   }
