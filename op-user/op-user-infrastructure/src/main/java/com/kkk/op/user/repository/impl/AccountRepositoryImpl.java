@@ -31,7 +31,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
 
   public AccountRepositoryImpl(
       @Autowired DistributedLock distributedLock,
-      @Autowired CacheManager cacheManager,
+      @Autowired(required = false) CacheManager cacheManager,
       @Autowired AccountMapper accountMapper) {
     super(distributedLock, cacheManager);
     this.accountMapper = accountMapper;
