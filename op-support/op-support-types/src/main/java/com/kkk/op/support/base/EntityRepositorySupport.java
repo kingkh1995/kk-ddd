@@ -83,7 +83,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // ==============================================================================================
 
   /**
-   * 以下方法是继承的子类应该去实现的 <br>
+   * 以下方法是继承的子类应该去实现的 （模板方法设计模式）<br>
    * 对应crud的实现
    */
   protected abstract T onSelect(@NotNull ID id);
