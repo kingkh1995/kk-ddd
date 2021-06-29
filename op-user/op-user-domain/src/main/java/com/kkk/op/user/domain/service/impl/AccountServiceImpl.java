@@ -3,7 +3,7 @@ package com.kkk.op.user.domain.service.impl;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
-import com.kkk.op.user.domain.strategy.AccountModifyStrategyManager;
+import com.kkk.op.user.domain.strategy.AccountStrategyManager;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Set;
@@ -25,13 +25,13 @@ public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
 
-  private final AccountModifyStrategyManager accountModifyStrategyManager;
+  private final AccountStrategyManager accountStrategyManager;
 
   public AccountServiceImpl(
       @Autowired AccountRepository accountRepository,
-      @Autowired AccountModifyStrategyManager accountModifyStrategyManager) {
+      @Autowired AccountStrategyManager accountStrategyManager) {
     this.accountRepository = accountRepository;
-    this.accountModifyStrategyManager = accountModifyStrategyManager;
+    this.accountStrategyManager = accountStrategyManager;
   }
 
   @Override
@@ -56,6 +56,6 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    return accountModifyStrategyManager.allowModify(oldAccount, newAccount);
+    return accountStrategyManager.allowModify(oldAccount, newAccount);
   }
 }

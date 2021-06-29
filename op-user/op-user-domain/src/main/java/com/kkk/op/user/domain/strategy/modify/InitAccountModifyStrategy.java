@@ -1,8 +1,7 @@
-package com.kkk.op.user.domain.strategy;
+package com.kkk.op.user.domain.strategy.modify;
 
 import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.entity.Account;
-import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -19,8 +18,8 @@ public class InitAccountModifyStrategy implements AccountModifyStrategy {
   }
 
   @Override
-  public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    // todo... 待实现
-    return true;
+  public boolean allowModify(Account oldAccount, Account newAccount) {
+    // todo...
+    return AccountModifyStrategy.super.allowModify(oldAccount, newAccount);
   }
 }

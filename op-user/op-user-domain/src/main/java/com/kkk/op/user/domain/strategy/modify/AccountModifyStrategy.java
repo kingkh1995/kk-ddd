@@ -1,4 +1,4 @@
-package com.kkk.op.user.domain.strategy;
+package com.kkk.op.user.domain.strategy.modify;
 
 import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.entity.Account;
@@ -15,5 +15,7 @@ public interface AccountModifyStrategy {
   AccountStatusEnum getStatusEnum();
 
   /** 判断是否可以更新 */
-  boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount);
+  default boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
+    return false; // 默认false
+  }
 }

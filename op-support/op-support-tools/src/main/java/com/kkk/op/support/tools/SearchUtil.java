@@ -35,7 +35,7 @@ public final class SearchUtil {
                   // 使用无限流构造斐波那契数列
                   Stream.iterate(
                           new int[] {FIBSEQ[oldLen - 1], FIBSEQ[oldLen - 2] + FIBSEQ[oldLen - 1]},
-                          ints -> ints[0] < length, // 终止条件
+                          ints -> ints[0] < length, // 循环条件，生成元素之后再对判断，如果不匹配则终止流并抛弃该元素
                           ints -> new int[] {ints[1], ints[0] + ints[1]})
                       .mapToInt(ints -> ints[1]))
               .toArray();

@@ -24,5 +24,5 @@ public abstract class AbstractPageQuery implements Serializable {
   // 日期类默认为字符串，为格式化之后的值
   private String createTimeEnd;
 
-  protected DatePattern datePattern = DatePattern.EpochMilli;
+  protected DatePattern datePattern = DatePattern.EPOCH_MILLI;
 }

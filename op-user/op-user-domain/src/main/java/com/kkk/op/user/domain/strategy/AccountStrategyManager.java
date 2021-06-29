@@ -3,6 +3,7 @@ package com.kkk.op.user.domain.strategy;
 import com.kkk.op.support.base.AbstractStrategyManager;
 import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.user.domain.strategy.modify.AccountModifyStrategy;
 import java.util.EnumMap;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
@@ -14,9 +15,9 @@ import org.springframework.stereotype.Component;
  * @author KaiKoo
  */
 @Component // 配合InitializingBean使用
-public class AccountModifyStrategyManager extends AbstractStrategyManager {
+public class AccountStrategyManager extends AbstractStrategyManager {
 
-  // 使用 EnumMap
+  // Modify Strategy  使用EnumMap
   private final transient EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap =
       new EnumMap<>(AccountStatusEnum.class);
 
