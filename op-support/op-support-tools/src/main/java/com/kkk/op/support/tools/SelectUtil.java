@@ -66,46 +66,47 @@ public final class SelectUtil {
 
   private static int quickSelect(int[] arr, int index, int lo, int hi) {
     while (true) {
-      // 少于五个元素直接进行插入排序
-      if (hi - lo + 1 < 5) {
-        var n = hi - lo + 1;
-        for (var i = lo; i - lo < n; i++) {
-          for (var j = i; j > 0 && arr[j] < arr[j - 1]; --j) {
-            swap(arr, j, j - 1);
+      // 小于5个元素直接插入排序
+      if (hi - lo < 5) {
+        for (var i = lo + 1; i <= hi; i++) {
+          var j = i;
+          var n = arr[j];
+          for (; j > lo && arr[j - 1] > n; j--) {
+            arr[j] = arr[j - 1];
           }
+          arr[j] = n;
         }
         return arr[index];
       }
       // 使用快速三向切分快排
+      // 将index处的值作为pivot
       swap(arr, index, lo);
+      // 切分为：lo--p--i--j--q--hi
       var i = lo;
       var j = hi + 1;
-      var p = lo;
-      var q = hi + 1;
+      var p = lo; // 左边等于区间是[lo,lo]至少包含一个元素
+      var q = hi + 1; // 右边等于区间为[hi+1,hi]可能没有元素
       var pivot = arr[lo];
       while (true) {
-        // 从左边开始找到第一个大于等于pivot的数
+        // 从左边开始找到第一个大于等于切分值的数
         while (arr[++i] < pivot) {
           if (i == hi) {
             break;
           }
         }
-        // 从右边开始找到第一个小于等于pivot的数
-        while (arr[--j] > pivot) {
-          if (j == lo) {
-            break;
-          }
-        }
-        // 相遇有两种情况，在中间相遇，肯定等于pivot，第二种情况在hi处相遇，此时不一定等于。
-        // 如果i j 相遇，且等于pivot，则交换到等于pivot的区间
-        if (i == j && arr[i] == pivot) {
-          swap(arr, ++p, i);
+        // 从右边开始找到第一个小于等于切分值的数
+        while (arr[--j] > pivot) {}
+        // 判断是否相遇 在中间相遇则必然等于pivot 在最后一个元素相遇则不一定（切分元素刚好是最大值）
+        if (i == j && arr[j] == pivot) {
+          // 如果等于pivot 则交换到左边保证j必然小于pivot
+          swap(arr, ++p, j);
         }
         if (i >= j) {
-          break;
+          break; // 循环终止，经过上面的判断后[i,j]区间已完全排序
         }
-        // 和普通的partiion方法一样，交换i j
+        // 循环未终止则和普通的快速排序一样，交换i j
         swap(arr, i, j);
+        // 交换完再判断是否等于 等于则交换到两端的等于区间 小于区间右移 大于区间左移
         if (arr[i] == pivot) {
           swap(arr, ++p, i);
         }
@@ -113,21 +114,21 @@ public final class SelectUtil {
           swap(arr, --q, j);
         }
       }
-      // 循环终止时，j处的数必定小于pivot，因为如果等于pivot会和小于pivot的数交换
-      // 故此时(p, j]区间小于pivot [j+1, q)区间大于pivot
-      // 先判断不交换
       i = j + 1;
-      var left = j - p + lo;
-      var right = j + hi - q + 1 + j;
-      if (left <= index && right >= index) {
+      // 循环结束 此时(p, j]区间小于pivot [i, q)区间大于pivot
+      // 先计算出交换后等于pivot的区间的两端
+      var left = lo + (j - p); // 左端点
+      var right = hi - (q - i); // 右断点
+      // 如果index在等于区间内 表示结果为pivot直接返回
+      if (index >= left && index <= right) {
         return pivot;
       }
       // 交换等于的区间到中间
-      for (int k = lo; k <= p; k++) {
-        swap(arr, k, j--);
+      for (var t = lo; t <= p; t++) {
+        swap(arr, t, j--);
       }
-      for (int k = hi; k >= q; k--) {
-        swap(arr, k, i++);
+      for (var t = hi; t >= q; t--) {
+        swap(arr, t, i++);
       }
       // 交换完之后，[lo, j]小于pivot [i, hi]大于pivot
       if (index <= j) {
@@ -159,7 +160,6 @@ public final class SelectUtil {
   }
 
   public static long quickSelect(long[] arr, int k) {
-    // max 和 min时直接遍历查找
     if (k == 1) {
       var min = arr[0];
       for (var n : arr) {
@@ -183,12 +183,14 @@ public final class SelectUtil {
 
   private static long quickSelect(long[] arr, int index, int lo, int hi) {
     while (true) {
-      if (hi - lo + 1 < 5) {
-        var n = hi - lo + 1;
-        for (var i = lo; i - lo < n; i++) {
-          for (var j = i; j > 0 && arr[j] < arr[j - 1]; --j) {
-            swap(arr, j, j - 1);
+      if (hi - lo < 5) {
+        for (var i = lo + 1; i <= hi; i++) {
+          var j = i;
+          var n = arr[j];
+          for (; j > lo && arr[j - 1] > n; j--) {
+            arr[j] = arr[j - 1];
           }
+          arr[j] = n;
         }
         return arr[index];
       }
@@ -204,13 +206,9 @@ public final class SelectUtil {
             break;
           }
         }
-        while (arr[--j] > pivot) {
-          if (j == lo) {
-            break;
-          }
-        }
-        if (i == j && arr[i] == pivot) {
-          swap(arr, ++p, i);
+        while (arr[--j] > pivot) {}
+        if (i == j && arr[j] == pivot) {
+          swap(arr, ++p, j);
         }
         if (i >= j) {
           break;
@@ -224,16 +222,16 @@ public final class SelectUtil {
         }
       }
       i = j + 1;
-      var left = j - p + lo;
-      var right = j + hi - q + 1;
-      if (left <= index && right >= index) {
+      var left = lo + (j - p);
+      var right = hi - (q - i);
+      if (index >= left && index <= right) {
         return pivot;
       }
-      for (int k = lo; k <= p; k++) {
-        swap(arr, k, j--);
+      for (var t = lo; t <= p; t++) {
+        swap(arr, t, j--);
       }
-      for (int k = hi; k >= q; k--) {
-        swap(arr, k, i++);
+      for (var t = hi; t >= q; t--) {
+        swap(arr, t, i++);
       }
       if (index <= j) {
         hi = j;
@@ -264,7 +262,6 @@ public final class SelectUtil {
   }
 
   public static <T> T quickSelect(T[] arr, int k, Comparator<? super T> c) {
-    // max 和 min时直接遍历查找
     if (k == 1) {
       var min = arr[0];
       for (var n : arr) {
@@ -288,12 +285,14 @@ public final class SelectUtil {
 
   private static <T> T quickSelect(T[] arr, int index, int lo, int hi, Comparator<? super T> c) {
     while (true) {
-      if (hi - lo + 1 < 5) {
-        var n = hi - lo + 1;
-        for (var i = lo; i - lo < n; i++) {
-          for (var j = i; j > 0 && c.compare(arr[j], arr[j - 1]) < 0; --j) {
-            swap(arr, j, j - 1);
+      if (hi - lo < 5) {
+        for (var i = lo + 1; i <= hi; i++) {
+          var j = i;
+          var n = arr[j];
+          for (; j > lo && c.compare(arr[j - 1], n) > 0; j--) {
+            arr[j] = arr[j - 1];
           }
+          arr[j] = n;
         }
         return arr[index];
       }
@@ -309,36 +308,32 @@ public final class SelectUtil {
             break;
           }
         }
-        while (c.compare(arr[--j], pivot) > 0) {
-          if (j == lo) {
-            break;
-          }
-        }
-        if (i == j && arr[i] == pivot) {
-          swap(arr, ++p, i);
+        while (c.compare(arr[--j], pivot) > 0) {}
+        if (i == j && c.compare(arr[j], pivot) == 0) {
+          swap(arr, ++p, j);
         }
         if (i >= j) {
           break;
         }
         swap(arr, i, j);
-        if (arr[i] == pivot) {
+        if (c.compare(arr[i], pivot) == 0) {
           swap(arr, ++p, i);
         }
-        if (arr[j] == pivot) {
+        if (c.compare(arr[j], pivot) == 0) {
           swap(arr, --q, j);
         }
       }
       i = j + 1;
-      var left = j - p + lo;
-      var right = j + hi - q + 1;
-      if (left <= index && right >= index) {
+      var left = lo + (j - p);
+      var right = hi - (q - i);
+      if (index >= left && index <= right) {
         return pivot;
       }
-      for (int k = lo; k <= p; k++) {
-        swap(arr, k, j--);
+      for (var t = lo; t <= p; t++) {
+        swap(arr, t, j--);
       }
-      for (int k = hi; k >= q; k--) {
-        swap(arr, k, i++);
+      for (var t = hi; t >= q; t--) {
+        swap(arr, t, i++);
       }
       if (index <= j) {
         hi = j;
@@ -369,7 +364,6 @@ public final class SelectUtil {
   }
 
   public static <T> T quickSelect(List<T> list, int k, Comparator<? super T> c) {
-    // max 和 min时直接遍历查找
     if (k == 1) {
       var min = list.get(0);
       for (var n : list) {
@@ -394,12 +388,14 @@ public final class SelectUtil {
   private static <T> T quickSelect(
       List<T> list, int index, int lo, int hi, Comparator<? super T> c) {
     while (true) {
-      if (hi - lo + 1 < 5) {
-        var n = hi - lo + 1;
-        for (var i = lo; i - lo < n; i++) {
-          for (var j = i; j > 0 && c.compare(list.get(j), list.get(j - 1)) < 0; --j) {
-            swap(list, j, j - 1);
+      if (hi - lo < 5) {
+        for (var i = lo + 1; i <= hi; i++) {
+          var j = i;
+          var n = list.get(j);
+          for (; j > lo && c.compare(list.get(j - 1), n) > 0; j--) {
+            list.set(j, list.get(j - 1));
           }
+          list.set(j, n);
         }
         return list.get(index);
       }
@@ -415,36 +411,32 @@ public final class SelectUtil {
             break;
           }
         }
-        while (c.compare(list.get(--j), pivot) > 0) {
-          if (j == lo) {
-            break;
-          }
-        }
-        if (i == j && list.get(i) == pivot) {
-          swap(list, ++p, i);
+        while (c.compare(list.get(--j), pivot) > 0) {}
+        if (i == j && c.compare(list.get(j), pivot) == 0) {
+          swap(list, ++p, j);
         }
         if (i >= j) {
           break;
         }
         swap(list, i, j);
-        if (list.get(i) == pivot) {
+        if (c.compare(list.get(i), pivot) == 0) {
           swap(list, ++p, i);
         }
-        if (list.get(j) == pivot) {
+        if (c.compare(list.get(j), pivot) == 0) {
           swap(list, --q, j);
         }
       }
       i = j + 1;
-      var left = j - p + lo;
-      var right = j + hi - q + 1;
-      if (left <= index && right >= index) {
+      var left = lo + (j - p);
+      var right = hi - (q - i);
+      if (index >= left && index <= right) {
         return pivot;
       }
-      for (int k = lo; k <= p; k++) {
-        swap(list, k, j--);
+      for (var t = lo; t <= p; t++) {
+        swap(list, t, j--);
       }
-      for (int k = hi; k >= q; k--) {
-        swap(list, k, i++);
+      for (var t = hi; t >= q; t--) {
+        swap(list, t, i++);
       }
       if (index <= j) {
         hi = j;
