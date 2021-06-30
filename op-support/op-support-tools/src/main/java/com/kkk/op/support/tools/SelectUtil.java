@@ -24,6 +24,9 @@ public final class SelectUtil {
     if (a >= arr.length || a < 0 || b >= arr.length || b < 0) {
       throw new IllegalArgumentException();
     }
+    if (a == b) {
+      return;
+    }
     var temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
@@ -139,6 +142,9 @@ public final class SelectUtil {
     if (a >= arr.length || a < 0 || b >= arr.length || b < 0) {
       throw new IllegalArgumentException();
     }
+    if (a == b) {
+      return;
+    }
     var temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
@@ -241,6 +247,9 @@ public final class SelectUtil {
     if (a >= arr.length || a < 0 || b >= arr.length || b < 0) {
       throw new IllegalArgumentException();
     }
+    if (a == b) {
+      return;
+    }
     var temp = arr[a];
     arr[a] = arr[b];
     arr[b] = temp;
@@ -342,6 +351,9 @@ public final class SelectUtil {
   private static <T> void swap(List<T> list, int a, int b) {
     if (a >= list.size() || a < 0 || b >= list.size() || b < 0) {
       throw new IllegalArgumentException();
+    }
+    if (a == b) {
+      return;
     }
     var temp = list.get(a);
     list.set(a, list.get(b));

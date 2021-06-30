@@ -37,7 +37,7 @@ public enum DatePattern {
     }
     text = text.strip();
     if (this.formatter != null) {
-      if (!obtainTime) { // 必须包含Time
+      if (!this.obtainTime) { // 必须包含Time
         throw new DateTimeException("should obtain time");
       }
       try {
@@ -63,7 +63,7 @@ public enum DatePattern {
     }
     text = text.strip();
     if (this.formatter != null) {
-      if (!obtainTime) { // 不能包含Time
+      if (this.obtainTime) { // 不能包含Time
         throw new DateTimeException("should not obtain time");
       }
       try {
