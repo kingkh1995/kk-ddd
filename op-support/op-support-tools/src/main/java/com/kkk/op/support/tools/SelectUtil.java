@@ -14,8 +14,8 @@ public final class SelectUtil {
     throw new IllegalAccessException();
   }
 
-  private static void rangeCheck(int arrayLength, int k) {
-    if (k > arrayLength || k < 1) {
+  private static void rangeCheck(int length, int index) {
+    if (index >= length || index < 0) {
       throw new IllegalArgumentException();
     }
   }
@@ -32,18 +32,37 @@ public final class SelectUtil {
     arr[b] = temp;
   }
 
+  /** 快速选择出最大的元素 */
   public static int selectMax(int[] arr) {
-    return quickSelect(arr, arr.length);
+    return selectKthL(arr, 1);
   }
 
+  /** 快速选择出最小的元素 */
   public static int selectMin(int[] arr) {
-    return quickSelect(arr, 1);
+    return selectKthS(arr, 1);
+  }
+
+  /** 快速选择出第k大的元素 */
+  public static int selectKthL(int[] arr, int k) {
+    return quickSelect0(arr, arr.length - k);
   }
 
   /** 快速选择出第k小的元素 */
-  public static int quickSelect(int[] arr, int k) {
-    // max 和 min时直接遍历查找
-    if (k == 1) {
+  public static int selectKthS(int[] arr, int k) {
+    return quickSelect0(arr, k - 1);
+  }
+
+  /**
+   * 快速选择出排序后index位置的元素
+   *
+   * @param arr 未排序数组
+   * @param index 索引
+   * @return 元素值
+   */
+  private static int quickSelect0(int[] arr, int index) {
+    var length = arr.length;
+    // max min 直接遍历查找
+    if (index == 0) {
       var min = arr[0];
       for (var n : arr) {
         if (n < min) {
@@ -51,7 +70,7 @@ public final class SelectUtil {
         }
       }
       return min;
-    } else if (k == arr.length) {
+    } else if (index == length - 1) {
       var max = arr[0];
       for (var n : arr) {
         if (n > max) {
@@ -60,13 +79,12 @@ public final class SelectUtil {
       }
       return max;
     }
-    rangeCheck(arr.length, k);
-    return quickSelect(arr, k - 1, 0, arr.length - 1);
-  }
-
-  private static int quickSelect(int[] arr, int index, int lo, int hi) {
+    // 使用快速三向切分快排查找
+    rangeCheck(length, index);
+    var lo = 0;
+    var hi = length - 1;
     while (true) {
-      // 小于5个元素直接插入排序
+      // 小于等于5个元素使用插入排序
       if (hi - lo < 5) {
         for (var i = lo + 1; i <= hi; i++) {
           var j = i;
@@ -78,7 +96,6 @@ public final class SelectUtil {
         }
         return arr[index];
       }
-      // 使用快速三向切分快排
       // 将index处的值作为pivot
       swap(arr, index, lo);
       // 切分为：lo--p--i--j--q--hi
@@ -152,15 +169,24 @@ public final class SelectUtil {
   }
 
   public static long selectMax(long[] arr) {
-    return quickSelect(arr, arr.length);
+    return selectKthL(arr, 1);
   }
 
   public static long selectMin(long[] arr) {
-    return quickSelect(arr, 1);
+    return selectKthS(arr, 1);
   }
 
-  public static long quickSelect(long[] arr, int k) {
-    if (k == 1) {
+  public static long selectKthL(long[] arr, int k) {
+    return quickSelect0(arr, arr.length - k);
+  }
+
+  public static long selectKthS(long[] arr, int k) {
+    return quickSelect0(arr, k - 1);
+  }
+
+  private static long quickSelect0(long[] arr, int index) {
+    var length = arr.length;
+    if (index == 0) {
       var min = arr[0];
       for (var n : arr) {
         if (n < min) {
@@ -168,7 +194,7 @@ public final class SelectUtil {
         }
       }
       return min;
-    } else if (k == arr.length) {
+    } else if (index == length - 1) {
       var max = arr[0];
       for (var n : arr) {
         if (n > max) {
@@ -177,11 +203,9 @@ public final class SelectUtil {
       }
       return max;
     }
-    rangeCheck(arr.length, k);
-    return quickSelect(arr, k - 1, 0, arr.length - 1);
-  }
-
-  private static long quickSelect(long[] arr, int index, int lo, int hi) {
+    rangeCheck(length, index);
+    var lo = 0;
+    var hi = length - 1;
     while (true) {
       if (hi - lo < 5) {
         for (var i = lo + 1; i <= hi; i++) {
@@ -254,15 +278,24 @@ public final class SelectUtil {
   }
 
   public static <T> T selectMax(T[] arr, Comparator<? super T> c) {
-    return quickSelect(arr, arr.length, c);
+    return selectKthL(arr, 1, c);
   }
 
   public static <T> T selectMin(T[] arr, Comparator<? super T> c) {
-    return quickSelect(arr, 1, c);
+    return selectKthS(arr, 1, c);
   }
 
-  public static <T> T quickSelect(T[] arr, int k, Comparator<? super T> c) {
-    if (k == 1) {
+  public static <T> T selectKthL(T[] arr, int k, Comparator<? super T> c) {
+    return quickSelect0(arr, arr.length - k, c);
+  }
+
+  public static <T> T selectKthS(T[] arr, int k, Comparator<? super T> c) {
+    return quickSelect0(arr, k - 1, c);
+  }
+
+  private static <T> T quickSelect0(T[] arr, int index, Comparator<? super T> c) {
+    var length = arr.length;
+    if (index == 0) {
       var min = arr[0];
       for (var n : arr) {
         if (c.compare(n, min) < 0) {
@@ -270,7 +303,7 @@ public final class SelectUtil {
         }
       }
       return min;
-    } else if (k == arr.length) {
+    } else if (index == length - 1) {
       var max = arr[0];
       for (var n : arr) {
         if (c.compare(n, max) > 0) {
@@ -279,11 +312,9 @@ public final class SelectUtil {
       }
       return max;
     }
-    rangeCheck(arr.length, k);
-    return quickSelect(arr, k - 1, 0, arr.length - 1, c);
-  }
-
-  private static <T> T quickSelect(T[] arr, int index, int lo, int hi, Comparator<? super T> c) {
+    rangeCheck(length, index);
+    var lo = 0;
+    var hi = length - 1;
     while (true) {
       if (hi - lo < 5) {
         for (var i = lo + 1; i <= hi; i++) {
@@ -356,15 +387,24 @@ public final class SelectUtil {
   }
 
   public static <T> T selectMax(List<T> list, Comparator<? super T> c) {
-    return quickSelect(list, list.size(), c);
+    return selectKthL(list, 1, c);
   }
 
   public static <T> T selectMin(List<T> list, Comparator<? super T> c) {
-    return quickSelect(list, 1, c);
+    return selectKthS(list, 1, c);
   }
 
-  public static <T> T quickSelect(List<T> list, int k, Comparator<? super T> c) {
-    if (k == 1) {
+  public static <T> T selectKthL(List<T> list, int k, Comparator<? super T> c) {
+    return quickSelect0(list, list.size() - k, c);
+  }
+
+  public static <T> T selectKthS(List<T> list, int k, Comparator<? super T> c) {
+    return quickSelect0(list, k - 1, c);
+  }
+
+  private static <T> T quickSelect0(List<T> list, int index, Comparator<? super T> c) {
+    var length = list.size();
+    if (index == 0) {
       var min = list.get(0);
       for (var n : list) {
         if (c.compare(n, min) < 0) {
@@ -372,7 +412,7 @@ public final class SelectUtil {
         }
       }
       return min;
-    } else if (k == list.size()) {
+    } else if (index == length - 1) {
       var max = list.get(0);
       for (var n : list) {
         if (c.compare(n, max) > 0) {
@@ -381,12 +421,9 @@ public final class SelectUtil {
       }
       return max;
     }
-    rangeCheck(list.size(), k);
-    return quickSelect(list, k - 1, 0, list.size() - 1, c);
-  }
-
-  private static <T> T quickSelect(
-      List<T> list, int index, int lo, int hi, Comparator<? super T> c) {
+    rangeCheck(length, index);
+    var lo = 0;
+    var hi = length - 1;
     while (true) {
       if (hi - lo < 5) {
         for (var i = lo + 1; i <= hi; i++) {
