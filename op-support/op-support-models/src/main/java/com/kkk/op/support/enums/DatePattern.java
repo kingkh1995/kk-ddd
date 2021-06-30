@@ -99,7 +99,7 @@ public enum DatePattern {
       return null;
     }
     if (this.formatter != null) {
-      if (!this.obtainTime) { // 不能包含Time
+      if (this.obtainTime) { // 不能包含Time
         throw new DateTimeException("should not obtain time");
       }
       return localDate.format(this.formatter);
