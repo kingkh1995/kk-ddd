@@ -23,15 +23,16 @@ public class AccountStrategyManager extends AbstractStrategyManager {
 
   @Override
   public void afterPropertiesSet() {
-    // 构造map
-    if (this.modifyStrategyMap.isEmpty()) {
-      this.applicationContext
-          .getBeansOfType(AccountModifyStrategy.class)
-          .forEach(
-              (s, accountModifyStrategy) ->
-                  this.modifyStrategyMap.put(
-                      accountModifyStrategy.getStatusEnum(), accountModifyStrategy));
+    if (!this.modifyStrategyMap.isEmpty()) {
+      return;
     }
+    // 构造map
+    this.applicationContext
+        .getBeansOfType(AccountModifyStrategy.class)
+        .forEach(
+            (s, accountModifyStrategy) ->
+                this.modifyStrategyMap.put(
+                    accountModifyStrategy.getStatusEnum(), accountModifyStrategy));
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {

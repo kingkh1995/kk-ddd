@@ -7,11 +7,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Repository自动缓存功能开启注解
+ * 请求方是否可访问方法条件
  *
  * @author KaiKoo
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface AutoCached {}
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface AccessCondition {
+
+  String DEFUALT = "default";
+
+  /** 逻辑条件组合表达式（仅支持 && 和 ||） */
+  String condition() default DEFUALT;
+}

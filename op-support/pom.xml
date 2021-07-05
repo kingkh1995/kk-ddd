@@ -45,9 +45,15 @@
       <artifactId>lombok</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- validation注解 -->
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+    <!-- aspectj注解 -->
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
     </dependency>
   </dependencies>
 
