@@ -13,7 +13,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
  */
 @EnableOpenApi
 @ComponentScan("com.kkk.op.user") // 扫描所有模块组件
-@MapperScan("com.kkk.op.user.persistence.mapper") // Mybatis扫描Mapper
+@MapperScan("com.kkk.op.user.persistence.mapper") // Mybatis扫描Mapper文件 xml文件要放在resources/mapper下
 @SpringBootApplication(exclude = RedisAutoConfiguration.class) // fixme... 暂时未开放redis功能
 public class OpUserWebApplication {
 
