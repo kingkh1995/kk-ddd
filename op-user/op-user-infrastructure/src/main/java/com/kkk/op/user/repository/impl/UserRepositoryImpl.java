@@ -65,7 +65,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     var userDO = userDataConverter.toData(aggregate);
     userMapper.insert(userDO);
     // 填补id
-    aggregate.fillInId(LongId.valueOf(userDO.getId()));
+    aggregate.fillInId(LongId.of(userDO.getId()));
     // 循环插入Account
     var accounts = aggregate.getAccounts();
     if (!CollectionUtils.isEmpty(accounts)) {
@@ -74,7 +74,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
             var accountDO = accountDataConverter.toData(account);
             accountMapper.insert(accountDO);
             // 填补id
-            account.fillInId(LongId.valueOf(accountDO.getId()));
+            account.fillInId(LongId.of(accountDO.getId()));
           });
     }
   }
@@ -87,11 +87,11 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   @Override
   protected User onSelect(@NotNull LongId longId) {
     // 查询User
-    var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()));
+    var user = userDataConverter.fromData(userMapper.selectById(longId.longValue()));
     // 查询Account
     user.setAccounts(new ArrayList<>());
     accountMapper
-        .selectByMap(ImmutableMap.of("user_id", longId.getValue()))
+        .selectByMap(ImmutableMap.of("user_id", longId.longValue()))
         .forEach(accountDO -> user.getAccounts().add(accountDataConverter.fromData(accountDO)));
     return user;
   }
@@ -112,7 +112,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         // 移除情况
         if (entityDiff.getType() == DiffType.Removed) {
           var oldValue = (Account) entityDiff.getOldValue();
-          accountMapper.deleteById(oldValue.getId().getValue());
+          accountMapper.deleteById(oldValue.getId().longValue());
         }
         // 新增情况
         if (entityDiff.getType() == DiffType.Added) {
@@ -120,7 +120,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
           var accountDO = accountDataConverter.toData(newValue);
           accountMapper.insert(accountDO);
           // 填补id
-          newValue.fillInId(LongId.valueOf(accountDO.getId()));
+          newValue.fillInId(LongId.of(accountDO.getId()));
         }
         // 更新情况
         if (entityDiff.getType() == DiffType.Modified) {
@@ -134,12 +134,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   @Override
   protected void onDelete(@NotNull User aggregate) {
     // 删除User
-    userMapper.deleteById(aggregate.getId().getValue());
+    userMapper.deleteById(aggregate.getId().longValue());
     // 删除Account
     var accountIdList =
         aggregate.getAccounts().stream()
             .map(Account::getId)
-            .map(LongId::getValue)
+            .map(LongId::longValue)
             .collect(Collectors.toList());
     if (!CollectionUtils.isEmpty(accountIdList)) {
       accountMapper.deleteBatchIds(accountIdList);

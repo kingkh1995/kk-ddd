@@ -36,7 +36,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     // todo... 触发事件
 
     // 返回id
-    return account.getId().getValue();
+    return account.getId().longValue();
   }
 
   @Override

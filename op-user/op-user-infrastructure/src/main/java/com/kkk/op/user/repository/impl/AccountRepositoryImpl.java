@@ -39,7 +39,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
 
   @Override
   protected Account onSelect(@NotNull LongId longId) {
-    return accountDataConverter.fromData(accountMapper.selectById(longId.getValue()));
+    return accountDataConverter.fromData(accountMapper.selectById(longId.longValue()));
   }
 
   @Override
@@ -52,7 +52,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     var data = accountDataConverter.toData(entity);
     accountMapper.insert(data);
     // 填补id
-    entity.fillInId(LongId.valueOf(data.getId()));
+    entity.fillInId(LongId.of(data.getId()));
   }
 
   @Override

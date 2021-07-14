@@ -12,22 +12,26 @@ public final class IllegalArgumentExceptions {
     throw new IllegalAccessException();
   }
 
-  public static IllegalArgumentException forNull(String fieldName) {
-    return new IllegalArgumentException(getFieldName(fieldName) + "不能为空！");
+  public static IllegalArgumentException forIsNull(String fieldName) {
+    return new IllegalArgumentException(fieldName + "不能为空");
   }
 
   public static IllegalArgumentException forWrongPattern(String fieldName) {
-    return new IllegalArgumentException(getFieldName(fieldName) + "格式不正确！");
+    return new IllegalArgumentException(fieldName + "格式不正确");
+  }
+
+  public static IllegalArgumentException forMustNumber(String fieldName) {
+    return new IllegalArgumentException(fieldName + "必须为数字");
   }
 
   public static IllegalArgumentException forInvalidEnum(String fieldName) {
-    return new IllegalArgumentException(getFieldName(fieldName) + "枚举值不合法！");
+    return new IllegalArgumentException(fieldName + "枚举值不合法");
   }
 
   public static IllegalArgumentException forMaxValue(
       String fieldName, Number max, boolean included) {
     var message =
-        new StringBuilder(getFieldName(fieldName))
+        new StringBuilder(fieldName)
             .append("必须小于")
             .append(included ? "等于" : "")
             .append(max)
@@ -38,7 +42,7 @@ public final class IllegalArgumentExceptions {
   public static IllegalArgumentException forMinValue(
       String fieldName, Number min, boolean included) {
     var message =
-        new StringBuilder(getFieldName(fieldName))
+        new StringBuilder(fieldName)
             .append("必须大于")
             .append(included ? "等于" : "")
             .append(min)
@@ -46,7 +50,8 @@ public final class IllegalArgumentExceptions {
     return new IllegalArgumentException(message);
   }
 
-  private static String getFieldName(String fieldName) {
-    return fieldName == null || fieldName.isBlank() ? "value" : fieldName;
+  public static IllegalArgumentException forAtMostScale(String fieldName, int scale) {
+    var message = fieldName + (scale == 0 ? "必须为整数" : "只能保留" + scale + "位小数");
+    return new IllegalArgumentException(message);
   }
 }

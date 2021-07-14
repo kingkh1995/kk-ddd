@@ -26,15 +26,15 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
       return null;
     }
     var dto = new AccountDTO();
-    dto.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
-    dto.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
-    dto.setStatus(
-        Optional.ofNullable(account.getStatus())
-            .map(AccountStatus::getValue)
-            .map(AccountStatusEnum::name)
-            .orElse(null));
-    dto.setCreateTime(
-        Optional.ofNullable(account.getCreateTime()).map(DateUtil::toEpochMilli).orElse(null));
+    Optional.ofNullable(account.getId()).map(LongId::longValue).ifPresent(dto::setId);
+    Optional.ofNullable(account.getUserId()).map(LongId::longValue).ifPresent(dto::setUserId);
+    Optional.ofNullable(account.getStatus())
+        .map(AccountStatus::getValue)
+        .map(AccountStatusEnum::name)
+        .ifPresent(dto::setStatus);
+    Optional.ofNullable(account.getCreateTime())
+        .map(DateUtil::toEpochMilli)
+        .ifPresent(dto::setCreateTime);
     return dto;
   }
 
@@ -42,18 +42,23 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
   public Account fromDTO(AccountDTO dto) {
     // Entity是有行为的，所以需要保证不能返回null
     var builder = Account.builder();
-    if (dto != null) {
-      builder
-          .id(Optional.ofNullable(dto.getId()).map(LongId::valueOf).orElse(null))
-          .userId(Optional.ofNullable(dto.getUserId()).map(LongId::valueOf).orElse(null))
-          .status(
-              Optional.ofNullable(dto.getStatus())
+    Optional.ofNullable(dto)
+        .ifPresent(
+            accountDTO -> {
+              Optional.ofNullable(accountDTO.getId())
+                  .map(id -> LongId.valueOf(id, "id"))
+                  .ifPresent(builder::id);
+              Optional.ofNullable(accountDTO.getUserId())
+                  .map(userId -> LongId.valueOf(userId, "userId"))
+                  .ifPresent(builder::userId);
+              Optional.ofNullable(accountDTO.getStatus())
                   .filter(s -> !s.isBlank())
-                  .map(AccountStatus::valueOf)
-                  .orElse(null))
-          .createTime(
-              Optional.ofNullable(dto.getCreateTime()).map(DateUtil::toLocalDateTime).orElse(null));
-    }
+                  .map(status -> AccountStatus.valueOf(status, "status"))
+                  .ifPresent(builder::status);
+              Optional.ofNullable(accountDTO.getCreateTime())
+                  .map(DateUtil::toLocalDateTime)
+                  .ifPresent(builder::createTime);
+            });
     return builder.build();
   }
 }

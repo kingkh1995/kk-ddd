@@ -1,6 +1,7 @@
 package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
+import java.math.BigDecimal;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -9,31 +10,29 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true) // 重写EqualsAndHashCode
-public class LongId extends RangedLong implements Identifier {
+public class LongId extends SpecificNumber implements Identifier {
 
-  protected LongId(Long l, String fieldName) {
-    super(l, fieldName, 1L, null);
+  private LongId(BigDecimal value, String fieldName) {
+    super(value, fieldName, ZERO, false, null, null, 0);
   }
 
-  /** 不对外提供构造函数，只提供 valueOf 静态方法 */
-  public static LongId valueOf(Long l) {
-    return valueOf(l, null);
-  }
-
+  /**
+   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 of（可靠输入） 静态方法 <br>
+   * <br>
+   */
   public static LongId valueOf(Long l, String fieldName) {
-    return new LongId(l, fieldName);
-  }
-
-  public static LongId valueOf(String s) {
-    return valueOf(s, null);
+    return new LongId(parse(l, fieldName), fieldName);
   }
 
   public static LongId valueOf(String s, String fieldName) {
-    return new LongId(parseLong(s, fieldName), fieldName);
+    return new LongId(parse(s, fieldName), fieldName);
   }
 
-  @Override
-  public String stringValue() {
-    return Long.toString(this.value);
+  public static LongId of(long id) {
+    return new LongId(new BigDecimal(id), "");
+  }
+
+  public static LongId of(BigDecimal id) {
+    return new LongId(id, "");
   }
 }

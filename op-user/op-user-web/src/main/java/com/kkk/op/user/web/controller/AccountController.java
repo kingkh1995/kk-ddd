@@ -54,7 +54,8 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
     log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId, updateCommand);
-    service.updateAccount(LongId.valueOf(userId), LongId.valueOf(accountId), updateCommand);
+    service.updateAccount(
+        LongId.valueOf(userId, "userId"), LongId.valueOf(accountId, "accountId"), updateCommand);
   }
 
   /** Delete 删除资源 */
@@ -64,7 +65,7 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     log.info("userId：{}，delete account by accountId；{}", userId, accountId);
-    service.deleteAccount(LongId.valueOf(accountId));
+    service.deleteAccount(LongId.valueOf(accountId, "accountId"));
   }
 
   /** GET 获取资源 */
@@ -74,7 +75,7 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     log.info("userId：{}，query account by accountId；{}", userId, accountId);
-    return service.queryAccount(LongId.valueOf(accountId));
+    return service.queryAccount(LongId.valueOf(accountId, "accountId"));
   }
 
   /** 查询用户下的所有账号 */

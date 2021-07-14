@@ -23,35 +23,35 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
       return null;
     }
     var data = new AccountDO();
-    data.setId(Optional.ofNullable(account.getId()).map(LongId::getValue).orElse(null));
-    data.setUserId(Optional.ofNullable(account.getUserId()).map(LongId::getValue).orElse(null));
-    data.setStatus(
-        Optional.ofNullable(account.getStatus())
-            .map(AccountStatus::getValue)
-            .map(AccountStatusEnum::name)
-            .orElse(null));
-    data.setCreateTime(
-        Optional.ofNullable(account.getCreateTime()).map(DateUtil::toTimestamp).orElse(null));
+    Optional.ofNullable(account.getId()).map(LongId::longValue).ifPresent(data::setId);
+    Optional.ofNullable(account.getUserId()).map(LongId::longValue).ifPresent(data::setUserId);
+    Optional.ofNullable(account.getStatus())
+        .map(AccountStatus::getValue)
+        .map(AccountStatusEnum::name)
+        .ifPresent(data::setStatus);
+    Optional.ofNullable(account.getCreateTime())
+        .map(DateUtil::toTimestamp)
+        .ifPresent(data::setCreateTime);
     return data;
   }
 
   @Override
   public Account fromData(AccountDO data) {
     var builder = Account.builder();
-    if (data != null) {
-      builder
-          .id(Optional.ofNullable(data.getId()).map(LongId::valueOf).orElse(null))
-          .userId(Optional.ofNullable(data.getUserId()).map(LongId::valueOf).orElse(null))
-          .status(
-              Optional.ofNullable(data.getStatus())
+    Optional.ofNullable(data)
+        .ifPresent(
+            accountDO -> {
+              Optional.ofNullable(accountDO.getId()).map(LongId::of).ifPresent(builder::id);
+              Optional.ofNullable(accountDO.getUserId()).map(LongId::of).ifPresent(builder::userId);
+              Optional.ofNullable(accountDO.getStatus())
                   .filter(s -> !s.isBlank())
-                  .map(AccountStatus::valueOf)
-                  .orElse(null))
-          .createTime(
-              Optional.ofNullable(data.getCreateTime())
+                  .map(AccountStatusEnum::valueOf)
+                  .map(AccountStatus::of)
+                  .ifPresent(builder::status);
+              Optional.ofNullable(accountDO.getCreateTime())
                   .map(DateUtil::toLocalDateTime)
-                  .orElse(null));
-    }
+                  .ifPresent(builder::createTime);
+            });
     return builder.build();
   }
 }
