@@ -2,6 +2,7 @@ package com.kkk.op.support.types;
 
 import com.kkk.op.support.marker.Identifier;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -12,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true) // 重写EqualsAndHashCode
 public class LongId extends SpecificNumber implements Identifier {
 
-  private LongId(BigDecimal value, String fieldName) {
+  protected LongId(@NotNull BigDecimal value, String fieldName) {
     super(value, fieldName, ZERO, false, null, null, 0);
   }
 
@@ -20,19 +21,21 @@ public class LongId extends SpecificNumber implements Identifier {
    * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 of（可靠输入） 静态方法 <br>
    * <br>
    */
+  protected static LongId of(@NotNull BigDecimal value, String fieldName) {
+    return new LongId(value, fieldName);
+  }
+
+  // 针对可靠输入的 of 方法
+  public static LongId of(long id) {
+    return of(new BigDecimal(id), "");
+  }
+
+  // 针对不可靠输入的 valueOf 方法
   public static LongId valueOf(Long l, String fieldName) {
-    return new LongId(parse(l, fieldName), fieldName);
+    return of(parse(l, fieldName), fieldName);
   }
 
   public static LongId valueOf(String s, String fieldName) {
-    return new LongId(parse(s, fieldName), fieldName);
-  }
-
-  public static LongId of(long id) {
-    return new LongId(new BigDecimal(id), "");
-  }
-
-  public static LongId of(BigDecimal id) {
-    return new LongId(id, "");
+    return of(parse(s, fieldName), fieldName);
   }
 }

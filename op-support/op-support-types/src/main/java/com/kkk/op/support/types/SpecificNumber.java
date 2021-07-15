@@ -3,6 +3,7 @@ package com.kkk.op.support.types;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.math.BigDecimal;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -14,8 +15,8 @@ import lombok.EqualsAndHashCode;
 public abstract class SpecificNumber implements Type {
 
   protected static final transient BigDecimal ZERO = BigDecimal.ZERO;
-  protected static final transient BigDecimal TEN = new BigDecimal("10");
-  protected static final transient BigDecimal ONE_HUNDRED = new BigDecimal("100");
+  protected static final transient BigDecimal TEN = new BigDecimal(10);
+  protected static final transient BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
   protected BigDecimal value;
 
@@ -29,16 +30,13 @@ public abstract class SpecificNumber implements Type {
    * @param scale 小数位
    */
   protected SpecificNumber(
-      BigDecimal value,
+      @NotNull BigDecimal value,
       String fieldName,
       BigDecimal min,
       Boolean includeMin,
       BigDecimal max,
       Boolean includeMax,
       int scale) {
-    if (value == null) {
-      throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }
     if (min != null) {
       var cmp = value.compareTo(min);
       if ((includeMin && cmp < 0) || (!includeMin && cmp <= 0)) {
@@ -57,15 +55,11 @@ public abstract class SpecificNumber implements Type {
     this.value = value;
   }
 
-  protected static BigDecimal parse(String s, String fieldName) {
-    if (s == null || s.isEmpty()) {
+  protected static BigDecimal parse(Integer i, String fieldName) {
+    if (i == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    try {
-      return new BigDecimal(s);
-    } catch (NumberFormatException e) {
-      throw IllegalArgumentExceptions.forMustNumber(fieldName);
-    }
+    return new BigDecimal(i);
   }
 
   protected static BigDecimal parse(Long l, String fieldName) {
@@ -75,11 +69,15 @@ public abstract class SpecificNumber implements Type {
     return new BigDecimal(l);
   }
 
-  protected static BigDecimal parse(Integer i, String fieldName) {
-    if (i == null) {
+  protected static BigDecimal parse(String s, String fieldName) {
+    if (s == null || s.isEmpty()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    return new BigDecimal(i);
+    try {
+      return new BigDecimal(s);
+    } catch (NumberFormatException e) {
+      throw IllegalArgumentExceptions.forMustNumber(fieldName);
+    }
   }
 
   public BigDecimal value() {

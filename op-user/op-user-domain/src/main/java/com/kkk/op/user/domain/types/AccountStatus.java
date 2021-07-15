@@ -4,6 +4,7 @@ import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.util.Arrays;
+import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -16,19 +17,37 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class AccountStatus implements Type {
 
-  @Getter protected final AccountStatusEnum value;
+  @Getter private final AccountStatusEnum value;
 
-  private AccountStatus(AccountStatusEnum value) {
+  private AccountStatus(@NotNull AccountStatusEnum value) {
     this.value = value;
+  }
+
+  /** 缓存内部类 */
+  private static class Cache {
+
+    static final AccountStatus[] cache;
+
+    static {
+      cache =
+          Arrays.stream(AccountStatusEnum.values())
+              .map(AccountStatus::new)
+              .toArray(AccountStatus[]::new); // 传入IntFunction 参数为数组大小
+    }
+  }
+
+  /** of方法和valueOf方法 */
+  public static AccountStatus of(@NotNull AccountStatusEnum accountStatusEnum) {
+    return Cache.cache[accountStatusEnum.ordinal()];
   }
 
   public static AccountStatus valueOf(String s, String fieldName) {
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    // valueOf 方法不会返回 null，会抛出异常
     try {
-      return Cache.get(AccountStatusEnum.valueOf(s));
+      // 如果不存在对应枚举，valueOf方法不会返回 null，而是抛出异常
+      return of(AccountStatusEnum.valueOf(s));
     } catch (IllegalArgumentException e) {
       throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
     }
@@ -38,27 +57,6 @@ public class AccountStatus implements Type {
     if (accountStatusEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    return Cache.get(accountStatusEnum);
-  }
-
-  public static AccountStatus of(AccountStatusEnum accountStatusEnum) {
-    return Cache.get(accountStatusEnum);
-  }
-
-  /** 参考Integer等添加一个缓存内部类 */
-  private static class Cache {
-
-    static final AccountStatus[] cache;
-
-    static {
-      // todo... 使用 Stream Collector
-      cache = new AccountStatus[AccountStatusEnum.values().length];
-      Arrays.stream(AccountStatusEnum.values())
-          .forEach(e -> cache[e.ordinal()] = new AccountStatus(e));
-    }
-
-    public static AccountStatus get(AccountStatusEnum accountStatusEnum) {
-      return cache[accountStatusEnum.ordinal()];
-    }
+    return of(accountStatusEnum);
   }
 }
