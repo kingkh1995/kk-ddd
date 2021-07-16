@@ -1,4 +1,4 @@
-package com.kkk.op.user.persistence;
+package com.kkk.op.user.persistence.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

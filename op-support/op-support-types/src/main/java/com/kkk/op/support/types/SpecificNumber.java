@@ -14,9 +14,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public abstract class SpecificNumber implements Type {
 
-  protected static final transient BigDecimal ZERO = BigDecimal.ZERO;
-  protected static final transient BigDecimal TEN = new BigDecimal(10);
-  protected static final transient BigDecimal ONE_HUNDRED = new BigDecimal(100);
+  protected static final BigDecimal ZERO = BigDecimal.ZERO;
+  protected static final BigDecimal TEN = new BigDecimal(10);
+  protected static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
   protected BigDecimal value;
 
@@ -55,6 +55,13 @@ public abstract class SpecificNumber implements Type {
     this.value = value;
   }
 
+  protected static BigDecimal parse(BigDecimal decimal, String fieldName) {
+    if (decimal == null) {
+      throw IllegalArgumentExceptions.forIsNull(fieldName);
+    }
+    return decimal;
+  }
+
   protected static BigDecimal parse(Integer i, String fieldName) {
     if (i == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
@@ -84,6 +91,7 @@ public abstract class SpecificNumber implements Type {
     return this.value;
   }
 
+  /** 不需要实现缓存 BigDecimal本身已实现缓存 */
   public int intValue() {
     return this.value.intValue();
   }

@@ -6,7 +6,7 @@ import com.kkk.op.support.tools.DateUtil;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountStatus;
-import com.kkk.op.user.persistence.AccountDO;
+import com.kkk.op.user.persistence.model.AccountDO;
 import java.util.Optional;
 
 /**

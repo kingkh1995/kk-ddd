@@ -75,7 +75,7 @@ public final class DateUtil {
   }
 
   public static LocalDateTime toLocalDateTime(Timestamp timestamp) {
-    return toLocalDateTime(timestamp, ZoneId.systemDefault());
+    return timestamp.toLocalDateTime();
   }
 
   public static LocalDate toLocalDate(Timestamp timestamp, @NotNull ZoneId zoneId) {

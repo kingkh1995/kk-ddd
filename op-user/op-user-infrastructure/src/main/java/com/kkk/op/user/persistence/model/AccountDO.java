@@ -1,4 +1,4 @@
-package com.kkk.op.user.persistence;
+package com.kkk.op.user.persistence.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -23,7 +23,8 @@ public class AccountDO {
 
   private String status;
 
-  // timestamp 和 datetime 均对应 Timestamp
+  // mybatis 中 datetime 和 timestimp 类型对应的 jdbcType 均为 Timestamp
+  // 数据库中除了 create_time update_time 等其他日期均使用 datetime
   private Timestamp createTime;
 
   // todo... 乐观锁及逻辑删除

@@ -2,7 +2,7 @@ package com.kkk.op.user.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.kkk.op.user.persistence.UserDO;
+import com.kkk.op.user.persistence.model.UserDO;
 import java.util.List;
 
 /**

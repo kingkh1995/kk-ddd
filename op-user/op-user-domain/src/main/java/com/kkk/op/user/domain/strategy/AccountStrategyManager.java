@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class AccountStrategyManager extends AbstractStrategyManager {
 
   // Modify Strategy  使用EnumMap
-  private final transient EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap =
+  private final EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap =
       new EnumMap<>(AccountStatusEnum.class);
 
   @Override

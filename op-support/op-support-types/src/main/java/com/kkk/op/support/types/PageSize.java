@@ -12,11 +12,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class PageSize extends SpecificNumber {
 
-  private static final transient PageSize DEFAULT_SIZE = new PageSize(TEN, "");
+  private static final PageSize DEFAULT_SIZE = new PageSize(TEN, "");
 
   // todo... 改为可配置，并且是不同项目不同配置
   // 默认最大查询条数
-  private static final transient BigDecimal MAX_SIZE = new BigDecimal(500);
+  private static final BigDecimal MAX_SIZE = new BigDecimal(500);
 
   private PageSize(@NotNull BigDecimal value, String fieldName) {
     super(value, fieldName, ZERO, false, MAX_SIZE, true, 0);
