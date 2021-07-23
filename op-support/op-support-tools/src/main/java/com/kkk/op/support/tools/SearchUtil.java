@@ -62,9 +62,6 @@ public final class SearchUtil {
 
   // 返回大于等于 length 的第一个斐波那契数的索引
   private static int getFibIndex(int length) {
-    if (length < 2) {
-      throw new IllegalArgumentException();
-    }
     if (length > FIB_MAX) {
       fibGrow(length);
     }

@@ -7,7 +7,6 @@ import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountStatus;
 import java.time.LocalDateTime;
-import javax.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -41,10 +40,10 @@ public class Account extends Entity<LongId> {
   }
 
   @Override
-  public void validate() throws ValidationException {
+  public void validate() {
     // userId不能为null
     if (this.userId == null) {
-      throw new ValidationException("userId不能为空");
+      throw new IllegalArgumentException("userId不能为空");
     }
   }
 

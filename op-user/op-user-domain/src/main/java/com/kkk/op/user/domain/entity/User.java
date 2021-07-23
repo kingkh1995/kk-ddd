@@ -3,7 +3,6 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.types.LongId;
 import java.util.List;
-import javax.validation.ValidationException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -49,5 +48,5 @@ public class User extends Aggregate<LongId> {
   }
 
   @Override
-  public void validate() throws ValidationException {}
+  public void validate() {}
 }
