@@ -14,6 +14,7 @@ import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.entity.User;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
@@ -74,7 +75,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
             var accountDO = accountDataConverter.toData(account);
             accountMapper.insert(accountDO);
             // 填补id
-            account.fillInId(LongId.of(accountDO.getId()));
+            account.fillInId(AccountId.of(accountDO.getId()));
           });
     }
   }
@@ -120,7 +121,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
           var accountDO = accountDataConverter.toData(newValue);
           accountMapper.insert(accountDO);
           // 填补id
-          newValue.fillInId(LongId.of(accountDO.getId()));
+          newValue.fillInId(AccountId.of(accountDO.getId()));
         }
         // 更新情况
         if (entityDiff.getType() == DiffType.Modified) {

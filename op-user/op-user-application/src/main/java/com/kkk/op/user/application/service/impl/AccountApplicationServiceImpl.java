@@ -7,6 +7,7 @@ import com.kkk.op.user.application.service.AccountApplicationService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
+import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,8 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
   }
 
   @Override
-  public void updateAccount(LongId userId, LongId accountId, AccountModifyCommand updateCommand) {
+  public void updateAccount(
+      LongId userId, AccountId accountId, AccountModifyCommand updateCommand) {
     // 转换对象
     var account = Account.builder().id(accountId).userId(userId).build();
     // 行为发生
@@ -50,18 +52,18 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
   }
 
   @Override
-  public void deleteAccount(LongId id) {
-    var account = Account.builder().id(id).build();
+  public void deleteAccount(AccountId accountId) {
+    var account = Account.builder().id(accountId).build();
     account.remove(accountService);
   }
 
   @Override
-  public AccountDTO queryAccount(LongId id) {
-    return accountDTOAssembler.toDTO(accountService.find(id));
+  public AccountDTO queryAccount(AccountId accountId) {
+    return accountDTOAssembler.toDTO(accountService.find(accountId));
   }
 
   @Override
-  public List<AccountDTO> queryAccountsByUserId(Long userId) {
+  public List<AccountDTO> queryAccounts(LongId userId) {
     // todo... 实现
     return null;
   }

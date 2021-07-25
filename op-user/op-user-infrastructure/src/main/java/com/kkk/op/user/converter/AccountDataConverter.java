@@ -5,6 +5,7 @@ import com.kkk.op.support.marker.DataConverter;
 import com.kkk.op.support.tools.DateUtil;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountStatus;
 import com.kkk.op.user.persistence.model.AccountDO;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
       return null;
     }
     var data = new AccountDO();
-    Optional.ofNullable(account.getId()).map(LongId::longValue).ifPresent(data::setId);
+    Optional.ofNullable(account.getId()).map(AccountId::longValue).ifPresent(data::setId);
     Optional.ofNullable(account.getUserId()).map(LongId::longValue).ifPresent(data::setUserId);
     Optional.ofNullable(account.getStatus())
         .map(AccountStatus::getValue)
@@ -41,7 +42,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
     Optional.ofNullable(data)
         .ifPresent(
             accountDO -> {
-              Optional.ofNullable(accountDO.getId()).map(LongId::of).ifPresent(builder::id);
+              Optional.ofNullable(accountDO.getId()).map(AccountId::of).ifPresent(builder::id);
               Optional.ofNullable(accountDO.getUserId()).map(LongId::of).ifPresent(builder::userId);
               Optional.ofNullable(accountDO.getStatus())
                   .filter(s -> !s.isBlank())

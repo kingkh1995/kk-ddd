@@ -4,13 +4,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.base.EntityRepositorySupport;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import org.springframework.stereotype.Repository;
  * @author KaiKoo
  */
 @Repository
-public class AccountRepositoryImpl extends EntityRepositorySupport<Account, LongId>
+public class AccountRepositoryImpl extends EntityRepositorySupport<Account, AccountId>
     implements AccountRepository {
 
   private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
@@ -38,8 +39,8 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
   }
 
   @Override
-  protected Account onSelect(@NotNull LongId longId) {
-    return accountDataConverter.fromData(accountMapper.selectById(longId.longValue()));
+  protected Account onSelect(@NotNull AccountId accountId) {
+    return accountDataConverter.fromData(accountMapper.selectById(accountId.longValue()));
   }
 
   @Override
@@ -52,7 +53,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
     var data = accountDataConverter.toData(entity);
     accountMapper.insert(data);
     // 填补id
-    entity.fillInId(LongId.of(data.getId()));
+    entity.fillInId(AccountId.of(data.getId()));
   }
 
   @Override
@@ -61,7 +62,9 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Long
   }
 
   @Override
-  protected List<Account> onSelectByIds(@NotEmpty Set<LongId> longIds) {
-    return accountDataConverter.fromData(accountMapper.selectBatchIds(longIds));
+  protected List<Account> onSelectByIds(@NotEmpty Set<AccountId> accountIds) {
+    var ids =
+        accountIds.stream().mapToLong(AccountId::longValue).boxed().collect(Collectors.toSet());
+    return accountDataConverter.fromData(accountMapper.selectBatchIds(ids));
   }
 }

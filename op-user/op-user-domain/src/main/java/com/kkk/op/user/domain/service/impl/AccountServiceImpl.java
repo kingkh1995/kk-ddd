@@ -1,9 +1,9 @@
 package com.kkk.op.user.domain.service.impl;
 
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountStrategyManager;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Account find(@NotNull LongId id) {
+  public Account find(@NotNull AccountId id) {
     return accountRepository.find(id);
   }
 
@@ -50,8 +50,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public List<Account> list(@NotEmpty Set<LongId> longIds) {
-    return null;
+  public List<Account> list(@NotEmpty Set<AccountId> accountIds) {
+    return accountRepository.list(accountIds);
   }
 
   @Override

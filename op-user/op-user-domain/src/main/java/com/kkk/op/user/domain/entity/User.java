@@ -25,17 +25,17 @@ public class User extends Aggregate<LongId> {
   @Setter(AccessLevel.PROTECTED)
   private LongId id;
 
-  private final String name;
+  private String name;
 
-  private final String username;
+  private String username;
 
-  private final String password;
+  private String password;
 
-  private final String gender;
+  private String gender;
 
-  private final Byte age;
+  private Byte age;
 
-  private final String email;
+  private String email;
 
   /** 用户账号 */
   @Setter private List<Account> accounts;

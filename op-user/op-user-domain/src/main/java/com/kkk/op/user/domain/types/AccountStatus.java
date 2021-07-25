@@ -15,7 +15,7 @@ import lombok.Getter;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-public class AccountStatus implements Type {
+public final class AccountStatus implements Type {
 
   @Getter private final AccountStatusEnum value;
 
@@ -41,7 +41,8 @@ public class AccountStatus implements Type {
     return Cache.cache[accountStatusEnum.ordinal()];
   }
 
-  public static AccountStatus valueOf(String s, String fieldName) {
+  public static AccountStatus from(String s) {
+    var fieldName = "accountStatus";
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
@@ -53,7 +54,8 @@ public class AccountStatus implements Type {
     }
   }
 
-  public static AccountStatus valueOf(AccountStatusEnum accountStatusEnum, String fieldName) {
+  public static AccountStatus from(AccountStatusEnum accountStatusEnum) {
+    var fieldName = "accountStatusEnum";
     if (accountStatusEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }

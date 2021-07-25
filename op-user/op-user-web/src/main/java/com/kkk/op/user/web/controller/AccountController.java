@@ -6,6 +6,7 @@ import com.kkk.op.support.models.command.UpdateGroup;
 import com.kkk.op.support.models.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
+import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
 import javax.validation.constraints.Min;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,7 @@ public class AccountController {
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
     log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId, updateCommand);
     service.updateAccount(
-        LongId.valueOf(userId, "userId"), LongId.valueOf(accountId, "accountId"), updateCommand);
+        LongId.valueOf(userId, "userId"), AccountId.from(accountId), updateCommand);
   }
 
   /** Delete 删除资源 */
@@ -65,7 +66,7 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     log.info("userId：{}，delete account by accountId；{}", userId, accountId);
-    service.deleteAccount(LongId.valueOf(accountId, "accountId"));
+    service.deleteAccount(AccountId.from(accountId));
   }
 
   /** GET 获取资源 */
@@ -75,13 +76,13 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     log.info("userId：{}，query account by accountId；{}", userId, accountId);
-    return service.queryAccount(LongId.valueOf(accountId, "accountId"));
+    return service.queryAccount(AccountId.from(accountId));
   }
 
   /** 查询用户下的所有账号 */
   @GetMapping("/user/{userId}/accounts")
-  public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
+  public List<AccountDTO> queryByUserId(@PathVariable String userId) {
     log.info("query accounts by userId:{}", userId);
-    return service.queryAccountsByUserId(userId);
+    return service.queryAccounts(LongId.valueOf(userId, "userId"));
   }
 }

@@ -5,6 +5,7 @@ import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountStatus;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -23,12 +24,12 @@ import lombok.ToString;
 @ToString
 @Getter
 @Builder
-public class Account extends Entity<LongId> {
+public class Account extends Entity<AccountId> {
 
   @Setter(AccessLevel.PROTECTED)
-  private LongId id;
+  private AccountId id;
 
-  private final LongId userId;
+  private LongId userId;
 
   private AccountStatus status;
 

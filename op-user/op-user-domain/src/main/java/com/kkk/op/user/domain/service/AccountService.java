@@ -1,8 +1,8 @@
 package com.kkk.op.user.domain.service;
 
 import com.kkk.op.support.marker.EntityService;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.user.domain.types.AccountId;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public interface AccountService extends EntityService<Account, LongId> {
+public interface AccountService extends EntityService<Account, AccountId> {
 
   /** 判断是否允许更新 */
   boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount);

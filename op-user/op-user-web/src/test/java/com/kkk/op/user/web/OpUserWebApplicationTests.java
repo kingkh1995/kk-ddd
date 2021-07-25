@@ -1,11 +1,12 @@
 package com.kkk.op.user.web;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
+import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
-import javax.validation.Validator;
+import com.kkk.op.user.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,13 +20,14 @@ class OpUserWebApplicationTests {
 
   @Autowired AccountMapper accountMapper;
 
-  @Autowired Validator validator;
+  @Autowired AccountRepository accountRepository;
 
   @Test
   void test() throws JsonProcessingException {
     var objectMapper = new ObjectMapper();
     System.out.println(objectMapper.writeValueAsString(userMapper.selectByGender("MALE")));
-    System.out.println(
-        objectMapper.writeValueAsString(accountMapper.selectList(Wrappers.emptyWrapper())));
+    var list =
+        accountRepository.list(
+            ImmutableSet.of(AccountId.of(1l), AccountId.of(2l), AccountId.of(3l)));
   }
 }
