@@ -25,11 +25,24 @@ public final class DateUtil {
     throw new IllegalAccessException();
   }
 
-  // from epochMilli
-  private static ZonedDateTime atZone(long epochMilli, @NotNull ZoneId zoneId) {
+  // atZone
+  public static ZonedDateTime atZone(LocalDate localDate, @NotNull ZoneId zoneId) {
+    return localDate.atStartOfDay(zoneId);
+  }
+
+  public static ZonedDateTime atZone(LocalDateTime localDateTime, @NotNull ZoneId zoneId) {
+    return localDateTime.atZone(zoneId);
+  }
+
+  public static ZonedDateTime atZone(long epochMilli, @NotNull ZoneId zoneId) {
     return Instant.ofEpochMilli(epochMilli).atZone(zoneId);
   }
 
+  public static ZonedDateTime atZone(Timestamp timestamp, @NotNull ZoneId zoneId) {
+    return timestamp.toInstant().atZone(zoneId);
+  }
+
+  // from epochMilli
   public static LocalDateTime toLocalDateTime(long epochMilli, @NotNull ZoneId zoneId) {
     return atZone(epochMilli, zoneId).toLocalDateTime();
   }
@@ -49,7 +62,7 @@ public final class DateUtil {
 
   // to epochMilli
   public static long toEpochMilli(@NotNull LocalDateTime localDateTime, @NotNull ZoneId zoneId) {
-    return localDateTime.atZone(zoneId).toInstant().toEpochMilli();
+    return atZone(localDateTime, zoneId).toInstant().toEpochMilli();
   }
 
   public static long toEpochMilli(@NotNull LocalDateTime localDateTime) {
@@ -57,7 +70,7 @@ public final class DateUtil {
   }
 
   public static long toEpochMilli(@NotNull LocalDate localDate, @NotNull ZoneId zoneId) {
-    return localDate.atStartOfDay(zoneId).toInstant().toEpochMilli();
+    return atZone(localDate, zoneId).toInstant().toEpochMilli();
   }
 
   public static long toEpochMilli(@NotNull LocalDate localDate) {
@@ -66,9 +79,6 @@ public final class DateUtil {
   // -----------------------------------------------------------------------------------------------
 
   // from Timestamp
-  private static ZonedDateTime atZone(Timestamp timestamp, @NotNull ZoneId zoneId) {
-    return timestamp.toInstant().atZone(zoneId);
-  }
 
   public static LocalDateTime toLocalDateTime(Timestamp timestamp, @NotNull ZoneId zoneId) {
     return atZone(timestamp, zoneId).toLocalDateTime();
@@ -90,7 +100,7 @@ public final class DateUtil {
   // to Timestamp
   public static Timestamp toTimestamp(
       @NotNull LocalDateTime localDateTime, @NotNull ZoneId zoneId) {
-    return Timestamp.from(localDateTime.atZone(zoneId).toInstant());
+    return Timestamp.from(atZone(localDateTime, zoneId).toInstant());
   }
 
   public static Timestamp toTimestamp(@NotNull LocalDateTime localDateTime) {
@@ -99,7 +109,7 @@ public final class DateUtil {
 
   public static Timestamp toTimestamp(
       @NotNull @NotNull LocalDate localDate, @NotNull ZoneId zoneId) {
-    return Timestamp.from(localDate.atStartOfDay(zoneId).toInstant());
+    return Timestamp.from(atZone(localDate, zoneId).toInstant());
   }
 
   public static Timestamp toTimestamp(@NotNull @NotNull LocalDate localDate) {

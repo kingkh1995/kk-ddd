@@ -54,4 +54,24 @@ public final class IllegalArgumentExceptions {
     var message = fieldName + (scale == 0 ? "必须为整数" : "只能保留" + scale + "位小数");
     return new IllegalArgumentException(message);
   }
+
+  public static IllegalArgumentException requireFuture(
+      String fieldName, boolean includePresent, boolean obtainTime) {
+    var message =
+        new StringBuilder(fieldName)
+            .append(includePresent ? "不能早于" : "必须晚于")
+            .append(obtainTime ? "当前时间" : "今天")
+            .toString();
+    return new IllegalArgumentException(message);
+  }
+
+  public static IllegalArgumentException requirePast(
+      String fieldName, boolean includePresent, boolean obtainTime) {
+    var message =
+        new StringBuilder(fieldName)
+            .append(includePresent ? "不能晚于" : "必须早于")
+            .append(obtainTime ? "当前时间" : "今天")
+            .toString();
+    return new IllegalArgumentException(message);
+  }
 }

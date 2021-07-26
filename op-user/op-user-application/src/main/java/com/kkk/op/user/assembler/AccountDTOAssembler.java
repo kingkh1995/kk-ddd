@@ -46,7 +46,7 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
     Optional.ofNullable(dto)
         .ifPresent(
             accountDTO -> {
-              Optional.ofNullable(accountDTO.getId()).map(AccountId::from).ifPresent(builder::id);
+              Optional.ofNullable(accountDTO.getId()).map(AccountId::valueOf).ifPresent(builder::id);
               Optional.ofNullable(accountDTO.getUserId())
                   .map(userId -> LongId.valueOf(userId, "userId"))
                   .ifPresent(builder::userId);

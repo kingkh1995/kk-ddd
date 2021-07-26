@@ -28,7 +28,7 @@ public enum UserDataConverter implements DataConverter<User, UserDO> {
   public User fromData(UserDO data) {
     var builder = User.builder();
     if (data != null) {
-      builder.id(Optional.ofNullable(data.getId()).map(LongId::of).orElse(null));
+      builder.id(Optional.ofNullable(data.getId()).map(LongId::from).orElse(null));
       return builder.build();
     }
     return builder.build();

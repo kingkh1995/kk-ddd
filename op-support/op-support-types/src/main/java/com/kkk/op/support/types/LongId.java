@@ -18,15 +18,15 @@ public class LongId extends SpecificNumber implements Identifier {
   }
 
   /**
-   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 of（可靠输入） 静态方法 <br>
-   * <br>
+   * 内部实现提供私有的 of 静态方法 <br>
+   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 from（可靠输入） 静态方法 <br>
    */
-  protected static LongId of(@NotNull BigDecimal value, String fieldName) {
+  private static LongId of(@NotNull BigDecimal value, String fieldName) {
     return new LongId(value, fieldName);
   }
 
-  // 针对可靠输入的 of 方法
-  public static LongId of(long id) {
+  // 针对可靠输入的 from 方法
+  public static LongId from(long id) {
     return of(new BigDecimal(id), "");
   }
 

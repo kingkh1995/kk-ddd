@@ -42,8 +42,8 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
     Optional.ofNullable(data)
         .ifPresent(
             accountDO -> {
-              Optional.ofNullable(accountDO.getId()).map(AccountId::of).ifPresent(builder::id);
-              Optional.ofNullable(accountDO.getUserId()).map(LongId::of).ifPresent(builder::userId);
+              Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
+              Optional.ofNullable(accountDO.getUserId()).map(LongId::from).ifPresent(builder::userId);
               Optional.ofNullable(accountDO.getStatus())
                   .filter(s -> !s.isBlank())
                   .map(AccountStatusEnum::valueOf)

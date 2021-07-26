@@ -21,17 +21,15 @@ public final class AccountId extends LongId {
     return new AccountId(value);
   }
 
-  // 针对可靠输入的 of 方法
-  public static AccountId of(long id) {
+  public static AccountId from(long id) {
     return new AccountId(new BigDecimal(id));
   }
 
-  // 针对不可靠输入的 valueOf 方法
-  public static AccountId from(Long l) {
+  public static AccountId valueOf(Long l) {
     return of(parse(l, "accountId"));
   }
 
-  public static AccountId from(String s) {
+  public static AccountId valueOf(String s) {
     return of(parse(s, "accountId"));
   }
 }

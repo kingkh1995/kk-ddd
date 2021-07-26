@@ -66,7 +66,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     var userDO = userDataConverter.toData(aggregate);
     userMapper.insert(userDO);
     // 填补id
-    aggregate.fillInId(LongId.of(userDO.getId()));
+    aggregate.fillInId(LongId.from(userDO.getId()));
     // 循环插入Account
     var accounts = aggregate.getAccounts();
     if (!CollectionUtils.isEmpty(accounts)) {
@@ -75,7 +75,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
             var accountDO = accountDataConverter.toData(account);
             accountMapper.insert(accountDO);
             // 填补id
-            account.fillInId(AccountId.of(accountDO.getId()));
+            account.fillInId(AccountId.from(accountDO.getId()));
           });
     }
   }
@@ -121,7 +121,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
           var accountDO = accountDataConverter.toData(newValue);
           accountMapper.insert(accountDO);
           // 填补id
-          newValue.fillInId(AccountId.of(accountDO.getId()));
+          newValue.fillInId(AccountId.from(accountDO.getId()));
         }
         // 更新情况
         if (entityDiff.getType() == DiffType.Modified) {

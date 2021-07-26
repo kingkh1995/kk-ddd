@@ -18,7 +18,7 @@ public abstract class SpecificNumber implements Type {
   protected static final BigDecimal TEN = new BigDecimal(10);
   protected static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
-  protected BigDecimal value;
+  protected final BigDecimal value;
 
   /**
    * @param value 数值
@@ -91,7 +91,10 @@ public abstract class SpecificNumber implements Type {
     return this.value;
   }
 
-  /** 不需要实现缓存 BigDecimal本身已实现缓存 */
+  /**
+   * 以下方法不需要实现缓存 <br>
+   * 因为BigDecimal本身已实现缓存 <br>
+   */
   public int intValue() {
     return this.value.intValue();
   }
