@@ -31,12 +31,15 @@ public abstract class SpecificDateTime {
       Boolean includePresent) {
     // 忽略毫秒值
     if (current != null) {
-      // 先对比日期 再对比时间 且对比时只对比到秒
+      // 先对比日期 再对比时间
       var zonedCurrent = current.atZone(value.getZone());
       var cmp = value.toLocalDate().compareTo(zonedCurrent.toLocalDate());
-      // 包含时间并且日期相等继续对比时间
+      // 包含时间并且日期相等 则继续对比时间
       if (obtainTime && cmp == 0) {
-        cmp = value.toLocalTime().withNano(0).compareTo(zonedCurrent.toLocalTime().withNano(0));
+        // 对比时只对比到秒
+        cmp =
+            Integer.compare(
+                value.toLocalTime().toSecondOfDay(), zonedCurrent.toLocalTime().toSecondOfDay());
       }
       if (!(includePresent && cmp == 0)) {
         if (future && cmp < 1) {
