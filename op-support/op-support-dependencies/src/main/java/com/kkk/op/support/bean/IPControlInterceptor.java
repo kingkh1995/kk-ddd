@@ -3,9 +3,10 @@ package com.kkk.op.support.bean;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.RateLimiter;
-import java.util.List;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,8 +45,9 @@ public class IPControlInterceptor implements HandlerInterceptor {
           .build(CacheLoader.from(() -> RateLimiter.create(1D)));
 
   // 对写请求做IP限流
-  private static final List<? extends HttpMethod> METHODS =
-      ImmutableList.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH);
+  private static final Set<? extends HttpMethod> METHODS =
+      Collections.unmodifiableSet(
+          EnumSet.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE));
 
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

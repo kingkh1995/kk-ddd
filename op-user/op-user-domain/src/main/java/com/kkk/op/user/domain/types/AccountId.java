@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public final class AccountId extends LongId {
 
-  protected AccountId(BigDecimal value) {
+  private AccountId(BigDecimal value) {
     super(value, "accountId");
   }
 

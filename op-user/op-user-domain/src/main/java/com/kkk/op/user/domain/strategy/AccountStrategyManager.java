@@ -5,7 +5,10 @@ import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.strategy.modify.AccountModifyStrategy;
 import java.util.EnumMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,21 +21,22 @@ import org.springframework.stereotype.Component;
 public class AccountStrategyManager extends AbstractStrategyManager {
 
   // Modify Strategy  使用EnumMap
-  private final EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap =
-      new EnumMap<>(AccountStatusEnum.class);
+  public EnumMap<AccountStatusEnum, AccountModifyStrategy> modifyStrategyMap;
 
   @Override
   public void afterPropertiesSet() {
-    if (!this.modifyStrategyMap.isEmpty()) {
+    if (this.modifyStrategyMap != null) {
       return;
     }
     // 构造map
-    this.applicationContext
-        .getBeansOfType(AccountModifyStrategy.class)
-        .forEach(
-            (s, accountModifyStrategy) ->
-                this.modifyStrategyMap.put(
-                    accountModifyStrategy.getStatusEnum(), accountModifyStrategy));
+    this.modifyStrategyMap =
+        this.applicationContext.getBeansOfType(AccountModifyStrategy.class).values().stream()
+            .collect(
+                Collectors.toMap(
+                    AccountModifyStrategy::getStatusEnum,
+                    Function.identity(),
+                    (s, s2) -> s.getClass().getAnnotation(Primary.class) == null ? s2 : s,
+                    () -> new EnumMap<>(AccountStatusEnum.class)));
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {

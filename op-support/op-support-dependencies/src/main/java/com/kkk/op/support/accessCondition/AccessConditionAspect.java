@@ -3,6 +3,7 @@ package com.kkk.op.support.accessCondition;
 import com.kkk.op.support.annotations.AccessCondition;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -35,7 +36,7 @@ public class AccessConditionAspect implements InitializingBean, ApplicationConte
     }
     this.pluginMap =
         this.applicationContext.getBeansOfType(AccessConditionCheckPlugin.class).values().stream()
-            .collect(Collectors.toMap(AccessConditionCheckPlugin::name, plugin -> plugin));
+            .collect(Collectors.toMap(AccessConditionCheckPlugin::name, Function.identity()));
   }
 
   @Override
