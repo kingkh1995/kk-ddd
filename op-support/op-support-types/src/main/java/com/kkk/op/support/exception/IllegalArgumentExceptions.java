@@ -50,9 +50,16 @@ public final class IllegalArgumentExceptions {
     return new IllegalArgumentException(message);
   }
 
-  public static IllegalArgumentException forAtMostScale(String fieldName, int scale) {
-    var message = fieldName + (scale == 0 ? "必须为整数" : "只能保留" + scale + "位小数");
-    return new IllegalArgumentException(message);
+  public static IllegalArgumentException forScaleAbove(String fieldName, int scale) {
+    var message = new StringBuilder(fieldName);
+    if (scale == 0) {
+      message.append("必须为整数");
+    } else if (scale > 0) {
+      message.append("最多只能保留").append(scale).append("位小数");
+    } else {
+      message.append("整数位最后").append(-scale).append("位必须为0且不能含有小数位");
+    }
+    return new IllegalArgumentException(message.toString());
   }
 
   public static IllegalArgumentException requireFuture(

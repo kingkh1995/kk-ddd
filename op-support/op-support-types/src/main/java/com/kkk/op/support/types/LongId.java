@@ -27,7 +27,7 @@ public class LongId extends SpecificNumber implements Identifier {
 
   // 针对可靠输入的 from 方法
   public static LongId from(long id) {
-    return of(new BigDecimal(id), "");
+    return of(new BigDecimal(id), null);
   }
 
   // 针对不可靠输入的 valueOf 方法

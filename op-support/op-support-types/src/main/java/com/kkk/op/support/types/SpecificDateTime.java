@@ -1,11 +1,13 @@
 package com.kkk.op.support.types;
 
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
+import com.kkk.op.support.marker.Type;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import org.springframework.lang.Nullable;
@@ -16,7 +18,7 @@ import org.springframework.lang.Nullable;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-public abstract class SpecificDateTime {
+public abstract class SpecificDateTime implements Type {
 
   protected final ZonedDateTime value;
 
@@ -49,7 +51,7 @@ public abstract class SpecificDateTime {
         }
       }
     }
-    this.value = value;
+    this.value = Objects.requireNonNull(value);
     this.obtainTime = obtainTime;
   }
 

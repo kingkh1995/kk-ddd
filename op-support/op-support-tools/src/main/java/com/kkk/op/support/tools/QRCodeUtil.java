@@ -52,7 +52,10 @@ public final class QRCodeUtil {
   // 默认logo圆角度数
   private static final int DEFAULT_CORNER_RADIUS = 30;
 
-  /** 生成带二维码并转换为Base64字符串输出 */
+  /**
+   * 生成带二维码并转换为Base64字符串输出 <br>
+   * 在编码生成的字符串前部添加加密信息供前端解析（如jpg文件：data:image/jpg;base64）
+   */
   public static String generateQRCodeToBase64Str(@NotBlank String text) {
     try (var bos = new ByteArrayOutputStream()) {
       generateQRCodeToStream(text, bos);

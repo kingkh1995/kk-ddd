@@ -3,6 +3,7 @@ package com.kkk.op.support.types;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.math.BigDecimal;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
 public abstract class SpecificNumber implements Type {
 
   protected static final BigDecimal ZERO = BigDecimal.ZERO;
-  protected static final BigDecimal TEN = new BigDecimal(10);
+  protected static final BigDecimal TEN = BigDecimal.TEN;
   protected static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
   protected final BigDecimal value;
@@ -36,7 +37,7 @@ public abstract class SpecificNumber implements Type {
       Boolean includeMin,
       BigDecimal max,
       Boolean includeMax,
-      int scale) {
+      Integer scale) {
     if (min != null) {
       var cmp = value.compareTo(min);
       if ((includeMin && cmp < 0) || (!includeMin && cmp <= 0)) {
@@ -49,10 +50,15 @@ public abstract class SpecificNumber implements Type {
         throw IllegalArgumentExceptions.forMaxValue(fieldName, max, includeMax);
       }
     }
-    if (value.scale() > scale) {
-      throw IllegalArgumentExceptions.forAtMostScale(fieldName, scale);
+    if (scale != null) {
+      // 先去掉尾部的0 并可能会被转为科学计数法表示
+      value = value.stripTrailingZeros();
+      if (value.scale() > scale) {
+        throw IllegalArgumentExceptions.forScaleAbove(fieldName, scale);
+      }
+      value = value.setScale(scale); // 最后设置sacle补全后面的0 同时保证scale非负时为原生数字表示 负数则为科学计数法表示
     }
-    this.value = value;
+    this.value = Objects.requireNonNull(value);
   }
 
   protected static BigDecimal parse(BigDecimal decimal, String fieldName) {
@@ -103,7 +109,11 @@ public abstract class SpecificNumber implements Type {
     return this.value.longValue();
   }
 
+  private transient String plainStringCache; // plainString缓存 BigDecimal有toString缓存
+
   public String stringValue() {
+    // toString可能会是科学计数法表示 1、使用科学计数法表示创建对象；2、scale设置为负数；3、执行stripTrailingZeros
+    // toPlainString则将会是原生数字表示而不是科学计数法
     return this.value.toString();
   }
 }

@@ -4,6 +4,7 @@ import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.util.Arrays;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public final class AccountStatus implements Type {
 
   /** of方法和valueOf方法 */
   public static AccountStatus of(@NotNull AccountStatusEnum accountStatusEnum) {
-    return Cache.cache[accountStatusEnum.ordinal()];
+    return Cache.cache[Objects.requireNonNull(accountStatusEnum).ordinal()];
   }
 
   public static AccountStatus from(String s) {
