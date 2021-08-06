@@ -109,8 +109,6 @@ public abstract class SpecificNumber implements Type {
     return this.value.longValue();
   }
 
-  private transient String plainStringCache; // plainString缓存 BigDecimal有toString缓存
-
   public String stringValue() {
     // toString可能会是科学计数法表示 1、使用科学计数法表示创建对象；2、scale设置为负数；3、执行stripTrailingZeros
     // toPlainString则将会是原生数字表示而不是科学计数法

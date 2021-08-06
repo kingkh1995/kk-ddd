@@ -35,7 +35,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
   @Getter(AccessLevel.PROTECTED)
-  private final Class<?> tClazz;
+  private final Class<T> tClazz;
 
   @Getter(AccessLevel.PROTECTED)
   private final DistributedLock distributedLock;
@@ -57,7 +57,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
     // 设置tClazz
-    this.tClazz = (Class<?>) type.getActualTypeArguments()[0];
+    this.tClazz = (Class<T>) type.getActualTypeArguments()[0];
     var split = this.tClazz.getCanonicalName().split("\\.");
     var className = split[split.length - 1];
     // 设置cacheKeyPrefix
