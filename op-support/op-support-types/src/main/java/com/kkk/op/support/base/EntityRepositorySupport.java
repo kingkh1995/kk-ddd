@@ -35,7 +35,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
   @Getter(AccessLevel.PROTECTED)
-  private final Class<T> tClazz;
+  private final Class<T> tClass;
 
   @Getter(AccessLevel.PROTECTED)
   private final DistributedLock distributedLock;
@@ -56,9 +56,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.autocached = this.getClass().getAnnotation(AutoCached.class) != null;
     // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
-    // 设置tClazz
-    this.tClazz = (Class<T>) type.getActualTypeArguments()[0];
-    var split = this.tClazz.getCanonicalName().split("\\.");
+    // 设置tClass 参数化类型获取实际Type
+    this.tClass = (Class<T>) type.getActualTypeArguments()[0];
+    var split = this.tClass.getCanonicalName().split("\\.");
     var className = split[split.length - 1];
     // 设置cacheKeyPrefix
     this.cacheKeyPrefix =
@@ -111,7 +111,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public T cacheGet(@NotNull ID id) {
-    return (T) this.getCacheManager().get(this.generateCacheKey(id), this.getTClazz());
+    return (T) this.getCacheManager().get(this.generateCacheKey(id), this.getTClass());
   }
 
   @Override

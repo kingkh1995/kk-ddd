@@ -5,7 +5,6 @@ import com.kkk.op.support.enums.AccountStatusEnum;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.strategy.modify.AccountModifyStrategy;
 import java.util.EnumSet;
-import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -18,15 +17,12 @@ import org.springframework.stereotype.Component;
 public class AccountStrategyManager
     extends AbstractStrategyManager<AccountStatusEnum, AccountModifyStrategy> {
 
-  private AccountStrategyManager() {
+  public AccountStrategyManager() {
     // 设置收集方案
     super(EnumSet.allOf(CollectTactic.class));
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    var accountModifyStrategy = this.getSingleton(oldAccount.getStatus().getValue());
-    return Objects.nonNull(accountModifyStrategy)
-        ? accountModifyStrategy.allowModify(oldAccount, newAccount)
-        : false;
+    return this.getSingleton(oldAccount.getStatus().getValue()).allowModify(oldAccount, newAccount);
   }
 }

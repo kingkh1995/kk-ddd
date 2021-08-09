@@ -70,7 +70,15 @@ public class BaseExceptionHandler {
   @ExceptionHandler(BussinessException.class)
   @ResponseStatus(HttpStatus.OK)
   public String handleBussinessException(BussinessException exception) {
-    log.warn("BussinessException =>", exception);
+    log.error("BussinessException =>", exception);
     return exception.getMessage();
+  }
+
+  // 兜底500异常
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public String handlesException(BussinessException exception) {
+    log.error("Exception =>", exception);
+    return "服务器开小差了，请稍后再试！";
   }
 }

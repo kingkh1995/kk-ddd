@@ -17,7 +17,7 @@ public abstract class ApplicationContextAwareBean
   private ApplicationContext applicationContext;
 
   protected ApplicationContext getApplicationContext() {
-    return Objects.requireNonNull(applicationContext);
+    return Objects.requireNonNull(this.applicationContext);
   }
 
   @Override

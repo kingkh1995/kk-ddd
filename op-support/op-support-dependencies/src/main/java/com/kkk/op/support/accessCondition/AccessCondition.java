@@ -1,4 +1,4 @@
-package com.kkk.op.support.annotations;
+package com.kkk.op.support.accessCondition;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -18,6 +18,6 @@ public @interface AccessCondition {
 
   String DEFUALT = "default";
 
-  /** 逻辑条件组合表达式（仅支持 && 和 ||） */
+  /** 逻辑条件组合表达式（支持 &&、||、!） */
   String condition() default DEFUALT;
 }

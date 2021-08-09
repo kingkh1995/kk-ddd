@@ -8,7 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 策略实现类mock <br>
+ * 策略实现类Mock类 <br>
  *
  * @author KaiKoo
  */

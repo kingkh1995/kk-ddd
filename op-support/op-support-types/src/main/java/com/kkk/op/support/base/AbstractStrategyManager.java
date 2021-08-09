@@ -13,13 +13,15 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * 策略模式Manager公共基类
+ * 策略模式Manager公共基类 <br>
+ * （使用工厂方法模式：工厂类定义创造产品的接口，由子类去去决定实例化的产品类型。）
  *
  * @author KaiKoo
  */
@@ -31,7 +33,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
    * 均使用EnumMap收集
    */
   protected enum CollectTactic {
-    /** 只收集单个实现，优先收集@Primary修饰的类 */
+    /** 只收集单个实现，优先收集@Primary注解的实现 */
     PRIMARY,
     /** 全部收集为list，并按@Order注解的值排列 */
     ORDER,
@@ -43,11 +45,11 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
   private final Class<T> tClass;
   private final Class<S> sClass;
   private Collection<S> strategys;
-  private Map<T, S> primaryStrategyMap;
-  private Map<T, List<S>> orderStrategyMap;
-  private Map<T, Map<String, S>> qualifierStrategyMap;
+  private Map<T, S> primaryMap;
+  private Map<T, List<S>> orderMap;
+  private Map<T, Map<String, S>> qualifierMap;
 
-  protected AbstractStrategyManager(@NotEmpty Set<CollectTactic> collectTactics) {
+  public AbstractStrategyManager(@NotEmpty Set<CollectTactic> collectTactics) {
     if (collectTactics == null || collectTactics.isEmpty()) {
       throw new NullPointerException("collectTactics is empty!");
     }
@@ -73,7 +75,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
   private void collecting() {
     // primary
     if (this.collectTactics.contains(CollectTactic.PRIMARY)) {
-      this.primaryStrategyMap =
+      this.primaryMap =
           this.strategys.stream()
               .collect(
                   Collectors.toMap(
@@ -84,7 +86,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
     }
     // order 先分组收集为list再排序并转换为UnmodifiableList
     if (this.collectTactics.contains(CollectTactic.ORDER)) {
-      this.orderStrategyMap =
+      this.orderMap =
           this.strategys.stream()
               .collect(
                   Collectors.groupingBy(
@@ -103,38 +105,36 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
                                                   .orElse(Ordered.LOWEST_PRECEDENCE)))
                                   .collect(Collectors.toUnmodifiableList()))));
     }
-    // qualifier 先分组收集为list再收集为UnmodifiableMap
+    // 先分组，再将子组收集为UnmodifiableMap
     if (this.collectTactics.contains(CollectTactic.QUALIFIER)) {
-      this.qualifierStrategyMap =
+      this.qualifierMap =
           this.strategys.stream()
               .collect(
                   Collectors.groupingBy(
                       Strategy::getStrategyID,
                       () -> new EnumMap<>(this.tClass),
-                      Collectors.collectingAndThen(
-                          Collectors.toList(),
-                          ss ->
-                              ss.stream()
-                                  .collect(
-                                      Collectors.toUnmodifiableMap(
-                                          s ->
-                                              Optional.ofNullable(
-                                                      s.getClass().getAnnotation(Qualifier.class))
-                                                  .map(Qualifier::value)
-                                                  .orElse("default"),
-                                          Function.identity())))));
+                      Collectors.toUnmodifiableMap(
+                          s ->
+                              Optional.ofNullable(s.getClass().getAnnotation(Qualifier.class))
+                                  .map(Qualifier::value)
+                                  .orElse("default"),
+                          Function.identity())));
     }
   }
 
-  protected S getSingleton(T t) {
-    return Objects.requireNonNull(this.primaryStrategyMap).get(t);
+  /**
+   * 根据策略枚举值获取收集到的策略实现类 <br>
+   * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
+   */
+  protected @NotNull S getSingleton(T t) {
+    return Objects.requireNonNull(Objects.requireNonNull(this.primaryMap).get(t));
   }
 
-  protected List<S> getList(T t) {
-    return Objects.requireNonNull(this.orderStrategyMap).get(t);
+  protected @NotEmpty List<S> getList(T t) {
+    return Objects.requireNonNull(Objects.requireNonNull(this.orderMap).get(t));
   }
 
-  protected Map<String, S> getMap(T t) {
-    return Objects.requireNonNull(this.qualifierStrategyMap).get(t);
+  protected @NotNull Map<String, S> getMap(T t) {
+    return Objects.requireNonNull(Objects.requireNonNull(this.qualifierMap).get(t));
   }
 }
