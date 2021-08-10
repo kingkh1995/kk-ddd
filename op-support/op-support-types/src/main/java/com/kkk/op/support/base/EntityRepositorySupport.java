@@ -1,7 +1,6 @@
 package com.kkk.op.support.base;
 
-import com.kkk.op.support.annotations.AutoCached;
-import com.kkk.op.support.exception.BussinessException;
+import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.DistributedLock;
@@ -153,7 +152,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
                   }
                 });
     if (!finished) {
-      throw new BussinessException("尝试的人太多了，请稍后再试！");
+      throw new BusinessException("尝试的人太多了，请稍后再试！");
     }
   }
 
@@ -182,7 +181,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
                   }
                 });
     if (!finished) {
-      throw new BussinessException("尝试的人太多了，请稍后再试！");
+      throw new BusinessException("尝试的人太多了，请稍后再试！");
     }
   }
 

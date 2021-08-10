@@ -2,8 +2,12 @@ package com.kkk.op.user.web.configuration;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
+import com.kkk.op.support.bean.Uson;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.mock.MockCacheManager;
@@ -91,5 +95,21 @@ public class BaseConfiguration implements WebMvcConfigurer {
     //    commonsMultipartResolver.setUploadTempDir(); // 设置文件的临时目录 默认为系统变量java.io.tempdir的值
     commonsMultipartResolver.setMaxInMemorySize(10240); // 设置文件上传至内存阈值 默认超出10kb则解析到磁盘
     return commonsMultipartResolver;
+  }
+
+  // 添加jackson的ObjectMapper针对json的JsonMapper子类bean
+  @Bean
+  public JsonMapper jsonMapper() {
+    // todo... 序列化 jdk8 time api会报错，需要处理。
+    var jsonMapper = JsonMapper.builder().build();
+    // 设置jackson序列化方式只针对属性
+    jsonMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+    jsonMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+    return jsonMapper;
+  }
+
+  @Bean
+  public Uson uson() {
+    return new Uson(jsonMapper());
   }
 }

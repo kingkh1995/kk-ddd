@@ -1,6 +1,7 @@
 package com.kkk.op.user.web.handler;
 
-import com.kkk.op.support.exception.BussinessException;
+import com.kkk.op.support.bean.Result;
+import com.kkk.op.support.exception.BusinessException;
 import java.time.DateTimeException;
 import java.util.Collection;
 import java.util.Optional;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * todo... 待优化
+ * 全局异常处理拦截器
  *
  * @author KaiKoo
  */
@@ -27,14 +28,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class BaseExceptionHandler {
 
-  private static final String BAD_REQUEST_DEFAULT_MESSAGE = "请求参数不合法！";
-
   // 先决条件失败
   @ExceptionHandler({DateTimeException.class, IllegalArgumentException.class})
   @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
-  public String handlePreconditionFailed(Exception exception) {
-    log.warn("Precondition Failed =>", exception);
-    return exception.getMessage();
+  public Result<?> handlePreconditionFailed(Exception e) {
+    log.warn("Precondition Failed =>", e);
+    return Result.fail(e.getMessage());
   }
 
   // Controller层请求参数有误
@@ -45,40 +44,42 @@ public class BaseExceptionHandler {
     TypeMismatchException.class //
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String handleBadRequest(Exception exception) {
-    log.warn("Bad Request =>", exception);
-    var defaultMessage = BAD_REQUEST_DEFAULT_MESSAGE;
-    if (exception instanceof ConstraintViolationException) {
-      return Optional.ofNullable((ConstraintViolationException) exception)
-          .map(ConstraintViolationException::getConstraintViolations)
-          .map(Collection::stream)
-          .orElse(Stream.empty())
-          .findAny()
-          .map(ConstraintViolation::getMessage)
-          .orElse(defaultMessage);
-    } else if (exception instanceof BindException) {
-      return Optional.ofNullable(((BindException) exception))
-          .map(BindException::getBindingResult)
-          .map(Errors::getFieldError)
-          .map(FieldError::getDefaultMessage)
-          .orElse(defaultMessage);
+  public Result<?> handleBadRequest(Exception e) {
+    log.warn("Bad Request =>", e);
+    var message = "请求参数不合法！";
+    if (e instanceof ConstraintViolationException) {
+      message =
+          Optional.ofNullable((ConstraintViolationException) e)
+              .map(ConstraintViolationException::getConstraintViolations)
+              .map(Collection::stream)
+              .orElse(Stream.empty())
+              .findAny()
+              .map(ConstraintViolation::getMessage)
+              .orElse(message);
+    } else if (e instanceof BindException) {
+      message =
+          Optional.ofNullable(((BindException) e))
+              .map(BindException::getBindingResult)
+              .map(Errors::getFieldError)
+              .map(FieldError::getDefaultMessage)
+              .orElse(message);
     }
-    return defaultMessage;
+    return Result.fail(message);
   }
 
   // 业务异常
-  @ExceptionHandler(BussinessException.class)
+  @ExceptionHandler(BusinessException.class)
   @ResponseStatus(HttpStatus.OK)
-  public String handleBussinessException(BussinessException exception) {
-    log.error("BussinessException =>", exception);
-    return exception.getMessage();
+  public Result<?> handleBussinessException(BusinessException e) {
+    log.error("BussinessException =>", e);
+    return Result.fail(e.getMessage());
   }
 
   // 兜底500异常
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public String handlesException(BussinessException exception) {
-    log.error("Exception =>", exception);
-    return "服务器开小差了，请稍后再试！";
+  public Result<?> handlesException(Exception e) {
+    log.error("Exception =>", e);
+    return Result.fail("服务器开小差了，请稍后再试！");
   }
 }

@@ -21,7 +21,7 @@ import org.springframework.core.annotation.Order;
 
 /**
  * 策略模式Manager公共基类 <br>
- * （使用工厂方法模式：工厂类定义创造产品的接口，由子类去去决定实例化的产品类型。）
+ * （使用工厂方法模式：工厂类定义创造不同类型产品的接口，由子类去决定实例化的产品类型。）
  *
  * @author KaiKoo
  */
@@ -134,7 +134,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
     return Objects.requireNonNull(Objects.requireNonNull(this.orderMap).get(t));
   }
 
-  protected @NotNull Map<String, S> getMap(T t) {
+  protected @NotEmpty Map<String, S> getMap(T t) {
     return Objects.requireNonNull(Objects.requireNonNull(this.qualifierMap).get(t));
   }
 }

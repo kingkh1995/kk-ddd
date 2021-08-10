@@ -1,5 +1,7 @@
 package com.kkk.op.user.web.controller;
 
+import com.kkk.op.support.annotations.BaseController;
+import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.models.command.AccountModifyCommand;
 import com.kkk.op.support.models.command.CreateGroup;
 import com.kkk.op.support.models.command.UpdateGroup;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 对外接口层 <br>
@@ -30,9 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author KaiKoo
  */
 @Slf4j
-@RestController
+@BaseController
 @RequestMapping("/api/v1")
-@Validated // 校验 @PathVariable @RequestParam
 public class AccountController {
 
   @Autowired private AccountApplicationService service;
@@ -40,49 +40,47 @@ public class AccountController {
   /** POST 新增资源 */
   @PostMapping("/user/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
-  public long create(
+  public Result<Long> create(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
-    log.info("userId：{}，account create command：{}", userId, createCommand);
-    return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
+    //    log.info("userId：{}，account create command：{}", userId, createCommand);
+    return Result.success(service.createAccount(LongId.valueOf(userId, "userId"), createCommand));
   }
 
   /** PUT 全量更新资源 */
   @PutMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
-  public void update(
+  public Result<?> update(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
-    log.info("userId：{}，accountId：{}，account update command：{}", userId, accountId, updateCommand);
     service.updateAccount(
         LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId), updateCommand);
+    return Result.success();
   }
 
   /** Delete 删除资源 */
   @DeleteMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.NO_CONTENT) // 204
-  public void delete(
+  public Result<?> delete(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    log.info("userId：{}，delete account by accountId；{}", userId, accountId);
     service.deleteAccount(AccountId.valueOf(accountId));
+    return Result.success();
   }
 
   /** GET 获取资源 */
   @GetMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.OK) // 200
-  public AccountDTO queryById(
+  public Result<AccountDTO> queryById(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    log.info("userId：{}，query account by accountId；{}", userId, accountId);
-    return service.queryAccount(AccountId.valueOf(accountId));
+    return Result.success(service.queryAccount(AccountId.valueOf(accountId)));
   }
 
   /** 查询用户下的所有账号 */
   @GetMapping("/user/{userId}/accounts")
-  public List<AccountDTO> queryByUserId(@PathVariable String userId) {
-    log.info("query accounts by userId:{}", userId);
-    return service.queryAccounts(LongId.valueOf(userId, "userId"));
+  public Result<List<AccountDTO>> queryByUserId(@PathVariable String userId) {
+    return Result.success(service.queryAccounts(LongId.valueOf(userId, "userId")));
   }
 }

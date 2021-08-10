@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.enums.AccountStatusEnum;
-import com.kkk.op.support.exception.BussinessException;
+import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
@@ -67,7 +67,7 @@ public class Account extends Entity<AccountId> {
       // 更新逻辑
       var oldAccount = this.checkIdExist(accountService);
       if (!accountService.allowModify(oldAccount, this)) {
-        throw new BussinessException("不允许修改");
+        throw new BusinessException("不允许修改");
       }
     }
     // save
@@ -78,7 +78,7 @@ public class Account extends Entity<AccountId> {
     Account account = accountService.find(this.id);
     // 逻辑校验
     if (account == null) {
-      throw new BussinessException("id不存在");
+      throw new BusinessException("id不存在");
     }
     return account;
   }

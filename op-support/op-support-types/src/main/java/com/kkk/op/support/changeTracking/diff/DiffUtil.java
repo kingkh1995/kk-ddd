@@ -1,7 +1,6 @@
 package com.kkk.op.support.changeTracking.diff;
 
 import com.kkk.op.support.base.Entity;
-import com.kkk.op.support.exception.BussinessException;
 import com.kkk.op.support.marker.Identifier;
 import java.util.Collection;
 import java.util.HashMap;
@@ -72,7 +71,7 @@ public final class DiffUtil { // 工具类声明为 final
         }
       } catch (Exception e) {
         // CheckedException 转为 RuntimeException
-        throw new BussinessException(e);
+        throw new RuntimeException(e);
       }
     }
     // 对比完成，判断对比结果
