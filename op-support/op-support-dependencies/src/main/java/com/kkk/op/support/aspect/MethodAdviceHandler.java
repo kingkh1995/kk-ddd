@@ -1,10 +1,10 @@
 package com.kkk.op.support.aspect;
 
-import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.JoinPoint;
 import org.springframework.lang.Nullable;
 
 /**
- * 方法增强处理器接口 <br>
+ * 方法增强处理器接口（参数均为JoinPoint，执行proceed在模板方法中）<br>
  *
  * @author KaiKoo
  */
@@ -16,7 +16,7 @@ public interface MethodAdviceHandler {
    * @param point 目标方法的连接点
    * @return 当返回 false 时，此时会先调用 getOnForbid，方法获得被禁止执行时的返回值，然后调用 onComplete 结束切面
    */
-  default boolean onBefore(ProceedingJoinPoint point) {
+  default boolean onBefore(JoinPoint point) {
     return true;
   }
 
@@ -26,7 +26,7 @@ public interface MethodAdviceHandler {
    * @param point 目标方法的连接点
    * @return 禁止调用目标方法时的返回值
    */
-  default Object getOnForbid(ProceedingJoinPoint point) {
+  default Object getOnForbid(JoinPoint point) {
     return null;
   }
 
@@ -36,7 +36,7 @@ public interface MethodAdviceHandler {
    * @param point 目标方法的连接点
    * @param e 抛出的异常
    */
-  default void onThrow(ProceedingJoinPoint point, Throwable e) {}
+  default void onThrow(JoinPoint point, Throwable e) {}
 
   /**
    * 获得抛出异常时的返回值，默认直接抛出异常不进行捕获
@@ -45,7 +45,7 @@ public interface MethodAdviceHandler {
    * @param e 抛出的异常
    * @return 抛出异常时的返回值
    */
-  default Object getOnThrow(ProceedingJoinPoint point, Throwable e) throws Throwable {
+  default Object getOnThrow(JoinPoint point, Throwable e) throws Throwable {
     throw e;
   }
 
@@ -55,7 +55,7 @@ public interface MethodAdviceHandler {
    * @param point 目标方法的连接点
    * @param result 执行获得的结果
    */
-  default void onSuccess(ProceedingJoinPoint point, Object result) {}
+  default void onSuccess(JoinPoint point, Object result) {}
 
   /**
    * 目标方法完成时，执行的动作，同 @After 但是可以操作返回值（需注意若 permitted 为 false 或 thrown 为 true 时默认返回值会为 null）
@@ -66,5 +66,5 @@ public interface MethodAdviceHandler {
    * @param result 执行获得的结果
    */
   default void onComplete(
-      ProceedingJoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {}
+      JoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {}
 }

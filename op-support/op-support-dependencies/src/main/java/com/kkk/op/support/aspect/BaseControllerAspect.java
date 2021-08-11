@@ -1,16 +1,16 @@
 package com.kkk.op.support.aspect;
 
+import com.kkk.op.support.bean.BaseRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.bean.Uson;
 import com.kkk.op.support.exception.BusinessException;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -21,8 +21,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -44,18 +42,36 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   protected void pointcut() {}
 
   @Override
-  public boolean onBefore(ProceedingJoinPoint point) {
+  public Object getOnThrow(JoinPoint point, Throwable e) throws Throwable {
+    // todo... 待优化，异常情况也需要添加返回参数
+    // BusinessException直接捕获，因为需要在切面内往出参中添加响应参数。
+    if (e instanceof BusinessException) {
+      log.error("BusinessException =>", e);
+      return Result.fail(e.getMessage());
+    }
+    // 其他情况抛出异常，交由全局异常处理
+    return super.getOnThrow(point, e);
+  }
+
+  @Override
+  public void onComplete(
+      JoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {
+    // 无论是否执行成功均打印日志
     var signature = (MethodSignature) point.getSignature();
-    var request =
-        ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    var requestContext = BaseRequestContextHolder.getBaseRequestContext();
+    if (result != null) {
+      var r = (Result<?>) result;
+      r.addExtend("costTime", requestContext.calculateCostMillis() + "ms");
+      r.addExtend("traceId", requestContext.getTraceId());
+    }
     log.info(
-        "[({}){}] ~ [{}.{}()] ~ [request = {}]",
-        request.getMethod(),
-        request.getRequestURI(),
+        "|{}| ~ [{}.{}()] ~ [request = {}] ~ [thrown = {}] ~ [response = {}]",
+        requestContext.getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
-        this.uson.toJson(getMethodParams(signature, point.getArgs())));
-    return super.onBefore(point);
+        this.uson.toJson(getMethodParams(signature, point.getArgs())),
+        thrown,
+        this.uson.toJson(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {
@@ -77,31 +93,5 @@ public class BaseControllerAspect extends AbstractMethodAspect {
       params.put(parameterNames[i], param);
     }
     return params;
-  }
-
-  @Override
-  public Object getOnThrow(ProceedingJoinPoint point, Throwable e) throws Throwable {
-    // 单独处理 BusinessException 不打印日志了
-    if (e instanceof BusinessException) {
-      return Result.fail(e.getMessage());
-    }
-    // 其他情况抛出异常，交由全局异常处理
-    return super.getOnThrow(point, e);
-  }
-
-  @Override
-  public void onComplete(
-      ProceedingJoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {
-    MethodSignature signature = (MethodSignature) point.getSignature();
-    if (result != null) {
-      ((Result<?>) result).addExtend("requestTime", Instant.now().toEpochMilli());
-    }
-    log.info(
-        "[{}.{}()] ~ [permitted:{}] ~ [thrown:{}] ~ [response = {}]",
-        signature.getDeclaringTypeName(),
-        signature.getName(),
-        permitted,
-        thrown,
-        this.uson.toJson(result));
   }
 }

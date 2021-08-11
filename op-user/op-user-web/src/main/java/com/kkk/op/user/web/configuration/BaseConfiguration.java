@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.kkk.op.support.bean.BaseRequestInterceptor;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.bean.Uson;
@@ -53,6 +54,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(ipControlInterceptor()).addPathPatterns("/api/**"); // 最先执行
+    registry.addInterceptor(new BaseRequestInterceptor()).addPathPatterns("/api/**");
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 

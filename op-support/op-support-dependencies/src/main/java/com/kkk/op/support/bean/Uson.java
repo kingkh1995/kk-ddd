@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * json工具类 <br>
- * todo... 待完善
+ * todo... 待完善，添加@ConditionalOnBean注解配合JsonMapper
  *
  * @author KaiKoo
  */
