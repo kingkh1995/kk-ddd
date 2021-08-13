@@ -126,15 +126,15 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
    * 根据策略枚举值获取收集到的策略实现类 <br>
    * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
    */
-  protected @NotNull S getSingleton(T t) {
-    return Objects.requireNonNull(Objects.requireNonNull(this.primaryMap).get(t));
+  protected S getSingleton(@NotNull T t) {
+    return Objects.requireNonNull(this.primaryMap).get(t);
   }
 
-  protected @NotEmpty List<S> getList(T t) {
-    return Objects.requireNonNull(Objects.requireNonNull(this.orderMap).get(t));
+  protected List<S> getList(@NotNull T t) {
+    return Objects.requireNonNull(this.orderMap).get(t);
   }
 
-  protected @NotEmpty Map<String, S> getMap(T t) {
-    return Objects.requireNonNull(Objects.requireNonNull(this.qualifierMap).get(t));
+  protected Map<String, S> getMap(@NotNull T t) {
+    return Objects.requireNonNull(this.qualifierMap).get(t);
   }
 }
