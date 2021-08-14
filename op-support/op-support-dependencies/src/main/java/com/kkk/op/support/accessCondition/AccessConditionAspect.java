@@ -2,39 +2,47 @@ package com.kkk.op.support.accessCondition;
 
 import com.kkk.op.support.aspect.AbstractMethodAspect;
 import java.util.LinkedList;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Objects;
 import javax.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
 /**
  * AccessCondition切面 <br>
- * todo...
+ * todo... 切面实现
  *
  * @author KaiKoo
  */
-@Aspect
 @Order(0)
 @Slf4j
+@Aspect
 public class AccessConditionAspect extends AbstractMethodAspect {
+
+  private final AccessConditionCheckManager checkManager;
+
+  public AccessConditionAspect(@Autowired AccessConditionCheckManager checkManager) {
+    this.checkManager = Objects.requireNonNull(checkManager);
+  }
 
   @Override
   @Pointcut("@annotation(com.kkk.op.support.accessCondition.AccessCondition)")
   protected void pointcut() {}
 
   /**
-   * 解析条件，支持短路 <br>
-   * (A || B || (!C && D || (E || !F && G) && H)) || !I <br>
-   * A && B || C && D
+   * 解析条件，支持短路 (A || B || (!C && D || (E || !F && G) && H)) || !I <br>
+   * 例：要求操作人是创建人并且不能在小程序上操作 或 操作人拥有update权限且在内网操作 <br>
+   * (creator && !source:MP || permission:update && source:LAN)
    *
    * @param condition 条件表达式，只支持短路符号，括号和非
    * @return 解析后校验的结果
    */
-  private boolean analyzing(@NotBlank String condition) {
+  private boolean analyzeAndCheck(@NotBlank String condition) {
+    log.info("start analyzing with condition:{}", condition);
     if (condition == null || condition.isBlank()) {
-      throw new UnsupportedOperationException("analyzing error! condition is blank!");
+      throw new AccessConditionAnalyzeException("analyzing error! condition is blank!");
     }
     // 维护一个窗口
     var l = 0;
@@ -55,7 +63,7 @@ public class AccessConditionAspect extends AbstractMethodAspect {
             aStack.push(c);
           } else if (c == ')') {
             r++;
-            // 先pop一次则为结果，前面的表达式都未发生短路，所以直接以最后一个结果来判断
+            // 先pop一次则为括号内的结果，前面的表达式都未发生短路，所以直接以最后一个结果来判断
             var canAcess = bStack.pop();
             // 继续pop直到上一个 ( ，必然会遇到因为要求是规范的表达式
             while (aStack.pop() != '(') {
@@ -106,8 +114,8 @@ public class AccessConditionAspect extends AbstractMethodAspect {
       // 始终返回栈顶
       return bStack.pop();
     } catch (Exception e) {
-      log.error("analyzing error!, condition:{}, l:{}, r:{}", condition, l, r, e);
-      throw new UnsupportedOperationException("analyzing error!");
+      log.error("analyzing error!, l:{}, r:{}", l, r, e);
+      throw new AccessConditionAnalyzeException("access condition analyzing error!", e);
     }
   }
 
@@ -115,16 +123,19 @@ public class AccessConditionAspect extends AbstractMethodAspect {
     if (input.isBlank()) {
       return;
     }
-    log.info("start checking with input:{}", input);
-    var plugin = input.strip();
-    var reverse = false;
-    if (plugin.startsWith("!")) {
-      reverse = true;
-      plugin = plugin.substring(1);
+    var canAccess = checkManager.pluginCheck(input);
+    stack.push(canAccess);
+    log.info("check finish, input:{}, canAccess:{}", input, canAccess);
+  }
+
+  private static class AccessConditionAnalyzeException extends RuntimeException {
+
+    public AccessConditionAnalyzeException(String message) {
+      super(message);
     }
-    // fixme... 待实现
-    var originalResult = ThreadLocalRandom.current().nextBoolean();
-    log.info("finish, plugin:{}, reverse:{}, originalResult:{}", plugin, reverse, originalResult);
-    stack.push(reverse ? !originalResult : originalResult);
+
+    public AccessConditionAnalyzeException(String message, Throwable cause) {
+      super(message, cause);
+    }
   }
 }

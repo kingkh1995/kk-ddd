@@ -1,16 +1,17 @@
 package com.kkk.op.support.accessCondition;
 
+import com.kkk.op.support.marker.Strategy;
+import java.util.concurrent.ThreadLocalRandom;
+
 /**
- * 方法访问条件检查插件接口
+ * AccessCondition插件接口
  *
  * @author KaiKoo
  */
-public interface AccessConditionCheckPlugin {
+public interface AccessConditionCheckPlugin extends Strategy<AccessConditionPluginEnum> {
 
-  String name();
-
-  // 默认不校验
-  default boolean canAccess() {
-    return true;
+  default boolean canAcess(String args) {
+    // fixme... 暂时Mock住
+    return ThreadLocalRandom.current().nextBoolean();
   }
 }
