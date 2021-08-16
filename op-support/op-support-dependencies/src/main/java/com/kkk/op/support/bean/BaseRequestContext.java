@@ -35,10 +35,20 @@ public class BaseRequestContext {
   /** 操作人用户ID */
   private Long operatorId;
 
+  /** accessCondition记录 */
+  private String accessCondition;
+
   /** jwt payload map */
   private Map<String, Object> payload;
 
   public long calculateCostMillis() {
     return System.currentTimeMillis() - this.zonedTimestamp.toInstant().toEpochMilli();
+  }
+
+  public void recordAccessCondition(String accessCondition) {
+    // 只允许记录一次
+    if (this.accessCondition == null) {
+      this.accessCondition = accessCondition;
+    }
   }
 }

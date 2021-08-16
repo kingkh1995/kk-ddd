@@ -1,9 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.bean.BaseRequestContextHolder;
-import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.bean.Uson;
-import com.kkk.op.support.exception.BusinessException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,9 +28,9 @@ import org.springframework.web.multipart.MultipartFile;
  * @author KaiKoo
  */
 @Slf4j
-@Aspect // 切面类需要添加 @Aspect 注解
-@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Component // 需要添加 @Component 注解
+@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
+@Aspect // 切面类需要添加 @Aspect 注解
 public class BaseControllerAspect extends AbstractMethodAspect {
 
   @Autowired private Uson uson;
@@ -42,31 +40,13 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   protected void pointcut() {}
 
   @Override
-  public Object getOnThrow(JoinPoint point, Throwable e) throws Throwable {
-    // todo... 待优化，异常情况也需要添加返回参数
-    // BusinessException直接捕获，因为需要在切面内往出参中添加响应参数。
-    if (e instanceof BusinessException) {
-      log.error("BusinessException =>", e);
-      return Result.fail(e.getMessage());
-    }
-    // 其他情况抛出异常，交由全局异常处理
-    return super.getOnThrow(point, e);
-  }
-
-  @Override
   public void onComplete(
       JoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {
-    // 无论是否执行成功均打印日志
+    // 完成时增强，无论是否执行成功均打印日志
     var signature = (MethodSignature) point.getSignature();
-    var requestContext = BaseRequestContextHolder.getBaseRequestContext();
-    if (result != null) {
-      var r = (Result<?>) result;
-      r.addExtend("costTime", requestContext.calculateCostMillis() + "ms");
-      r.addExtend("traceId", requestContext.getTraceId());
-    }
     log.info(
         "|{}| ~ [{}.{}()] ~ [request = {}] ~ [thrown = {}] ~ [response = {}]",
-        requestContext.getTraceId(),
+        BaseRequestContextHolder.getBaseRequestContext().getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
         this.uson.toJson(getMethodParams(signature, point.getArgs())),

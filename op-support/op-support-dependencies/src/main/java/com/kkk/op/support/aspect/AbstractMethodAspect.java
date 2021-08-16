@@ -1,5 +1,6 @@
 package com.kkk.op.support.aspect;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 
@@ -9,6 +10,7 @@ import org.aspectj.lang.annotation.Around;
  *
  * @author KaiKoo
  */
+@Slf4j
 public abstract class AbstractMethodAspect implements MethodAdviceHandler {
 
   /** 切点，由子类实现，通过 @Pointcut 指定相关的注解 */
@@ -16,14 +18,16 @@ public abstract class AbstractMethodAspect implements MethodAdviceHandler {
 
   /**
    * 模板方法，对目标方法进行环绕增强处理，子类需通过 pointcut() 方法指定切点 <br>
-   * @Before @After（always）@AfterRunning（only success） @AfterThrowing（only throw） <br>
-   * @Around 增强需要返回一个对象，其他类型增强均无返回值
+   * Before After（always）AfterRunning（only success） AfterThrowing（only throw） <br>
+   * Around 增强需要返回一个对象，其他类型增强均无返回值 <br>
+   * 注意增强对类的内部调用是不起作用的，只对被代理类被调用的入口方法起作用。
    *
    * @param point 连接点
    * @return 方法执行返回值
    */
   @Around("pointcut()")
   public Object advice(ProceedingJoinPoint point) throws Throwable {
+    log.info("advice at: {}", point.getStaticPart());
     // 执行之前，判断是否被允许执行
     boolean permitted = this.onBefore(point);
     // 方法返回值

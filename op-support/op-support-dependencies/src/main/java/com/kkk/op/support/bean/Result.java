@@ -27,13 +27,23 @@ public class Result<T> implements Serializable {
   private Map<String, Object> extend;
 
   private Result(int code, String message) {
+    addExtend();
     this.code = code;
     this.message = message;
   }
 
+  // todo... 无论成功与否均添加返回值信息，暂时先放到这里，后序加到ResponseBodyAdvice类中
+  private void addExtend() {
+    var requestContext = BaseRequestContextHolder.getBaseRequestContext();
+    if (requestContext != null) {
+      this.extend = new HashMap<>();
+      this.extend.put("costTime", requestContext.calculateCostMillis() + "ms");
+      this.extend.put("traceId", requestContext.getTraceId());
+    }
+  }
+
   private Result(int code, String message, T data) {
-    this.code = code;
-    this.message = message;
+    this(code, message);
     this.data = data;
   }
 
@@ -51,20 +61,5 @@ public class Result<T> implements Serializable {
 
   public static <T> Result<T> success(T t) {
     return new Result<>(SUCCESS_CODE, SUCCESS_MESSAGE, t);
-  }
-
-  private Map<String, Object> getExtend() {
-    if (this.extend == null) {
-      this.extend = new HashMap<>();
-    }
-    return this.extend;
-  }
-
-  public void addExtend(String key, Object obj) {
-    this.getExtend().put(key, obj);
-  }
-
-  public void addExtend(Map<String, Object> map) {
-    this.getExtend().putAll(map);
   }
 }

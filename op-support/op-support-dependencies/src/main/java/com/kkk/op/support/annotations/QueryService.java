@@ -5,17 +5,17 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
- * controller层注解 <br>
+ * CQRS读层service注解
  *
  * @author KaiKoo
  */
-@Validated // 校验 @PathVariable @RequestParam 需要添加 @Validated 注解
-@RestController
+@Validated
+@Service
 @Inherited
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface BaseController {}
+public @interface QueryService {}
