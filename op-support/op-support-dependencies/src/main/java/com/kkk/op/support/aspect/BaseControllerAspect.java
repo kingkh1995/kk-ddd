@@ -49,9 +49,9 @@ public class BaseControllerAspect extends AbstractMethodAspect {
         BaseRequestContextHolder.getBaseRequestContext().getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
-        this.uson.toJson(getMethodParams(signature, point.getArgs())),
+        this.uson.writeJson(getMethodParams(signature, point.getArgs())),
         thrown,
-        this.uson.toJson(result));
+        this.uson.writeJson(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {

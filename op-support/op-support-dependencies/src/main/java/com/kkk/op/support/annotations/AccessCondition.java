@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  *
  * @author KaiKoo
  */
-@Retention(RetentionPolicy.RUNTIME) // 在@BaseController注解切面之后执行
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface AccessCondition {
 

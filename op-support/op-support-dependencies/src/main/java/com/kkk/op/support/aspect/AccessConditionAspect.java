@@ -1,7 +1,6 @@
-package com.kkk.op.support.accessCondition;
+package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotations.AccessCondition;
-import com.kkk.op.support.aspect.AbstractMethodAspect;
 import com.kkk.op.support.bean.BaseRequestContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

@@ -1,6 +1,5 @@
 package com.kkk.op.support.accessCondition;
 
-import com.kkk.op.support.annotations.MockResource;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.validation.constraints.NotBlank;
@@ -29,7 +28,6 @@ public class AccessConditionChecker {
    * @param condition 条件表达式，只支持短路符号，括号和非
    * @return 解析后校验的结果
    */
-  @MockResource // todo... 加上mock
   public boolean analyzeThenCheck(Object obj, @NotBlank String condition) {
     log.info("start analyzing with condition:{}", condition);
     if (condition == null || condition.isBlank()) {
@@ -46,7 +44,7 @@ public class AccessConditionChecker {
       while (r < chars.length) {
         var c = chars[r];
         if (c == '(' || c == ')' || c == '&' || c == '|') {
-          // 调用窗口内定义的插件进行检查
+          // 调用窗口内定义的条件进行检查
           executeCheck(obj, condition.substring(l, r), bStack);
           // 处理
           if (c == '(') {
@@ -114,12 +112,12 @@ public class AccessConditionChecker {
     if (input.isBlank()) {
       return;
     }
-    var canAccess = this.pluginManager.pluginCheck(obj, input);
+    var canAccess = this.pluginManager.callPluginCheck(obj, input);
     stack.push(canAccess);
     log.info("check finish, input:{}, canAccess:{}", input, canAccess);
   }
 
-  private static class AccessConditionAnalyzeException extends RuntimeException {
+  private class AccessConditionAnalyzeException extends RuntimeException {
 
     public AccessConditionAnalyzeException(String message) {
       super(message);

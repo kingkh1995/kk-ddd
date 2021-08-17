@@ -1,5 +1,10 @@
 package com.kkk.op.support.aspect;
 
+import com.google.common.base.Throwables;
+import com.kkk.op.support.annotations.MockResource;
+import com.kkk.op.support.bean.Uson;
+import com.kkk.op.support.tools.ReflectUtil;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,12 +14,6 @@ import org.springframework.core.annotation.Order;
 
 /**
  * mock切面实现 <br>
- * 判断如下：<br>
- * 1、mockJson不为空，则反序列化，为空则进行下一步； <br>
- * 2、mockClass不为空，则利用反射从Class对象中根据mockMethod指定的方法名与找到原方法参数一致的静态方法，如果mockMethod为空则默认为原方法名，否则执行下一步；
- * <br>
- * 3、mockClass为空则从当前类中根据mockMethod指定的方法名与找到原方法参数一致的方法，mockMethod为空则执行下一步； <br>
- * 4、如果三个参数均为空，则返回默认值。 <br>
  *
  * @author KaiKoo
  */
@@ -22,6 +21,12 @@ import org.springframework.core.annotation.Order;
 @Order // 可以不添加@Order注解，默认级别为最低
 @Aspect
 public class MockResourceAspect extends AbstractMethodAspect {
+
+  private final Uson uson;
+
+  public MockResourceAspect(Uson uson) {
+    this.uson = Objects.requireNonNull(uson);
+  }
 
   @Override
   @Pointcut("@annotation(com.kkk.op.support.annotations.MockResource)")
@@ -35,23 +40,58 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   @Override
   public Object getOnForbid(JoinPoint point) {
-    var o = super.getOnForbid(point);
     var signature = (MethodSignature) point.getSignature();
     var returnType = signature.getReturnType();
-    // todo... 待完善
-    if (returnType.isPrimitive()) {
-      // 处理基本数据类型
-      if ("boolean".equals(returnType.getName())) {
-        o = false;
-      } else if ("char".equals(returnType.getName())) {
-        o = '-';
-      } else {
-        o = 0;
-      }
-    } else if (returnType.isArray()) {
-      //  处理数组类型，分为基本数据类型数组和对象类数组
+    log.info("return type: {}", returnType.getCanonicalName());
+    // 获取注释值
+    var method = signature.getMethod();
+    var resource = method.getAnnotation(MockResource.class);
+    // 判断注释参数
+    var returnDefault = true;
+    // mockClass默认为自身
+    Class<?> mockClass;
+    Object target;
+    if (Object.class.equals(resource.mockClass())) {
+      mockClass = signature.getDeclaringType();
+      target = point.getTarget();
+    } else {
+      mockClass = resource.mockClass();
+      // 调用其他类的静态方法时target传入null即可
+      target = null;
+      returnDefault = false;
     }
-    log.info("return type: [{}], mock return: [{}]!", returnType.getSimpleName(), o);
-    return o;
+    // mockMethod默认为原方法名，指定mockClass时要求必须是静态方法
+    String mockMethod;
+    if ("".equals(resource.mockMethod())) {
+      mockMethod = method.getName();
+    } else {
+      mockMethod = resource.mockMethod();
+      returnDefault = false;
+    }
+    // 两个属性均为空则返回默认值
+    if (returnDefault) {
+      return ReflectUtil.getDefault(returnType);
+    }
+    // 执行mock调用并返回结果
+    try {
+      return mockClass
+          .getMethod(mockMethod, method.getParameterTypes())
+          .invoke(target, point.getArgs());
+    } catch (Exception e) {
+      // 非检查时异常直接抛出，受检查异常（反射异常）包装成RuntimeException。
+      Throwables.throwIfUnchecked(e);
+      throw new MockException(e);
+    }
+  }
+
+  @Override
+  public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
+    log.info("mock return: [{}]!", this.uson.writeJson(result));
+  }
+
+  public class MockException extends RuntimeException {
+    public MockException(Throwable cause) {
+      super(cause);
+    }
   }
 }

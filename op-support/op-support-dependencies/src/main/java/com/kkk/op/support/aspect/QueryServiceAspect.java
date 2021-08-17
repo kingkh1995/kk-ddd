@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 
 /**
  * AccessCondition核心逻辑切面实现，对查询方法做访问控制，需要@AccessCondition注解辅助；<br>
- * 原因是不同调用方对查询方法的访问要求是不一样的，所以条件的定义需要移到queryService的外层。 <br>
+ * 原因是不同调用方对查询方法的访问要求是不一样的，所以条件的定义需要移到QueryService的外层。 <br>
  * <br>
  *
  * @author KaiKoo
