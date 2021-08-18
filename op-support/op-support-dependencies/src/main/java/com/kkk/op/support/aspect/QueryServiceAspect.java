@@ -31,7 +31,7 @@ public class QueryServiceAspect extends AbstractMethodAspect {
   }
 
   @Override
-  @Pointcut("@within(com.kkk.op.support.annotations.QueryService)")
+  @Pointcut("@within(com.kkk.op.support.base.QueryService)")
   protected void pointcut() {}
 
   @Override

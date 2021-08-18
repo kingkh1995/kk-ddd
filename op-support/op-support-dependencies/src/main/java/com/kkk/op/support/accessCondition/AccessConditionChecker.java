@@ -29,7 +29,7 @@ public class AccessConditionChecker {
    * @return 解析后校验的结果
    */
   public boolean analyzeThenCheck(Object obj, @NotBlank String condition) {
-    log.info("start analyzing with condition:{}", condition);
+    log.info("start analyzing with condition: {}", condition);
     if (condition == null || condition.isBlank()) {
       throw new AccessConditionAnalyzeException("analyzing error! condition is blank!");
     }
@@ -44,7 +44,7 @@ public class AccessConditionChecker {
       while (r < chars.length) {
         var c = chars[r];
         if (c == '(' || c == ')' || c == '&' || c == '|') {
-          // 调用窗口内定义的条件进行检查
+          // 对窗口内定义的条件进行检查
           executeCheck(obj, condition.substring(l, r), bStack);
           // 处理
           if (c == '(') {

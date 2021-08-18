@@ -10,6 +10,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 
 /**
@@ -24,7 +25,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   private final Uson uson;
 
-  public MockResourceAspect(Uson uson) {
+  public MockResourceAspect(@Autowired Uson uson) {
     this.uson = Objects.requireNonNull(uson);
   }
 
@@ -42,13 +43,12 @@ public class MockResourceAspect extends AbstractMethodAspect {
   public Object getOnForbid(JoinPoint point) {
     var signature = (MethodSignature) point.getSignature();
     var returnType = signature.getReturnType();
-    log.info("return type: {}", returnType.getCanonicalName());
     // 获取注释值
     var method = signature.getMethod();
     var resource = method.getAnnotation(MockResource.class);
     // 判断注释参数
     var returnDefault = true;
-    // mockClass默认为自身
+    // mockClass默认为被代理类 target默认为被代理对象
     Class<?> mockClass;
     Object target;
     if (Object.class.equals(resource.mockClass())) {
@@ -56,8 +56,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
       target = point.getTarget();
     } else {
       mockClass = resource.mockClass();
-      // 调用其他类的静态方法时target传入null即可
-      target = null;
+      target = null; // 调用静态方法则target传入null即可
       returnDefault = false;
     }
     // mockMethod默认为原方法名，指定mockClass时要求必须是静态方法
@@ -68,15 +67,17 @@ public class MockResourceAspect extends AbstractMethodAspect {
       mockMethod = resource.mockMethod();
       returnDefault = false;
     }
+    log.info("returnType: {}, returnDefault: {}", returnType.getCanonicalName(), returnDefault);
     // 两个属性均为空则返回默认值
     if (returnDefault) {
       return ReflectUtil.getDefault(returnType);
     }
     // 执行mock调用并返回结果
     try {
-      return mockClass
-          .getMethod(mockMethod, method.getParameterTypes())
-          .invoke(target, point.getArgs());
+      log.info("call mock, class: {}, method: {}", mockClass.getCanonicalName(), mockMethod);
+      var targetMethod = mockClass.getDeclaredMethod(mockMethod, method.getParameterTypes());
+      targetMethod.trySetAccessible();
+      return targetMethod.invoke(target, point.getArgs());
     } catch (Exception e) {
       // 非检查时异常直接抛出，受检查异常（反射异常）包装成RuntimeException。
       Throwables.throwIfUnchecked(e);
@@ -86,7 +87,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   @Override
   public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
-    log.info("mock return: [{}]!", this.uson.writeJson(result));
+    log.info("mock return: {}", this.uson.writeJson(result));
   }
 
   public class MockException extends RuntimeException {

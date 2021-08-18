@@ -35,7 +35,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
   protected enum CollectTactic {
     /** 只收集单个实现，优先收集@Primary注解的实现 */
     PRIMARY,
-    /** 全部收集为list，并按@Order注解的值排列 */
+    /** 全部收集为list，并按@Order注解的值排列 可以用来实现管道模式 */
     ORDER,
     /** 全部收集为map，key为@Qualifier注解的值 */
     QUALIFIER;

@@ -1,4 +1,4 @@
-package com.kkk.op.support.annotations;
+package com.kkk.op.support.base;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * CQRS读层service注解
+ * 应用层 query service 标识注解
  *
  * @author KaiKoo
  */

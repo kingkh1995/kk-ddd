@@ -1,6 +1,7 @@
 package com.kkk.op.support.bean;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Objects;
 
@@ -29,6 +30,14 @@ public final class Uson {
   public <T> T readJson(String content, TypeReference<T> typeReference) {
     try {
       return this.jsonMapper.readValue(content, typeReference);
+    } catch (Exception e) {
+      throw new UsonExceptiion(e);
+    }
+  }
+
+  public JsonNode readJson(String content) {
+    try {
+      return this.jsonMapper.readTree(content);
     } catch (Exception e) {
       throw new UsonExceptiion(e);
     }
