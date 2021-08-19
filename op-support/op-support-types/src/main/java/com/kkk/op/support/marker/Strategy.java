@@ -6,7 +6,7 @@ package com.kkk.op.support.marker;
  *
  * @author KaiKoo
  */
-public interface Strategy<T extends Enum<T>> {
+public interface Strategy<E extends Enum<E>> {
 
-  T getStrategyID();
+  E getStrategyID();
 }

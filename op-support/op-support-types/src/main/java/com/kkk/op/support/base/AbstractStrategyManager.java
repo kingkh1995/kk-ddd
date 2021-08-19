@@ -25,7 +25,7 @@ import org.springframework.core.annotation.Order;
  *
  * @author KaiKoo
  */
-public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strategy<T>>
+public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strategy<E>>
     extends ApplicationContextAwareBean {
 
   /**
@@ -35,19 +35,22 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
   protected enum CollectTactic {
     /** 只收集单个实现，优先收集@Primary注解的实现 */
     PRIMARY,
-    /** 全部收集为list，并按@Order注解的值排列 可以用来实现管道模式 */
+    /**
+     * 全部收集为list，并按@Order注解的值排列 <br>
+     * 可以用来实现管道模式
+     */
     ORDER,
-    /** 全部收集为map，key为@Qualifier注解的值 */
+    /** 全部收集为map，key为@Qualifier注解的值，无注解则默认为default */
     QUALIFIER;
   }
 
   private final Set<CollectTactic> collectTactics;
-  private final Class<T> tClass;
+  private final Class<E> tClass;
   private final Class<S> sClass;
   private Collection<S> strategys;
-  private Map<T, S> primaryMap;
-  private Map<T, List<S>> orderMap;
-  private Map<T, Map<String, S>> qualifierMap;
+  private Map<E, S> primaryMap;
+  private Map<E, List<S>> orderMap;
+  private Map<E, Map<String, S>> qualifierMap;
 
   public AbstractStrategyManager(@NotEmpty Set<CollectTactic> collectTactics) {
     if (collectTactics == null || collectTactics.isEmpty()) {
@@ -59,7 +62,7 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
   {
     var actualTypeArguments =
         ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
-    this.tClass = (Class<T>) actualTypeArguments[0];
+    this.tClass = (Class<E>) actualTypeArguments[0];
     this.sClass = (Class<S>) actualTypeArguments[1];
   }
 
@@ -126,15 +129,15 @@ public abstract class AbstractStrategyManager<T extends Enum<T>, S extends Strat
    * 根据策略枚举值获取收集到的策略实现类 <br>
    * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
    */
-  protected S getSingleton(@NotNull T t) {
-    return Objects.requireNonNull(this.primaryMap).get(t);
+  protected S getSingleton(@NotNull E e) {
+    return Objects.requireNonNull(this.primaryMap).get(e);
   }
 
-  protected List<S> getList(@NotNull T t) {
-    return Objects.requireNonNull(this.orderMap).get(t);
+  protected List<S> getList(@NotNull E e) {
+    return Objects.requireNonNull(this.orderMap).get(e);
   }
 
-  protected Map<String, S> getMap(@NotNull T t) {
-    return Objects.requireNonNull(this.qualifierMap).get(t);
+  protected Map<String, S> getMap(@NotNull E e) {
+    return Objects.requireNonNull(this.qualifierMap).get(e);
   }
 }

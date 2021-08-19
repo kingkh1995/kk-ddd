@@ -103,7 +103,7 @@ public class AccessConditionChecker {
       // 始终返回栈顶
       return bStack.pop();
     } catch (Exception e) {
-      log.error("analyzing error!, l:{}, r:{}", l, r, e);
+      log.error("analyzing error! l:{}, r:{}", l, r, e);
       throw new AccessConditionAnalyzeException("access condition analyzing error!", e);
     }
   }
