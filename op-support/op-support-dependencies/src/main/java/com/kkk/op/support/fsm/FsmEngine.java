@@ -1,13 +1,11 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.base.Entity;
-
 /**
  * FiniteStateMachine 状态机引擎接口 <br>
  *
  * @author KaiKoo
  */
-public interface FsmEngine<E extends FsmEvent, T extends Entity> {
+public interface FsmEngine<E extends FsmEvent, T> {
 
   /** 执行状态迁移事件，不传entity默认会根据entityId获取 */
   void sendEvent(E event) throws Exception;

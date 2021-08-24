@@ -1,6 +1,5 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.base.Entity;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,18 +12,18 @@ import lombok.extern.slf4j.Slf4j;
 public class CheckerExecutor {
 
   /**
-   * 执行检查器检查
+   * 执行校验器校验
    *
-   * @param checkers 检查器合集（已排序）
-   * @param context 被检查上下文信息
+   * @param checkers 校验器合集（已排序）
+   * @param context 被校验上下文信息
    * @param isParallel 是否并行执行
    * @param <E> 事件类型
    * @param <T> 实体类型
    * @param <C> 上下文类型
    * @return
    */
-  private static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
-      CheckResult check0(List<Checker<E, T, C>> checkers, C context, boolean isParallel) {
+  private static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult check0(
+      List<Checker<E, T, C>> checkers, C context, boolean isParallel) {
     // 空集合直接返回成功
     if (checkers == null || checkers.isEmpty()) {
       return CheckResult.success();
@@ -46,13 +45,13 @@ public class CheckerExecutor {
         .orElse(CheckResult.success());
   }
 
-  public static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
-      CheckResult parallelCheck(List<Checker<E, T, C>> checkers, C context) {
+  public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult parallelCheck(
+      List<Checker<E, T, C>> checkers, C context) {
     return check0(checkers, context, true);
   }
 
-  public static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
-      CheckResult serialCheck(List<Checker<E, T, C>> checkers, C context) {
+  public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult serialCheck(
+      List<Checker<E, T, C>> checkers, C context) {
     return check0(checkers, context, false);
   }
 }

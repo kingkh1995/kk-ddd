@@ -7,7 +7,7 @@ package com.kkk.op.support.fsm;
  */
 public interface FsmEvent {
 
-  /** 状态事件ID */
+  /** 事件ID */
   String getEventId();
 
   /** 实体ID */

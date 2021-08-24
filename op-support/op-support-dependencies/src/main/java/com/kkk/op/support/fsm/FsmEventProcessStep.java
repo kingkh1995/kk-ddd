@@ -1,17 +1,14 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.base.Entity;
-
 /**
- * 处理器处理流程接口 <br>
+ * 处理器处理流程拆分接口 <br>
  *
  * @author KaiKoo
  */
-public interface FsmEventProcessStep<
-    E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>> {
+public interface FsmEventProcessStep<E extends FsmEvent, T, C extends FsmContext<E, T>> {
 
   /**
-   * 处理前准备（主要是查询数据）及上下文检查，横向拆分流程，并复用检查器 <br>
+   * 处理前准备（主要是查询数据）及上下文校验，横向拆分流程，并复用校验器 <br>
    * paramChecker -> prepare - > syncChecker -> asyncChecker
    */
   void prepareAndCheck(C context);

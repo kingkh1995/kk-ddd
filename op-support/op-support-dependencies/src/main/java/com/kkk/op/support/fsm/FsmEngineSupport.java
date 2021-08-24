@@ -2,7 +2,6 @@ package com.kkk.op.support.fsm;
 
 import com.kkk.op.support.annotations.EventProcessor;
 import com.kkk.op.support.base.ApplicationContextAwareBean;
-import com.kkk.op.support.base.Entity;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,24 +12,21 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 状态机引擎基类 <br>
- * 流程引擎使用要求： <br>
+ * 状态机引擎支持类 <br>
+ * 使用步骤： <br>
  * 0、定义Event枚举（建议） <br>
  * 1、定义FsmEvent实现类 <br>
  * 2、定义FsmContext实现类 <br>
  * 3、定义FsmEventProcessor基类，在基类基础上，再对有相似流程的处理器提取出基类，并添加拓展点 <br>
  * 4、定义FsmEngine实现类作为调用的入口，实现buildContext，需要被ioc容器管理 <br>
- * 5、定义Checker工具类，至少要将可公用的检查器在工具类中作为静态变量定义，其他非公用的可以使用lambda表达式实现 <br>
- * 6、定义事件处理器类，并添加@EventProcessor注解，实现action或者上层基类定义的拓展点，指定检查器 <br>
+ * 5、定义Checker工具类，至少要将可公用的校验器在工具类中作为静态变量定义，其他非公用的可以使用lambda表达式实现 <br>
+ * 6、定义事件处理器类，并添加@EventProcessor注解，实现action或者上层基类定义的拓展点，指定校验器 <br>
  *
  * @author KaiKoo
  */
 @Slf4j
 public abstract class FsmEngineSupport<
-        E extends FsmEvent,
-        T extends Entity,
-        C extends FsmContext<E, T>,
-        P extends FsmEventProcessor<E, T, C>>
+        E extends FsmEvent, T, C extends FsmContext<E, T>, P extends FsmEventProcessor<E, T, C>>
     extends ApplicationContextAwareBean implements FsmEngine<E, T> {
 
   @Override

@@ -6,16 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * <br>
+ * 校验器返回结果 <br>
  *
  * @author KaiKoo
  */
-@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CheckResult {
 
-  private boolean successed;
-  private String message;
+  @Getter private boolean successed;
+  @Getter private String message;
 
   public static CheckResult success() {
     return new CheckResult(true, "success");
