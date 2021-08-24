@@ -1,11 +1,7 @@
 package com.kkk.op.support.fsm;
 
 import com.kkk.op.support.base.Entity;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,39 +12,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CheckerExecutor {
 
-  // fixme... 待定义
-  public static final ExecutorService DEFAULT =
-      Executors.newWorkStealingPool(Runtime.getRuntime().availableProcessors() - 1);
-
-  /** 执行同步校验 */
-  public static <
-          E extends FiniteStateMachineEvent,
-          T extends Entity,
-          C extends FiniteStateMachineContext<E, T>>
-      CheckResult serialCheck(List<Checker<E, T, C>> checkers, C context) {
-    if (checkers == null || checkers.isEmpty()) {
-      return CheckResult.success();
-    }
-    if (checkers.size() == 1) {
-      return checkers.get(0).check(context);
-    }
-    checkers.sort(Comparator.comparingInt(Checker::order));
-    for (var checker : checkers) {
-      var result = checker.check(context);
-      if (!result.isSuccess()) {
-        return result;
-      }
-    }
-    return CheckResult.success();
-  }
-
-  /** 执行并行校验器，按照任务投递的顺序判断返回。 */
-  public static <
-          E extends FiniteStateMachineEvent,
-          T extends Entity,
-          C extends FiniteStateMachineContext<E, T>>
-      CheckResult parallelCheck(
-          List<Checker<E, T, C>> checkers, C context, ExecutorService executor) throws Exception {
+  /**
+   * 执行检查器检查
+   *
+   * @param checkers 检查器合集（已排序）
+   * @param context 被检查上下文信息
+   * @param isParallel 是否并行执行
+   * @param <E> 事件类型
+   * @param <T> 实体类型
+   * @param <C> 上下文类型
+   * @return
+   */
+  private static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
+      CheckResult check0(List<Checker<E, T, C>> checkers, C context, boolean isParallel) {
+    // 空集合直接返回成功
     if (checkers == null || checkers.isEmpty()) {
       return CheckResult.success();
     }
@@ -56,27 +33,26 @@ public class CheckerExecutor {
     if (checkers.size() == 1) {
       return checkers.get(0).check(context);
     }
-    // 多个则异步处理
-    var futureList =
-        checkers.stream()
-            .sorted(Comparator.comparingInt(Checker::order))
-            .map(checker -> executor.submit(() -> checker.check(context)))
-            .collect(Collectors.toUnmodifiableList());
-    for (var future : futureList) {
-      var result = future.get();
-      if (!result.isSuccess()) {
-        return result;
-      }
+    // 批量处理，同步或异步（不使用线程池而是使用并行流）
+    var stream = checkers.stream();
+    if (isParallel) {
+      stream.parallel();
     }
-    return CheckResult.success();
+    // 使用findAny获取结果，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
+    return stream
+        .map(checker -> checker.check(context))
+        .filter(CheckResult::isFailed)
+        .findAny()
+        .orElse(CheckResult.success());
   }
 
-  /** 执行并行校验器，使用默认线程池，按照任务投递的顺序判断返回。 */
-  public static <
-          E extends FiniteStateMachineEvent,
-          T extends Entity,
-          C extends FiniteStateMachineContext<E, T>>
-      CheckResult parallelCheck(List<Checker<E, T, C>> checkers, C context) throws Exception {
-    return parallelCheck(checkers, context, DEFAULT);
+  public static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
+      CheckResult parallelCheck(List<Checker<E, T, C>> checkers, C context) {
+    return check0(checkers, context, true);
+  }
+
+  public static <E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
+      CheckResult serialCheck(List<Checker<E, T, C>> checkers, C context) {
+    return check0(checkers, context, false);
   }
 }

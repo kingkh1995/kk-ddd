@@ -3,38 +3,35 @@ package com.kkk.op.support.fsm;
 import com.kkk.op.support.base.Entity;
 
 /**
- * 将处理逻辑process纵向拆分：prepare -> check -> getDestState -> action -> save -> after
+ * 将处理流程纵向拆分（业务编排）：process ==> prepare -> check -> getDestState -> action -> save -> after <br>
+ * 将核心处理逻辑横行拆分（逻辑复用）：具有相似逻辑的处理器，针对action方法增加拓展点让子类实现。
  *
  * @author KaiKoo
  */
-public abstract class FiniteStateMachineEventProcessorSupport<
-        E extends FiniteStateMachineEvent,
-        T extends Entity,
-        C extends FiniteStateMachineContext<E, T>>
-    implements FiniteStateMachineEventProcessor<E, T, C>,
-        FiniteStateMachineEventProcessStep<E, T, C>,
-        Checkable<E, T, C> {
+public abstract class FsmEventProcessorSupport<
+        E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>>
+    implements FsmEventProcessor<E, T, C>, FsmEventProcessStep<E, T, C> {
 
   @Override
   public void process(C context) throws Exception {
-    // 数据准备和校验
+    // 准备和校验
     this.prepareAndCheck(context);
-    // getNextState不能在prepare前，因为有的nextState是根据prepare中的数据转换而来
+    // 获取流转目标状态，getNextState需要prepare作为前置，因为部分情况下nextState是转换自prepare之后的数据
     var destState = this.getDestState(context);
-    // 业务逻辑
+    // 核心业务逻辑
     this.action(destState, context);
-    // 持久化
+    // 数据持久化
     this.save(destState, context);
-    // after
+    // 后置操作
     this.after(context);
   }
 
   @Override
-  public void prepareAndCheck(C context) throws Exception {
+  public void prepareAndCheck(C context) {
     var checkable = this.getCheckable();
-    // 第一步参数校验
+    // 第一步参数校验（简单的参数校验，fail-fast机制）
     CheckerExecutor.serialCheck(checkable.getParamChecker(), context).throwIfFail();
-    // 第二步数据准备
+    // 第二步数据准备（查询数据并补充上下文）
     this.prepare(context);
     // 第三步同步校验
     CheckerExecutor.serialCheck(checkable.getSyncChecker(), context).throwIfFail();

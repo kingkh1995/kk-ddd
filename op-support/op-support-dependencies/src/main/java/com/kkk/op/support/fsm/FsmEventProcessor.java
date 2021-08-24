@@ -7,10 +7,8 @@ import com.kkk.op.support.base.Entity;
  *
  * @author KaiKoo
  */
-public interface FiniteStateMachineEventProcessor<
-    E extends FiniteStateMachineEvent,
-    T extends Entity,
-    C extends FiniteStateMachineContext<E, T>> {
+public interface FsmEventProcessor<
+    E extends FsmEvent, T extends Entity, C extends FsmContext<E, T>> {
 
   void process(C context) throws Exception;
 }

@@ -14,7 +14,7 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CheckResult {
 
-  private boolean success;
+  private boolean successed;
   private String message;
 
   public static CheckResult success() {
@@ -25,10 +25,13 @@ public class CheckResult {
     return new CheckResult(false, message);
   }
 
+  public boolean isFailed() {
+    return !this.successed;
+  }
+
   public void throwIfFail() {
-    if (this.success) {
-      return;
+    if (this.isFailed()) {
+      throw new BusinessException(this.message);
     }
-    throw new BusinessException(this.message);
   }
 }

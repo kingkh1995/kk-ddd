@@ -10,8 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public abstract class FiniteStateMachineContext<
-    E extends FiniteStateMachineEvent, T extends Entity> {
+public abstract class FsmContext<E extends FsmEvent, T extends Entity> {
 
   @Getter private E event;
 
