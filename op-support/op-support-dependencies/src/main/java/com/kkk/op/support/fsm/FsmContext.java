@@ -15,9 +15,9 @@ public abstract class FsmContext<E extends FsmEvent, T> {
 
   @Getter private T entity;
 
-  abstract String getState();
+  public abstract String getState();
 
-  abstract String getBiz();
+  public abstract String getBiz();
 
-  abstract String getScene();
+  public abstract String getScene();
 }

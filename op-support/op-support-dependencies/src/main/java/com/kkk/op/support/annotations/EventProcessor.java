@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 @Component
 public @interface EventProcessor {
 
-  /** 事件ID，为了减小复杂度，一个事件处理器只能对应一个事件 */
-  String eventId();
+  /** 事件类型，为了减小复杂度，一个事件处理器只能对应一个事件 */
+  String event();
 
   /** 指定状态 */
   String[] state() default {};

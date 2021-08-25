@@ -14,10 +14,12 @@ public interface Checkable<E extends FsmEvent, T, C extends FsmContext<E, T>> {
   default List<Checker<E, T, C>> getParamChecker() {
     return Collections.EMPTY_LIST;
   }
+
   /** 需同步执行的状态校验器 */
   default List<Checker<E, T, C>> getSyncChecker() {
     return Collections.EMPTY_LIST;
   }
+
   /** 可异步执行的校验器 */
   default List<Checker<E, T, C>> getAsyncChecker() {
     return Collections.EMPTY_LIST;

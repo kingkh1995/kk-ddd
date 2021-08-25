@@ -10,6 +10,12 @@ package com.kkk.op.support.fsm;
 public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends FsmContext<E, T>>
     implements FsmEventProcessor<E, T, C>, FsmEventProcessStep<E, T, C> {
 
+  private final Checkable<E, T, C> checkable;
+
+  public FsmEventProcessorSupport() {
+    this.checkable = registerCheckable();
+  }
+
   @Override
   public void process(C context) throws Exception {
     // 准备和校验
@@ -26,7 +32,7 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
 
   @Override
   public void prepareAndCheck(C context) {
-    var checkable = this.getCheckable();
+    var checkable = this.checkable;
     // 第一步参数校验（简单的参数校验，fail-fast机制）
     CheckerExecutor.serialCheck(checkable.getParamChecker(), context).throwIfFail();
     // 第二步数据准备（查询数据并补充上下文）
@@ -37,8 +43,8 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
     CheckerExecutor.parallelCheck(checkable.getAsyncChecker(), context).throwIfFail();
   }
 
-  /** 获取校验器合集 */
-  protected Checkable<E, T, C> getCheckable() {
+  /** 注解校验器合集，需要自定义校验器顺序。 */
+  protected Checkable<E, T, C> registerCheckable() {
     return new Checkable<>() {};
   }
 
