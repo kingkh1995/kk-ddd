@@ -9,8 +9,9 @@ import java.util.Set;
 /**
  * ThreadLocal记录器 <br>
  * 用于在拦截器中移除ThreadLock以免造成内存泄漏 <br>
- * todo... dubbo拦截器移除
+ * todo... dubbo移除拦截器
  *
+ * @see ThreadLocalRemoveInterceptor spring移除拦截器
  * @author KaiKoo
  */
 public final class ThreadLocalRecorder {

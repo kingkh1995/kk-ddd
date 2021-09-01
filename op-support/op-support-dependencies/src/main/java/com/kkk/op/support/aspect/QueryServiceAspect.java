@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.accessCondition.AccessConditionChecker;
-import com.kkk.op.support.bean.BaseRequestContextHolder;
+import com.kkk.op.support.bean.LocalRequestContextHolder;
 import com.kkk.op.support.exception.BusinessException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class QueryServiceAspect extends AbstractMethodAspect {
     // 后置增强处理，成功查询出结果之后判断是否允许访问查询出来的数据
     boolean canAccess =
         this.checker.analyzeThenCheck(
-            result, BaseRequestContextHolder.getBaseRequestContext().getAccessCondition());
+            result, LocalRequestContextHolder.getLocalRequestContext().getAccessCondition());
     // 禁止访问则抛出异常
     if (!canAccess) {
       throw new BusinessException("access forbidden!");

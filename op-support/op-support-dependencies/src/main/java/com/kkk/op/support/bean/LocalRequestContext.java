@@ -15,7 +15,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class BaseRequestContext {
+public class LocalRequestContext {
 
   /** 日志链路追踪序号 */
   @Default private String traceId = UUID.randomUUID().toString().replace("-", "");

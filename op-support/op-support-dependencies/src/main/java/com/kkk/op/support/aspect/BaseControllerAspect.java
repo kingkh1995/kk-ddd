@@ -1,6 +1,6 @@
 package com.kkk.op.support.aspect;
 
-import com.kkk.op.support.bean.BaseRequestContextHolder;
+import com.kkk.op.support.bean.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Uson;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
     var signature = (MethodSignature) point.getSignature();
     log.info(
         "|{}| ~ [{}.{}()] ~ [request = {}] ~ [thrown = {}] ~ [response = {}]",
-        BaseRequestContextHolder.getBaseRequestContext().getTraceId(),
+        LocalRequestContextHolder.getLocalRequestContext().getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
         this.uson.writeJson(getMethodParams(signature, point.getArgs())),

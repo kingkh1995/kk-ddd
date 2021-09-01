@@ -142,7 +142,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   public void remove(@NotNull T entity) {
     boolean finished =
         this.getDistributedLock()
-            .tryWork(
+            .tryRun(
                 this.generateLockName(entity.getId()),
                 () -> {
                   if (this.isAutocached()) {
@@ -171,7 +171,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     // update操作
     boolean finished =
         this.getDistributedLock()
-            .tryWork(
+            .tryRun(
                 this.generateLockName(entity.getId()),
                 () -> {
                   if (this.isAutocached()) {

@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.kkk.op.support.bean.BaseRequestInterceptor;
 import com.kkk.op.support.bean.IPControlInterceptor;
+import com.kkk.op.support.bean.LocalRequestInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.bean.Uson;
 import com.kkk.op.support.marker.CacheManager;
@@ -19,8 +19,6 @@ import org.hibernate.validator.HibernateValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -54,7 +52,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(ipControlInterceptor()).addPathPatterns("/api/**"); // 最先执行
-    registry.addInterceptor(new BaseRequestInterceptor()).addPathPatterns("/api/**");
+    registry.addInterceptor(new LocalRequestInterceptor()).addPathPatterns("/api/**");
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 
@@ -86,17 +84,6 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .failFast(false)
         .buildValidatorFactory()
         .getValidator();
-  }
-
-  // 配置文件上传MultipartFile解析器 使用commons-fileupload方式 文件达到一定大小会被解析到指定临时目录
-  // max-file-size和max-size 默认都是-1 表示无限制（前端ngnix也要配置client_max_body_size否则会抛出413异常）
-  @Bean
-  public MultipartResolver multipartResolver() {
-    var commonsMultipartResolver = new CommonsMultipartResolver();
-    commonsMultipartResolver.setResolveLazily(true); // 设置文件懒解析 默认值为非懒解析
-    //    commonsMultipartResolver.setUploadTempDir(); // 设置文件的临时目录 默认为系统变量java.io.tempdir的值
-    commonsMultipartResolver.setMaxInMemorySize(10240); // 设置文件上传至内存阈值 默认超出10kb则解析到磁盘
-    return commonsMultipartResolver;
   }
 
   // 添加jackson的ObjectMapper针对json的JsonMapper子类bean

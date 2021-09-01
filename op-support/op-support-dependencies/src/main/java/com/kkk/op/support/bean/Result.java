@@ -34,7 +34,7 @@ public class Result<T> implements Serializable {
 
   // todo... 无论成功与否均添加返回值信息，暂时先放到这里，后序加到ResponseBodyAdvice类中
   private void addExtend() {
-    var requestContext = BaseRequestContextHolder.getBaseRequestContext();
+    var requestContext = LocalRequestContextHolder.getLocalRequestContext();
     if (requestContext != null) {
       this.extend = new HashMap<>();
       this.extend.put("costTime", requestContext.calculateCostMillis() + "ms");

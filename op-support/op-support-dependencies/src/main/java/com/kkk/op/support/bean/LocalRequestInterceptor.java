@@ -12,7 +12,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @author KaiKoo
  */
 @Slf4j
-public class BaseRequestInterceptor implements HandlerInterceptor {
+public class LocalRequestInterceptor implements HandlerInterceptor {
 
   /**
    * handler参数为HandlerMethod对象 <br>
@@ -26,18 +26,18 @@ public class BaseRequestInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
     var requestContext =
-        BaseRequestContext.builder()
+        LocalRequestContext.builder()
             .entrance("(" + request.getMethod() + ")" + request.getRequestURI())
             .build();
     // 打印请求参数
     log.info("[requestContext = {}]", requestContext);
-    BaseRequestContextHolder.setBaseRequestContext(requestContext);
+    LocalRequestContextHolder.setLocalRequestContext(requestContext);
     return HandlerInterceptor.super.preHandle(request, response, handler);
   }
 
   @Override
   public void afterCompletion(
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-    BaseRequestContextHolder.resetBaseRequestContext();
+    LocalRequestContextHolder.resetLocalRequestContext();
   }
 }

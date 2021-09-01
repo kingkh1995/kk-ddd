@@ -1,6 +1,5 @@
 package com.kkk.op.support.marker;
 
-import com.kkk.op.support.function.Worker;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
@@ -14,22 +13,22 @@ import javax.validation.constraints.NotNull;
  */
 public interface DistributedLock {
 
-  /** 获取锁并执行一段工作，获取锁失败立即返回，执行完成自动释放锁。 */
-  default boolean tryWork(@NotBlank String name, @NotNull Worker worker) {
-    return this.tryWork(name, 0L, TimeUnit.MILLISECONDS, worker);
+  /** 获取锁并执行一段任务，获取锁失败立即返回，执行完成自动释放锁。 */
+  default boolean tryRun(@NotBlank String name, @NotNull Runnable runnable) {
+    return this.tryRun(name, 0L, TimeUnit.MILLISECONDS, runnable);
   }
 
-  /** 获取锁并执行一段工作，获取锁失败则阻塞指定时间，执行完成自动释放锁，默认单位为毫秒。 */
-  default boolean tryWork(@NotBlank String name, long waitMills, @NotNull Worker worker) {
-    return this.tryWork(name, waitMills, TimeUnit.MILLISECONDS, worker);
+  /** 获取锁并执行一段任务，获取锁失败则阻塞指定时间，执行完成自动释放锁，默认单位为毫秒。 */
+  default boolean tryRun(@NotBlank String name, long waitMills, @NotNull Runnable runnable) {
+    return this.tryRun(name, waitMills, TimeUnit.MILLISECONDS, runnable);
   }
 
-  /** 获取锁并执行一段工作，获取锁失败则阻塞指定时间，执行完成自动释放锁。 */
-  default boolean tryWork(
-      @NotBlank String name, long waitTime, @NotNull TimeUnit unit, @NotNull Worker worker) {
+  /** 获取锁并执行一段任务，获取锁失败则阻塞指定时间，执行完成自动释放锁。 */
+  default boolean tryRun(
+      @NotBlank String name, long waitTime, @NotNull TimeUnit unit, @NotNull Runnable runnable) {
     if (this.tryLock(name, waitTime, unit)) {
       try {
-        worker.work();
+        runnable.run();
         return true;
       } finally {
         this.unlock(name);
