@@ -1,12 +1,12 @@
 package com.kkk.op.user.converter;
 
-import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DataConverter;
 import com.kkk.op.support.tools.DateUtil;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.domain.types.AccountStatus;
+import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.model.AccountDO;
 import java.util.Optional;
 
@@ -26,10 +26,10 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
     var data = new AccountDO();
     Optional.ofNullable(account.getId()).map(AccountId::longValue).ifPresent(data::setId);
     Optional.ofNullable(account.getUserId()).map(LongId::longValue).ifPresent(data::setUserId);
-    Optional.ofNullable(account.getStatus())
-        .map(AccountStatus::getValue)
-        .map(AccountStatusEnum::name)
-        .ifPresent(data::setStatus);
+    Optional.ofNullable(account.getState())
+        .map(AccountState::getValue)
+        .map(AccountStateEnum::name)
+        .ifPresent(data::setState);
     Optional.ofNullable(account.getCreateTime())
         .map(DateUtil::toTimestamp)
         .ifPresent(data::setCreateTime);
@@ -44,11 +44,11 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
             accountDO -> {
               Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
               Optional.ofNullable(accountDO.getUserId()).map(LongId::from).ifPresent(builder::userId);
-              Optional.ofNullable(accountDO.getStatus())
+              Optional.ofNullable(accountDO.getState())
                   .filter(s -> !s.isBlank())
-                  .map(AccountStatusEnum::valueOf)
-                  .map(AccountStatus::of)
-                  .ifPresent(builder::status);
+                  .map(AccountStateEnum::valueOf)
+                  .map(AccountState::of)
+                  .ifPresent(builder::state);
               Optional.ofNullable(accountDO.getCreateTime())
                   .map(DateUtil::toLocalDateTime)
                   .ifPresent(builder::createTime);

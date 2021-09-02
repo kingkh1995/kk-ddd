@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.types;
 
-import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.util.Arrays;
@@ -16,50 +16,50 @@ import lombok.Getter;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-public final class AccountStatus implements Type {
+public final class AccountState implements Type {
 
-  @Getter private final AccountStatusEnum value;
+  @Getter private final AccountStateEnum value;
 
-  private AccountStatus(@NotNull AccountStatusEnum value) {
+  private AccountState(@NotNull AccountStateEnum value) {
     this.value = value;
   }
 
   /** 缓存内部类 */
   private static class Cache {
 
-    static final AccountStatus[] cache;
+    static final AccountState[] cache;
 
     static {
       cache =
-          Arrays.stream(AccountStatusEnum.values())
-              .map(AccountStatus::new)
-              .toArray(AccountStatus[]::new); // 传入IntFunction 参数为数组大小
+          Arrays.stream(AccountStateEnum.values())
+              .map(AccountState::new)
+              .toArray(AccountState[]::new); // 传入IntFunction 参数为数组大小
     }
   }
 
   /** of方法和valueOf方法 */
-  public static AccountStatus of(@NotNull AccountStatusEnum accountStatusEnum) {
-    return Cache.cache[Objects.requireNonNull(accountStatusEnum).ordinal()];
+  public static AccountState of(@NotNull AccountStateEnum accountStateEnum) {
+    return Cache.cache[Objects.requireNonNull(accountStateEnum).ordinal()];
   }
 
-  public static AccountStatus from(String s) {
-    var fieldName = "accountStatus";
+  public static AccountState from(String s) {
+    var fieldName = "accountState";
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
     try {
       // 如果不存在对应枚举，valueOf方法不会返回 null，而是抛出异常
-      return of(AccountStatusEnum.valueOf(s));
+      return of(AccountStateEnum.valueOf(s));
     } catch (IllegalArgumentException e) {
       throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
     }
   }
 
-  public static AccountStatus from(AccountStatusEnum accountStatusEnum) {
-    var fieldName = "accountStatusEnum";
-    if (accountStatusEnum == null) {
+  public static AccountState from(AccountStateEnum accountStateEnum) {
+    var fieldName = "accountStateEnum";
+    if (accountStateEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    return of(accountStatusEnum);
+    return of(accountStateEnum);
   }
 }

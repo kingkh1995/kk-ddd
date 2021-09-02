@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.strategy;
 
 import com.kkk.op.support.base.AbstractStrategyManager;
-import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.strategy.modify.AccountModifyStrategy;
 import java.util.EnumSet;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AccountStrategyManager
-    extends AbstractStrategyManager<AccountStatusEnum, AccountModifyStrategy> {
+    extends AbstractStrategyManager<AccountStateEnum, AccountModifyStrategy> {
 
   public AccountStrategyManager() {
     // 设置收集方案
@@ -24,7 +24,7 @@ public class AccountStrategyManager
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    return Objects.requireNonNull(this.getSingleton(oldAccount.getStatus().getValue()))
+    return Objects.requireNonNull(this.getSingleton(oldAccount.getState().getValue()))
         .allowModify(oldAccount, newAccount);
   }
 }

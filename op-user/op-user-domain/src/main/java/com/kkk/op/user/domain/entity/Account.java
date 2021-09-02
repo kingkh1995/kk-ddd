@@ -1,12 +1,12 @@
 package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.base.Entity;
-import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.domain.types.AccountStatus;
+import com.kkk.op.user.domain.types.AccountState;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -31,13 +31,13 @@ public class Account extends Entity<AccountId> {
 
   private LongId userId;
 
-  private AccountStatus status;
+  private AccountState state;
 
   private LocalDateTime createTime;
 
   @Override
   public Account snapshot() {
-    return builder().id(this.id).userId(this.userId).status(this.status).build();
+    return builder().id(this.id).userId(this.userId).state(this.state).build();
   }
 
   @Override
@@ -61,7 +61,7 @@ public class Account extends Entity<AccountId> {
     if (this.id == null) {
       // 新增逻辑
       // 设置初始状态
-      this.status = AccountStatus.of(AccountStatusEnum.INIT);
+      this.state = AccountState.of(AccountStateEnum.INIT);
       this.createTime = LocalDateTime.now();
     } else {
       // 更新逻辑

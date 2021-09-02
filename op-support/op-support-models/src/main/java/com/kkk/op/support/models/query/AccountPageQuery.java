@@ -16,7 +16,7 @@ public class AccountPageQuery extends AbstractPageQuery {
 
   private Long userId;
 
-  private String status;
+  private String state;
 
   private Long[] ids;
 }

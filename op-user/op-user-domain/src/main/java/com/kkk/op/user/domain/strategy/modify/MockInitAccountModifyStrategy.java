@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.strategy.modify;
 
-import com.kkk.op.support.enums.AccountStatusEnum;
+import com.kkk.op.support.enums.AccountStateEnum;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class MockInitAccountModifyStrategy implements AccountModifyStrategy {
 
   @Override
-  public AccountStatusEnum getStrategyID() {
-    return AccountStatusEnum.INIT;
+  public AccountStateEnum getStrategyID() {
+    return AccountStateEnum.INIT;
   }
 }
