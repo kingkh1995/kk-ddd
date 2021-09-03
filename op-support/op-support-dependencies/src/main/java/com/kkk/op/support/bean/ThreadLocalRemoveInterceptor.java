@@ -15,6 +15,7 @@ public class ThreadLocalRemoveInterceptor implements HandlerInterceptor {
   @Override
   public void afterCompletion(
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-    ThreadLocalRecorder.remove();
+    ThreadLocalRecorder.removeAll();
+    // InternalThreadLocal.removeAll();
   }
 }

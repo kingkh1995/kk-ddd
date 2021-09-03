@@ -20,7 +20,7 @@ public class LocalRequestContextHolder {
 
   /**
    * ThreadLocal增强：使用TransmittableThreadLocal <br>
-   * 线程池需要使用TtlExecutors.getTtlExecutorService()包装
+   * 线程池需要使用TtlExecutors类对应的静态方法包装
    */
   private static final TransmittableThreadLocal<LocalRequestContext> inheritableContextHolder =
       new TransmittableThreadLocal<>();

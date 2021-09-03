@@ -2,7 +2,8 @@ package com.kkk.op.support.bean;
 
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.marker.Identifier;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,8 +21,9 @@ public final class ThreadLocalRecorder {
     throw new IllegalAccessException();
   }
 
+  // 使用IdentityHashMap（直接使用==对比）再包装为Set
   private static final ThreadLocal<Set<ThreadLocal<?>>> RECORDER =
-      ThreadLocal.withInitial(HashSet::new);
+      ThreadLocal.withInitial(() -> Collections.newSetFromMap(new IdentityHashMap<>()));
 
   public static void record(ThreadLocal<?> threadLocal) {
     RECORDER.get().add(threadLocal);
@@ -33,8 +35,11 @@ public final class ThreadLocalRecorder {
     RECORDER.get().add(threadLocal);
   }
 
-  public static void remove() {
-    RECORDER.get().forEach(ThreadLocal::remove);
-    RECORDER.remove();
+  public static void removeAll() {
+    var it = RECORDER.get().iterator();
+    while (it.hasNext()) {
+      it.next().remove();
+      it.remove();
+    }
   }
 }

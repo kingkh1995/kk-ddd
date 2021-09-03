@@ -24,6 +24,27 @@ public final class AccountState implements Type {
     this.value = value;
   }
 
+  /** 缓存内部类：懒加载 */
+  @Deprecated
+  private static class Cache0 {
+
+    static final AccountState[] cache = new AccountState[AccountStateEnum.values().length];
+
+    static AccountState get0(AccountStateEnum accountStateEnum) {
+      var i = Objects.requireNonNull(accountStateEnum).ordinal();
+      var v = Cache.cache[i];
+      if (v == null) {
+        synchronized (Cache0.class) {
+          if (cache[i] == null) {
+            cache[i] = new AccountState(accountStateEnum);
+          }
+          v = cache[i];
+        }
+      }
+      return v;
+    }
+  }
+
   /** 缓存内部类 */
   private static class Cache {
 
