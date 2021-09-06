@@ -3,12 +3,11 @@ package com.kkk.op.support.aspect;
 import com.kkk.op.support.accessCondition.AccessConditionChecker;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
 import com.kkk.op.support.exception.BusinessException;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -20,15 +19,12 @@ import org.springframework.core.annotation.Order;
  * @author KaiKoo
  */
 @Slf4j
+@RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect
 public class QueryServiceAspect extends AbstractMethodAspect {
 
   private final AccessConditionChecker checker;
-
-  public QueryServiceAspect(@Autowired AccessConditionChecker checker) {
-    this.checker = Objects.requireNonNull(checker);
-  }
 
   @Override
   @Pointcut("@within(com.kkk.op.support.base.QueryService)")

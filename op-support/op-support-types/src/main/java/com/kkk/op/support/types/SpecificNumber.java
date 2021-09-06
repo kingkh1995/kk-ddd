@@ -1,5 +1,6 @@
 package com.kkk.op.support.types;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-public abstract class SpecificNumber implements Type {
+public abstract class SpecificNumber extends Number implements Type {
 
   protected static final BigDecimal ZERO = BigDecimal.ZERO;
   protected static final BigDecimal TEN = BigDecimal.TEN;
@@ -93,25 +94,38 @@ public abstract class SpecificNumber implements Type {
     }
   }
 
+  @JsonValue // 自定义Jackson序列化，也可以注释到字段（最好不要，因为无法被子类覆盖）
   public BigDecimal value() {
     return this.value;
   }
 
+  public String toPlainString() {
+    // toString可能会是科学计数法表示 1、使用科学计数法表示创建对象；2、scale设置为负数；3、执行stripTrailingZeros
+    // toPlainString则将会是原生数字表示而不是科学计数法
+    return this.value.toPlainString();
+  }
+
   /**
-   * 以下方法不需要实现缓存 <br>
+   * Number的方法，不需要实现缓存 <br>
    * 因为BigDecimal本身已实现缓存 <br>
    */
+  @Override
   public int intValue() {
     return this.value.intValue();
   }
 
+  @Override
   public long longValue() {
     return this.value.longValue();
   }
 
-  public String stringValue() {
-    // toString可能会是科学计数法表示 1、使用科学计数法表示创建对象；2、scale设置为负数；3、执行stripTrailingZeros
-    // toPlainString则将会是原生数字表示而不是科学计数法
-    return this.value.toString();
+  @Override
+  public float floatValue() {
+    return this.value.floatValue();
+  }
+
+  @Override
+  public double doubleValue() {
+    return this.value.doubleValue();
   }
 }

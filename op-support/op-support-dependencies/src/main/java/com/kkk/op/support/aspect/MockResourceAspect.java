@@ -2,16 +2,14 @@ package com.kkk.op.support.aspect;
 
 import com.google.common.base.Throwables;
 import com.kkk.op.support.annotations.MockResource;
-import com.kkk.op.support.bean.Uson;
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.tools.ReflectUtil;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 
 /**
  * mock切面实现 <br>
@@ -19,15 +17,11 @@ import org.springframework.core.annotation.Order;
  * @author KaiKoo
  */
 @Slf4j
-@Order // 可以不添加@Order注解，默认级别为最低
+@RequiredArgsConstructor
 @Aspect
 public class MockResourceAspect extends AbstractMethodAspect {
 
-  private final Uson uson;
-
-  public MockResourceAspect(@Autowired Uson uson) {
-    this.uson = Objects.requireNonNull(uson);
-  }
+  private final Kson kson;
 
   @Override
   @Pointcut("@annotation(com.kkk.op.support.annotations.MockResource)")
@@ -87,7 +81,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   @Override
   public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
-    log.info("mock return: {}", this.uson.writeJson(result));
+    log.info("mock return: {}", this.kson.writeJson(result));
   }
 
   public class MockException extends RuntimeException {

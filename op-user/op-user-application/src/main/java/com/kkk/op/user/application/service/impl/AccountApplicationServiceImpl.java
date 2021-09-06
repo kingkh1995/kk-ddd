@@ -9,7 +9,7 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,15 +18,12 @@ import org.springframework.stereotype.Service;
  * @author KaiKoo
  */
 @Service
+@RequiredArgsConstructor
 public class AccountApplicationServiceImpl implements AccountApplicationService {
 
   private final AccountDTOAssembler accountDTOAssembler = AccountDTOAssembler.INSTANCE;
 
   private final AccountService accountService;
-
-  public AccountApplicationServiceImpl(@Autowired AccountService accountService) {
-    this.accountService = accountService;
-  }
 
   @Override
   public long createAccount(LongId userId, AccountModifyCommand createCommand) {

@@ -1,5 +1,6 @@
 package com.kkk.op.support.types;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
 import java.time.Instant;
@@ -20,7 +21,7 @@ import org.springframework.lang.Nullable;
 @EqualsAndHashCode
 public abstract class SpecificDateTime implements Type {
 
-  protected final ZonedDateTime value;
+  @JsonValue protected final ZonedDateTime value;
 
   protected final boolean obtainTime;
 
@@ -68,5 +69,9 @@ public abstract class SpecificDateTime implements Type {
       throw new UnsupportedOperationException();
     }
     return this.value.toLocalDateTime();
+  }
+
+  public Instant toInstant() {
+    return this.value.toInstant();
   }
 }

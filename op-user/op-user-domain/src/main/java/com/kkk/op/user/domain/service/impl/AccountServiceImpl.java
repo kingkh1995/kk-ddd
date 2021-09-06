@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,18 +21,12 @@ import org.springframework.stereotype.Service;
  * @author KaiKoo
  */
 @Service
+@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
 
   private final AccountStrategyManager accountStrategyManager;
-
-  public AccountServiceImpl(
-      @Autowired AccountRepository accountRepository,
-      @Autowired AccountStrategyManager accountStrategyManager) {
-    this.accountRepository = accountRepository;
-    this.accountStrategyManager = accountStrategyManager;
-  }
 
   @Override
   public Account find(@NotNull AccountId id) {

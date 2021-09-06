@@ -11,11 +11,11 @@ import java.util.Objects;
  *
  * @author KaiKoo
  */
-public final class Uson {
+public final class Kson {
 
   private final JsonMapper jsonMapper;
 
-  public Uson(JsonMapper jsonMapper) {
+  public Kson(JsonMapper jsonMapper) {
     this.jsonMapper = Objects.requireNonNull(jsonMapper);
   }
 
@@ -23,28 +23,38 @@ public final class Uson {
     try {
       return this.jsonMapper.writeValueAsString(value);
     } catch (Exception e) {
-      throw new UsonExceptiion(e);
+      throw new KsonExceptiion(e);
     }
   }
 
+  public <T> T readJson(String content, Class<T> type) {
+    try {
+      return this.jsonMapper.readValue(content, type);
+    } catch (Exception e) {
+      throw new KsonExceptiion(e);
+    }
+  }
+
+  // 带泛型情况下使用
   public <T> T readJson(String content, TypeReference<T> typeReference) {
     try {
       return this.jsonMapper.readValue(content, typeReference);
     } catch (Exception e) {
-      throw new UsonExceptiion(e);
+      throw new KsonExceptiion(e);
     }
   }
 
+  // 不确定类型或只需要部分解析情况下使用
   public JsonNode readJson(String content) {
     try {
       return this.jsonMapper.readTree(content);
     } catch (Exception e) {
-      throw new UsonExceptiion(e);
+      throw new KsonExceptiion(e);
     }
   }
 
-  public class UsonExceptiion extends RuntimeException {
-    public UsonExceptiion(Throwable cause) {
+  public class KsonExceptiion extends RuntimeException {
+    public KsonExceptiion(Throwable cause) {
       super(cause);
     }
   }

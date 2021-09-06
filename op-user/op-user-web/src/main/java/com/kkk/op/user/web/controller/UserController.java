@@ -1,12 +1,13 @@
 package com.kkk.op.user.web.controller;
 
+import com.kkk.op.support.annotations.BaseController;
 import com.kkk.op.support.models.command.CreateGroup;
 import com.kkk.op.support.models.command.UpdateGroup;
 import com.kkk.op.support.models.command.UserModifyCommand;
 import com.kkk.op.user.domain.service.UserService;
 import javax.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * todo...
@@ -23,11 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
  * @author KaiKoo
  */
 @Slf4j
-@RestController
+@RequiredArgsConstructor
+@BaseController
 @RequestMapping("/api")
 public class UserController {
 
-  @Autowired private UserService userService;
+  private final UserService userService;
 
   @PostMapping("/user")
   @ResponseStatus(HttpStatus.CREATED) // 201

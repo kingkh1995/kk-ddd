@@ -1,5 +1,7 @@
 package com.kkk.op.support.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.kkk.op.support.marker.Identifier;
 import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
@@ -26,8 +28,9 @@ public class LongId extends SpecificNumber implements Identifier {
   }
 
   // 针对可靠输入的 from 方法
-  public static LongId from(long id) {
-    return of(new BigDecimal(id), null);
+  @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
+  public static LongId from(Number id) {
+    return of(new BigDecimal(id.toString()), null);
   }
 
   // 针对不可靠输入的 valueOf 方法
@@ -37,5 +40,22 @@ public class LongId extends SpecificNumber implements Identifier {
 
   public static LongId valueOf(String s, String fieldName) {
     return of(parse(s, fieldName), fieldName);
+  }
+
+  @Override
+  public String stringValue() {
+    return this.value.toString();
+  }
+
+  @Override
+  @JsonValue(false) // 需要覆盖父类的注释，不然会报错重复定义
+  public BigDecimal value() {
+    return super.value();
+  }
+
+  @Override
+  @JsonValue // 子类自定义序列化
+  public long longValue() {
+    return super.longValue();
   }
 }

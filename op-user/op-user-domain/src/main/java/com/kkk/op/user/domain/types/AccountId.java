@@ -1,5 +1,6 @@
 package com.kkk.op.user.domain.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kkk.op.support.types.LongId;
 import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
@@ -21,8 +22,9 @@ public final class AccountId extends LongId {
     return new AccountId(value);
   }
 
-  public static AccountId from(long id) {
-    return new AccountId(new BigDecimal(id));
+  @JsonCreator
+  public static AccountId from(Number id) {
+    return new AccountId(new BigDecimal(id.toString()));
   }
 
   public static AccountId valueOf(Long l) {

@@ -1,10 +1,9 @@
 package com.kkk.op.support.accessCondition;
 
 import java.util.LinkedList;
-import java.util.Objects;
 import javax.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * AccessConditionChecker检查器 <br>
@@ -12,13 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author KaiKoo
  */
 @Slf4j
+@RequiredArgsConstructor
 public class AccessConditionChecker {
 
   private final AccessConditionPluginManager pluginManager;
-
-  public AccessConditionChecker(@Autowired AccessConditionPluginManager pluginManager) {
-    this.pluginManager = Objects.requireNonNull(pluginManager);
-  }
 
   /**
    * 解析条件，支持短路 (A || B || (!C && D || (E || !F && G) && H)) || !I <br>

@@ -54,7 +54,7 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
                   .ifPresent(builder::userId);
               Optional.ofNullable(accountDTO.getState())
                   .filter(s -> !s.isBlank())
-                  .map(AccountState::from)
+                  .map(AccountState::valueOf)
                   .ifPresent(builder::state);
               Optional.ofNullable(accountDTO.getCreateTime())
                   .map(DateUtil::toLocalDateTime)

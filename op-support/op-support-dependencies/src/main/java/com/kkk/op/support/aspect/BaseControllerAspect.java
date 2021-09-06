@@ -1,18 +1,18 @@
 package com.kkk.op.support.aspect;
 
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
-import com.kkk.op.support.bean.Uson;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
@@ -28,12 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
  * @author KaiKoo
  */
 @Slf4j
+@RequiredArgsConstructor
 @Component // 需要添加 @Component 注解
-@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
+@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高，也可以不添加@Order注解，默认级别为最低
 @Aspect // 切面类需要添加 @Aspect 注解
 public class BaseControllerAspect extends AbstractMethodAspect {
 
-  @Autowired private Uson uson;
+  private final Kson kson;
 
   @Override
   @Pointcut("@within(com.kkk.op.support.annotations.BaseController)") // 切面针对注解标识的类
@@ -49,9 +50,9 @@ public class BaseControllerAspect extends AbstractMethodAspect {
         LocalRequestContextHolder.getLocalRequestContext().getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
-        this.uson.writeJson(getMethodParams(signature, point.getArgs())),
+        this.kson.writeJson(getMethodParams(signature, point.getArgs())),
         thrown,
-        this.uson.writeJson(result));
+        this.kson.writeJson(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {

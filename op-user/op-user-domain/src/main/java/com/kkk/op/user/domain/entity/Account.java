@@ -9,11 +9,12 @@ import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * 用户账号
@@ -21,9 +22,10 @@ import lombok.ToString;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-@ToString
 @Getter
 @Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE) // 供builder使用
+@NoArgsConstructor(access = AccessLevel.PRIVATE) // 供反序列化使用
 public class Account extends Entity<AccountId> {
 
   @Setter(AccessLevel.PROTECTED)

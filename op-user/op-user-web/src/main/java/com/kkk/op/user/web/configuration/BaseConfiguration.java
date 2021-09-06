@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.LocalRequestInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
-import com.kkk.op.support.bean.Uson;
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.mock.MockCacheManager;
@@ -75,10 +76,10 @@ public class BaseConfiguration implements WebMvcConfigurer {
     return new MockCacheManager();
   }
 
-  // 配置valiator快速失败
+  // 配置jakarta-valiator-bean，校验快速失败
   @Bean
   public Validator validator() {
-    // todo... debug时设置为不快速失败 通过配置或开关控制
+    // todo... debug时不快速失败 通过配置或开关控制
     return Validation.byProvider(HibernateValidator.class)
         .configure()
         .failFast(false)
@@ -86,19 +87,22 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .getValidator();
   }
 
-  // 添加jackson的ObjectMapper针对json的JsonMapper子类bean
+  // 配置Jackson-bean 使用 JsonMapper 面向json的ObjectMapper子类
   @Bean
   public JsonMapper jsonMapper() {
-    // todo... 序列化 jdk8 time api会报错，需要处理。
-    var jsonMapper = JsonMapper.builder().build();
-    // 设置jackson序列化方式只针对属性
-    jsonMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-    jsonMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-    return jsonMapper;
+    return JsonMapper.builder()
+        // 自动注册模块（jdk8Time类：JavaTimeModule）
+        .findAndAddModules()
+        // 序列化时只按属性
+        .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+        .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+        // 反序列化时忽略多余字段 反序列化默认需要无参构造器
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .build();
   }
 
   @Bean
-  public Uson uson() {
-    return new Uson(jsonMapper());
+  public Kson kson() {
+    return new Kson(jsonMapper());
   }
 }

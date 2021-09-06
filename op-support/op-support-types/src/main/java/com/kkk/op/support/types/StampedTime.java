@@ -1,5 +1,6 @@
 package com.kkk.op.support.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -23,6 +24,7 @@ public class StampedTime extends SpecificDateTime {
   }
 
   // from方法不需要校验 now参数默认为null
+  @JsonCreator
   public static StampedTime from(@NotNull ZonedDateTime value) {
     return of(value, null, null);
   }

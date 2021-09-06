@@ -1,5 +1,7 @@
 package com.kkk.op.user.domain.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
@@ -18,7 +20,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 public final class AccountState implements Type {
 
-  @Getter private final AccountStateEnum value;
+  @Getter @JsonValue private final AccountStateEnum value;
 
   private AccountState(@NotNull AccountStateEnum value) {
     this.value = value;
@@ -59,11 +61,12 @@ public final class AccountState implements Type {
   }
 
   /** of方法和valueOf方法 */
+  @JsonCreator
   public static AccountState of(@NotNull AccountStateEnum accountStateEnum) {
     return Cache.cache[Objects.requireNonNull(accountStateEnum).ordinal()];
   }
 
-  public static AccountState from(String s) {
+  public static AccountState valueOf(String s) {
     var fieldName = "accountState";
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
@@ -76,7 +79,7 @@ public final class AccountState implements Type {
     }
   }
 
-  public static AccountState from(AccountStateEnum accountStateEnum) {
+  public static AccountState valueOf(AccountStateEnum accountStateEnum) {
     var fieldName = "accountStateEnum";
     if (accountStateEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);

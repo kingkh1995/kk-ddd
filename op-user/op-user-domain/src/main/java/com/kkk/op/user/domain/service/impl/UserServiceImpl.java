@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,13 +17,10 @@ import org.springframework.stereotype.Service;
  * @author KaiKoo
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
-
-  public UserServiceImpl(@Autowired UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
 
   @Override
   public User find(@NotNull LongId longId) {
