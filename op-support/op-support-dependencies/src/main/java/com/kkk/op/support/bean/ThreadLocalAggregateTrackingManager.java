@@ -1,5 +1,6 @@
 package com.kkk.op.support.bean;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
@@ -26,7 +27,6 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
    * 1.putSnapshot 方法将 ThreadLocal 记录到 Recorder <br>
    * 2.在拦截器的 afterCompletion 方法中移除所有的 ThreadLocal <br>
    * <br>
-   * TBD... 考虑使用TransmittableThreadLocal
    *
    * @author KaiKoo
    */
@@ -34,7 +34,14 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
           T extends Aggregate<ID>, ID extends Identifier>
       implements AggregateSnapshotContext<T, ID> {
 
-    private final ThreadLocal<Map<ID, T>> threadLocal = ThreadLocal.withInitial(HashMap::new);
+    // 使用TransmittableThreadLocal
+    private final ThreadLocal<Map<ID, T>> threadLocal =
+        new TransmittableThreadLocal<>() {
+          @Override
+          protected Map<ID, T> initialValue() {
+            return new HashMap<>();
+          }
+        };
 
     @Override
     public boolean existSnapshot(@NotNull ID id) {

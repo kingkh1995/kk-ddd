@@ -29,8 +29,8 @@ public class LongId extends SpecificNumber implements Identifier {
 
   // 针对可靠输入的 from 方法
   @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
-  public static LongId from(Number id) {
-    return of(new BigDecimal(id.toString()), null);
+  public static LongId from(@NotNull Number id) {
+    return of(new BigDecimal(id.toString()), "LongId");
   }
 
   // 针对不可靠输入的 valueOf 方法
@@ -44,7 +44,7 @@ public class LongId extends SpecificNumber implements Identifier {
 
   @Override
   public String stringValue() {
-    return this.value.toString();
+    return super.value().toString();
   }
 
   @Override

@@ -98,10 +98,11 @@ public final class SearchUtil {
     var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ[k] - 1;
-      if (safeGet(arr, mid) < key) {
+      var cmp = safeGet(arr, mid) - key;
+      if (cmp < 0) {
         k = k - 1;
         lo = mid + 1;
-      } else if (safeGet(arr, mid) > key) {
+      } else if (cmp > 0) {
         k = k - 2;
         hi = mid - 1;
       } else {
@@ -164,10 +165,11 @@ public final class SearchUtil {
     var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ[k] - 1;
-      if (safeGet(arr, mid) < key) {
+      var cmp = safeGet(arr, mid) - key;
+      if (cmp < 0) {
         k = k - 1;
         lo = mid + 1;
-      } else if (safeGet(arr, mid) > key) {
+      } else if (cmp > 0) {
         k = k - 2;
         hi = mid - 1;
       } else {
@@ -221,10 +223,11 @@ public final class SearchUtil {
     var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ[k] - 1;
-      if (c.compare(safeGet(arr, mid), key) < 0) {
+      var cmp = c.compare(safeGet(arr, mid), key);
+      if (cmp < 0) {
         k = k - 1;
         lo = mid + 1;
-      } else if (c.compare(safeGet(arr, mid), key) > 0) {
+      } else if (cmp > 0) {
         k = k - 2;
         hi = mid - 1;
       } else {
@@ -278,10 +281,11 @@ public final class SearchUtil {
     var hi = length - 1;
     while (lo <= hi) {
       var mid = lo + FIBSEQ[k] - 1;
-      if (c.compare(safeGet(list, mid), key) < 0) {
+      var cmp = c.compare(safeGet(list, mid), key);
+      if (cmp < 0) {
         k = k - 1;
         lo = mid + 1;
-      } else if (c.compare(safeGet(list, mid), key) > 0) {
+      } else if (cmp > 0) {
         k = k - 2;
         hi = mid - 1;
       } else {

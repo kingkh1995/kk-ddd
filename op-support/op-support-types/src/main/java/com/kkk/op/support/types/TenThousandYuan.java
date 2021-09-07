@@ -25,7 +25,7 @@ public class TenThousandYuan extends SpecificNumber {
   // 针对可靠输入的 from 方法
   @JsonCreator
   public static TenThousandYuan from(@NotNull Number tenThousandYuan) {
-    return of(new BigDecimal(tenThousandYuan.toString()), null);
+    return of(new BigDecimal(tenThousandYuan.toString()), "TenThousandYuan");
   }
 
   // 针对不可靠输入的 valueOf 方法
@@ -40,7 +40,7 @@ public class TenThousandYuan extends SpecificNumber {
   /** 格式化表示 */
   public String toFormattedString() {
     if (this.formattedStringCache == null) {
-      this.formattedStringCache = DECIMAL_FORMAT.format(this.value.movePointLeft(4)) + "（万元）";
+      this.formattedStringCache = DECIMAL_FORMAT.format(super.value().movePointLeft(4)) + "（万元）";
     }
     return this.formattedStringCache;
   }

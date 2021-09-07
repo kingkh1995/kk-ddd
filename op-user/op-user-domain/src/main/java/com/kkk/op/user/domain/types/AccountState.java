@@ -67,7 +67,7 @@ public final class AccountState implements Type {
   }
 
   public static AccountState valueOf(String s) {
-    var fieldName = "accountState";
+    var fieldName = "账户状态";
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
@@ -80,7 +80,7 @@ public final class AccountState implements Type {
   }
 
   public static AccountState valueOf(AccountStateEnum accountStateEnum) {
-    var fieldName = "accountStateEnum";
+    var fieldName = "账户状态";
     if (accountStateEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }

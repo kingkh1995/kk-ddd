@@ -26,7 +26,7 @@ public class StampedTime extends SpecificDateTime {
   // from方法不需要校验 now参数默认为null
   @JsonCreator
   public static StampedTime from(@NotNull ZonedDateTime value) {
-    return of(value, null, null);
+    return of(value, "StampedTime", null);
   }
 
   public static StampedTime current() {

@@ -21,16 +21,17 @@ public final class ReflectUtil {
     if (clazz == null) {
       return null;
     }
-    // 基本数据类型
+    // 基本数据类型（如：int.class）
     if (clazz.isPrimitive()) {
-      if ("void".equals(clazz.getName())) {
-        return null;
-      } else if ("boolean".equals(clazz.getName())) {
-        return false;
-      } else if ("char".equals(clazz.getName())) {
-        return '\0';
-      } else {
-        return 0;
+      switch (clazz.getName()) {
+        case "void":
+          return null;
+        case "boolean":
+          return false;
+        case "char":
+          return '\0';
+        default:
+          return 0;
       }
     }
     //  数组类型

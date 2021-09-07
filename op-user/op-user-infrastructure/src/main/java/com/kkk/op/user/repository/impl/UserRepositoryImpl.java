@@ -1,11 +1,10 @@
 package com.kkk.op.user.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
-import com.kkk.op.support.base.AutoCached;
 import com.kkk.op.support.base.AggregateRepositorySupport;
+import com.kkk.op.support.base.AutoCached;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
-import com.kkk.op.support.changeTracking.diff.DiffType;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
@@ -110,22 +109,24 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
       var iterator = collectionDiff.iterator();
       while (iterator.hasNext()) {
         var entityDiff = (EntityDiff) iterator.next();
-        // 移除情况
-        if (entityDiff.getType() == DiffType.Removed) {
-          var oldValue = (Account) entityDiff.getOldValue();
-          accountMapper.deleteById(oldValue.getId().longValue());
-        }
-        // 新增情况
-        if (entityDiff.getType() == DiffType.Added) {
-          var newValue = (Account) entityDiff.getNewValue();
-          var accountDO = accountDataConverter.toData(newValue);
-          accountMapper.insert(accountDO);
-          // 填补id
-          newValue.fillInId(AccountId.from(accountDO.getId()));
-        }
-        // 更新情况
-        if (entityDiff.getType() == DiffType.Modified) {
-          accountMapper.updateById(accountDataConverter.toData((Account) entityDiff.getNewValue()));
+        var oldValue = (Account) entityDiff.getOldValue();
+        var newValue = (Account) entityDiff.getNewValue();
+        switch (entityDiff.getType()) {
+          case Added:
+            // 新增情况
+            var accountDO = accountDataConverter.toData(newValue);
+            accountMapper.insert(accountDO);
+            // 填补id
+            newValue.fillInId(AccountId.from(accountDO.getId()));
+            break;
+          case Modified:
+            // 更新情况
+            accountMapper.updateById(accountDataConverter.toData(newValue));
+            break;
+          case Removed:
+            // 移除情况
+            accountMapper.deleteById(oldValue.getId().longValue());
+            break;
         }
       }
     }

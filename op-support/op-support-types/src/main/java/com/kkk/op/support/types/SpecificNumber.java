@@ -20,7 +20,7 @@ public abstract class SpecificNumber extends Number implements Type {
   protected static final BigDecimal TEN = BigDecimal.TEN;
   protected static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 
-  protected final BigDecimal value;
+  private final BigDecimal value;
 
   /**
    * @param value 数值

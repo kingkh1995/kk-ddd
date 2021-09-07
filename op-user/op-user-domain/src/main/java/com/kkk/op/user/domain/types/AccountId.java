@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 public final class AccountId extends LongId {
 
   private AccountId(BigDecimal value) {
-    super(value, "accountId");
+    super(value, "AccountId");
   }
 
   private static AccountId of(@NotNull BigDecimal value) {
@@ -23,15 +23,15 @@ public final class AccountId extends LongId {
   }
 
   @JsonCreator
-  public static AccountId from(Number id) {
-    return new AccountId(new BigDecimal(id.toString()));
+  public static AccountId from(@NotNull Number id) {
+    return of(new BigDecimal(id.toString()));
   }
 
   public static AccountId valueOf(Long l) {
-    return of(parse(l, "accountId"));
+    return of(parse(l, "账户ID"));
   }
 
   public static AccountId valueOf(String s) {
-    return of(parse(s, "accountId"));
+    return of(parse(s, "账户ID"));
   }
 }
