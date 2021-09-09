@@ -1,15 +1,13 @@
 package com.kkk.op.user.web.configuration;
 
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.bean.IPControlInterceptor;
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.LocalRequestInterceptor;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
-import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.mock.MockCacheManager;
@@ -30,14 +28,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class BaseConfiguration implements WebMvcConfigurer {
-
-  // Mybatis-Plus插件
-  @Bean
-  public MybatisPlusInterceptor mybatisPlusInterceptor() {
-    var interceptor = new MybatisPlusInterceptor();
-    interceptor.addInnerInterceptor(new PaginationInnerInterceptor()); // 添加分页插件
-    return interceptor;
-  }
 
   // todo... 配合nacos配置中心实时刷新
   @Value("${ip_control_switch:true}")

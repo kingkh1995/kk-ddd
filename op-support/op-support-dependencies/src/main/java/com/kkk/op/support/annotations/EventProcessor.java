@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
  *
  * @author KaiKoo
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
 @Component
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface EventProcessor {
 
   /** 事件类型，为了减小复杂度，一个事件处理器只能对应一个事件 */

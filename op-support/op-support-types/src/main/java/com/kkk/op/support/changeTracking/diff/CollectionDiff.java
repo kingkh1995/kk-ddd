@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 集合类对比信息（可以实现Collection接口）
+ * 集合类对比信息（可以实现Collection接口）<br>
+ * type默认为Modified
  *
  * @author KaiKoo
  */
@@ -18,6 +19,18 @@ public class CollectionDiff extends Diff {
 
   public CollectionDiff(Collection<?> oldValue, Collection<?> newValue) {
     super(oldValue, newValue);
+  }
+
+  // type默认为Modified
+  @Override
+  public DiffType getType() {
+    return DiffType.Modified;
+  }
+
+  // do nothing
+  @Override
+  public void setType(DiffType type) {
+    return;
   }
 
   public boolean isEmpty() {

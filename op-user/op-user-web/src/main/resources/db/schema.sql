@@ -4,7 +4,8 @@ CREATE TABLE account
 (
     id          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     user_id     BIGINT(20) UNSIGNED NOT NULL COMMENT '用户ID',
-    state      VARCHAR(100) NOT NULL COMMENT '账号状态',
+    state       VARCHAR(100) NOT NULL COMMENT '账号状态',
+    version     BIGINT(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '版本号',
     create_time DATETIME     NOT NULL COMMENT '创建时间',
     PRIMARY KEY (id)
 );

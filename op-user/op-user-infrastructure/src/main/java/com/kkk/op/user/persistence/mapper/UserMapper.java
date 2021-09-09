@@ -1,19 +1,48 @@
 package com.kkk.op.user.persistence.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.kkk.op.user.persistence.model.AccountDO;
 import com.kkk.op.user.persistence.model.UserDO;
 import java.util.List;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
- * user Mapper
+ * User聚合根Mapper<br>
+ * （方法名使用：insert delete update select selectList selectPage） <br>
  *
  * @author KaiKoo
  */
-public interface UserMapper extends BaseMapper<UserDO> {
+@Mapper
+public interface UserMapper {
 
-  List<UserDO> selectByGender(String gender);
+  // User表
 
-  // Mybatis-Plus分页实现 添加分页插件后 只需要将第一个参数设置为IPage对象即可 复用批量查询的PreparedStatement
-  IPage<UserDO> selectByGender(IPage<?> page, String gender);
+  @Select("SELECT * FROM user WHERE gender = #{gender}")
+  List<UserDO> selectListByGender(String gender);
+
+  UserDO selectByPK(Long userId);
+
+  @Delete("DELETE FROM user WHERE id = #{userId}")
+  void deleteByPK(Long userId);
+
+  int insert(UserDO userDO);
+
+  int updateByPK(UserDO userDO);
+
+  // Account表
+
+  AccountDO selectAccountByPK(Long accountId);
+
+  List<AccountDO> selectAccountsByUserId(Long userId);
+
+  @Delete("DELETE FROM account WHERE id = #{accountId}")
+  int deleteAccountByPK(Long accountId);
+
+  @Delete("DELETE FROM account WHERE user_id = #{userId}")
+  int deleteAccountsByUserId(Long userId);
+
+  int insertAccount(AccountDO accountDO);
+
+  int updateAccountByPK(AccountDO accountDO);
 }

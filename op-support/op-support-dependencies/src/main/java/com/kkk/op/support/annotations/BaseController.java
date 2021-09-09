@@ -15,6 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Validated // 校验 @PathVariable @RequestParam 需要添加 @Validated 注解
 @RestController
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface BaseController {}

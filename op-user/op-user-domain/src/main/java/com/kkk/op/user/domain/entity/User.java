@@ -47,6 +47,7 @@ public class User extends Aggregate<LongId> {
     var builder = builder();
     builder.id(this.id).name(this.name);
     // todo... copy accounts
+    builder.accounts(this.accounts);
     return builder.build();
   }
 

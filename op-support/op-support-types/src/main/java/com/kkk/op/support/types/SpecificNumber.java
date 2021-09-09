@@ -95,7 +95,7 @@ public abstract class SpecificNumber extends Number implements Type {
   }
 
   @JsonValue // 自定义Jackson序列化，也可以注释到字段（最好不要，因为无法被子类覆盖）
-  public BigDecimal value() {
+  protected BigDecimal value() {
     return this.value;
   }
 

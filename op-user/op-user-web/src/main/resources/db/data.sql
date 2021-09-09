@@ -9,4 +9,7 @@ DELETE
 FROM user;
 
 INSERT INTO user (name, username, password, gender, age, email)
-VALUES ('凯', 'Kai', '87c56bc9d59e16edeff921cac8779149', 'MALE', 26, 'kai@kkkop.com');
+VALUES ('凯', 'Kai', '87c56bc9d59e16edeff921cac8779149', 'MALE', 36, 'kai@kkkop.com'),
+       ('依', 'Yi', '87c56bc9d59e16edeff921cac8779149', 'FEMALE', 32, 'yi@kkkop.com'),
+       ('元', 'Yuan', '87c56bc9d59e16edeff921cac8779149', 'MALE', 8, 'yuani@kkkop.com'),
+       ('汝', 'Ru', '87c56bc9d59e16edeff921cac8779149', 'FEMALE', 1, 'ru@kkkop.com');

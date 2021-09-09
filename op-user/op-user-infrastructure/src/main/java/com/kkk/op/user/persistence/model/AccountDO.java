@@ -1,8 +1,5 @@
 package com.kkk.op.user.persistence.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import java.sql.Timestamp;
 import lombok.Data;
 
@@ -13,10 +10,8 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
-@TableName("account")
 public class AccountDO {
 
-  @TableId(type = IdType.AUTO)
   private Long id;
 
   private Long userId;
@@ -28,6 +23,6 @@ public class AccountDO {
   // 数据库中除了 create_time update_time 等其他日期均使用 datetime
   private Timestamp createTime;
 
-  // todo... 乐观锁及逻辑删除
-
+  // 乐观锁版本号
+  private Integer version;
 }

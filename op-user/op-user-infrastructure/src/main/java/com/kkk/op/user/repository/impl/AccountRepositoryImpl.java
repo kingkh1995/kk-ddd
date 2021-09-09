@@ -1,13 +1,12 @@
 package com.kkk.op.user.repository.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.kkk.op.support.base.EntityRepositorySupport;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.persistence.mapper.AccountMapper;
+import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
- * Entity类Repository实现类
+ * Entity类Repository实现类 （仅模板，实际上聚合根子实体不应该单独存在）
  *
  * @author KaiKoo
  */
@@ -28,43 +27,44 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
 
-  private final AccountMapper accountMapper;
+  private final UserMapper userMapper;
 
   public AccountRepositoryImpl(
       @Autowired DistributedLock distributedLock,
       @Autowired(required = false) CacheManager cacheManager,
-      @Autowired AccountMapper accountMapper) {
+      @Autowired UserMapper userMapper) {
     super(distributedLock, cacheManager);
-    this.accountMapper = accountMapper;
+    this.userMapper = userMapper;
   }
 
   @Override
   protected Account onSelect(@NotNull AccountId accountId) {
-    return accountDataConverter.fromData(accountMapper.selectById(accountId.longValue()));
+    return accountDataConverter.fromData(userMapper.selectAccountByPK(accountId.getValue()));
   }
 
   @Override
   protected void onDelete(@NotNull Account entity) {
-    accountMapper.delete(Wrappers.query(accountDataConverter.toData(entity)));
+    userMapper.deleteAccountByPK(entity.getId().getValue());
   }
 
   @Override
   protected void onInsert(@NotNull Account entity) {
     var data = accountDataConverter.toData(entity);
-    accountMapper.insert(data);
+    userMapper.insertAccount(data);
     // 填补id
     entity.fillInId(AccountId.from(data.getId()));
   }
 
   @Override
   protected void onUpdate(@NotNull Account entity) {
-    accountMapper.updateById(accountDataConverter.toData(entity));
+    userMapper.updateAccountByPK(accountDataConverter.toData(entity));
   }
 
   @Override
   protected List<Account> onSelectByIds(@NotEmpty Set<AccountId> accountIds) {
     var ids =
         accountIds.stream().mapToLong(AccountId::longValue).boxed().collect(Collectors.toSet());
-    return accountDataConverter.fromData(accountMapper.selectBatchIds(ids));
+    // todo...
+    return null;
   }
 }

@@ -1,8 +1,5 @@
 package com.kkk.op.user.persistence.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
@@ -11,11 +8,8 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
-@TableName("user")
 public class UserDO {
 
-  // IdType.ASSIGN_ID 默认雪花算法实现
-  @TableId(type = IdType.AUTO)
   private Long id;
 
   private String name;

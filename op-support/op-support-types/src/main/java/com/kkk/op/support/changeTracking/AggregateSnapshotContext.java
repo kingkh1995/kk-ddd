@@ -36,10 +36,18 @@ public interface AggregateSnapshotContext<T extends Aggregate<ID>, ID extends Id
   void putSnapshot(@NotNull T aggregate);
 
   /**
-   * 返回快照的副本
+   * 获取快照，供AggregateTrackingManager内部使用
    *
    * @param id
    * @return
    */
   T getSnapshot(@NotNull ID id);
+
+  /**
+   * 安全获取，返回快照的副本，供外部使用
+   *
+   * @param id
+   * @return
+   */
+  T safeGet(@NotNull ID id);
 }

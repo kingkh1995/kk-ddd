@@ -53,9 +53,8 @@ public class LongId extends SpecificNumber implements Identifier {
     return super.value();
   }
 
-  @Override
   @JsonValue // 子类自定义序列化
-  public long longValue() {
+  public long getValue() {
     return super.longValue();
   }
 }

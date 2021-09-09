@@ -14,6 +14,6 @@ import org.springframework.validation.annotation.Validated;
  */
 @Validated
 @Service
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 public @interface QueryService {}
