@@ -68,12 +68,8 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
     @Override
     @SuppressWarnings("unchecked")
     public T getSnapshot(@NotNull ID id) {
-      return this.threadLocal.get().get(id);
-    }
-
-    @Override
-    public T safeGet(@NotNull ID id) {
-      return (T) getSnapshot(id).snapshot();
+      // 返回副本
+      return (T) this.threadLocal.get().get(id).snapshot();
     }
   }
 }

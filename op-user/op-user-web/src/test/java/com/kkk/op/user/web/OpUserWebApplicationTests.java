@@ -12,7 +12,6 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.mapper.UserMapper;
-import com.kkk.op.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,6 @@ class OpUserWebApplicationTests {
   @Autowired private Kson kson;
 
   @Autowired private UserMapper userMapper;
-
-  @Autowired private UserRepository userRepository;
 
   @Test
   void testMybatis() {

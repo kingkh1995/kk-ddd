@@ -45,7 +45,7 @@ public abstract class AbstractAggregateTrackingManager<
 
   @Override
   public EntityDiff detectChanges(@NotNull T aggregate) {
-    return DiffUtil.diff(this.context.getSnapshot(aggregate.getId()), aggregate);
+    return DiffUtil.diff(this.find(aggregate.getId()), aggregate);
   }
 
   @Override
@@ -55,6 +55,6 @@ public abstract class AbstractAggregateTrackingManager<
 
   @Override
   public T find(@NotNull ID id) {
-    return this.context.safeGet(id);
+    return this.context.getSnapshot(id);
   }
 }
