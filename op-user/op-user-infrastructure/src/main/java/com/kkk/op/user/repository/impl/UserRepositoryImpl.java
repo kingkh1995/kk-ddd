@@ -1,6 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.AggregateRepositorySupport;
+import com.kkk.op.support.base.AutoCaching;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
@@ -12,14 +13,14 @@ import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.types.AccountId;
+import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,7 +30,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author KaiKoo
  */
-//@AutoCached // 开启自动缓存功能
+@AutoCaching // 开启自动缓存功能
 @Repository
 public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     implements UserRepository {
@@ -40,13 +41,17 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
   private final UserMapper userMapper;
 
+  private final AccountMapper accountMapper;
+
   public UserRepositoryImpl(
-      @Autowired DistributedLock distributedLock,
-      @Autowired CacheManager cacheManager,
-      @Autowired UserMapper userMapper) {
+      final DistributedLock distributedLock,
+      final CacheManager cacheManager,
+      final UserMapper userMapper,
+      final AccountMapper accountMapper) {
     // 使用ThreadLocalAggregateTrackingManager
     super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager<>());
     this.userMapper = userMapper;
+    this.accountMapper = accountMapper;
   }
 
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
@@ -58,13 +63,13 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     userMapper.insert(userDO);
     // 填补id
     aggregate.fillInId(LongId.from(userDO.getId()));
-    // 循环插入Account
+    // 循环插入Accounts
     var accounts = aggregate.getAccounts();
     if (!CollectionUtils.isEmpty(accounts)) {
       accounts.forEach(
           account -> {
             var accountDO = accountDataConverter.toData(account);
-            userMapper.insertAccount(accountDO);
+            accountMapper.insert(accountDO);
             // 填补id
             account.fillInId(AccountId.from(accountDO.getId()));
           });
@@ -73,18 +78,19 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
   @Override
   protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
+    // todo...
     return null;
   }
 
   @Override
   protected User onSelect(@NotNull LongId longId) {
     // 查询User
-    var user = userDataConverter.fromData(userMapper.selectByPK(longId.getValue()));
-    // 查询Account
-    user.setAccounts(new ArrayList<>());
-    userMapper
-        .selectAccountsByUserId(longId.getValue())
-        .forEach(accountDO -> user.getAccounts().add(accountDataConverter.fromData(accountDO)));
+    var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()).get());
+    // 查询Accounts
+    user.setAccounts(
+        accountMapper.selectListByUserId(longId.getValue()).stream()
+            .map(accountDataConverter::fromData)
+            .collect(Collectors.toList()));
     return user;
   }
 
@@ -93,7 +99,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   protected void onUpdate(@NotNull User aggregate, @NotNull EntityDiff diff) {
     // 更新User
     if (diff.isSelfModified()) {
-      userMapper.updateByPK(userDataConverter.toData(aggregate));
+      userMapper.updateById(userDataConverter.toData(aggregate));
     }
     // 处理Account
     var collectionDiff = (CollectionDiff) diff.get("accounts");
@@ -107,17 +113,17 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
           case Added:
             // 新增情况
             var accountDO = accountDataConverter.toData(newValue);
-            userMapper.insertAccount(accountDO);
+            accountMapper.insert(accountDO);
             // 填补id
             newValue.fillInId(AccountId.from(accountDO.getId()));
             break;
           case Modified:
             // 更新情况
-            userMapper.updateAccountByPK(accountDataConverter.toData(newValue));
+            accountMapper.updateById(accountDataConverter.toData(newValue));
             break;
           case Removed:
             // 移除情况
-            userMapper.deleteAccountByPK(oldValue.getId().getValue());
+            accountMapper.deleteById(oldValue.getId().getValue());
             break;
         }
       }
@@ -128,8 +134,8 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   @Override
   protected void onDelete(@NotNull User aggregate) {
     // 删除User
-    userMapper.deleteByPK(aggregate.getId().getValue());
+    userMapper.deleteById(aggregate.getId().getValue());
     // 删除Accounts
-    userMapper.deleteAccountsByUserId(aggregate.getId().getValue());
+    accountMapper.deleteByUserId(aggregate.getId().getValue());
   }
 }

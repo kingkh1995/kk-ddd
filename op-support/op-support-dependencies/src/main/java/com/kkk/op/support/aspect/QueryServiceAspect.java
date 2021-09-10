@@ -1,8 +1,8 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.accessCondition.AccessConditionChecker;
+import com.kkk.op.support.accessCondition.AccessConditionForbiddenException;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
-import com.kkk.op.support.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -38,7 +38,7 @@ public class QueryServiceAspect extends AbstractMethodAspect {
             result, LocalRequestContextHolder.getLocalRequestContext().getAccessCondition());
     // 禁止访问则抛出异常
     if (!canAccess) {
-      throw new BusinessException("access forbidden!");
+      throw AccessConditionForbiddenException.INSTANCE;
     }
   }
 }

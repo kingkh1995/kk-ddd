@@ -3,16 +3,15 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.kkk.op.user.persistence.mapper.UserMapper">
 
-  <!--user-->
-
-  <insert id="insert" useGeneratedKeys="true" keyColumn="id">
+  <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO user
       (name, username, password, gender, age, email)
     VALUES (#{name}, #{username}, #{password}, #{gender}, #{age}, #{email})
   </insert>
 
-  <update id="updateByPK">
-    UPDATE user
+  <update id="updateById">
+    UPDATE
+    user
     <set>
       <if test="name != null">
         name = #{name},
@@ -27,61 +26,20 @@
         email = #{email},
       </if>
     </set>
-    WHERE id = #{id}
+    WHERE
+    id = #{id}
   </update>
 
   <sql id="columns">
-    id
-    , name, username, gender, age, email
+    id, name, username, gender, age, email
   </sql>
 
-  <select id="selectByPK" resultType="com.kkk.op.user.persistence.model.UserDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.model.UserDO">
     SELECT
     <include refid="columns"/>
     FROM
     user
-    WHERE id = #{userId}
-  </select>
-
-  <!--account-->
-
-  <insert id="insertAccount" useGeneratedKeys="true" keyColumn="id">
-    INSERT INTO account
-      (user_id, state, create_time)
-    VALUES (#{user_id}, #{state}, #{create_time})
-  </insert>
-
-  <update id="updateAccountByPK">
-    UPDATE account
-    <set>
-      version = #{version} + 1,
-      <if test="state != null">
-        state = #{state},
-      </if>
-    </set>
-    WHERE id = #{id} AND version = #{version}
-  </update>
-
-
-  <sql id="account_columns">
-    id
-    , user_id, state, create_time, version
-  </sql>
-
-  <select id="selectAccountByPK" resultType="com.kkk.op.user.persistence.model.AccountDO">
-    SELECT
-    <include refid="account_columns"/>
-    FROM
-    account
-    WHERE id = #{accountId}
-  </select>
-
-  <select id="selectAccountsByUserId" resultType="com.kkk.op.user.persistence.model.AccountDO">
-    SELECT
-    <include refid="account_columns"/>
-    FROM
-    account
-    WHERE user_id = #{userId}
+    WHERE id = #{id}
   </select>
 
 </mapper>

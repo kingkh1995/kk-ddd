@@ -1,9 +1,11 @@
 package com.kkk.op.user.web.handler;
 
+import com.kkk.op.support.accessCondition.AccessConditionForbiddenException;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
 import java.time.DateTimeException;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
@@ -73,6 +75,22 @@ public class BaseExceptionHandler {
   public Result<?> handleBussinessException(BusinessException e) {
     log.error("BussinessException =>", e);
     return Result.fail(e.getMessage());
+  }
+
+  // Optional异常
+  @ExceptionHandler(NoSuchElementException.class)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public Result<?> handleNoSuchElementException(NoSuchElementException e) {
+    log.error("NoSuchElementException =>", e);
+    return Result.fail("No Content");
+  }
+
+  // accessCondition异常
+  @ExceptionHandler(AccessConditionForbiddenException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public Result<?> handleNoSuchElementException(AccessConditionForbiddenException e) {
+    log.error("AccessConditionForbiddenException =>", e);
+    return Result.fail("Forbidden");
   }
 
   // 兜底500异常

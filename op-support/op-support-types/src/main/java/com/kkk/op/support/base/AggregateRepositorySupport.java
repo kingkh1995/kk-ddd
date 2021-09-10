@@ -13,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.springframework.lang.Nullable;
 
 /**
  * AggregateRepository支持类 <br>
@@ -29,7 +30,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
   public AggregateRepositorySupport(
       DistributedLock distributedLock,
-      CacheManager cacheManager,
+      @Nullable CacheManager cacheManager,
       AggregateTrackingManager<T, ID> aggregateTrackingManager) {
     super(distributedLock, cacheManager);
     this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);

@@ -11,5 +11,5 @@ FROM user;
 INSERT INTO user (name, username, password, gender, age, email)
 VALUES ('凯', 'Kai', '87c56bc9d59e16edeff921cac8779149', 'MALE', 35, 'kai@kkkop.com'),
        ('依', 'Yi', '87c56bc9d59e16edeff921cac8779149', 'FEMALE', 32, 'yi@kkkop.com'),
-       ('元', 'Yuan', '87c56bc9d59e16edeff921cac8779149', 'MALE', 6, 'yuani@kkkop.com'),
+       ('元', 'Yuan', '87c56bc9d59e16edeff921cac8779149', 'MALE', 6, 'yuan@kkkop.com'),
        ('汝', 'Ru', '87c56bc9d59e16edeff921cac8779149', 'FEMALE', 0, 'ru@kkkop.com');

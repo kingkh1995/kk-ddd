@@ -5,11 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * TBD... fieldName参数修改为DP 实体类的对比信息（可以实现Map接口）
+ * 实体类的对比信息（可以考虑实现Map接口）
  *
  * @author KaiKoo
  */
@@ -20,14 +21,16 @@ public class EntityDiff extends Diff {
    * 而一个 Entity 应该只由 Types 组成，同时一个 Aggregate 的主数据就等同于一个 Entity ，所以也应该只由 Types 组成 <br>
    * Modify状态下，如果所有Types均未被更新，则表示Aggregate主数据未被更新，将selfModified设为false，更新时则不更新主数据 <br>
    * Add Remove 类型下 selfModified 必然为true <br>
-   * TBD... 优化判断逻辑 利用注解标识主数据的字段
+   * todo... TBD：优化判断逻辑 利用注解标识主数据的字段
    */
-  @Getter @Setter private boolean selfModified = false; // 默认为false
+  @Getter
+  @Setter(AccessLevel.PACKAGE)
+  private boolean selfModified = false; // 默认为false
 
   /** 多数情况下map可能为空，为节约内存，在put时才去创建一个 HashMap */
   protected Map<String, Diff> map = Collections.EMPTY_MAP;
 
-  public EntityDiff(Entity<?> oldValue, Entity<?> newValue) {
+  EntityDiff(Entity<?> oldValue, Entity<?> newValue) {
     super(oldValue, newValue);
   }
 
@@ -43,7 +46,7 @@ public class EntityDiff extends Diff {
     return this.map.get(fieldName);
   }
 
-  public Diff put(String fieldName, Diff diff) {
+  Diff put(String fieldName, Diff diff) {
     if (diff == null) {
       return null;
     }
@@ -58,7 +61,7 @@ public class EntityDiff extends Diff {
   }
 
   @Override
-  public void setType(DiffType type) {
+  void setType(DiffType type) {
     super.setType(type);
     // Add Remove 类型下 selfModified 设为 true
     if (type == DiffType.Added || type == DiffType.Removed) {
@@ -72,12 +75,12 @@ public class EntityDiff extends Diff {
   /** 私有内部类 */
   private static class EmptyEntityDiff extends EntityDiff {
 
-    public EmptyEntityDiff() {
+    EmptyEntityDiff() {
       super(null, null);
     }
 
     @Override
-    public Diff put(String fieldName, Diff diff) {
+    Diff put(String fieldName, Diff diff) {
       throw new UnsupportedOperationException();
     }
 
@@ -87,7 +90,7 @@ public class EntityDiff extends Diff {
     }
 
     @Override
-    public void setSelfModified(boolean selfModified) {
+    void setSelfModified(boolean selfModified) {
       throw new UnsupportedOperationException();
     }
   }

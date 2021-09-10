@@ -11,6 +11,7 @@ import com.kkk.op.support.types.TenThousandYuan;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
+import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,22 +28,28 @@ class OpUserWebApplicationTests {
 
   @Autowired private UserMapper userMapper;
 
+  @Autowired private AccountMapper accountMapper;
+
   @Test
   void testMybatis() {
-    var userDO = userMapper.selectByPK(1L);
+    var userDOList = userMapper.selectList();
+    System.out.println(kson.writeJson(userDOList));
+    var userDO = userMapper.selectById(userDOList.get(0).getId()).get();
     userDO.setGender(null);
     userDO.setAge(null);
     userDO.setEmail(null);
-    userMapper.updateByPK(userDO);
-    System.out.println(kson.writeJson(userMapper.selectByPK(userDO.getId())));
-    var accountDOS = userMapper.selectAccountsByUserId(userDO.getId());
+    userMapper.updateById(userDO);
+    System.out.println(kson.writeJson(userMapper.selectById(userDO.getId())));
+    var accountDOS = accountMapper.selectListByUserId(userDO.getId());
     var accountDO = accountDOS.get(0);
     accountDO.setState(null);
-    userMapper.updateAccountByPK(accountDO);
-    System.out.println(kson.writeJson(userMapper.selectAccountByPK(accountDO.getId())));
-    var page = PageHelper.startPage(2, 1).doSelectPage(() -> userMapper.selectListByGender("MALE"));
+    accountMapper.updateById(accountDO);
+    System.out.println(kson.writeJson(accountMapper.selectById(accountDO.getId())));
+    var page =
+        PageHelper.startPage(2, 1)
+            .doSelectPage(() -> userMapper.selectListByGender(userDO.getGender()));
     System.out.println(kson.writeJson(page));
-    System.out.println(userMapper.deleteAccountByPK(2L));
+    System.out.println(accountMapper.deleteByUserId(userDOList.get(1).getId()));
   }
 
   @Test

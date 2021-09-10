@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kkk.op.user.persistence.mapper.AccountMapper">
+
+  <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    INSERT INTO account
+      (user_id, state, create_time)
+    VALUES (#{user_id}, #{state}, #{create_time})
+  </insert>
+
+  <update id="updateById">
+    UPDATE account
+    <set>
+      version = #{version} + 1,
+      <if test="state != null">
+        state = #{state},
+      </if>
+    </set>
+    WHERE id = #{id} AND version = #{version}
+  </update>
+
+  <sql id="account_columns">
+    id, user_id, state, create_time, version
+  </sql>
+
+  <select id="selectById" resultType="com.kkk.op.user.persistence.model.AccountDO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE id = #{id}
+  </select>
+
+  <select id="selectListByUserId" resultType="com.kkk.op.user.persistence.model.AccountDO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE user_id = #{userId}
+  </select>
+
+</mapper>

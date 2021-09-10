@@ -104,6 +104,7 @@ public final class DateUtil {
   }
 
   public static Timestamp toTimestamp(@NotNull LocalDateTime localDateTime) {
+    // 也可以这种写法：Timestamp.valueOf(localDateTime);
     return toTimestamp(localDateTime, ZoneId.systemDefault());
   }
 

@@ -1,19 +1,17 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.EntityRepositorySupport;
-import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.persistence.mapper.UserMapper;
+import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -27,37 +25,35 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
 
-  private final UserMapper userMapper;
+  private final AccountMapper accountMapper;
 
   public AccountRepositoryImpl(
-      @Autowired DistributedLock distributedLock,
-      @Autowired(required = false) CacheManager cacheManager,
-      @Autowired UserMapper userMapper) {
-    super(distributedLock, cacheManager);
-    this.userMapper = userMapper;
+      final DistributedLock distributedLock, final AccountMapper accountMapper) {
+    super(distributedLock, null); // 不开启AutoCaching则不需要CacheManager
+    this.accountMapper = accountMapper;
   }
 
   @Override
   protected Account onSelect(@NotNull AccountId accountId) {
-    return accountDataConverter.fromData(userMapper.selectAccountByPK(accountId.getValue()));
+    return accountDataConverter.fromData(accountMapper.selectById(accountId.getValue()).get());
   }
 
   @Override
   protected void onDelete(@NotNull Account entity) {
-    userMapper.deleteAccountByPK(entity.getId().getValue());
+    accountMapper.deleteById(entity.getId().getValue());
   }
 
   @Override
   protected void onInsert(@NotNull Account entity) {
     var data = accountDataConverter.toData(entity);
-    userMapper.insertAccount(data);
+    accountMapper.insert(data);
     // 填补id
     entity.fillInId(AccountId.from(data.getId()));
   }
 
   @Override
   protected void onUpdate(@NotNull Account entity) {
-    userMapper.updateAccountByPK(accountDataConverter.toData(entity));
+    accountMapper.updateById(accountDataConverter.toData(entity));
   }
 
   @Override

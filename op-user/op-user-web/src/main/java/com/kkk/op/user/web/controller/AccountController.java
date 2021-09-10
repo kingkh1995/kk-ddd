@@ -44,7 +44,6 @@ public class AccountController {
   public Result<Long> create(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
-    //    log.info("userId：{}，account create command：{}", userId, createCommand);
     return Result.success(service.createAccount(LongId.valueOf(userId, "userId"), createCommand));
   }
 

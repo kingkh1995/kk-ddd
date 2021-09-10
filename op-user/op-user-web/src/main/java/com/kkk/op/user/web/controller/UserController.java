@@ -34,7 +34,6 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED) // 201
   public long createUser(
       @RequestBody @Validated(CreateGroup.class) UserModifyCommand createCommand) {
-    log.info("user create command：{}", createCommand);
     // todo... 实现
     return 0;
   }
@@ -44,7 +43,6 @@ public class UserController {
   public long updateUser(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @RequestBody @Validated(UpdateGroup.class) UserModifyCommand updateCommand) {
-    log.info("userId：{}，user update command：{}", userId, updateCommand);
     // todo... 实现
     return 0;
   }

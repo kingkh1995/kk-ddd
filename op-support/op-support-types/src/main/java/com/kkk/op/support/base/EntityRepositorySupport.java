@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 
 /**
  * 缓存实现 <br>
@@ -42,17 +43,17 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Getter(AccessLevel.PROTECTED)
   private final String lockNamePrefix;
 
-  private final CacheManager cacheManager;
+  @Nullable private final CacheManager cacheManager;
 
   @Getter(AccessLevel.PROTECTED)
-  private final boolean autocached;
+  private final boolean autocaching;
 
   @Getter(AccessLevel.PROTECTED)
   private final String cacheKeyPrefix;
 
   {
-    // 设置autocached
-    this.autocached = this.getClass().getAnnotation(AutoCached.class) != null;
+    // 设置autocaching
+    this.autocaching = this.getClass().getAnnotation(AutoCaching.class) != null;
     // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
     // 设置tClass 参数化类型获取实际Type
@@ -66,9 +67,10 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.lockNamePrefix = "LOCK:" + this.cacheKeyPrefix;
   }
 
-  public EntityRepositorySupport(DistributedLock distributedLock, CacheManager cacheManager) {
-    // 开启自动缓存时才校验
-    if (this.isAutocached()) {
+  public EntityRepositorySupport(
+      DistributedLock distributedLock, @Nullable CacheManager cacheManager) {
+    // 开启自动缓存时才需要CacheManager
+    if (this.isAutocaching()) {
       Objects.requireNonNull(cacheManager);
     }
     this.cacheManager = cacheManager;
@@ -126,7 +128,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public T find(@NotNull ID id) {
-    if (!this.isAutocached()) {
+    if (!this.isAutocaching()) {
       return this.onSelect(id);
     }
     var entity = this.cacheGet(id);
@@ -145,7 +147,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
             .tryRun(
                 this.generateLockName(entity.getId()),
                 () -> {
-                  if (this.isAutocached()) {
+                  if (this.isAutocaching()) {
                     this.cacheDoubleRemove(entity, () -> this.onDelete(entity));
                   } else {
                     this.onDelete(entity);
@@ -174,7 +176,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
             .tryRun(
                 this.generateLockName(entity.getId()),
                 () -> {
-                  if (this.isAutocached()) {
+                  if (this.isAutocaching()) {
                     this.cacheDoubleRemove(entity, () -> consumer.accept(entity));
                   } else {
                     consumer.accept(entity);
@@ -187,7 +189,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public List<T> list(@NotEmpty Set<ID> ids) {
-    if (!this.isAutocached()) {
+    if (!this.isAutocaching()) {
       return this.onSelectByIds(ids);
     }
     // 有缓存情况下

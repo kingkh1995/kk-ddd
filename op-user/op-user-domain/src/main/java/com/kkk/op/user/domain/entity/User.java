@@ -40,7 +40,8 @@ public class User extends Aggregate<LongId> {
   private String email;
 
   /** 用户账号 */
-  @Setter private List<Account> accounts;
+  @Setter // todo... 优化
+  private List<Account> accounts;
 
   @Override
   public User snapshot() {
