@@ -2,9 +2,9 @@ package com.kkk.op.user.assembler;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DTOAssembler;
-import com.kkk.op.support.models.dto.AccountDTO;
-import com.kkk.op.support.tools.DateUtil;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.model.dto.AccountDTO;
+import com.kkk.op.support.tool.DateUtil;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -47,14 +47,14 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         .ifPresent(
             accountDTO -> {
               Optional.ofNullable(accountDTO.getId())
-                  .map(AccountId::valueOf)
+                  .map(accountId -> AccountId.valueOf(accountId, "accountId"))
                   .ifPresent(builder::id);
               Optional.ofNullable(accountDTO.getUserId())
                   .map(userId -> LongId.valueOf(userId, "userId"))
                   .ifPresent(builder::userId);
               Optional.ofNullable(accountDTO.getState())
                   .filter(s -> !s.isBlank())
-                  .map(AccountState::valueOf)
+                  .map(state -> AccountState.valueOf(state, "state"))
                   .ifPresent(builder::state);
               Optional.ofNullable(accountDTO.getCreateTime())
                   .map(DateUtil::toLocalDateTime)

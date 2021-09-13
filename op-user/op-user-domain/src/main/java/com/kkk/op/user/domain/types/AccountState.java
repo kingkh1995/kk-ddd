@@ -13,7 +13,7 @@ import lombok.Getter;
 
 /**
  * 枚举值也封装为DP <br>
- * 枚举值类DP添加内部缓存 参考包装类的缓存设计
+ * 为枚举值类DP添加内部缓存，参考包装类的缓存设计
  *
  * @author KaiKoo
  */
@@ -62,28 +62,26 @@ public final class AccountState implements Type {
 
   /** of方法和valueOf方法 */
   @JsonCreator
-  public static AccountState of(@NotNull AccountStateEnum accountStateEnum) {
+  public static AccountState from(@NotNull AccountStateEnum accountStateEnum) {
     return Cache.cache[Objects.requireNonNull(accountStateEnum).ordinal()];
   }
 
-  public static AccountState valueOf(String s) {
-    var fieldName = "账户状态";
+  public static AccountState valueOf(String s, String fieldName) {
     if (s == null || s.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
     try {
       // 如果不存在对应枚举，valueOf方法不会返回 null，而是抛出异常
-      return of(AccountStateEnum.valueOf(s));
+      return from(AccountStateEnum.valueOf(s));
     } catch (IllegalArgumentException e) {
       throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
     }
   }
 
-  public static AccountState valueOf(AccountStateEnum accountStateEnum) {
-    var fieldName = "账户状态";
+  public static AccountState valueOf(AccountStateEnum accountStateEnum, String fieldName) {
     if (accountStateEnum == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    return of(accountStateEnum);
+    return from(accountStateEnum);
   }
 }

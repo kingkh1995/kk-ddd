@@ -1,6 +1,6 @@
 package com.kkk.op.support.accessCondition;
 
-import com.kkk.op.support.annotations.MockResource;
+import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.base.AbstractStrategyManager;
 import java.util.EnumSet;
 import lombok.ToString;

@@ -5,12 +5,12 @@
   <parent>
     <artifactId>op-sales</artifactId>
     <groupId>com.kkk.op.sales</groupId>
-    <version>Ace.GA</version>
+    <version>Ace.RC</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>op-sales-domain</artifactId>
   <packaging>jar</packaging>
-  <version>Ace.GA</version>
+  <version>Ace.RC</version>
 
   <dependencies>
     <dependency>

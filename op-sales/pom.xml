@@ -5,14 +5,14 @@
   <parent>
     <artifactId>op-root</artifactId>
     <groupId>com.kkk.op</groupId>
-    <version>Ace.GA</version>
+    <version>Ace.RC</version>
     <relativePath>../op-root/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kkk.op.sales</groupId>
   <artifactId>op-sales</artifactId>
   <packaging>pom</packaging>
-  <version>Ace.GA</version>
+  <version>Ace.RC</version>
   <modules>
     <module>op-sales-domain</module>
   </modules>

@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -14,24 +14,20 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public final class AccountId extends LongId {
 
-  private AccountId(BigDecimal value) {
-    super(value, "AccountId");
-  }
-
-  private static AccountId of(@NotNull BigDecimal value) {
-    return new AccountId(value);
+  private AccountId(@NotNull BigDecimal value, String fieldName) {
+    super(value, fieldName);
   }
 
   @JsonCreator
-  public static AccountId from(@NotNull Number id) {
-    return of(new BigDecimal(id.toString()));
+  public static AccountId from(long l) {
+    return new AccountId(new BigDecimal(l), "AccountId");
   }
 
-  public static AccountId valueOf(Long l) {
-    return of(parse(l, "账户ID"));
+  public static AccountId valueOf(Long l, String fieldName) {
+    return new AccountId(parseBigDecimal(l, fieldName), fieldName);
   }
 
-  public static AccountId valueOf(String s) {
-    return of(parse(s, "账户ID"));
+  public static AccountId valueOf(String s, String fieldName) {
+    return new AccountId(parseBigDecimal(s, fieldName), fieldName);
   }
 }

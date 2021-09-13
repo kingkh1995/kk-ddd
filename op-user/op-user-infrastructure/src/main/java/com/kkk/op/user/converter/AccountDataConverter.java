@@ -2,8 +2,8 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DataConverter;
-import com.kkk.op.support.tools.DateUtil;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.tool.DateUtil;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -47,7 +47,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
               Optional.ofNullable(accountDO.getState())
                   .filter(s -> !s.isBlank())
                   .map(AccountStateEnum::valueOf)
-                  .map(AccountState::of)
+                  .map(AccountState::from)
                   .ifPresent(builder::state);
               Optional.ofNullable(accountDO.getCreateTime())
                   .map(DateUtil::toLocalDateTime)

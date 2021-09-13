@@ -7,7 +7,7 @@ import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;

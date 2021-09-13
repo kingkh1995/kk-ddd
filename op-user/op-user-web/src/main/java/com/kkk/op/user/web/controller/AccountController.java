@@ -1,12 +1,12 @@
 package com.kkk.op.user.web.controller;
 
-import com.kkk.op.support.annotations.BaseController;
+import com.kkk.op.support.annotation.BaseController;
 import com.kkk.op.support.bean.Result;
-import com.kkk.op.support.models.command.AccountModifyCommand;
-import com.kkk.op.support.models.command.CreateGroup;
-import com.kkk.op.support.models.command.UpdateGroup;
-import com.kkk.op.support.models.dto.AccountDTO;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.model.command.AccountModifyCommand;
+import com.kkk.op.support.model.command.CreateGroup;
+import com.kkk.op.support.model.command.UpdateGroup;
+import com.kkk.op.support.model.dto.AccountDTO;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
@@ -55,7 +55,7 @@ public class AccountController {
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
     service.updateAccount(
-        LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId), updateCommand);
+        LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId, "accountId"), updateCommand);
     return Result.success();
   }
 
@@ -65,7 +65,7 @@ public class AccountController {
   public Result<?> delete(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    service.deleteAccount(AccountId.valueOf(accountId));
+    service.deleteAccount(AccountId.valueOf(accountId, "accountId"));
     return Result.success();
   }
 
@@ -75,7 +75,7 @@ public class AccountController {
   public Result<AccountDTO> queryById(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    return Result.success(service.queryAccount(AccountId.valueOf(accountId)));
+    return Result.success(service.queryAccount(AccountId.valueOf(accountId, "accountId")));
   }
 
   /** 查询用户下的所有账号 */

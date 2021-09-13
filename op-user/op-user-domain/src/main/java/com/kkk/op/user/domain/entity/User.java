@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

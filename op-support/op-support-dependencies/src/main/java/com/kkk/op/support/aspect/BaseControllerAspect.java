@@ -37,7 +37,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   private final Kson kson;
 
   @Override
-  @Pointcut("@within(com.kkk.op.support.annotations.BaseController)") // 切面针对注解标识的类
+  @Pointcut("@within(com.kkk.op.support.annotation.BaseController)") // 切面针对注解标识的类
   protected void pointcut() {}
 
   @Override

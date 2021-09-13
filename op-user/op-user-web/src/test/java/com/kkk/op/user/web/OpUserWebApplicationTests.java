@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.enums.AccountStateEnum;
-import com.kkk.op.support.types.LongId;
-import com.kkk.op.support.types.PageSize;
-import com.kkk.op.support.types.StampedTime;
-import com.kkk.op.support.types.TenThousandYuan;
+import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.type.PageSize;
+import com.kkk.op.support.type.StampedTime;
+import com.kkk.op.support.type.TenThousandYuan;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -59,13 +59,13 @@ class OpUserWebApplicationTests {
     System.out.println(kson.writeJson(longId));
     AccountId accountId = AccountId.from(123456789L);
     System.out.println(kson.writeJson(accountId));
-    var id1 = kson.readJson("123E4", new TypeReference<LongId>() {});
-    var id2 = kson.readJson("111e9", new TypeReference<AccountId>() {});
+    var id1 = kson.readJson("1234", new TypeReference<LongId>() {});
+    var id2 = kson.readJson("111", new TypeReference<AccountId>() {});
     System.out.println(id1.value());
     System.out.println(id2.getValue());
     System.out.println(
         kson.readJson(kson.writeJson("66666"), new TypeReference<AccountId>() {}).toPlainString());
-    var accountState = AccountState.of(AccountStateEnum.INIT);
+    var accountState = AccountState.from(AccountStateEnum.INIT);
     var json = kson.writeJson(accountState);
     System.out.println(kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
     var tJson = kson.writeJson(StampedTime.current());
@@ -74,7 +74,7 @@ class OpUserWebApplicationTests {
     var account =
         Account.builder()
             .id(AccountId.from(10))
-            .state(AccountState.of(AccountStateEnum.ACTIVE))
+            .state(AccountState.from(AccountStateEnum.ACTIVE))
             .createTime(LocalDateTime.now())
             .build();
     var s = kson.writeJson(account);

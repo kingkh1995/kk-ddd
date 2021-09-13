@@ -3,7 +3,7 @@ package com.kkk.op.user.domain.entity;
 import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -63,7 +63,7 @@ public class Account extends Entity<AccountId> {
     if (this.id == null) {
       // 新增逻辑
       // 设置初始状态
-      this.state = AccountState.of(AccountStateEnum.INIT);
+      this.state = AccountState.from(AccountStateEnum.INIT);
       this.createTime = LocalDateTime.now();
     } else {
       // 更新逻辑

@@ -1,9 +1,9 @@
 package com.kkk.op.support.aspect;
 
 import com.google.common.base.Throwables;
-import com.kkk.op.support.annotations.MockResource;
+import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.tools.ReflectUtil;
+import com.kkk.op.support.tool.ReflectUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -24,7 +24,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
   private final Kson kson;
 
   @Override
-  @Pointcut("@annotation(com.kkk.op.support.annotations.MockResource)")
+  @Pointcut("@annotation(com.kkk.op.support.annotation.MockResource)")
   protected void pointcut() {}
 
   @Override

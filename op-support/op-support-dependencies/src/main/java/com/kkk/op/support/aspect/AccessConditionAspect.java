@@ -1,6 +1,6 @@
 package com.kkk.op.support.aspect;
 
-import com.kkk.op.support.annotations.AccessCondition;
+import com.kkk.op.support.annotation.AccessCondition;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -22,7 +22,7 @@ import org.springframework.core.annotation.Order;
 public class AccessConditionAspect extends AbstractMethodAspect {
 
   @Override
-  @Pointcut("@annotation(com.kkk.op.support.annotations.AccessCondition)")
+  @Pointcut("@annotation(com.kkk.op.support.annotation.AccessCondition)")
   protected void pointcut() {}
 
   @Override

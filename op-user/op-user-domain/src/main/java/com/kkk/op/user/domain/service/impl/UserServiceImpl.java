@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.service.impl;
 
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.type.LongId;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.repository.UserRepository;

@@ -1,9 +1,9 @@
 package com.kkk.op.user.web.controller;
 
-import com.kkk.op.support.annotations.BaseController;
-import com.kkk.op.support.models.command.CreateGroup;
-import com.kkk.op.support.models.command.UpdateGroup;
-import com.kkk.op.support.models.command.UserModifyCommand;
+import com.kkk.op.support.annotation.BaseController;
+import com.kkk.op.support.model.command.CreateGroup;
+import com.kkk.op.support.model.command.UpdateGroup;
+import com.kkk.op.support.model.command.UserModifyCommand;
 import com.kkk.op.user.domain.service.UserService;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
