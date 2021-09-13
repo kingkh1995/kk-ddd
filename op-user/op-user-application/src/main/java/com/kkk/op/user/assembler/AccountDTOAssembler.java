@@ -4,7 +4,7 @@ import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DTOAssembler;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.tool.DateUtil;
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;

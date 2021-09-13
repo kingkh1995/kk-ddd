@@ -2,7 +2,7 @@ package com.kkk.op.user.application.service.impl;
 
 import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;

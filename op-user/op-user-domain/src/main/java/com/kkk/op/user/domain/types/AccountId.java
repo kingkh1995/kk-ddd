@@ -1,7 +1,7 @@
 package com.kkk.op.user.domain.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.types.LongId;
 import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;

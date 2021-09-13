@@ -1,4 +1,4 @@
-package com.kkk.op.support.type;
+package com.kkk.op.support.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
