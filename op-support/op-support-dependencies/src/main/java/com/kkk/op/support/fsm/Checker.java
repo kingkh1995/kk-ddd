@@ -5,6 +5,7 @@ package com.kkk.op.support.fsm;
  *
  * @author KaiKoo
  */
+@FunctionalInterface
 public interface Checker<E extends FsmEvent, T, C extends FsmContext<E, T>> {
 
   CheckResult check(C context);

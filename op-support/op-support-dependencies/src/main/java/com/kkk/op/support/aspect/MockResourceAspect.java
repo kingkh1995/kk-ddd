@@ -3,7 +3,7 @@ package com.kkk.op.support.aspect;
 import com.google.common.base.Throwables;
 import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.tool.ReflectUtil;
+import com.kkk.op.support.tool.ClassUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -64,7 +64,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
     log.info("returnType: {}, returnDefault: {}", returnType.getCanonicalName(), returnDefault);
     // 两个属性均为空则返回默认值
     if (returnDefault) {
-      return ReflectUtil.getDefault(returnType);
+      return ClassUtil.getDefault(returnType);
     }
     // 执行mock调用并返回结果
     try {

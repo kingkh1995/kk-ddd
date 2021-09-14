@@ -1,28 +1,61 @@
 package com.kkk.op.support.changeTracking.diff;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import lombok.Getter;
 
 /**
- * 对于原始类型无ObjectDiff子类，意图在于节约内存
+ * 基类（部分参考JsonNode设计）
  *
  * @author KaiKoo
  */
-@Data
 public abstract class Diff {
 
-  @Setter(AccessLevel.PACKAGE)
-  private Object oldValue;
+  @Getter private Object oldValue;
 
-  @Setter(AccessLevel.PACKAGE)
-  private Object newValue;
-
-  @Setter(AccessLevel.PACKAGE)
-  private DiffType type;
+  @Getter private Object newValue;
 
   Diff(Object oldValue, Object newValue) {
     this.oldValue = oldValue;
     this.newValue = newValue;
+  }
+
+  public abstract DiffType getDiffType();
+
+  public ChangeType getChangeType() {
+    return null;
+  }
+
+  public Iterator<String> fieldNames() {
+    return Collections.emptyIterator();
+  }
+
+  public Iterator<Entry<String, Diff>> fields() {
+    return Collections.emptyIterator();
+  }
+
+  public Iterator<Diff> elements() {
+    return Collections.emptyIterator();
+  }
+
+  public int size() {
+    return 0;
+  }
+
+  public boolean isEmpty() {
+    return this.size() == 0;
+  }
+
+  public boolean isCollectionDiff() {
+    return DiffType.Collection == this.getDiffType();
+  }
+
+  public boolean isEntityDiff() {
+    return DiffType.Entity == this.getDiffType();
+  }
+
+  public boolean isValueDiff() {
+    return DiffType.Value == this.getDiffType();
   }
 }

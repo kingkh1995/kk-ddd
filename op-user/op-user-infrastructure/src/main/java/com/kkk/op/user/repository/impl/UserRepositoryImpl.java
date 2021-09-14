@@ -3,7 +3,6 @@ package com.kkk.op.user.repository.impl;
 import com.kkk.op.support.base.AggregateRepositorySupport;
 import com.kkk.op.support.base.AutoCaching;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
-import com.kkk.op.support.changeTracking.diff.CollectionDiff;
 import com.kkk.op.support.changeTracking.diff.EntityDiff;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
@@ -102,32 +101,33 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
       userMapper.updateById(userDataConverter.toData(aggregate));
     }
     // 处理Account
-    var collectionDiff = (CollectionDiff) diff.get("accounts");
-    if (collectionDiff != null) {
-      var iterator = collectionDiff.iterator();
-      while (iterator.hasNext()) {
-        var entityDiff = (EntityDiff) iterator.next();
-        var oldValue = (Account) entityDiff.getOldValue();
-        var newValue = (Account) entityDiff.getNewValue();
-        switch (entityDiff.getType()) {
-          case Added:
-            // 新增情况
-            var accountDO = accountDataConverter.toData(newValue);
-            accountMapper.insert(accountDO);
-            // 填补id
-            newValue.fillInId(AccountId.from(accountDO.getId()));
-            break;
-          case Modified:
-            // 更新情况
-            accountMapper.updateById(accountDataConverter.toData(newValue));
-            break;
-          case Removed:
-            // 移除情况
-            accountMapper.deleteById(oldValue.getId().getValue());
-            break;
-        }
-      }
-    }
+    diff.lambdaGet(User::getAccounts)
+        .ifPresent(
+            collectionDiff -> {
+              var iterator = collectionDiff.elements();
+              while (iterator.hasNext()) {
+                var entityDiff = (EntityDiff) iterator.next();
+                var oldValue = (Account) entityDiff.getOldValue();
+                var newValue = (Account) entityDiff.getNewValue();
+                switch (entityDiff.getChangeType()) {
+                  case Added:
+                    // 新增情况
+                    var accountDO = accountDataConverter.toData(newValue);
+                    accountMapper.insert(accountDO);
+                    // 填补id
+                    newValue.fillInId(AccountId.from(accountDO.getId()));
+                    break;
+                  case Modified:
+                    // 更新情况
+                    accountMapper.updateById(accountDataConverter.toData(newValue));
+                    break;
+                  case Removed:
+                    // 移除情况
+                    accountMapper.deleteById(oldValue.getId().getValue());
+                    break;
+                }
+              }
+            });
   }
 
   @Transactional

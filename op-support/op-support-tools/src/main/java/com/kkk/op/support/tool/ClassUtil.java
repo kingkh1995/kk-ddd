@@ -2,18 +2,19 @@ package com.kkk.op.support.tool;
 
 import java.lang.reflect.Array;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * 反射工具类 <br>
+ * Class工具类 <br>
  *
  * @author KaiKoo
  */
-public final class ReflectUtil {
+public final class ClassUtil {
 
-  private ReflectUtil() throws IllegalAccessException {
+  private ClassUtil() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
 
@@ -38,15 +39,18 @@ public final class ReflectUtil {
     if (clazz.isArray()) {
       return Array.newInstance(clazz.getComponentType(), 0);
     }
-    // 集合类：因为返回值类型都会选择父类，但是返回值会是子类，所以使用isAssignableFrom判断无误。
+    // 集合类型，使用isAssignableFrom判断当前类是不是给定类或其父类，因为方法返回值类型一般都只选择父类所以如此判断。
     if (clazz.isAssignableFrom(List.class)) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     } else if (clazz.isAssignableFrom(Set.class)) {
-      return Collections.EMPTY_SET;
+      return Collections.emptySet();
     } else if (clazz.isAssignableFrom(Map.class)) {
-      return Collections.EMPTY_MAP;
+      return Collections.emptyMap();
+    } else if (clazz.isAssignableFrom(Iterator.class)) {
+      return Collections.emptyIterator();
     }
     // 其他情况返回null
     return null;
   }
+
 }
