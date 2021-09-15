@@ -1,6 +1,7 @@
 package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
+import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -12,7 +13,7 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   void cachePut(@NotNull T t);
 
-  T cacheGet(@NotNull ID id);
+  Optional<T> cacheGet(@NotNull ID id);
 
   boolean cacheRemove(@NotNull T t);
 

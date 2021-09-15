@@ -3,7 +3,7 @@ package com.kkk.op.support.bean;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 
 /**
  * json工具类 <br>
@@ -11,13 +11,10 @@ import java.util.Objects;
  *
  * @author KaiKoo
  */
+@RequiredArgsConstructor
 public final class Kson {
 
   private final JsonMapper jsonMapper;
-
-  public Kson(JsonMapper jsonMapper) {
-    this.jsonMapper = Objects.requireNonNull(jsonMapper);
-  }
 
   public String writeJson(Object value) {
     try {
@@ -54,7 +51,7 @@ public final class Kson {
   }
 
   public class KsonExceptiion extends RuntimeException {
-    public KsonExceptiion(Throwable cause) {
+    KsonExceptiion(Throwable cause) {
       super(cause);
     }
   }

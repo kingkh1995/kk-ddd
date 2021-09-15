@@ -57,7 +57,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {
     if (args == null || args.length == 0) {
-      return Collections.EMPTY_MAP;
+      return Collections.emptyMap();
     }
     var params = new HashMap<String, Object>();
     var parameterNames = signature.getParameterNames();

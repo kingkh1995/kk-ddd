@@ -11,9 +11,6 @@ import com.kkk.op.support.marker.Identifier;
  */
 public abstract class Entity<ID extends Identifier> implements Identifiable<ID> {
 
-  /** 获取快照 */
-  public abstract Object snapshot();
-
   /** 验证该实体类参数是否合法 */
   public abstract void validate();
 

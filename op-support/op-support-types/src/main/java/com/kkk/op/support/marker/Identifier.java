@@ -7,5 +7,5 @@ package com.kkk.op.support.marker;
  */
 public interface Identifier extends Type {
 
-  String stringValue();
+  String identifier();
 }

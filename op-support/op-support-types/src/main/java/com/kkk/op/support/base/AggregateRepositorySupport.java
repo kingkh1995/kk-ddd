@@ -1,7 +1,7 @@
 package com.kkk.op.support.base;
 
 import com.kkk.op.support.changeTracking.AggregateTrackingManager;
-import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
@@ -86,7 +86,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     // update操作
     // 做 diff
     var entityDiff = this.getAggregateTrackingManager().detectChanges(aggregate);
-    if (entityDiff == null) {
+    if (entityDiff.isNoneDiff()) {
       return;
     }
     super.update0(aggregate, (t) -> this.onUpdate(t, entityDiff));
@@ -98,7 +98,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
    * 重新定义update的实现，父类的方法设置为不支持的操作。 <br>
    * 注意update前一定要查询一下。
    */
-  protected abstract void onUpdate(@NotNull T aggregate, @NotNull EntityDiff diff);
+  protected abstract void onUpdate(@NotNull T aggregate, @NotNull Diff diff);
 
   @Override
   protected final void onUpdate(@NotNull T aggregate) {

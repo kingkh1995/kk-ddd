@@ -6,7 +6,7 @@ package com.kkk.op.support.changeTracking.diff;
  * @author KaiKoo
  */
 public enum DiffType {
-  Collection,
   Entity,
-  Value;
+  Collection,
+  None
 }

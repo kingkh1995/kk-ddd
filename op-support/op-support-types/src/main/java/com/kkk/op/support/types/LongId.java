@@ -43,7 +43,7 @@ public class LongId extends SpecificNumber implements Identifier {
   }
 
   @Override
-  public String stringValue() {
+  public String identifier() {
     return super.value().toString();
   }
 

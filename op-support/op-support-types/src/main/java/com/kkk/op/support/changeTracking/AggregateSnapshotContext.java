@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * 聚合根快照管理context接口 <br>
- * （需要保证外界无法影响到快照的生命周期，对快照的修改封闭）
+ * （职责仅限管理快照，由manager对快照的安全负责）
  *
  * @author KaiKoo
  */
@@ -29,14 +29,14 @@ public interface AggregateSnapshotContext<T extends Aggregate<ID>, ID extends Id
   T removeSnapshot(@NotNull ID id);
 
   /**
-   * 不返回put进去的快照
+   * 保存快照
    *
-   * @param aggregate
+   * @param snapshot
    */
-  void putSnapshot(@NotNull T aggregate);
+  void putSnapshot(@NotNull T snapshot);
 
   /**
-   * 获取快照（需要返回副本，防止快照被外部修改）
+   * 获取快照（返回快照原始版本，由manager拷贝并返回副本）
    *
    * @param id
    * @return

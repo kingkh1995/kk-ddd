@@ -1,5 +1,6 @@
 package com.kkk.op.user.persistence.model;
 
+import java.io.Serializable;
 import lombok.Data;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
-public class UserDO {
+public class UserDO implements Serializable {
 
   private Long id;
 

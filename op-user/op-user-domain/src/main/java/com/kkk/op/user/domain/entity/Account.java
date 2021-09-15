@@ -1,6 +1,7 @@
 package com.kkk.op.user.domain.entity;
 
 import com.kkk.op.support.base.Entity;
+import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.types.LongId;
@@ -35,12 +36,8 @@ public class Account extends Entity<AccountId> {
 
   private AccountState state;
 
+  @DiffIgnore // 设置创建时间不参数对比
   private LocalDateTime createTime;
-
-  @Override
-  public Account snapshot() {
-    return builder().id(this.id).userId(this.userId).state(this.state).build();
-  }
 
   @Override
   public void validate() {

@@ -1,7 +1,7 @@
 package com.kkk.op.support.changeTracking;
 
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
 
@@ -23,7 +23,7 @@ public interface AggregateTrackingManager<T extends Aggregate<ID>, ID extends Id
   void merge(@NotNull T aggregate);
 
   /** 获取 Aggregate 变更信息 */
-  EntityDiff detectChanges(@NotNull T aggregate);
+  Diff detectChanges(@NotNull T aggregate);
 
   /** 判断 Aggregate 的快照是否存在 */
   boolean exist(@NotNull ID id);

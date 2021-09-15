@@ -1,0 +1,34 @@
+package com.kkk.op.support.changeTracking.diff;
+
+/**
+ * <br>
+ *
+ * @author KaiKoo
+ */
+public class NoneDiff extends Diff {
+  static final NoneDiff INSTANCE = new NoneDiff();
+
+  private NoneDiff() {
+    super(null, null);
+  }
+
+  @Override
+  public DiffType getDiffType() {
+    return DiffType.None;
+  }
+
+  @Override
+  public ChangeType getChangeType() {
+    return null;
+  }
+
+  @Override
+  public boolean isSelfModified() {
+    return false;
+  }
+
+  @Override
+  public boolean isNoneDiff() {
+    return true;
+  }
+}

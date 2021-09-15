@@ -20,7 +20,7 @@ public interface DataConverter<T extends Entity<?>, P> {
 
   default List<P> toData(Collection<? extends T> entityCol) {
     if (entityCol == null || entityCol.isEmpty()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     return entityCol.stream()
         .filter(Objects::nonNull)
@@ -30,7 +30,7 @@ public interface DataConverter<T extends Entity<?>, P> {
 
   default List<T> fromData(Collection<? extends P> dataCol) {
     if (dataCol == null || dataCol.isEmpty()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     return dataCol.stream()
         .filter(Objects::nonNull)

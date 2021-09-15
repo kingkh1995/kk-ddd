@@ -80,6 +80,11 @@ class OpUserWebApplicationTests {
     var s = kson.writeJson(account);
     System.out.println(s);
     System.out.println(kson.readJson(s, Account.class));
+    System.out.println(kson.readJson(s, Account.class).getCreateTime());
+    var sTime = kson.writeJson(StampedTime.current());
+    System.out.println(sTime);
+    System.out.println(kson.readJson(sTime, StampedTime.class));
+    System.out.println(kson.readJson(sTime, StampedTime.class).toLocalDateTime());
     System.out.println(TenThousandYuan.from(new BigDecimal("110.6")).toPlainString());
   }
 }

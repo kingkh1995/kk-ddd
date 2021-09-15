@@ -20,7 +20,7 @@ public interface DTOAssembler<T extends Entity<?>, V> {
 
   default List<V> toDTO(Collection<? extends T> entityCol) {
     if (entityCol == null || entityCol.isEmpty()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     return entityCol.stream()
         .filter(Objects::nonNull)
@@ -30,7 +30,7 @@ public interface DTOAssembler<T extends Entity<?>, V> {
 
   default List<T> fromDTO(Collection<? extends V> dtoCol) {
     if (dtoCol == null || dtoCol.isEmpty()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     return dtoCol.stream().filter(Objects::nonNull).map(this::fromDTO).collect(Collectors.toList());
   }

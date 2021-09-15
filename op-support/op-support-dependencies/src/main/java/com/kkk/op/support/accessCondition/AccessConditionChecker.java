@@ -115,11 +115,11 @@ public class AccessConditionChecker {
 
   private class AccessConditionAnalyzeException extends RuntimeException {
 
-    public AccessConditionAnalyzeException(String message) {
+    AccessConditionAnalyzeException(String message) {
       super(message);
     }
 
-    public AccessConditionAnalyzeException(String message, Throwable cause) {
+    AccessConditionAnalyzeException(String message, Throwable cause) {
       super(message, cause);
     }
   }

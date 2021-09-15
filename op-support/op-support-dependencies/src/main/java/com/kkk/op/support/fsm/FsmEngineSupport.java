@@ -171,7 +171,7 @@ public abstract class FsmEngineSupport<
 
   public static class FsmEngineException extends RuntimeException {
 
-    public FsmEngineException(String message) {
+    FsmEngineException(String message) {
       super(message);
     }
   }

@@ -44,14 +44,5 @@ public class User extends Aggregate<LongId> {
   private List<Account> accounts;
 
   @Override
-  public User snapshot() {
-    var builder = builder();
-    builder.id(this.id).name(this.name);
-    // todo... copy accounts
-    builder.accounts(this.accounts);
-    return builder.build();
-  }
-
-  @Override
   public void validate() {}
 }

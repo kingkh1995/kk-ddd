@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 
 /**
  * 集合类对比信息（可以考虑实现Collection接口）<br>
@@ -18,7 +19,7 @@ public class CollectionDiff extends Diff {
   }
 
   /** 多数情况下list可能为空，为节约内存，在add时才去创建一个 ArrayList */
-  private List<Diff> list = Collections.EMPTY_LIST;
+  private List<Diff> list = Collections.emptyList();
 
   @Override
   public DiffType getDiffType() {
@@ -30,8 +31,21 @@ public class CollectionDiff extends Diff {
     return ChangeType.Modified;
   }
 
-  boolean add(Diff diff) {
-    if (diff == null) {
+  @Override
+  public boolean isCollectionDiff() {
+    return true;
+  }
+
+  @Override
+  public Diff get(int index) {
+    if (index >= 0 && index < this.list.size()) {
+      return this.list.get(index);
+    }
+    return NoneDiff.INSTANCE;
+  }
+
+  boolean add(@NotNull Diff diff) {
+    if (diff.isNoneDiff()) {
       return false;
     }
     if (this.list.isEmpty()) {
@@ -41,12 +55,12 @@ public class CollectionDiff extends Diff {
   }
 
   @Override
-  public Iterator<Diff> elements() {
-    return this.list.iterator();
+  public int size() {
+    return this.list.size();
   }
 
   @Override
-  public int size() {
-    return this.list.size();
+  public Iterator<Diff> elements() {
+    return this.list.iterator();
   }
 }

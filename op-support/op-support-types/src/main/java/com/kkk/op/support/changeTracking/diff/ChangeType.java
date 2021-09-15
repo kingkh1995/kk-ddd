@@ -1,7 +1,7 @@
 package com.kkk.op.support.changeTracking.diff;
 
 /**
- * 无 None，未变更则不创建Diff
+ * 不定义None枚举
  *
  * @author KaiKoo
  */

@@ -4,21 +4,31 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
+import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.marker.Identifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 
 /**
- * 基于ThreadLocal的追踪更新Manager实现类
+ * 基于ThreadLocal的追踪更新Manager实现类 <br>
  *
  * @author KaiKoo
  */
 public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier>
     extends AbstractAggregateTrackingManager<T, ID> {
 
-  public ThreadLocalAggregateTrackingManager() {
+  private final Snapshooter<T> snapshooter;
+
+  public ThreadLocalAggregateTrackingManager(Snapshooter<T> snapshooter) {
     super(new ThreadLocalAggregateSnapshotContext<>());
+    this.snapshooter = Objects.requireNonNull(snapshooter);
+  }
+
+  @Override
+  public T snapshoot(T aggregate) {
+    return this.snapshooter.snapshoot(aggregate);
   }
 
   /**
@@ -54,11 +64,8 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void putSnapshot(@NotNull T aggregate) {
-      // 获取快照
-      if (aggregate.getId() != null) {
-        var snapshot = (T) aggregate.snapshot();
+    public void putSnapshot(@NotNull T snapshot) {
+      if (snapshot.getId() != null) {
         this.threadLocal.get().put(snapshot.getId(), snapshot);
         // 记录到 Recorder
         ThreadLocalRecorder.recordTlasc(this.threadLocal);
@@ -66,10 +73,8 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public T getSnapshot(@NotNull ID id) {
-      // 返回副本
-      return (T) this.threadLocal.get().get(id).snapshot();
+      return this.threadLocal.get().get(id);
     }
   }
 }

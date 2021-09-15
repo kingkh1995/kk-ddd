@@ -3,7 +3,8 @@ package com.kkk.op.user.repository.impl;
 import com.kkk.op.support.base.AggregateRepositorySupport;
 import com.kkk.op.support.base.AutoCaching;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
-import com.kkk.op.support.changeTracking.diff.EntityDiff;
+import com.kkk.op.support.changeTracking.Snapshooter;
+import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
@@ -48,7 +49,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
       final UserMapper userMapper,
       final AccountMapper accountMapper) {
     // 使用ThreadLocalAggregateTrackingManager
-    super(distributedLock, cacheManager, new ThreadLocalAggregateTrackingManager<>());
+    super(
+        distributedLock,
+        cacheManager,
+        new ThreadLocalAggregateTrackingManager<>(Snapshooter.identity())); // todo...
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;
   }
@@ -95,37 +99,34 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
 
   @Transactional
   @Override
-  protected void onUpdate(@NotNull User aggregate, @NotNull EntityDiff diff) {
+  protected void onUpdate(@NotNull User aggregate, @NotNull Diff diff) {
     // 更新User
     if (diff.isSelfModified()) {
       userMapper.updateById(userDataConverter.toData(aggregate));
     }
     // 处理Account
     diff.lambdaGet(User::getAccounts)
-        .ifPresent(
-            collectionDiff -> {
-              var iterator = collectionDiff.elements();
-              while (iterator.hasNext()) {
-                var entityDiff = (EntityDiff) iterator.next();
-                var oldValue = (Account) entityDiff.getOldValue();
-                var newValue = (Account) entityDiff.getNewValue();
-                switch (entityDiff.getChangeType()) {
-                  case Added:
-                    // 新增情况
-                    var accountDO = accountDataConverter.toData(newValue);
-                    accountMapper.insert(accountDO);
-                    // 填补id
-                    newValue.fillInId(AccountId.from(accountDO.getId()));
-                    break;
-                  case Modified:
-                    // 更新情况
-                    accountMapper.updateById(accountDataConverter.toData(newValue));
-                    break;
-                  case Removed:
-                    // 移除情况
-                    accountMapper.deleteById(oldValue.getId().getValue());
-                    break;
-                }
+        .elements()
+        .forEachRemaining(
+            accountDiff -> {
+              var oldValue = (Account) accountDiff.getOldValue();
+              var newValue = (Account) accountDiff.getNewValue();
+              switch (accountDiff.getChangeType()) {
+                case Added:
+                  // 新增情况
+                  var accountDO = accountDataConverter.toData(newValue);
+                  accountMapper.insert(accountDO);
+                  // 填补id
+                  newValue.fillInId(AccountId.from(accountDO.getId()));
+                  break;
+                case Removed:
+                  // 移除情况
+                  accountMapper.deleteById(oldValue.getId().getValue());
+                  break;
+                case Modified:
+                  // 更新情况
+                  accountMapper.updateById(accountDataConverter.toData(newValue));
+                  break;
               }
             });
   }

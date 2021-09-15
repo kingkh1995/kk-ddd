@@ -3,6 +3,7 @@ package com.kkk.op.user.web.configuration;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.Kson;
@@ -88,6 +89,8 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
         // 反序列化时忽略多余字段 反序列化默认需要无参构造器
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        // 序列化时日期不转为时间戳
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
         .build();
   }
 

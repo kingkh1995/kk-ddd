@@ -85,7 +85,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
   }
 
   public class MockException extends RuntimeException {
-    public MockException(Throwable cause) {
+    MockException(Throwable cause) {
       super(cause);
     }
   }

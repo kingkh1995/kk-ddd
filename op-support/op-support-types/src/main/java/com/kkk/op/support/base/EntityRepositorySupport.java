@@ -10,6 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   public String generateLockName(@NotNull ID id) {
-    return this.getLockNamePrefix() + id.stringValue();
+    return this.getLockNamePrefix() + id.identifier();
   }
 
   // ==============================================================================================
@@ -111,8 +112,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public T cacheGet(@NotNull ID id) {
-    return (T) this.getCacheManager().get(this.generateCacheKey(id), this.getTClass());
+  public Optional<T> cacheGet(@NotNull ID id) {
+    return this.getCacheManager().get(this.generateCacheKey(id), this.getTClass());
   }
 
   @Override
@@ -121,7 +122,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   public String generateCacheKey(@NotNull ID id) {
-    return this.getCacheKeyPrefix() + id.stringValue();
+    return this.getCacheKeyPrefix() + id.identifier();
   }
 
   // ==============================================================================================
@@ -131,11 +132,11 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     if (!this.isAutocaching()) {
       return this.onSelect(id);
     }
-    var entity = this.cacheGet(id);
-    if (entity != null) {
-      return entity;
+    var optional = this.cacheGet(id);
+    if (optional.isPresent()) {
+      return optional.get();
     }
-    entity = this.onSelect(id);
+    var entity = this.onSelect(id);
     this.cachePut(entity);
     return entity;
   }
@@ -200,11 +201,11 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
         ids.stream()
             .filter(
                 (id) -> {
-                  var t = this.cacheGet(id);
-                  if (t == null) {
+                  var optional = this.cacheGet(id);
+                  if (optional.isEmpty()) {
                     return true;
                   } else {
-                    list.add(t);
+                    list.add(optional.get());
                     return false;
                   }
                 })

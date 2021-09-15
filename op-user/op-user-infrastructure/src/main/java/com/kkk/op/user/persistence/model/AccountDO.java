@@ -1,16 +1,17 @@
 package com.kkk.op.user.persistence.model;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import lombok.Data;
 
 /**
  * account <br>
- * PO类字段和字段类型要求与数据库完全一致
+ * PO类字段和字段类型要求与数据库完全一致 <br>
  *
  * @author KaiKoo
  */
 @Data
-public class AccountDO {
+public class AccountDO implements Serializable {
 
   private Long id;
 

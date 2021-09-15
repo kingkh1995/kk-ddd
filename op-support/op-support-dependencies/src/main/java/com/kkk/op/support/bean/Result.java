@@ -47,19 +47,19 @@ public class Result<T> implements Serializable {
     this.data = data;
   }
 
-  public static Result<?> success() {
+  public static <T> Result<T> success() {
     return new Result<>(SUCCESS_CODE, SUCCESS_MESSAGE);
-  }
-
-  public static Result<?> fail(String message) {
-    return new Result<>(FAIL_CODE, message);
-  }
-
-  public static Result<?> fail(int code, String message) {
-    return new Result<>(code, message);
   }
 
   public static <T> Result<T> success(T t) {
     return new Result<>(SUCCESS_CODE, SUCCESS_MESSAGE, t);
+  }
+
+  public static <T> Result<T> fail(String message) {
+    return new Result<>(FAIL_CODE, message);
+  }
+
+  public static <T> Result<T> fail(int code, String message) {
+    return new Result<>(code, message);
   }
 }
