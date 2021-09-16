@@ -15,7 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** @author KaiKoo */
+/**
+ * diff核心工具类
+ *
+ * @author KaiKoo
+ */
 public final class DiffUtil { // 工具类声明为 final
 
   // 保证不能被实例化，同时防止反射机制创建对象
@@ -176,7 +180,7 @@ public final class DiffUtil { // 工具类声明为 final
   }
 
   private static boolean isNullOrUnidentified(Entity<?> entity) {
-    return entity == null || entity.getId() == null;
+    return entity == null || entity.nonIdentified();
   }
 
   private static boolean isNullOrEmpty(Collection<?> collection) {

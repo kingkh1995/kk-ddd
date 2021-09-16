@@ -26,7 +26,7 @@ public abstract class AbstractAggregateTrackingManager<
 
   @Override
   public void attach(@NotNull T aggregate) {
-    if (aggregate.getId() != null && !this.context.existSnapshot(aggregate.getId())) {
+    if (aggregate.isIdentified() && !this.context.existSnapshot(aggregate.getId())) {
       // 借助merge
       this.merge(aggregate);
     }
@@ -34,7 +34,7 @@ public abstract class AbstractAggregateTrackingManager<
 
   @Override
   public void detach(@NotNull T aggregate) {
-    if (aggregate.getId() != null) {
+    if (aggregate.isIdentified()) {
       this.context.removeSnapshot(aggregate.getId());
     }
   }

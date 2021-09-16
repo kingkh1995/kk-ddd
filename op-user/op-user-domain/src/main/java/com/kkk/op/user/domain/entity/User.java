@@ -1,14 +1,13 @@
 package com.kkk.op.user.domain.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.types.LongId;
 import java.util.List;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -17,11 +16,10 @@ import lombok.Setter;
  *
  * @author KaiKoo
  */
+@JsonDeserialize(builder = User.UserBuilder.class)
 @EqualsAndHashCode
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class User extends Aggregate<LongId> {
 
   @Setter(AccessLevel.PROTECTED)

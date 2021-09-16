@@ -60,7 +60,6 @@ public final class AccountState implements Type {
     }
   }
 
-  /** of方法和valueOf方法 */
   @JsonCreator
   public static AccountState from(@NotNull AccountStateEnum accountStateEnum) {
     return Cache.cache[Objects.requireNonNull(accountStateEnum).ordinal()];

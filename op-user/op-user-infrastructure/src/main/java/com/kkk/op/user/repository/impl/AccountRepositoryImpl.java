@@ -35,7 +35,8 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected Account onSelect(@NotNull AccountId accountId) {
-    return accountDataConverter.fromData(accountMapper.selectById(accountId.getValue()).get());
+    return accountDataConverter.fromData(
+        accountMapper.selectById(accountId.getValue()).orElse(null));
   }
 
   @Override

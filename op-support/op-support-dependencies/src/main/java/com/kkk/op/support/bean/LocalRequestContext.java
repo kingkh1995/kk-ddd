@@ -1,6 +1,7 @@
 package com.kkk.op.support.bean;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.UUID;
 import lombok.Builder;
@@ -20,8 +21,11 @@ public class LocalRequestContext {
   /** 日志链路追踪序号 */
   @Default private String traceId = UUID.randomUUID().toString().replace("-", "");
 
-  /** 请求时间戳（带时区信息）（执行过程中作为当前时间） */
-  @Default private ZonedDateTime zonedTimestamp = ZonedDateTime.now();
+  /** 请求时间戳（请求处理过程中作为当前时间） */
+  @Default private Instant timestamp = Instant.now();
+
+  /** 时区信息 */
+  private ZoneId zoneId;
 
   /** 调用程序入口：(method)uri */
   private String entrance;
@@ -42,7 +46,7 @@ public class LocalRequestContext {
   private Map<String, Object> payload;
 
   public long calculateCostMillis() {
-    return System.currentTimeMillis() - this.zonedTimestamp.toInstant().toEpochMilli();
+    return System.currentTimeMillis() - this.timestamp.toEpochMilli();
   }
 
   public void recordAccessCondition(String accessCondition) {

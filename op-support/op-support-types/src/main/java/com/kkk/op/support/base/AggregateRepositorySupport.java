@@ -77,7 +77,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   @Override
   public void save(@NotNull T aggregate) {
     // insert操作
-    if (aggregate.getId() == null) {
+    if (aggregate.nonIdentified()) {
       this.onInsert(aggregate);
       // 添加跟踪
       this.attach(aggregate);
@@ -86,6 +86,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     // update操作
     // 做 diff
     var entityDiff = this.getAggregateTrackingManager().detectChanges(aggregate);
+    // 无变更直接返回
     if (entityDiff.isNoneDiff()) {
       return;
     }

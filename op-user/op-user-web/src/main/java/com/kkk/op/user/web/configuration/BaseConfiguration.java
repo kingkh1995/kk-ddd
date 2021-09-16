@@ -87,7 +87,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
         // 序列化时只按属性
         .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
         .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-        // 反序列化时忽略多余字段 反序列化默认需要无参构造器
+        // 反序列化时忽略多余字段 反序列化默认使用无参构造器
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         // 序列化时日期不转为时间戳
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)

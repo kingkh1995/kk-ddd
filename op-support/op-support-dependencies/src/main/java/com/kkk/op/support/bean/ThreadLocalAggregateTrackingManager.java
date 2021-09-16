@@ -10,18 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 
 /**
  * 基于ThreadLocal的追踪更新Manager实现类 <br>
  *
  * @author KaiKoo
  */
+@Builder
 public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier>
     extends AbstractAggregateTrackingManager<T, ID> {
 
   private final Snapshooter<T> snapshooter;
 
-  public ThreadLocalAggregateTrackingManager(Snapshooter<T> snapshooter) {
+  private ThreadLocalAggregateTrackingManager(Snapshooter<T> snapshooter) {
     super(new ThreadLocalAggregateSnapshotContext<>());
     this.snapshooter = Objects.requireNonNull(snapshooter);
   }
@@ -65,7 +67,7 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
 
     @Override
     public void putSnapshot(@NotNull T snapshot) {
-      if (snapshot.getId() != null) {
+      if (snapshot.isIdentified()) {
         this.threadLocal.get().put(snapshot.getId(), snapshot);
         // 记录到 Recorder
         ThreadLocalRecorder.recordTlasc(this.threadLocal);

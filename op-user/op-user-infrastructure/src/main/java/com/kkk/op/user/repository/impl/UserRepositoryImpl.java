@@ -52,7 +52,9 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     super(
         distributedLock,
         cacheManager,
-        new ThreadLocalAggregateTrackingManager<>(Snapshooter.identity())); // todo...
+        ThreadLocalAggregateTrackingManager.<User, LongId>builder()
+            .snapshooter(Snapshooter.identity()) // todo...
+            .build());
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;
   }
@@ -88,7 +90,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   @Override
   protected User onSelect(@NotNull LongId longId) {
     // 查询User
-    var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()).get());
+    var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()).orElse(null));
     // 查询Accounts
     user.setAccounts(
         accountMapper.selectListByUserId(longId.getValue()).stream()

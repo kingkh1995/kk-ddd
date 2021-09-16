@@ -11,4 +11,12 @@ public interface Identifiable<ID extends Identifier> {
 
   /** insert之后填补id */
   void fillInId(ID id);
+
+  default boolean isIdentified() {
+    return this.getId() != null;
+  }
+
+  default boolean nonIdentified() {
+    return this.getId() == null;
+  }
 }

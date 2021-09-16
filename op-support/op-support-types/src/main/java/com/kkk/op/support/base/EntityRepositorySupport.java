@@ -78,6 +78,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.distributedLock = Objects.requireNonNull(distributedLock);
   }
 
+  // todo... 如何更优雅的实现
   public String generateLockName(@NotNull ID id) {
     return this.getLockNamePrefix() + id.identifier();
   }
@@ -132,18 +133,18 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     if (!this.isAutocaching()) {
       return this.onSelect(id);
     }
-    var optional = this.cacheGet(id);
-    if (optional.isPresent()) {
-      return optional.get();
-    }
-    var entity = this.onSelect(id);
-    this.cachePut(entity);
-    return entity;
+    return this.cacheGet(id)
+        .orElseGet(
+            () -> {
+              var entity = this.onSelect(id);
+              this.cachePut(entity);
+              return entity;
+            });
   }
 
   @Override
   public void remove(@NotNull T entity) {
-    boolean finished =
+    var finished =
         this.getDistributedLock()
             .tryRun(
                 this.generateLockName(entity.getId()),
@@ -162,7 +163,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Override
   public void save(@NotNull T entity) {
     // insert操作不需要获取分布式锁
-    if (entity.getId() == null) {
+    if (entity.nonIdentified()) {
       this.onInsert(entity);
       return;
     }
@@ -172,7 +173,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // 定义一个update0方法，使用函数式接口，使得update实现可以随意替换
   protected void update0(@NotNull T entity, Consumer<T> consumer) {
     // update操作
-    boolean finished =
+    var finished =
         this.getDistributedLock()
             .tryRun(
                 this.generateLockName(entity.getId()),
@@ -196,11 +197,12 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     // 有缓存情况下
     // ArrayList初始容量指定为ids的大小
     var list = new ArrayList<T>(ids.size());
-    // 先查缓存 存在则直接取缓存
+
     ids =
         ids.stream()
             .filter(
                 (id) -> {
+                  // 先查缓存 存在则直接取缓存 否则收集
                   var optional = this.cacheGet(id);
                   if (optional.isEmpty()) {
                     return true;
