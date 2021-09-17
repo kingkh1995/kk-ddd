@@ -41,7 +41,7 @@ public final class Kson {
     }
   }
 
-  // 不确定类型或只需要部分解析情况下使用
+  // 类型未知或只需要部分解析情况下使用
   public JsonNode readJson(String content) {
     try {
       return this.jsonMapper.readTree(content);

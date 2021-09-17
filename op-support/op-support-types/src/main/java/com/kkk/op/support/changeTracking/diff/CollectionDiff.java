@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public class CollectionDiff extends Diff {
+public final class CollectionDiff extends Diff {
 
   CollectionDiff(Collection<?> oldValue, Collection<?> newValue) {
     super(oldValue, newValue);

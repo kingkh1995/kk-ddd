@@ -22,21 +22,21 @@ public final class ThreadLocalRecorder {
   }
 
   // 使用IdentityHashMap（直接使用==对比）再包装为Set
-  private static final ThreadLocal<Set<ThreadLocal<?>>> RECORDER =
+  private static final ThreadLocal<Set<ThreadLocal<?>>> recorder =
       ThreadLocal.withInitial(() -> Collections.newSetFromMap(new IdentityHashMap<>()));
 
   public static void record(ThreadLocal<?> threadLocal) {
-    RECORDER.get().add(threadLocal);
+    recorder.get().add(threadLocal);
   }
 
   /** 记录Talsc使用 定义为泛型方法 */
   public static <ID extends Identifier, T extends Aggregate<ID>> void recordTlasc(
       ThreadLocal<Map<ID, T>> threadLocal) {
-    RECORDER.get().add(threadLocal);
+    recorder.get().add(threadLocal);
   }
 
   public static void removeAll() {
-    var it = RECORDER.get().iterator();
+    var it = recorder.get().iterator();
     while (it.hasNext()) {
       it.next().remove();
       it.remove();

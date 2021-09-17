@@ -9,6 +9,7 @@ import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.model.AccountDO;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * <br>
@@ -43,9 +44,11 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
         .ifPresent(
             accountDO -> {
               Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
-              Optional.ofNullable(accountDO.getUserId()).map(LongId::from).ifPresent(builder::userId);
+              Optional.ofNullable(accountDO.getUserId())
+                  .map(LongId::from)
+                  .ifPresent(builder::userId);
               Optional.ofNullable(accountDO.getState())
-                  .filter(s -> !s.isBlank())
+                  .filter(Predicate.not(String::isBlank))
                   .map(AccountStateEnum::valueOf)
                   .map(AccountState::from)
                   .ifPresent(builder::state);

@@ -9,6 +9,7 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * 使用Enum实现单例模式 <br>
@@ -53,7 +54,7 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
                   .map(userId -> LongId.valueOf(userId, "userId"))
                   .ifPresent(builder::userId);
               Optional.ofNullable(accountDTO.getState())
-                  .filter(s -> !s.isBlank())
+                  .filter(Predicate.not(String::isBlank))
                   .map(state -> AccountState.valueOf(state, "state"))
                   .ifPresent(builder::state);
               Optional.ofNullable(accountDTO.getCreateTime())

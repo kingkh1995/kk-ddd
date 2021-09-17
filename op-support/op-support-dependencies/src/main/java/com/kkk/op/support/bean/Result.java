@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 统一返回参数 <br>
+ * <br>
+ * todo... 使用record，构造函数如何设为私有？<br>
+ * todo... 无论成功与否均添加返回值信息，在ResponseBodyAdvice类中添加，返回时使用@JsonAppend方式序列化。 <br>
  *
  * @author KaiKoo
  */
@@ -32,7 +34,6 @@ public class Result<T> implements Serializable {
     this.message = message;
   }
 
-  // todo... 无论成功与否均添加返回值信息，暂时先放到这里，后序加到ResponseBodyAdvice类中
   private void addExtend() {
     var requestContext = LocalRequestContextHolder.getLocalRequestContext();
     if (requestContext != null) {

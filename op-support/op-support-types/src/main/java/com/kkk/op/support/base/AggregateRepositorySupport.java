@@ -77,7 +77,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   @Override
   public void save(@NotNull T aggregate) {
     // insert操作
-    if (aggregate.nonIdentified()) {
+    if (!aggregate.isIdentified()) {
       this.onInsert(aggregate);
       // 添加跟踪
       this.attach(aggregate);

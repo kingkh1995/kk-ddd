@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 校验器合集接口，可以定义Checkers工具类，将校验器函数式接口全部定义为静态常量，从工具类中取值即可。 <br>
+ * 校验器合集接口，可以定义Checkers工具类，将通用的校验器函数式接口全部定义为静态常量。 <br>
  *
  * @author KaiKoo
  */

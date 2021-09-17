@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -45,7 +44,7 @@ public class IPControlInterceptor implements HandlerInterceptor {
           .build(CacheLoader.from(() -> RateLimiter.create(1D)));
 
   // 对写请求做IP限流
-  private static final Set<? extends HttpMethod> METHODS =
+  private static final Set<HttpMethod> METHODS =
       Collections.unmodifiableSet(
           EnumSet.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE));
 
@@ -61,21 +60,14 @@ public class IPControlInterceptor implements HandlerInterceptor {
     if (!METHODS.contains(HttpMethod.valueOf(method))) {
       return true;
     }
-    log.info("IP Control cache size:{}", CACHE.size());
+    log.debug("IP-Control cache size '{}'.", CACHE.size());
     var ip = getRealIp(request);
     // 判断是否流量超出
     if (CACHE.get(ip).tryAcquire()) {
       return true;
     }
-    log.warn("block {}({}:{}) by IPControl!", ip, method, request.getRequestURI());
-    // 返回错误信息
-    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // 429
-    response.setHeader("Content-Type", "text/plain;charset=UTF-8");
-    try (var out = response.getWriter()) {
-      out.write("请您歇会再试！");
-      out.flush();
-    }
-    return false;
+    log.warn("Request '{}({}:{})' blocked by IP-Control!", ip, method, request.getRequestURI());
+    throw IPControlBlockedException.INSTANCE;
   }
 
   private static String getRealIp(HttpServletRequest request) {
@@ -114,5 +106,13 @@ public class IPControlInterceptor implements HandlerInterceptor {
   // 判断IP是否合法，仅简单判断
   private static boolean isIPValid(String ip) {
     return !(ip == null || ip.isBlank() || "unknown".equalsIgnoreCase(ip));
+  }
+
+  public static class IPControlBlockedException extends RuntimeException {
+    public static final IPControlBlockedException INSTANCE = new IPControlBlockedException();
+
+    private IPControlBlockedException() {
+      super("IP-Control blocked!");
+    }
   }
 }

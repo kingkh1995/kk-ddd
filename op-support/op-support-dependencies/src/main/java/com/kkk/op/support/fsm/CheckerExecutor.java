@@ -1,6 +1,7 @@
 package com.kkk.op.support.fsm;
 
 import java.util.List;
+import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -32,15 +33,15 @@ public class CheckerExecutor {
     if (checkers.size() == 1) {
       return checkers.get(0).check(context);
     }
-    // 批量处理，同步或异步（不使用线程池而是使用并行流）
+    // 多个则批量处理，同步或异步（不使用线程池而是使用并行流）
     var stream = checkers.stream();
     if (isParallel) {
       stream.parallel();
     }
-    // 使用findAny获取结果，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
+    // 需要使用findAny，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
     return stream
         .map(checker -> checker.check(context))
-        .filter(CheckResult::isFailed)
+        .filter(Predicate.not(CheckResult::successed))
         .findAny()
         .orElse(CheckResult.success());
   }

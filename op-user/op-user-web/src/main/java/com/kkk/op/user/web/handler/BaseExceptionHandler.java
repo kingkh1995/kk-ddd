@@ -1,6 +1,7 @@
 package com.kkk.op.user.web.handler;
 
 import com.kkk.op.support.accessCondition.AccessConditionForbiddenException;
+import com.kkk.op.support.bean.IPControlInterceptor.IPControlBlockedException;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
 import java.time.DateTimeException;
@@ -89,8 +90,14 @@ public class BaseExceptionHandler {
   @ExceptionHandler(AccessConditionForbiddenException.class)
   @ResponseStatus(HttpStatus.FORBIDDEN)
   public Result<?> handleNoSuchElementException(AccessConditionForbiddenException e) {
-    log.error("AccessConditionForbiddenException =>", e);
     return Result.fail("Forbidden");
+  }
+
+  // IP-Control异常
+  @ExceptionHandler(IPControlBlockedException.class)
+  @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS) // 429
+  public Result<?> handleIPControlBlockedException(IPControlBlockedException e) {
+    return Result.fail("Too Many Requests");
   }
 
   // 兜底500异常

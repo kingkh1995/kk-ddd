@@ -1,21 +1,27 @@
 package com.kkk.op.support.bean;
 
 import com.kkk.op.support.marker.CacheManager;
+import java.util.Objects;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
+import lombok.Builder;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * todo... <br>
+ * todo... 参考RedisCacheManager设计 <br>
  *
  * @author KaiKoo
  */
-@RequiredArgsConstructor
+@Builder
 public class RedisCacheManager implements CacheManager {
 
   private final StringRedisTemplate stringRedisTemplate;
 
   private final Kson kson;
+
+  private RedisCacheManager(StringRedisTemplate stringRedisTemplate, Kson kson) {
+    this.stringRedisTemplate = Objects.requireNonNull(stringRedisTemplate);
+    this.kson = Objects.requireNonNull(kson);
+  }
 
   @Override
   public void put(String key, Object obj) {

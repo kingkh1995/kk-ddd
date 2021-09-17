@@ -7,6 +7,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * http请求上下文信息 <br>
@@ -15,11 +16,12 @@ import lombok.Getter;
  * @author KaiKoo
  */
 @Getter
+@ToString
 @Builder
 public class LocalRequestContext {
 
   /** 日志链路追踪序号 */
-  @Default private String traceId = UUID.randomUUID().toString().replace("-", "");
+  @Default private String traceId = UUID.randomUUID().toString().replace("-", "").substring(16);
 
   /** 请求时间戳（请求处理过程中作为当前时间） */
   @Default private Instant timestamp = Instant.now();
@@ -49,10 +51,17 @@ public class LocalRequestContext {
     return System.currentTimeMillis() - this.timestamp.toEpochMilli();
   }
 
-  public void recordAccessCondition(String accessCondition) {
-    // 只允许记录一次
+  // 抓取accessCondition，不允许覆盖
+  public void captureAccessCondition(String accessCondition) {
     if (this.accessCondition == null) {
       this.accessCondition = accessCondition;
     }
+  }
+
+  // 回放抓取的accessCondition，回放完清空，以便多次使用
+  public String replayAccessCondition() {
+    var accessCondition = this.accessCondition;
+    this.accessCondition = null;
+    return accessCondition;
   }
 }

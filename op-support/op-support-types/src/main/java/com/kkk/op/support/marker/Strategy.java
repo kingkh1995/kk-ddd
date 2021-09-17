@@ -8,5 +8,5 @@ package com.kkk.op.support.marker;
  */
 public interface Strategy<E extends Enum<E>> {
 
-  E getStrategyID();
+  E getIdentifier();
 }

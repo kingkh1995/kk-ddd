@@ -3,10 +3,11 @@ package com.kkk.op.support.fsm;
 import com.kkk.op.support.annotation.EventProcessor;
 import com.kkk.op.support.base.ApplicationContextAwareBean;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,12 +15,13 @@ import lombok.extern.slf4j.Slf4j;
  * 状态机引擎：基于某些特定业务和场景下，根据源状态和发生的事件，来执行下一步的流程处理逻辑，并设置一个目标状态。 状态机引擎支持类 <br>
  * 使用步骤： <br>
  * 0、定义Event枚举（建议） <br>
- * 1、定义FsmEvent实现类 <br>
+ * 1、定义FsmEvent实现基类 <br>
  * 2、定义FsmContext实现类 <br>
  * 3、定义FsmEventProcessor基类，在基类基础上，再对有相似流程的处理器提取出基类，并添加拓展点 <br>
  * 4、定义FsmEngine实现类作为调用的入口，实现buildContext，需要被ioc容器管理 <br>
  * 5、定义Checker工具类，至少要将可公用的校验器在工具类中作为静态变量定义，其他非公用的可以使用lambda表达式实现 <br>
  * 6、定义事件处理器类，并添加@EventProcessor注解，实现action或者上层基类定义的拓展点，指定校验器 <br>
+ * 7、定义特定事件类型，调用端通过FsmEngine实现类发起事件，在对应的处理器类将事件对象由基类转为特定的类型并处理。
  *
  * @author KaiKoo
  */
@@ -31,12 +33,12 @@ public abstract class FsmEngineSupport<
   @Override
   public void sendEvent(E event) throws Exception {
     if (event.newCreate()) {
-      throw new RuntimeException("entity cannot be null!");
+      throw new FsmEngineException("Entity can't be null!");
     }
     this.sendEvent(event, this.findEnity(event.getEntityId()));
   }
 
-  protected abstract T findEnity(String eventId);
+  protected abstract T findEnity(String entityId);
 
   @Override
   public void sendEvent(E event, T entity) throws Exception {
@@ -52,27 +54,31 @@ public abstract class FsmEngineSupport<
 
   private P getEventProcessor(C context) {
     // 查询事件处理器集合
-    var processorList =
+    var op =
         this.acquireEventProcessor(
             context.getEvent().getEventType(),
             context.getState(),
             context.getBiz(),
             context.getScene());
-    if (processorList == null) {
-      throw new FsmEngineException("no processor found!");
+    if (op.isEmpty()) {
+      throw new FsmEngineException("No processor found!");
     }
+    var processorList = op.get();
     log.info(
         "processorList:{}",
         processorList.stream()
             .map(p -> p.getClass().getSimpleName())
             .collect(Collectors.joining(", ", "[", "]")));
     if (processorList.size() > 1) {
-      throw new FsmEngineException("more than one processor found!");
+      throw new FsmEngineException("More than one processor found!");
     }
     return processorList.get(0);
   }
 
-  /** EventProcessor管理相关 */
+  // ===============================================================================================
+  /** 以下是EventProcessor管理相关 */
+
+  /** 事件处理器基类class */
   private Class<P> pClass;
 
   {
@@ -81,15 +87,19 @@ public abstract class FsmEngineSupport<
     this.pClass = (Class<P>) actualTypeArguments[3];
   }
 
+  /** 事件处理器实现类三层map */
   private Map<String, Map<String, Map<String, List<P>>>> processorMap;
+
+  private static String[] DEFAULT = new String[] {"#"};
 
   @Override
   public void afterPropertiesSet() throws Exception {
     if (this.processorMap != null) {
       return;
     }
+    // 使用HashMap和LinkedList，因为只会有并发get操作。
     this.processorMap = new HashMap<>();
-    // 因为EventProcessor是公用的，所以不能使用getBeansWithAnnotation获取，需要按对应业务的EventProcessor基类类型去获取。
+    // 因为@EventProcessor是多个业务公用的，所以不能通过注解获取，需要根据业务的EventProcessor基类class去获取。
     for (P p : this.getApplicationContext().getBeansOfType(pClass).values()) {
       var eventProcessor = p.getClass().getAnnotation(EventProcessor.class);
       if (eventProcessor == null) {
@@ -104,8 +114,7 @@ public abstract class FsmEngineSupport<
               eventMap = new HashMap<>();
             }
             // 第二层key是状态
-            String[] states =
-                eventProcessor.state().length == 0 ? new String[] {"#"} : eventProcessor.state();
+            String[] states = eventProcessor.state().length == 0 ? DEFAULT : eventProcessor.state();
             for (String state : states) {
               eventMap.compute(
                   state,
@@ -113,15 +122,12 @@ public abstract class FsmEngineSupport<
                     if (stateMap == null) {
                       stateMap = new HashMap<>();
                     }
-                    // 第三层key是具体的业务场景，因为处理器数量会非常多，开发过程中难免会重复定义，收集为list而不是直接覆盖便于排查问题。
+                    // 第三层key是具体的业务场景
+                    // 因为处理器数量会非常多，开发过程中难免会重复定义，收集为list而不是直接覆盖便于排查问题和后序升级
                     String[] bizs =
-                        eventProcessor.biz().length == 0
-                            ? new String[] {"#"}
-                            : eventProcessor.biz();
+                        eventProcessor.biz().length == 0 ? DEFAULT : eventProcessor.biz();
                     String[] scenes =
-                        eventProcessor.scene().length == 0
-                            ? new String[] {"#"}
-                            : eventProcessor.scene();
+                        eventProcessor.scene().length == 0 ? DEFAULT : eventProcessor.scene();
                     for (String biz : bizs) {
                       for (String scene : scenes) {
                         String key = biz + "@" + scene;
@@ -129,7 +135,8 @@ public abstract class FsmEngineSupport<
                             key,
                             (k3, list) -> {
                               if (list == null) {
-                                list = new ArrayList<>();
+                                // 使用LinkedList，为了节约空间，因为正常情况下元素只有一个。
+                                list = new LinkedList<>();
                               }
                               list.add(p);
                               return list;
@@ -144,29 +151,30 @@ public abstract class FsmEngineSupport<
     }
   }
 
-  private List<P> acquireEventProcessor(String eventType, String state, String biz, String scene) {
-    log.info("eventType:{}, state:{}, biz:{}, scene:{}", eventType, state, biz, scene);
-    // event level
-    var eventMap = this.processorMap.get(eventType);
-    if (eventMap == null) {
-      return null;
-    }
-    // state level
-    var stateMap = eventMap.containsKey(state) ? eventMap.get(state) : eventMap.get("#");
-    if (stateMap == null) {
-      return null;
-    }
-    // biz + scene level
-    if (biz != null && scene != null && stateMap.containsKey(biz + "@" + scene)) {
-      return stateMap.get(biz + "@" + scene);
-    }
-    if (biz != null && stateMap.containsKey(biz + "@#")) {
-      return stateMap.get(biz + "@#");
-    }
-    if (scene != null && stateMap.containsKey("#@" + scene)) {
-      return stateMap.get("#@" + scene);
-    }
-    return stateMap.get("#@#");
+  private Optional<List<P>> acquireEventProcessor(
+      String eventType, String state, String biz, String scene) {
+    log.info("eventType '{}', state '{}', biz '{}', scene '{}'.", eventType, state, biz, scene);
+    return Optional.ofNullable(
+            // event level
+            processorMap.get(eventType))
+        .map(
+            // state level
+            eventMap -> Optional.ofNullable(eventMap.get(state)).orElse(eventMap.get("#")))
+        .map(
+            // biz + scene level
+            stateMap -> {
+              var op = Optional.<List<P>>empty();
+              if (biz != null && scene != null) {
+                op.or(() -> Optional.ofNullable(stateMap.get(biz + "@" + scene)));
+              }
+              if (biz != null) {
+                op.or(() -> Optional.ofNullable(stateMap.get(biz + "@#")));
+              }
+              if (scene != null) {
+                op.or(() -> Optional.ofNullable(stateMap.get("#@" + scene)));
+              }
+              return op.or(() -> Optional.ofNullable(stateMap.get("#@#"))).orElse(null);
+            });
   }
 
   public static class FsmEngineException extends RuntimeException {

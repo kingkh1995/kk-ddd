@@ -23,21 +23,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * controller层日志打印切面 <br>
- * todo... 添加工具类保存请求参数
  *
  * @author KaiKoo
  */
 @Slf4j
-@RequiredArgsConstructor
 @Component // 需要添加 @Component 注解
-@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高，也可以不添加@Order注解，默认级别为最低
+@Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect // 切面类需要添加 @Aspect 注解
+@RequiredArgsConstructor
 public class BaseControllerAspect extends AbstractMethodAspect {
 
   private final Kson kson;
 
   @Override
-  @Pointcut("@within(com.kkk.op.support.annotation.BaseController)") // 切面针对注解标识的类
+  @Pointcut("@within(com.kkk.op.support.annotation.BaseController)") // 切面针对注解标识类的所有方法
   protected void pointcut() {}
 
   @Override
@@ -59,9 +58,9 @@ public class BaseControllerAspect extends AbstractMethodAspect {
     if (args == null || args.length == 0) {
       return Collections.emptyMap();
     }
-    var params = new HashMap<String, Object>();
     var parameterNames = signature.getParameterNames();
-    for (int i = 0; i < args.length; i++) {
+    var params = new HashMap<String, Object>(args.length, 1.0f);
+    for (var i = 0; i < args.length; i++) {
       var param = args[i];
       if (param instanceof Model
           || param instanceof ModelMap
@@ -73,6 +72,6 @@ public class BaseControllerAspect extends AbstractMethodAspect {
       }
       params.put(parameterNames[i], param);
     }
-    return params;
+    return Collections.unmodifiableMap(params);
   }
 }

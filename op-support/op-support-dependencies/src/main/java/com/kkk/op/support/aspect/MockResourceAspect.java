@@ -1,6 +1,5 @@
 package com.kkk.op.support.aspect;
 
-import com.google.common.base.Throwables;
 import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.tool.ClassUtil;
@@ -10,15 +9,19 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 /**
  * mock切面实现 <br>
  *
  * @author KaiKoo
  */
+@Component
 @Slf4j
-@RequiredArgsConstructor
+@Order // 可以不添加@Order注解，默认级别为最低
 @Aspect
+@RequiredArgsConstructor
 public class MockResourceAspect extends AbstractMethodAspect {
 
   private final Kson kson;
@@ -29,7 +32,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   @Override
   public boolean onBefore(JoinPoint point) {
-    log.info("always forbid when mock!");
+    log.info("Always forbid when mock!");
     return false;
   }
 
@@ -61,27 +64,33 @@ public class MockResourceAspect extends AbstractMethodAspect {
       mockMethod = resource.mockMethod();
       returnDefault = false;
     }
-    log.info("returnType: {}, returnDefault: {}", returnType.getCanonicalName(), returnDefault);
+    log.info("returnType = {}, returnDefault = {}.", returnType.getCanonicalName(), returnDefault);
     // 两个属性均为空则返回默认值
     if (returnDefault) {
       return ClassUtil.getDefault(returnType);
     }
     // 执行mock调用并返回结果
     try {
-      log.info("call mock, class: {}, method: {}", mockClass.getCanonicalName(), mockMethod);
+      log.info("Call mock, class = {}, method = {}.", mockClass.getCanonicalName(), mockMethod);
       var targetMethod = mockClass.getDeclaredMethod(mockMethod, method.getParameterTypes());
       targetMethod.trySetAccessible();
       return targetMethod.invoke(target, point.getArgs());
-    } catch (Exception e) {
-      // 非检查时异常直接抛出，受检查异常（反射异常）包装成RuntimeException。
-      Throwables.throwIfUnchecked(e);
+    } catch (Throwable e) {
+      // 如果执行mock方法异常则抛出cause
+      if (e.getCause() instanceof RuntimeException cause) {
+        throw cause;
+      }
+      if (e.getCause() instanceof Error cause) {
+        throw cause;
+      }
+      // 受检查异常（反射异常）包装成MockException
       throw new MockException(e);
     }
   }
 
   @Override
   public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
-    log.info("mock return: {}", this.kson.writeJson(result));
+    log.info("Mock return '{}'.", this.kson.writeJson(result));
   }
 
   public class MockException extends RuntimeException {

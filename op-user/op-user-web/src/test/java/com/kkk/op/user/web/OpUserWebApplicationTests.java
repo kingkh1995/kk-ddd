@@ -15,6 +15,8 @@ import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +31,12 @@ class OpUserWebApplicationTests {
   @Autowired private UserMapper userMapper;
 
   @Autowired private AccountMapper accountMapper;
+
+  public static void main(String[] args) {
+  }
+
+  @Test
+  void test() {}
 
   @Test
   void testMybatis() {
@@ -86,5 +94,14 @@ class OpUserWebApplicationTests {
     System.out.println(kson.readJson(sTime, StampedTime.class));
     System.out.println(kson.readJson(sTime, StampedTime.class).toLocalDateTime());
     System.out.println(TenThousandYuan.from(new BigDecimal("110.6")).toPlainString());
+  }
+
+  private static void forRun(int time, IntConsumer consumer) {
+    IntStream.range(0, time)
+        .forEach(
+            i -> {
+              System.out.println("Round =>=>=> " + i);
+              consumer.accept(i);
+            });
   }
 }

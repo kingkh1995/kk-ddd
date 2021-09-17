@@ -1,6 +1,7 @@
 package com.kkk.op.support.bean;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
+import java.util.Optional;
 import org.springframework.lang.Nullable;
 
 /**
@@ -30,6 +31,7 @@ public class LocalRequestContextHolder {
     inheritableContextHolder.remove();
   }
 
+  // 默认开启TransmittableThreadLocal
   public static void setLocalRequestContext(@Nullable LocalRequestContext requestContext) {
     setLocalRequestContext(requestContext, true);
   }
@@ -51,10 +53,6 @@ public class LocalRequestContextHolder {
 
   @Nullable
   public static LocalRequestContext getLocalRequestContext() {
-    var requestContext = contextHolder.get();
-    if (requestContext == null) {
-      requestContext = inheritableContextHolder.get();
-    }
-    return requestContext;
+    return Optional.ofNullable(contextHolder.get()).orElse(inheritableContextHolder.get());
   }
 }

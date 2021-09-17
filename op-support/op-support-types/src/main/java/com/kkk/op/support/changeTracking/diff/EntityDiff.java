@@ -15,7 +15,7 @@ import lombok.Getter;
  *
  * @author KaiKoo
  */
-public class EntityDiff extends Diff {
+public final class EntityDiff extends Diff {
 
   EntityDiff(Entity<?> oldValue, Entity<?> newValue) {
     super(oldValue, newValue);

@@ -6,7 +6,7 @@
 
 #### 组件
 
-- jdk: 11
+- java: 17
 - spring-boot: 2.5.4
 - spring-cloud-alibaba: 2021.1
 - swagger: 3.0.0

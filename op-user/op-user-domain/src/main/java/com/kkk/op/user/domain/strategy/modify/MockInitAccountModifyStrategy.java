@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class MockInitAccountModifyStrategy implements AccountModifyStrategy {
 
   @Override
-  public AccountStateEnum getStrategyID() {
+  public AccountStateEnum getIdentifier() {
     return AccountStateEnum.INIT;
   }
 }

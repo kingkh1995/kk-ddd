@@ -17,7 +17,7 @@
   <description>KKK-OP-ROOT</description>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>17</java.version>
     <springfox.version>3.0.0</springfox.version>
     <mybatis.version>2.2.0</mybatis.version>
     <pagehelper.version>1.3.1</pagehelper.version>

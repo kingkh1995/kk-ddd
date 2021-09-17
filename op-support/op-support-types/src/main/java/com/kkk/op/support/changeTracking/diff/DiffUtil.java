@@ -39,7 +39,7 @@ public final class DiffUtil { // 工具类声明为 final
             () -> {
               var fields =
                   Arrays.stream(clazz.getDeclaredFields())
-                      .filter(field -> field.getDeclaredAnnotation(DiffIgnore.class) == null)
+                      .filter(field -> !field.isAnnotationPresent(DiffIgnore.class))
                       .filter(Field::trySetAccessible)
                       .collect(Collectors.toUnmodifiableList());
               FIELD_CACHE.put(clazz, new SoftReference<>(fields));
@@ -180,7 +180,7 @@ public final class DiffUtil { // 工具类声明为 final
   }
 
   private static boolean isNullOrUnidentified(Entity<?> entity) {
-    return entity == null || entity.nonIdentified();
+    return entity == null || !entity.isIdentified();
   }
 
   private static boolean isNullOrEmpty(Collection<?> collection) {

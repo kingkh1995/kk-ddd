@@ -3,7 +3,7 @@ package com.kkk.op.support.accessCondition;
 import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.base.AbstractStrategyManager;
 import java.util.EnumSet;
-import lombok.ToString;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,38 +28,37 @@ public class AccessConditionPluginManager
    */
   @MockResource(mockMethod = "callPluginCheckMock") // 添加mock
   public boolean callPluginCheck(Object obj, String input) {
-    var context = new PluginCheckContext(input);
-    log.info("start checking with context:{}", context);
-    // 不做异常处理了，因为不允许为空
-    var pluginEnum = AccessConditionPluginEnum.valueOf(context.plugin);
-    var result = this.getSingleton(pluginEnum).canAcess(obj, context.args);
-    return context.reverse ? !result : result;
+    var context = PluginCheckContext.buildFrom(input);
+    log.info("Start checking with context '{}'......", context);
+    var canAccess = super.getSingleton(AccessConditionPluginEnum.valueOf(context.plugin())).canAccess(obj, context.args());
+    return context.checkResult(canAccess);
   }
 
-  // mock方法
-  public boolean callPluginCheckMock(Object obj, String input) {
-    return Boolean.parseBoolean(input.strip());
-  }
+  // 使用record 为不可变类 默认继承Record
+  private record PluginCheckContext(boolean reverse, String plugin, String args) {
 
-  @ToString
-  private class PluginCheckContext {
-    boolean reverse = false;
-    String plugin;
-    String args;
-
-    private PluginCheckContext(String input) {
-      input = input.strip();
+    static PluginCheckContext buildFrom(String input) {
+      input = Objects.requireNonNull(input).strip();
+      var reverse = false;
       if (input.startsWith("!")) {
-        this.reverse = true;
+        reverse = true;
         input = input.substring(1);
       }
       var index = input.indexOf(":");
       if (index > 0) {
-        this.plugin = input.substring(0, index);
-        this.args = input.substring(index + 1);
+        return new PluginCheckContext(reverse, input.substring(0, index), input.substring(index + 1));
       } else {
-        this.plugin = input;
+        return new PluginCheckContext(reverse, input, null);
       }
     }
+
+    boolean checkResult(boolean canAccess) {
+      return reverse() ? !canAccess : canAccess;
+    }
+  }
+
+  // mock方法
+  private boolean callPluginCheckMock(Object obj, String input) {
+    return Boolean.parseBoolean(input.strip());
   }
 }

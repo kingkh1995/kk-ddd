@@ -82,7 +82,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
           this.strategys.stream()
               .collect(
                   Collectors.toMap(
-                      Strategy::getStrategyID,
+                      Strategy::getIdentifier,
                       Function.identity(),
                       (s, s2) -> s2.getClass().getAnnotation(Primary.class) == null ? s : s2,
                       () -> new EnumMap<>(this.tClass)));
@@ -93,7 +93,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
           this.strategys.stream()
               .collect(
                   Collectors.groupingBy(
-                      Strategy::getStrategyID,
+                      Strategy::getIdentifier,
                       () -> new EnumMap<>(this.tClass),
                       Collectors.collectingAndThen(
                           Collectors.toList(),
@@ -114,7 +114,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
           this.strategys.stream()
               .collect(
                   Collectors.groupingBy(
-                      Strategy::getStrategyID,
+                      Strategy::getIdentifier,
                       () -> new EnumMap<>(this.tClass),
                       Collectors.toUnmodifiableMap(
                           s ->
@@ -129,15 +129,15 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
    * 根据策略枚举值获取收集到的策略实现类 <br>
    * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
    */
-  protected S getSingleton(@NotNull E e) {
+  protected final S getSingleton(@NotNull E e) {
     return Objects.requireNonNull(this.primaryMap).get(e);
   }
 
-  protected List<S> getList(@NotNull E e) {
+  protected final List<S> getList(@NotNull E e) {
     return Objects.requireNonNull(this.orderMap).get(e);
   }
 
-  protected Map<String, S> getMap(@NotNull E e) {
+  protected final Map<String, S> getMap(@NotNull E e) {
     return Objects.requireNonNull(this.qualifierMap).get(e);
   }
 }

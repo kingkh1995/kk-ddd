@@ -7,7 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * BaseRequestContextHolder处理拦截器 <br>
- * todo... 待实现
+ * todo... 待完善
  *
  * @author KaiKoo
  */
@@ -20,24 +20,25 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
    * 均是在返回结果之前被调用，也无法修改有@ResponseBody注解的控制器的response，方法内调用getWriter也会报错； <br>
    * 因为DispatcherServlet已经于postHandle方法之前将响应提交给HandlerAdapter了。
    */
-
-  // 前置保存http请求信息
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
+    // 前置保存http请求信息
     var requestContext =
         LocalRequestContext.builder()
             .entrance("(" + request.getMethod() + ")" + request.getRequestURI())
             .build();
     // 打印请求参数
-    log.info("[requestContext = {}]", requestContext);
+    log.info("{}", requestContext);
     LocalRequestContextHolder.setLocalRequestContext(requestContext);
-    return HandlerInterceptor.super.preHandle(request, response, handler);
+    return true;
   }
 
   @Override
   public void afterCompletion(
-      HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+      HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+      throws Exception {
+    // 完成时清空http请求信息
     LocalRequestContextHolder.resetLocalRequestContext();
   }
 }

@@ -11,6 +11,6 @@ public class AccessConditionForbiddenException extends RuntimeException {
       new AccessConditionForbiddenException();
 
   private AccessConditionForbiddenException() {
-    super();
+    super("Forbidden!");
   }
 }

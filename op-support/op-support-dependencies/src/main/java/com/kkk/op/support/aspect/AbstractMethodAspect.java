@@ -27,13 +27,13 @@ public abstract class AbstractMethodAspect implements MethodAdviceHandler {
    */
   @Around("pointcut()")
   public Object advice(ProceedingJoinPoint point) throws Throwable {
-    log.info("advice at: {}", point.getStaticPart());
+    log.info("Method advicing at '{}'.", point.getStaticPart());
     // 执行之前，判断是否被允许执行
-    boolean permitted = this.onBefore(point);
+    var permitted = this.onBefore(point);
+    // 是否抛出了异常
+    var thrown = false;
     // 方法返回值
     Object result = null;
-    // 是否抛出了异常
-    boolean thrown = false;
     try {
       if (permitted) {
         // 目标方法被允许执行

@@ -12,16 +12,16 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 /**
- * AccessCondition核心逻辑切面实现，对查询方法做访问控制，需要@AccessCondition注解辅助；<br>
- * 原因是不同调用方对查询方法的访问要求是不一样的，所以条件的定义需要移到QueryService的外层。 <br>
+ * AccessCondition的设计是将QueryService的方法作为切点，而@AccessCondition注解在QueryService的调用方处。 <br>
+ * 因为查询方法的访问条件是由调用方决定的 <br>
  * <br>
  *
  * @author KaiKoo
  */
 @Slf4j
-@RequiredArgsConstructor
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect
+@RequiredArgsConstructor
 public class QueryServiceAspect extends AbstractMethodAspect {
 
   private final AccessConditionChecker checker;
@@ -32,12 +32,12 @@ public class QueryServiceAspect extends AbstractMethodAspect {
 
   @Override
   public void onSuccess(JoinPoint point, Object result) {
-    // 后置增强处理，成功查询出结果之后判断是否允许访问查询出来的数据
-    boolean canAccess =
+    // 后置增强处理，成功查询出结果之后再判断是否允许访问
+    var checkPass =
         this.checker.analyzeThenCheck(
-            result, LocalRequestContextHolder.getLocalRequestContext().getAccessCondition());
+            result, LocalRequestContextHolder.getLocalRequestContext().replayAccessCondition());
     // 禁止访问则抛出异常
-    if (!canAccess) {
+    if (!checkPass) {
       throw AccessConditionForbiddenException.INSTANCE;
     }
   }

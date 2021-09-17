@@ -24,7 +24,7 @@ public class AccountStrategyManager
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    return Objects.requireNonNull(this.getSingleton(oldAccount.getState().getValue()))
+    return Objects.requireNonNull(super.getSingleton(oldAccount.getState().getValue()))
         .allowModify(oldAccount, newAccount);
   }
 }

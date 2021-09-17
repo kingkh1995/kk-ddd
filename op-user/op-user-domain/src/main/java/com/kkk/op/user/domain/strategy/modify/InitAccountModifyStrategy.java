@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class InitAccountModifyStrategy implements AccountModifyStrategy {
 
   @Override
-  public AccountStateEnum getStrategyID() {
+  public AccountStateEnum getIdentifier() {
     return AccountStateEnum.INIT;
   }
 

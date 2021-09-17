@@ -5,7 +5,7 @@ package com.kkk.op.support.changeTracking.diff;
  *
  * @author KaiKoo
  */
-public class NoneDiff extends Diff {
+public final class NoneDiff extends Diff {
   static final NoneDiff INSTANCE = new NoneDiff();
 
   private NoneDiff() {

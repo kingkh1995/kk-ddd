@@ -83,7 +83,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     return this.getLockNamePrefix() + id.identifier();
   }
 
-  // ==============================================================================================
+  // ===============================================================================================
 
   /**
    * 以下方法是继承的子类应该去实现的 （模板方法设计模式）<br>
@@ -100,7 +100,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   protected abstract List<T> onSelectByIds(@NotEmpty Set<ID> ids);
 
-  // ==============================================================================================
+  // ===============================================================================================
 
   /** 以下是Cache相关方法 */
   protected CacheManager getCacheManager() {
@@ -126,7 +126,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     return this.getCacheKeyPrefix() + id.identifier();
   }
 
-  // ==============================================================================================
+  // ===============================================================================================
 
   @Override
   public T find(@NotNull ID id) {
@@ -163,7 +163,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Override
   public void save(@NotNull T entity) {
     // insert操作不需要获取分布式锁
-    if (entity.nonIdentified()) {
+    if (!entity.isIdentified()) {
       this.onInsert(entity);
       return;
     }

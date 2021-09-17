@@ -7,11 +7,11 @@ import java.util.Map.Entry;
 import lombok.Getter;
 
 /**
- * 基类（部分参考JsonNode设计）
+ * 基类（部分参考JsonNode设计）定义为密封类
  *
  * @author KaiKoo
  */
-public abstract class Diff {
+public abstract sealed class Diff permits EntityDiff, CollectionDiff, NoneDiff{
 
   @Getter private Object oldValue;
 

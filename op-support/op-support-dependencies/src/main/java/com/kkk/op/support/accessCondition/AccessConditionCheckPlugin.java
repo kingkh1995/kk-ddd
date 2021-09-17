@@ -9,5 +9,5 @@ import com.kkk.op.support.marker.Strategy;
  */
 public interface AccessConditionCheckPlugin extends Strategy<AccessConditionPluginEnum> {
 
-  boolean canAcess(Object obj, String args);
+  boolean canAccess(Object obj, String args);
 }
