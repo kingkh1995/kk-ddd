@@ -8,6 +8,7 @@ import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -56,13 +57,11 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
   /** EntityRepository 的查询方法实现 */
   @Override
-  public T find(@NotNull ID id) {
-    var aggregate = super.find(id);
+  public Optional<T> find(@NotNull ID id) {
+    var op = super.find(id);
     // 添加跟踪
-    if (aggregate != null) {
-      this.attach(aggregate);
-    }
-    return aggregate;
+    op.ifPresent(this::attach);
+    return op;
   }
 
   /** EntityRepository 的移除方法实现 */

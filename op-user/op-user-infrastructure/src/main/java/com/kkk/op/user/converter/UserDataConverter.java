@@ -25,12 +25,12 @@ public enum UserDataConverter implements DataConverter<User, UserDO> {
   }
 
   @Override
-  public User fromData(UserDO data) {
-    var builder = User.builder();
-    if (data != null) {
-      builder.id(Optional.ofNullable(data.getId()).map(LongId::from).orElse(null));
-      return builder.build();
+  public User fromData(UserDO userDO) {
+    if (userDO == null) {
+      return null;
     }
+    var builder = User.builder();
+    Optional.ofNullable(userDO.getId()).map(LongId::from).ifPresent(builder::id);
     return builder.build();
   }
 }

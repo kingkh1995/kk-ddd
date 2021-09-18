@@ -41,26 +41,21 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
   }
 
   @Override
-  public Account fromDTO(AccountDTO dto) {
-    // Entity是有行为的，所以需要保证不能返回null
+  public Account fromDTO(AccountDTO accountDTO) {
+    if (accountDTO == null) {
+      return null;
+    }
     var builder = Account.builder();
-    Optional.ofNullable(dto)
-        .ifPresent(
-            accountDTO -> {
-              Optional.ofNullable(accountDTO.getId())
-                  .map(accountId -> AccountId.valueOf(accountId, "accountId"))
-                  .ifPresent(builder::id);
-              Optional.ofNullable(accountDTO.getUserId())
-                  .map(userId -> LongId.valueOf(userId, "userId"))
-                  .ifPresent(builder::userId);
-              Optional.ofNullable(accountDTO.getState())
-                  .filter(Predicate.not(String::isBlank))
-                  .map(state -> AccountState.valueOf(state, "state"))
-                  .ifPresent(builder::state);
-              Optional.ofNullable(accountDTO.getCreateTime())
-                  .map(DateUtil::toLocalDateTime)
-                  .ifPresent(builder::createTime);
-            });
+    Optional.ofNullable(accountDTO.getId()).map(AccountId::from).ifPresent(builder::id);
+    Optional.ofNullable(accountDTO.getUserId()).map(LongId::from).ifPresent(builder::userId);
+    Optional.ofNullable(accountDTO.getState())
+        .filter(Predicate.not(String::isBlank))
+        .map(AccountStateEnum::valueOf)
+        .map(AccountState::from)
+        .ifPresent(builder::state);
+    Optional.ofNullable(accountDTO.getCreateTime())
+        .map(DateUtil::toLocalDateTime)
+        .ifPresent(builder::createTime);
     return builder.build();
   }
 }

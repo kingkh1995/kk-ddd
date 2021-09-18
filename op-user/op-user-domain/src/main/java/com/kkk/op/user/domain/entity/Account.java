@@ -72,11 +72,11 @@ public class Account extends Entity<AccountId> {
   }
 
   private Account checkIdExist(AccountService accountService) {
-    Account account = accountService.find(this.id);
+    var op = accountService.find(this.id);
     // 逻辑校验
-    if (account == null) {
-      throw new BusinessException("id不存在");
+    if (op.isEmpty()) {
+      throw new BusinessException("不存在的id");
     }
-    return account;
+    return op.get();
   }
 }

@@ -1,4 +1,4 @@
-package com.kkk.op.support.accessCondition;
+package com.kkk.op.support.access;
 
 /**
  * AccessCondition检测插件枚举 <br>

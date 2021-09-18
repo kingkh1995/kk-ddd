@@ -1,4 +1,4 @@
-package com.kkk.op.support.accessCondition;
+package com.kkk.op.support.access;
 
 import java.util.LinkedList;
 import javax.validation.constraints.NotBlank;

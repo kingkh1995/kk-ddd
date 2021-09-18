@@ -1,4 +1,4 @@
-package com.kkk.op.support.mock;
+package com.kkk.op.support.cache;
 
 import com.kkk.op.support.marker.CacheManager;
 import java.util.Optional;
@@ -7,11 +7,6 @@ public class MockCacheManager implements CacheManager {
 
   @Override
   public void put(String key, Object obj) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String get(String key) {
     throw new UnsupportedOperationException();
   }
 

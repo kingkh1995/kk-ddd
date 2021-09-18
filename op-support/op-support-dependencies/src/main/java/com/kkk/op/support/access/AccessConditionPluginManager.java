@@ -1,4 +1,4 @@
-package com.kkk.op.support.accessCondition;
+package com.kkk.op.support.access;
 
 import com.kkk.op.support.annotation.MockResource;
 import com.kkk.op.support.base.AbstractStrategyManager;

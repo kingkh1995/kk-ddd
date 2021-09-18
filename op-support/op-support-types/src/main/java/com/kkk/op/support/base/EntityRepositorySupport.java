@@ -89,7 +89,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
    * 以下方法是继承的子类应该去实现的 （模板方法设计模式）<br>
    * 对应crud的实现
    */
-  protected abstract T onSelect(@NotNull ID id);
+  protected abstract Optional<T> onSelect(@NotNull ID id);
   // todo... 由子类自行实现查询操作防止缓存击穿 三种方式：1、分布式锁 2、顺序队列 3、信号量
 
   protected abstract void onDelete(@NotNull T entity);
@@ -129,16 +129,16 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // ===============================================================================================
 
   @Override
-  public T find(@NotNull ID id) {
+  public Optional<T> find(@NotNull ID id) {
     if (!this.isAutocaching()) {
       return this.onSelect(id);
     }
     return this.cacheGet(id)
-        .orElseGet(
+        .or(
             () -> {
-              var entity = this.onSelect(id);
-              this.cachePut(entity);
-              return entity;
+              var op = this.onSelect(id);
+              op.ifPresent(this::cachePut);
+              return op;
             });
   }
 

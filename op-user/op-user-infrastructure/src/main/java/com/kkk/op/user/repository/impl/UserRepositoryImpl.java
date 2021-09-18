@@ -17,8 +17,8 @@ import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
@@ -88,15 +88,15 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   }
 
   @Override
-  protected User onSelect(@NotNull LongId longId) {
+  protected Optional<User> onSelect(@NotNull LongId longId) {
     // 查询User
-    var user = userDataConverter.fromData(userMapper.selectById(longId.getValue()).orElse(null));
+    var l = longId.getValue();
+    var op = userMapper.selectById(l).map(userDataConverter::fromData);
     // 查询Accounts
-    user.setAccounts(
-        accountMapper.selectListByUserId(longId.getValue()).stream()
-            .map(accountDataConverter::fromData)
-            .collect(Collectors.toList()));
-    return user;
+    op.ifPresent(
+        user ->
+            user.setAccounts(accountDataConverter.fromData(accountMapper.selectListByUserId(l))));
+    return op;
   }
 
   @Transactional

@@ -2,39 +2,47 @@ package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DataConverter marker接口
  *
  * @author KaiKoo
  */
-public interface DataConverter<T extends Entity<?>, P> {
+public interface DataConverter<T extends Entity<?>, M> {
 
-  P toData(T t);
+  M toData(T t);
 
-  T fromData(P data);
+  T fromData(M m);
 
-  default List<P> toData(Collection<? extends T> entityCol) {
-    if (entityCol == null || entityCol.isEmpty()) {
-      return Collections.emptyList();
-    }
-    return entityCol.stream()
-        .filter(Objects::nonNull)
-        .map(this::toData)
-        .collect(Collectors.toList());
+  default List<M> toData(Collection<? extends T> entityCol) {
+    return this.toData(entityCol, Collectors.toList());
   }
 
-  default List<T> fromData(Collection<? extends P> dataCol) {
-    if (dataCol == null || dataCol.isEmpty()) {
-      return Collections.emptyList();
-    }
-    return dataCol.stream()
+  default <R> R toData(Collection<? extends T> entityCol, Collector<? super M, ?, R> collector) {
+    return Optional.ofNullable(entityCol)
+        .map(Collection::stream)
+        .orElse(Stream.empty())
+        .filter(Objects::nonNull)
+        .map(this::toData)
+        .collect(collector);
+  }
+
+  default List<T> fromData(Collection<? extends M> dataCol) {
+    return this.fromData(dataCol, Collectors.toList());
+  }
+
+  default <R> R fromData(Collection<? extends M> dataCol, Collector<? super T, ?, R> collector) {
+    return Optional.ofNullable(dataCol)
+        .map(Collection::stream)
+        .orElse(Stream.empty())
         .filter(Objects::nonNull)
         .map(this::fromData)
-        .collect(Collectors.toList());
+        .collect(collector);
   }
 }

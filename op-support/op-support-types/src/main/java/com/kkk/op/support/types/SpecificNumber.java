@@ -69,14 +69,14 @@ public abstract class SpecificNumber extends Number implements Type {
     if (n == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
-    if (n instanceof BigDecimal) {
-      return (BigDecimal) n;
-    } else if (n instanceof BigInteger) {
-      return new BigDecimal((BigInteger) n);
-    } else if (n instanceof Integer) {
-      return new BigDecimal((int) n);
-    } else if (n instanceof Long) {
-      return new BigDecimal((long) n);
+    if (n instanceof BigDecimal v) {
+      return v;
+    } else if (n instanceof BigInteger v) {
+      return new BigDecimal(v);
+    } else if (n instanceof Integer v) {
+      return new BigDecimal(v);
+    } else if (n instanceof Long v) {
+      return new BigDecimal(v);
     }
     return new BigDecimal(n.toString());
   }

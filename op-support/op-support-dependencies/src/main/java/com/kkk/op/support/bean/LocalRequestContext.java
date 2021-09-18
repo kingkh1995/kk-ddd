@@ -21,10 +21,11 @@ import lombok.ToString;
 public class LocalRequestContext {
 
   /** 日志链路追踪序号 */
-  @Default private String traceId = UUID.randomUUID().toString().replace("-", "").substring(16);
+  @Default
+  private final String traceId = UUID.randomUUID().toString().replace("-", "").substring(16);
 
   /** 请求时间戳（请求处理过程中作为当前时间） */
-  @Default private Instant timestamp = Instant.now();
+  @Default private final Instant timestamp = Instant.now();
 
   /** 时区信息 */
   private ZoneId zoneId;

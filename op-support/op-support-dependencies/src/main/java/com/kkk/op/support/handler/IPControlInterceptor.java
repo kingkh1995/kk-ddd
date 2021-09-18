@@ -1,8 +1,7 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.handler;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.google.common.util.concurrent.RateLimiter;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -30,18 +29,18 @@ public class IPControlInterceptor implements HandlerInterceptor {
   }
 
   private static final LoadingCache<String, RateLimiter> CACHE =
-      CacheBuilder.newBuilder()
-          .expireAfterAccess(10L, TimeUnit.SECONDS)
-          // 并发级别是指可以同时写缓存的线程数，设置为cpu核心数
-          .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+      // 使用caffeine同步加载缓存
+      Caffeine.newBuilder()
+          // 30秒未访问则过期
+          .expireAfterAccess(30L, TimeUnit.SECONDS)
           // 设置为软引用，在内存不足时回收缓存
           .softValues()
           // 需要设置一个合适的初始容量，因为扩容消耗很大
           .initialCapacity(1 << 10)
           // 需要设置最大容量，软引用对象数量不能太多，对性能有影响
           .maximumSize(1 << 14)
-          // 使用Supplier初始化RateLimiter，限制每秒访问一次
-          .build(CacheLoader.from(() -> RateLimiter.create(1D)));
+          // 使用CacheLoader初始化RateLimiter，限制每秒访问一次
+          .build(key -> RateLimiter.create(1D));
 
   // 对写请求做IP限流
   private static final Set<HttpMethod> METHODS =
@@ -60,7 +59,7 @@ public class IPControlInterceptor implements HandlerInterceptor {
     if (!METHODS.contains(HttpMethod.valueOf(method))) {
       return true;
     }
-    log.debug("IP-Control cache size '{}'.", CACHE.size());
+    log.debug("IP-Control cache size '{}'.", CACHE.estimatedSize());
     var ip = getRealIp(request);
     // 判断是否流量超出
     if (CACHE.get(ip).tryAcquire()) {

@@ -6,6 +6,7 @@ import com.kkk.op.user.domain.strategy.AccountStrategyManager;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -29,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
   private final AccountStrategyManager accountStrategyManager;
 
   @Override
-  public Account find(@NotNull AccountId id) {
+  public Optional<Account> find(@NotNull AccountId id) {
     return accountRepository.find(id);
   }
 

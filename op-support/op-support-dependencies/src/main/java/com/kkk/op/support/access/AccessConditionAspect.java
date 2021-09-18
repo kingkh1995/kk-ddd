@@ -1,4 +1,4 @@
-package com.kkk.op.support.accessCondition;
+package com.kkk.op.support.access;
 
 import com.kkk.op.support.annotation.AccessCondition;
 import com.kkk.op.support.aspect.AbstractMethodAspect;
@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component;
  *
  * @author KaiKoo
  */
-@Component
 @Slf4j
+@Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1) // 设置级别低于@BaseControllerAspect切面
 @Aspect
 public class AccessConditionAspect extends AbstractMethodAspect {

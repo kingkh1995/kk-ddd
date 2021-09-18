@@ -1,9 +1,11 @@
-package com.kkk.op.user.web.handler;
+package com.kkk.op.support.handler;
 
-import com.kkk.op.support.accessCondition.AccessConditionForbiddenException;
-import com.kkk.op.support.bean.IPControlInterceptor.IPControlBlockedException;
+import com.kkk.op.support.access.AccessConditionForbiddenException;
+import com.kkk.op.support.annotation.BaseController;
+import com.kkk.op.support.bean.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
+import com.kkk.op.support.handler.IPControlInterceptor.IPControlBlockedException;
 import java.time.DateTimeException;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -13,23 +15,35 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConversionException;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * 全局异常处理拦截器
+ * ResponseBody的请求要修改返回值只能通过ResponseBodyAdvice，泛型需要指定，且会出现转换异常。<br>
+ * 1、将所有响应包装为Result； 2、为所有响应添加额外信息（包括失败）。
  *
  * @author KaiKoo
  */
 @Slf4j
-@RestControllerAdvice
-public class BaseExceptionHandler {
+@RestControllerAdvice(annotations = {BaseController.class, RestControllerAdvice.class}) // 指定拦截范围
+public class BaseControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+
+  // ===============================================================================================
+
+  /** 全局异常处理 */
 
   // 先决条件失败
   @ExceptionHandler({DateTimeException.class, IllegalArgumentException.class})
@@ -50,18 +64,18 @@ public class BaseExceptionHandler {
   public Result<?> handleBadRequest(Exception e) {
     log.warn("Bad Request =>", e);
     var message = "请求参数不合法！";
-    if (e instanceof ConstraintViolationException) {
+    if (e instanceof ConstraintViolationException cve) {
       message =
-          Optional.ofNullable((ConstraintViolationException) e)
+          Optional.ofNullable(cve)
               .map(ConstraintViolationException::getConstraintViolations)
               .map(Collection::stream)
               .orElse(Stream.empty())
               .findAny()
               .map(ConstraintViolation::getMessage)
               .orElse(message);
-    } else if (e instanceof BindException) {
+    } else if (e instanceof BindException be) {
       message =
-          Optional.ofNullable(((BindException) e))
+          Optional.ofNullable(be)
               .map(BindException::getBindingResult)
               .map(Errors::getFieldError)
               .map(FieldError::getDefaultMessage)
@@ -78,9 +92,9 @@ public class BaseExceptionHandler {
     return Result.fail(e.getMessage());
   }
 
-  // Optional异常
+  // Optional异常 fixme... NO_CONTENT
   @ExceptionHandler(NoSuchElementException.class)
-  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseStatus(HttpStatus.OK) // NO_CONTENT
   public Result<?> handleNoSuchElementException(NoSuchElementException e) {
     log.error("NoSuchElementException =>", e);
     return Result.fail("No Content");
@@ -106,5 +120,49 @@ public class BaseExceptionHandler {
   public Result<?> handlesException(Exception e) {
     log.error("Exception =>", e);
     return Result.fail("服务器开小差了，请稍后再试！");
+  }
+
+  // ===============================================================================================
+
+  @Override
+  public boolean supports(
+      MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+    System.out.println(MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType));
+    // 拦截范围内再次判断
+    // 要求响应格式为json
+    return MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+  }
+
+  @Override
+  public Object beforeBodyWrite(
+      Object body,
+      MethodParameter returnType,
+      MediaType selectedContentType,
+      Class<? extends HttpMessageConverter<?>> selectedConverterType,
+      ServerHttpRequest request,
+      ServerHttpResponse response) {
+    if (returnType.hasMethodAnnotation(ExceptionHandler.class)) {
+      // 异常拦截处理后可以再次处理，异常拦截类需要有@RestControllerAdvice注解，因为其包含@ResponseBody注解
+      appendAddl((Result<?>) body);
+      return body;
+    }
+    Result<?> result;
+    if (body instanceof Result<?> r){
+      result = r;
+    } else {
+      result = Result.success(body);
+    }
+    appendAddl(result);
+    return result;
+  }
+
+  private void appendAddl(Result<?> result) {
+    var context = LocalRequestContextHolder.getLocalRequestContext();
+    if (context == null) {
+      return;
+    }
+    result.append("traceId", context.getTraceId());
+    result.append("commitTime", context.getTimestamp().atZone(context.getZoneId()));
+    result.append("cost", context.calculateCostMillis() + "ms");
   }
 }

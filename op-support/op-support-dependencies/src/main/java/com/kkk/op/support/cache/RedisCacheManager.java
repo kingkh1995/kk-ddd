@@ -1,5 +1,6 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.cache;
 
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.marker.CacheManager;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,8 +29,7 @@ public class RedisCacheManager implements CacheManager {
     stringRedisTemplate.opsForValue().set(key, kson.writeJson(obj));
   }
 
-  @Override
-  public String get(String key) {
+  private String get(String key) {
     return stringRedisTemplate.opsForValue().get(key);
   }
 

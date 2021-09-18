@@ -2,6 +2,7 @@ package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
  */
 public interface EntityService<T extends Entity<ID>, ID extends Identifier> {
 
-  T find(@NotNull ID id);
+  Optional<T> find(@NotNull ID id);
 
   void remove(@NotNull T t);
 

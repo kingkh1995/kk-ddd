@@ -8,6 +8,7 @@ import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
@@ -34,9 +35,8 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   }
 
   @Override
-  protected Account onSelect(@NotNull AccountId accountId) {
-    return accountDataConverter.fromData(
-        accountMapper.selectById(accountId.getValue()).orElse(null));
+  protected Optional<Account> onSelect(@NotNull AccountId accountId) {
+    return accountMapper.selectById(accountId.getValue()).map(accountDataConverter::fromData);
   }
 
   @Override

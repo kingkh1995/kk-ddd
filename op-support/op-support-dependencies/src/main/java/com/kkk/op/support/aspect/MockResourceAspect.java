@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
  *
  * @author KaiKoo
  */
-@Component
 @Slf4j
+@Component
 @Order // 可以不添加@Order注解，默认级别为最低
 @Aspect
 @RequiredArgsConstructor

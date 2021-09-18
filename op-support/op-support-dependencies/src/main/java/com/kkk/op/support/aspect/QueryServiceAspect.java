@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
-import com.kkk.op.support.accessCondition.AccessConditionChecker;
-import com.kkk.op.support.accessCondition.AccessConditionForbiddenException;
+import com.kkk.op.support.access.AccessConditionChecker;
+import com.kkk.op.support.access.AccessConditionForbiddenException;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import org.springframework.core.annotation.Order;
  * @author KaiKoo
  */
 @Slf4j
+//@Component
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect
 @RequiredArgsConstructor

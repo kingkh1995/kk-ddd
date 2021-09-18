@@ -1,7 +1,6 @@
 package com.kkk.op.user.web.controller;
 
 import com.kkk.op.support.annotation.BaseController;
-import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.command.CreateGroup;
 import com.kkk.op.support.model.command.UpdateGroup;
@@ -41,46 +40,46 @@ public class AccountController {
   /** POST 新增资源 */
   @PostMapping("/user/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
-  public Result<Long> create(
+  public Long create(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
-    return Result.success(service.createAccount(LongId.valueOf(userId, "userId"), createCommand));
+    return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
   }
 
   /** PUT 全量更新资源 */
   @PutMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
-  public Result<?> update(
+  public void update(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
     service.updateAccount(
         LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId, "accountId"), updateCommand);
-    return Result.success();
+    return;
   }
 
   /** Delete 删除资源 */
   @DeleteMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.NO_CONTENT) // 204
-  public Result<?> delete(
+  public void delete(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     service.deleteAccount(AccountId.valueOf(accountId, "accountId"));
-    return Result.success();
+    return;
   }
 
   /** GET 获取资源 */
   @GetMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.OK) // 200
-  public Result<AccountDTO> queryById(
+  public AccountDTO queryById(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    return Result.success(service.queryAccount(AccountId.valueOf(accountId, "accountId")));
+    return service.queryAccount(AccountId.valueOf(accountId, "accountId"));
   }
 
   /** 查询用户下的所有账号 */
   @GetMapping("/user/{userId}/accounts")
-  public Result<List<AccountDTO>> queryByUserId(@PathVariable String userId) {
-    return Result.success(service.queryAccounts(LongId.valueOf(userId, "userId")));
+  public List<AccountDTO> queryByUserId(@PathVariable String userId) {
+    return service.queryAccounts(LongId.valueOf(userId, "userId"));
   }
 }

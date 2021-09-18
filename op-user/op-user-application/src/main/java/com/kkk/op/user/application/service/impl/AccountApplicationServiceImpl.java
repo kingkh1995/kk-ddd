@@ -56,7 +56,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
 
   @Override
   public AccountDTO queryAccount(AccountId accountId) {
-    return accountDTOAssembler.toDTO(accountService.find(accountId));
+    return accountService.find(accountId).map(accountDTOAssembler::toDTO).get();
   }
 
   @Override

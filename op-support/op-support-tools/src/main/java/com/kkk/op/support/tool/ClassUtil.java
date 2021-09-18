@@ -24,33 +24,29 @@ public final class ClassUtil {
     }
     // 基本数据类型（如：int.class）
     if (clazz.isPrimitive()) {
-      switch (clazz.getName()) {
-        case "void":
-          return null;
-        case "boolean":
-          return false;
-        case "char":
-          return '\0';
-        default:
-          return 0;
-      }
+      // 使用switch表达式
+      return switch (clazz.getName()){
+        case "void" -> null;
+        case "boolean" -> false;
+        case "char" -> '\0';
+        default -> 0;
+      };
     }
     //  数组类型
     if (clazz.isArray()) {
       return Array.newInstance(clazz.getComponentType(), 0);
     }
-    // 集合类型，使用isAssignableFrom判断当前类是不是给定类或其父类，因为方法返回值类型一般都只选择父类所以如此判断。
-    if (clazz.isAssignableFrom(List.class)) {
+    // 集合类型
+    if (List.class.isAssignableFrom(clazz)) {
       return Collections.emptyList();
-    } else if (clazz.isAssignableFrom(Set.class)) {
+    } else if (Set.class.isAssignableFrom(clazz)) {
       return Collections.emptySet();
-    } else if (clazz.isAssignableFrom(Map.class)) {
+    } else if (Map.class.isAssignableFrom(clazz)) {
       return Collections.emptyMap();
-    } else if (clazz.isAssignableFrom(Iterator.class)) {
+    } else if (Iterator.class.isAssignableFrom(clazz)) {
       return Collections.emptyIterator();
     }
     // 其他情况返回null
     return null;
   }
-
 }

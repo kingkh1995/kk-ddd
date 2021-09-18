@@ -1,8 +1,11 @@
 package com.kkk.op.user.web;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.cache.CaffeineCacheManager;
+import com.kkk.op.support.cache.LocalCacheManager;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -32,11 +35,36 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountMapper accountMapper;
 
-  public static void main(String[] args) {
-  }
+  public static void main(String[] args) {}
 
   @Test
-  void test() {}
+  void testCaffeine() {
+    var cache =
+        CaffeineCacheManager.newBuilder()
+            .async()
+            .cache(Caffeine.newBuilder().buildAsync())
+            .sync()
+            .build();
+    cache.put("a", 1);
+    System.out.println(cache.get("a", Integer.class));
+    cache.put("a", 2);
+    System.out.println(cache.get("b", Integer.class));
+    System.out.println(cache.get("c", Integer.class));
+    System.out.println(cache.get("a", Integer.class));
+    cache.remove("b");
+    cache.remove("a");
+    System.out.println(cache.get("a", Integer.class));
+    var localCache = LocalCacheManager.builder().cache(Caffeine.newBuilder().build()).build();
+    localCache.put("a", 1);
+    System.out.println(localCache.get("a", Integer.class));
+    localCache.put("a", 2);
+    System.out.println(localCache.get("b", Integer.class));
+    System.out.println(localCache.get("c", Integer.class));
+    System.out.println(localCache.get("a", Integer.class));
+    localCache.remove("b");
+    localCache.remove("a");
+    System.out.println(localCache.get("a", Integer.class));
+  }
 
   @Test
   void testMybatis() {

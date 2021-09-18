@@ -5,6 +5,7 @@ import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -23,7 +24,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
 
   @Override
-  public User find(@NotNull LongId longId) {
+  public Optional<User> find(@NotNull LongId longId) {
     return userRepository.find(longId);
   }
 

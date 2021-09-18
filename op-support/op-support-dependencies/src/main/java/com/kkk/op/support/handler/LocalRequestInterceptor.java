@@ -1,5 +1,9 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.handler;
 
+import com.kkk.op.support.bean.LocalRequestContext;
+import com.kkk.op.support.bean.LocalRequestContextHolder;
+import java.time.ZoneId;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +31,10 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
     var requestContext =
         LocalRequestContext.builder()
             .entrance("(" + request.getMethod() + ")" + request.getRequestURI())
+            .zoneId(
+                Optional.ofNullable(request.getHeader("Zone-Id"))
+                    .map(ZoneId::of)
+                    .orElse(ZoneId.systemDefault()))
             .build();
     // 打印请求参数
     log.info("{}", requestContext);

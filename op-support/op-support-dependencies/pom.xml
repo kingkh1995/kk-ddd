@@ -23,6 +23,11 @@
       <artifactId>op-support-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--guava-->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
     <!--redis--> <!--不传递该依赖，因为功能是可选的-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -39,6 +44,11 @@
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>transmittable-thread-local</artifactId>
+    </dependency>
+    <!--caffeine：local cache-->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
     </dependency>
   </dependencies>
 

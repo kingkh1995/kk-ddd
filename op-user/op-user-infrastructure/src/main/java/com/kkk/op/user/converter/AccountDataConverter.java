@@ -38,24 +38,21 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
   }
 
   @Override
-  public Account fromData(AccountDO data) {
+  public Account fromData(AccountDO accountDO) {
+    if (accountDO == null) {
+      return null;
+    }
     var builder = Account.builder();
-    Optional.ofNullable(data)
-        .ifPresent(
-            accountDO -> {
-              Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
-              Optional.ofNullable(accountDO.getUserId())
-                  .map(LongId::from)
-                  .ifPresent(builder::userId);
-              Optional.ofNullable(accountDO.getState())
-                  .filter(Predicate.not(String::isBlank))
-                  .map(AccountStateEnum::valueOf)
-                  .map(AccountState::from)
-                  .ifPresent(builder::state);
-              Optional.ofNullable(accountDO.getCreateTime())
-                  .map(DateUtil::toLocalDateTime)
-                  .ifPresent(builder::createTime);
-            });
+    Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
+    Optional.ofNullable(accountDO.getUserId()).map(LongId::from).ifPresent(builder::userId);
+    Optional.ofNullable(accountDO.getState())
+        .filter(Predicate.not(String::isBlank))
+        .map(AccountStateEnum::valueOf)
+        .map(AccountState::from)
+        .ifPresent(builder::state);
+    Optional.ofNullable(accountDO.getCreateTime())
+        .map(DateUtil::toLocalDateTime)
+        .ifPresent(builder::createTime);
     return builder.build();
   }
 }
