@@ -40,7 +40,7 @@ public class AccountController {
   /** POST 新增资源 */
   @PostMapping("/user/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
-  public Long create(
+  public long create(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
     return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
@@ -49,23 +49,23 @@ public class AccountController {
   /** PUT 全量更新资源 */
   @PutMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
-  public void update(
+  public boolean update(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
     service.updateAccount(
         LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId, "accountId"), updateCommand);
-    return;
+    return true;
   }
 
   /** Delete 删除资源 */
   @DeleteMapping("/user/{userId}/account/{accountId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT) // 204
-  public void delete(
+  @ResponseStatus(HttpStatus.ACCEPTED) // 202
+  public boolean delete(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
     service.deleteAccount(AccountId.valueOf(accountId, "accountId"));
-    return;
+    return true;
   }
 
   /** GET 获取资源 */

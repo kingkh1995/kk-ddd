@@ -17,10 +17,10 @@ public interface UserMapper {
 
   int insert(UserDO userDO);
 
+  int updateById(UserDO userDO);
+
   @Delete("DELETE FROM user WHERE id = #{id}")
   int deleteById(Long id);
-
-  int updateById(UserDO userDO);
 
   Optional<UserDO> selectById(Long id);
 

@@ -21,13 +21,18 @@ public class LocalCacheManager implements CacheManager {
   }
 
   @Override
-  public void put(String key, Object obj) {
-    cache.put(key, obj);
+  public boolean containsKey(String key) {
+    return cache.asMap().containsKey(key);
   }
 
   @Override
   public <T> Optional<T> get(String key, Class<T> clazz) {
     return Optional.ofNullable((T) cache.getIfPresent(key));
+  }
+
+  @Override
+  public void put(String key, Object obj) {
+    cache.put(key, obj);
   }
 
   @Override

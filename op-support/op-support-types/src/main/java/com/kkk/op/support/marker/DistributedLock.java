@@ -54,7 +54,7 @@ public interface DistributedLock {
   void unlock(@NotBlank String name);
 
   // 睡眠时间递增，并且取随机值，防止雪崩
-  default long generateSleepMills(int i, long waitInterval) {
+  static long generateSleepMills(int i, long waitInterval) {
     var interval = waitInterval << i;
     return ThreadLocalRandom.current().nextLong((long) (interval * 0.8), (long) (interval * 1.2));
   }

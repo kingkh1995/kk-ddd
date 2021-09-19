@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -35,29 +36,33 @@ public class RedisDistributedLock implements DistributedLock {
 
   private final StringRedisTemplate redisTemplate;
 
-  // ThreadLocal使用时尽量用static修饰
-  private static final ThreadLocal<Map<String, LockInfo>> LOCK_CONTEXT =
+  // ThreadLocal使用时尽量用static修饰、理论上不会出现内存泄漏，因为加锁成功后就一定会释放锁。
+  private static final ThreadLocal<Map<String, Locker>> LOCKER_HOLDER =
       ThreadLocal.withInitial(HashMap::new);
 
   // 供builder使用
   private RedisDistributedLock(
       long sleepInterval, long expireMills, StringRedisTemplate redisTemplate) {
+    if (expireMills <= 0) {
+      throw new IllegalArgumentException(
+          "RedisDistributedLock expireMills should be greater than 0!");
+    }
     this.sleepInterval = sleepInterval;
     this.expireMills = expireMills;
     this.redisTemplate = Objects.requireNonNull(redisTemplate);
   }
 
-  private static class LockInfo {
+  private static class Locker {
 
     private final String requestId = UUID.randomUUID().toString();
 
-    private int count = 1;
+    private int status = 1;
 
     private Future<?> future;
   }
 
-  private LockInfo getLockInfo(String name) {
-    return LOCK_CONTEXT.get().get(name);
+  private Optional<Locker> getLocker(String name) {
+    return Optional.ofNullable(LOCKER_HOLDER.get().get(name));
   }
 
   private boolean lock(String name, String requestId) {
@@ -72,32 +77,33 @@ public class RedisDistributedLock implements DistributedLock {
   @Override
   public boolean tryLock(@NotBlank String name, long waitTime, @NotNull TimeUnit unit) {
     // 可重入锁，判断该线程是否获取到了锁
-    var lockInfo = this.getLockInfo(name);
+    var op = this.getLocker(name);
     // 已获取到锁则次数加一
-    if (lockInfo != null) {
-      lockInfo.count++;
+    if (op.isPresent()) {
+      op.get().status++;
       return true;
     }
-    // 获取锁
-    var waitMills = unit.toMillis(waitTime);
-    lockInfo = new LockInfo();
-    var locked = this.lock(name, lockInfo.requestId);
+    // 尝试获取锁
+    var locker = new Locker();
+    var locked = this.lock(name, locker.requestId);
     // 获取失败则sleep一段时间再次获取，直到总休眠时间超过waitTime
+    var waitMills = unit.toMillis(waitTime);
     for (var i = 0; !locked && waitMills > 0; i++) {
       try {
-        var interval = generateSleepMills(i, this.sleepInterval);
+        var interval = DistributedLock.generateSleepMills(i, this.sleepInterval);
         Thread.sleep(interval);
         waitMills -= interval;
       } catch (InterruptedException e) {
-        log.error(String.format("线程【%s】睡眠被中断！", Thread.currentThread().getName()), e);
+        log.warn("Interrupted when sleeping after try lock failed!", e);
       }
-      locked = this.lock(name, lockInfo.requestId);
+      // 睡眠完再次获取锁
+      locked = this.lock(name, locker.requestId);
     }
     if (locked) {
       // 获取到锁 则保存锁信息
-      LOCK_CONTEXT.get().put(name, lockInfo);
+      LOCKER_HOLDER.get().put(name, locker);
       // 开启watchdog
-      watching(name, lockInfo);
+      watching(name, locker);
     }
     return locked;
   }
@@ -114,36 +120,36 @@ public class RedisDistributedLock implements DistributedLock {
           Long.class);
 
   public void unlock(@NotBlank String name) {
-    var lockInfo = this.getLockInfo(name);
-    if (lockInfo == null) {
+    var op = this.getLocker(name);
+    if (op.isEmpty()) {
       return;
     }
-    // 重入锁次数减一 count仍大于0 则表示未完全释放 直接return
-    if (--lockInfo.count > 0) {
+    // 重入锁次数减一 status仍大于0 则表示未完全释放 直接return
+    var locker = op.get();
+    if (--locker.status > 0) {
       return;
     }
     // 释放锁
     try {
       var result =
           this.redisTemplate.execute(
-              UNLOCK_SCRIPT, Collections.singletonList(name), lockInfo.requestId);
+              UNLOCK_SCRIPT, Collections.singletonList(name), locker.requestId);
       if (result == null || result < 1) {
-        log.warn("unlock [{}] execute return [{}]", name, result);
+        log.warn("Unlock '{}' execute return '{}'.", name, result);
       }
     } catch (Exception e) {
-      log.warn("unlock error!", e);
+      log.warn("Unlock error!", e);
     } finally {
-      var lockInfoMap = LOCK_CONTEXT.get();
       // 使用future中断任务
-      lockInfoMap.get(name).future.cancel(true);
+      locker.future.cancel(true);
       // 移除Key
-      lockInfoMap.remove(name);
+      LOCKER_HOLDER.get().remove(name);
     }
   }
 
   /** watchdog机制 自动延长锁时间 */
 
-  // todo... 使用ThreadPoolExecutor构造方法创建
+  // fixme... 线程池定义
   private static final ScheduledExecutorService WATCH_DOG =
       Executors.newSingleThreadScheduledExecutor(
           r -> {
@@ -158,29 +164,29 @@ public class RedisDistributedLock implements DistributedLock {
           "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2]) else return 0 end",
           Long.class);
 
-  // lockInfo必须通过参数传递过来，不能从ThreadLocal中取
-  private void watching(String name, LockInfo lockInfo) {
-    // 保存或替换掉future 用于在释放锁的时候中断任务
+  // locker需要通过参数传递过来，无法通过ThreadLocal取出。也不使用TTL了，减少性能消耗。
+  private void watching(String name, Locker locker) {
+    // 保存或更新future，在释放锁的时候可以中断任务
     // 延迟 expireMills * 9 / 10 时间执行脚本
-    lockInfo.future =
+    locker.future =
         WATCH_DOG.schedule(
             () -> {
               try {
-                // 不需要判断是否释放了锁，也无法判断
+                // 不需要判断是否释放了锁，也无法判断，因为获取不到原线程ThreadLocal
                 var result =
                     this.redisTemplate.execute(
                         WATCH_DOG_SCRIPT,
                         Collections.singletonList(name),
-                        lockInfo.requestId,
+                        locker.requestId,
                         this.expireMills);
                 // 如果延长成功，继续watch
                 if (result != null && result > 0) {
-                  watching(name, lockInfo);
+                  watching(name, locker);
                 } else {
-                  log.warn("watching [{}] execute return [{}]", name, result);
+                  log.warn("Dog watching '{}' execute return '{}'.", name, result);
                 }
               } catch (Exception e) {
-                log.warn("watch dog error!", e);
+                log.warn("Dog watching excute error!", e);
               }
             },
             expireMills * 9 / 10,

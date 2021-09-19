@@ -3,20 +3,30 @@ package com.kkk.op.support.cache;
 import com.kkk.op.support.marker.CacheManager;
 import java.util.Optional;
 
+/**
+ * <br>
+ *
+ * @author KaiKoo
+ */
 public class MockCacheManager implements CacheManager {
 
   @Override
-  public void put(String key, Object obj) {
-    throw new UnsupportedOperationException();
+  public boolean containsKey(String key) {
+    return false;
   }
 
   @Override
   public <T> Optional<T> get(String key, Class<T> clazz) {
-    throw new UnsupportedOperationException();
+    return Optional.empty();
+  }
+
+  @Override
+  public void put(String key, Object obj) {
+    return;
   }
 
   @Override
   public boolean remove(String key) {
-    throw new UnsupportedOperationException();
+    return true;
   }
 }

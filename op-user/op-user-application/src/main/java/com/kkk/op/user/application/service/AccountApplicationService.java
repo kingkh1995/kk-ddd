@@ -7,7 +7,7 @@ import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
 
 /**
- * todo... <br>
+ * todo... 查询方法拆分到 queryService<br>
  * ApplicationService 供接口层调用， <br>
  * 入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写，无返回结果）等Entity， <br>
  * 出参为DTO

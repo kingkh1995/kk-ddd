@@ -8,18 +8,18 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
- * domain service <br>
- * 参数使用 @NotNull @NotEmpty 标识
+ * domain service 参数使用 @NotNull @NotEmpty 标识 <br>
+ * todo... query service
  *
  * @author KaiKoo
  */
 public interface EntityService<T extends Entity<ID>, ID extends Identifier> {
 
-  Optional<T> find(@NotNull ID id);
+  void save(@NotNull T t);
 
   void remove(@NotNull T t);
 
-  void save(@NotNull T t);
+  Optional<T> find(@NotNull ID id);
 
   List<T> list(@NotEmpty Set<ID> ids);
 }

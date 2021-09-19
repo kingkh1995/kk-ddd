@@ -11,13 +11,17 @@ import javax.validation.constraints.NotNull;
  */
 public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier> {
 
-  void cachePut(@NotNull T t);
+  boolean isAutoCaching();
+
+  String generateCacheKey(@NotNull ID id);
+
+  Optional<T> cacheGetIfPresent(@NotNull ID id);
 
   Optional<T> cacheGet(@NotNull ID id);
 
-  boolean cacheRemove(@NotNull T t);
+  void cachePut(@NotNull T t);
 
-  String generateCacheKey(@NotNull ID id);
+  boolean cacheRemove(@NotNull T t);
 
   // todo... 缓存双删 通过EventBus发送消息?
   default void cacheDoubleRemove(@NotNull T t, Runnable runnable) {

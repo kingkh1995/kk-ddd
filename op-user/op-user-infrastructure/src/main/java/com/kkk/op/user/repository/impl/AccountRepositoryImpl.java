@@ -35,16 +35,6 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   }
 
   @Override
-  protected Optional<Account> onSelect(@NotNull AccountId accountId) {
-    return accountMapper.selectById(accountId.getValue()).map(accountDataConverter::fromData);
-  }
-
-  @Override
-  protected void onDelete(@NotNull Account entity) {
-    accountMapper.deleteById(entity.getId().getValue());
-  }
-
-  @Override
   protected void onInsert(@NotNull Account entity) {
     var data = accountDataConverter.toData(entity);
     accountMapper.insert(data);
@@ -55,6 +45,16 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   @Override
   protected void onUpdate(@NotNull Account entity) {
     accountMapper.updateById(accountDataConverter.toData(entity));
+  }
+
+  @Override
+  protected void onDelete(@NotNull Account entity) {
+    accountMapper.deleteById(entity.getId().getValue());
+  }
+
+  @Override
+  protected Optional<Account> onSelect(@NotNull AccountId accountId) {
+    return accountMapper.selectById(accountId.getValue()).map(accountDataConverter::fromData);
   }
 
   @Override

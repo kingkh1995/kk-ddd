@@ -1,6 +1,7 @@
 package com.kkk.op.support.changeTracking.diff;
 
 import com.kkk.op.support.base.Entity;
+import com.kkk.op.support.marker.Identifiable;
 import com.kkk.op.support.marker.Identifier;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
@@ -32,7 +33,6 @@ public final class DiffUtil { // 工具类声明为 final
       new ConcurrentHashMap<>();
 
   private static List<Field> resolve(Class<?> clazz) {
-    System.out.println(FIELD_CACHE.size());
     return Optional.ofNullable(FIELD_CACHE.get(clazz))
         .map(SoftReference::get)
         .orElseGet(
@@ -55,19 +55,17 @@ public final class DiffUtil { // 工具类声明为 final
    */
   public static Diff diff(Entity<?> snapshot, Entity<?> aggregate) {
     // 均无法标识返回Null
-    if (isNullOrUnidentified(snapshot) && isNullOrUnidentified(aggregate)) {
+    if (unidentified(snapshot) && unidentified(aggregate)) {
       return NoneDiff.INSTANCE;
     }
     final var entityDiff = new EntityDiff(snapshot, aggregate);
     // snapshot无法标识，对比结果为新增
-    if (isNullOrUnidentified(snapshot)) {
-      entityDiff.setChangeType(ChangeType.Added);
-      return entityDiff;
+    if (unidentified(snapshot)) {
+      return entityDiff.setChangeType(ChangeType.Added);
     }
     // aggregate无法标识，对比结果为移除
-    if (isNullOrUnidentified(aggregate)) {
-      entityDiff.setChangeType(ChangeType.Removed);
-      return entityDiff;
+    if (unidentified(aggregate)) {
+      return entityDiff.setChangeType(ChangeType.Removed);
     }
     // 均可标识，但是标识符不一致，正常情况下不可能发生
     if (!Objects.equals(snapshot.getId(), aggregate.getId())) {
@@ -116,7 +114,7 @@ public final class DiffUtil { // 工具类声明为 final
    */
   public static Diff diff(Collection<?> sCol, Collection<?> aCol) {
     // 均为空集合表示无修改
-    if (isNullOrEmpty(sCol) && isNullOrEmpty(aCol)) {
+    if (isEmpty(sCol) && isEmpty(aCol)) {
       return NoneDiff.INSTANCE;
     }
     final var collectionDiff = new CollectionDiff(sCol, aCol);
@@ -124,15 +122,12 @@ public final class DiffUtil { // 工具类声明为 final
     // 判断所有元素是否全是Entity（空集合也视作allEntity） 运行时已经擦除了泛型信息，所以无法通过反射获取到实际的类型
     if (allEntity(aCol) && allEntity(sCol)) {
       // 如元素类型全为Entity 根据Id去查找对比
-      if (isNullOrEmpty(aCol)) {
+      if (isEmpty(aCol)) {
         // aCol为空则全部为Removed 此时sCol肯定不为空
         sCol.forEach(
-            o -> {
-              var t = (Entity<?>) o;
-              var diff = new EntityDiff(null, t);
-              diff.setChangeType(ChangeType.Removed);
-              collectionDiff.add(diff);
-            });
+            o ->
+                collectionDiff.add(
+                    new EntityDiff((Entity<?>) o, null).setChangeType(ChangeType.Removed)));
       } else {
         // 将aCol拼装成Map
         var map = new HashMap<Identifier, Entity<?>>(aCol.size(), 1.0f);
@@ -140,58 +135,48 @@ public final class DiffUtil { // 工具类声明为 final
             .filter(Objects::nonNull)
             .map(o -> (Entity<?>) o)
             .forEach(
-                t -> {
-                  var id = t.getId();
-                  if (id == null) {
-                    // 不存在id，添加一个Add类型的EntityDiff
-                    var diff = new EntityDiff(null, t);
-                    diff.setChangeType(ChangeType.Added);
-                    collectionDiff.add(diff);
+                e -> {
+                  if (e.isIdentified()) {
+                    // Id重复情况下暂时先不覆盖
+                    map.putIfAbsent(e.getId(), e);
                   } else {
-                    // TBD... Id重复情况下如何处理？
-                    map.putIfAbsent(id, t);
+                    // 不存在id，添加一个Add类型的EntityDiff
+                    collectionDiff.add(new EntityDiff(null, e).setChangeType(ChangeType.Added));
                   }
                 });
         // 遍历sCol进行对比，map中元素理论上全部都会被访问到，如果没被访问到则说明该元素不存在快照，这是不应该发生的，直接忽略
-        Optional.ofNullable(sCol)
-            .map(Collection::stream)
-            .ifPresent(
-                stream -> {
-                  stream
-                      .map(o -> (Entity<?>) o)
-                      .forEach(
-                          t -> {
-                            collectionDiff.add(diff(t, map.get(t.getId())));
-                          });
+        Stream.ofNullable(sCol)
+            .flatMap(Collection::stream)
+            .map(o -> (Entity<?>) o)
+            .forEach(
+                ss -> {
+                  collectionDiff.add(diff(ss, map.get(ss.getId())));
                 });
       }
       // 对比完成，判断对比结果
       if (collectionDiff.isEmpty()) {
         return NoneDiff.INSTANCE;
       }
-    } else {
+    } else if (Objects.equals(sCol, aCol)) {
       // 其他类型直接使用equals方法比较，集合类均有重写equals方法，类似Arrays.deepEquals方法
-      if (Objects.equals(sCol, aCol)) {
-        return NoneDiff.INSTANCE;
-      }
+      return NoneDiff.INSTANCE;
     }
     // 返回结果
     return collectionDiff;
   }
 
-  private static boolean isNullOrUnidentified(Entity<?> entity) {
-    return entity == null || !entity.isIdentified();
+  private static boolean unidentified(Entity<?> entity) {
+    return !Identifiable.isIdentified(entity);
   }
 
-  private static boolean isNullOrEmpty(Collection<?> collection) {
+  private static boolean isEmpty(Collection<?> collection) {
     return collection == null || collection.isEmpty();
   }
 
   private static boolean allEntity(Collection<?> collection) {
     // 需要过滤null 否则instanceof会返回false
-    return Optional.ofNullable(collection)
-        .map(Collection::stream)
-        .orElse(Stream.empty())
+    return Stream.ofNullable(collection)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .allMatch(o -> o instanceof Entity);
   }

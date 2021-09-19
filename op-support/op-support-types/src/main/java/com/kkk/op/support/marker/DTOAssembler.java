@@ -4,7 +4,6 @@ import com.kkk.op.support.base.Entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,9 +24,8 @@ public interface DTOAssembler<T extends Entity<?>, V> {
   }
 
   default <R> R toDTO(Collection<? extends T> entityCol, Collector<? super V, ?, R> collector) {
-    return Optional.ofNullable(entityCol)
-        .map(Collection::stream)
-        .orElse(Stream.empty())
+    return Stream.ofNullable(entityCol)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .map(this::toDTO)
         .collect(collector);
@@ -38,9 +36,8 @@ public interface DTOAssembler<T extends Entity<?>, V> {
   }
 
   default <R> R fromDTO(Collection<? extends V> dtoCol, Collector<? super T, ?, R> collector) {
-    return Optional.ofNullable(dtoCol)
-        .map(Collection::stream)
-        .orElse(Stream.empty())
+    return Stream.ofNullable(dtoCol)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .map(this::fromDTO)
         .collect(collector);

@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * Mapper（方法名使用：insert delete update select selectList selectPage） <br>
+ * Mapper（方法名使用：insert update delete select selectList selectPage） <br>
  * <br>
  *
  * @author KaiKoo
@@ -17,13 +17,13 @@ public interface AccountMapper {
 
   int insert(AccountDO accountDO);
 
+  int updateById(AccountDO accountDO);
+
   @Delete("DELETE FROM account WHERE id = #{id}")
   int deleteById(Long id);
 
   @Delete("DELETE FROM account WHERE user_id = #{userId}")
   int deleteByUserId(Long userId);
-
-  int updateById(AccountDO accountDO);
 
   // Mybatis支持封装为Optional
   Optional<AccountDO> selectById(Long id);

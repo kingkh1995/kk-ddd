@@ -15,4 +15,8 @@ public interface Identifiable<ID extends Identifier> {
   default boolean isIdentified() {
     return this.getId() != null;
   }
+
+  static boolean isIdentified(Identifiable<?> identifiable) {
+    return identifiable != null && identifiable.isIdentified();
+  }
 }

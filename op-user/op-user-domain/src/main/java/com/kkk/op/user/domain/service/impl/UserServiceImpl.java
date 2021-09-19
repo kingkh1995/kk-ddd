@@ -24,8 +24,8 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
 
   @Override
-  public Optional<User> find(@NotNull LongId longId) {
-    return userRepository.find(longId);
+  public void save(@NotNull User user) {
+    userRepository.save(user);
   }
 
   @Override
@@ -34,8 +34,8 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void save(@NotNull User user) {
-    userRepository.save(user);
+  public Optional<User> find(@NotNull LongId longId) {
+    return userRepository.find(longId);
   }
 
   @Override

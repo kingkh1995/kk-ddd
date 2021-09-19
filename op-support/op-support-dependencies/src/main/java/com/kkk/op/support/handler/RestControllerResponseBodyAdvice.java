@@ -1,15 +1,14 @@
 package com.kkk.op.support.handler;
 
 import com.kkk.op.support.access.AccessConditionForbiddenException;
-import com.kkk.op.support.annotation.BaseController;
 import com.kkk.op.support.bean.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.handler.IPControlInterceptor.IPControlBlockedException;
 import java.time.DateTimeException;
-import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -28,18 +27,20 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * ResponseBody的请求要修改返回值只能通过ResponseBodyAdvice，泛型需要指定，且会出现转换异常。<br>
+ * ResponseBody的请求要修改返回值只能通过ResponseBodyAdvice   <br>
+ * 泛型需要指定，且会出现转换异常，如果无返回值或者返回null则无法拦截    <br>
  * 1、将所有响应包装为Result； 2、为所有响应添加额外信息（包括失败）。
  *
  * @author KaiKoo
  */
 @Slf4j
-@RestControllerAdvice(annotations = {BaseController.class, RestControllerAdvice.class}) // 指定拦截范围
-public class BaseControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+@RestControllerAdvice(annotations = {RestController.class, RestControllerAdvice.class}) // 指定拦截范围
+public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   // ===============================================================================================
 
@@ -66,10 +67,8 @@ public class BaseControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
     var message = "请求参数不合法！";
     if (e instanceof ConstraintViolationException cve) {
       message =
-          Optional.ofNullable(cve)
-              .map(ConstraintViolationException::getConstraintViolations)
-              .map(Collection::stream)
-              .orElse(Stream.empty())
+          Stream.ofNullable(cve.getConstraintViolations())
+              .flatMap(Set::stream)
               .findAny()
               .map(ConstraintViolation::getMessage)
               .orElse(message);
@@ -127,9 +126,7 @@ public class BaseControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   @Override
   public boolean supports(
       MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-    System.out.println(MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType));
-    // 拦截范围内再次判断
-    // 要求响应格式为json
+    // 拦截范围内再次判断，要求响应格式为json
     return MappingJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
   }
 

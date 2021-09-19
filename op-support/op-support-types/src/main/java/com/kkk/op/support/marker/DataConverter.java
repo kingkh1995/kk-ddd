@@ -4,7 +4,6 @@ import com.kkk.op.support.base.Entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,9 +24,8 @@ public interface DataConverter<T extends Entity<?>, M> {
   }
 
   default <R> R toData(Collection<? extends T> entityCol, Collector<? super M, ?, R> collector) {
-    return Optional.ofNullable(entityCol)
-        .map(Collection::stream)
-        .orElse(Stream.empty())
+    return Stream.ofNullable(entityCol)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .map(this::toData)
         .collect(collector);
@@ -38,9 +36,8 @@ public interface DataConverter<T extends Entity<?>, M> {
   }
 
   default <R> R fromData(Collection<? extends M> dataCol, Collector<? super T, ?, R> collector) {
-    return Optional.ofNullable(dataCol)
-        .map(Collection::stream)
-        .orElse(Stream.empty())
+    return Stream.ofNullable(dataCol)
+        .flatMap(Collection::stream)
         .filter(Objects::nonNull)
         .map(this::fromData)
         .collect(collector);

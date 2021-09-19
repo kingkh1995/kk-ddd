@@ -30,8 +30,8 @@ public class AccountServiceImpl implements AccountService {
   private final AccountStrategyManager accountStrategyManager;
 
   @Override
-  public Optional<Account> find(@NotNull AccountId id) {
-    return accountRepository.find(id);
+  public void save(@NotNull Account account) {
+    accountRepository.save(account);
   }
 
   @Override
@@ -40,8 +40,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public void save(@NotNull Account account) {
-    accountRepository.save(account);
+  public Optional<Account> find(@NotNull AccountId id) {
+    return accountRepository.find(id);
   }
 
   @Override

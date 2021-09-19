@@ -30,9 +30,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   private final AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
   public AggregateRepositorySupport(
-      DistributedLock distributedLock,
+      @NotNull DistributedLock distributedLock,
       @Nullable CacheManager cacheManager,
-      AggregateTrackingManager<T, ID> aggregateTrackingManager) {
+      @NotNull AggregateTrackingManager<T, ID> aggregateTrackingManager) {
     super(distributedLock, cacheManager);
     this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
   }
@@ -55,23 +55,6 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     this.getAggregateTrackingManager().detach(aggregate);
   }
 
-  /** EntityRepository 的查询方法实现 */
-  @Override
-  public Optional<T> find(@NotNull ID id) {
-    var op = super.find(id);
-    // 添加跟踪
-    op.ifPresent(this::attach);
-    return op;
-  }
-
-  /** EntityRepository 的移除方法实现 */
-  @Override
-  public void remove(@NotNull T aggregate) {
-    super.remove(aggregate);
-    // 解除跟踪
-    this.detach(aggregate);
-  }
-
   /** EntityRepository 的保存方法实现 */
   @Override
   public void save(@NotNull T aggregate) {
@@ -83,20 +66,22 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
       return;
     }
     // update操作
-    // 做 diff
-    var entityDiff = this.getAggregateTrackingManager().detectChanges(aggregate);
+    // 变更对比
+    var diff = this.getAggregateTrackingManager().detectChanges(aggregate);
     // 无变更直接返回
-    if (entityDiff.isNoneDiff()) {
+    if (diff.isNoneDiff()) {
+      // TBD 特殊提示 httpstatus
       return;
     }
-    super.update0(aggregate, (t) -> this.onUpdate(t, entityDiff));
+    super.tryRun(aggregate, (t) -> this.onUpdate(t, diff));
     // 合并跟踪变更
     this.getAggregateTrackingManager().merge(aggregate);
+    return;
   }
 
   /**
-   * 重新定义update的实现，父类的方法设置为不支持的操作。 <br>
-   * 注意update前一定要查询一下。
+   * 重新定义update的实现，原update方法设置为不支持的操作。 <br>
+   * 调用方注意，调用update操作前一定要查询一下加载快照。
    */
   protected abstract void onUpdate(@NotNull T aggregate, @NotNull Diff diff);
 
@@ -105,10 +90,27 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     throw new UnsupportedOperationException();
   }
 
+  /** EntityRepository 的移除方法实现 */
+  @Override
+  public void remove(@NotNull T aggregate) {
+    super.remove(aggregate);
+    // 解除跟踪
+    this.detach(aggregate);
+  }
+
+  /** EntityRepository 的查询方法实现 */
+  @Override
+  public Optional<T> find(@NotNull ID id) {
+    var op = super.find(id);
+    // 添加跟踪
+    op.ifPresent(this::attach);
+    return op;
+  }
+
   @Override
   public List<T> list(@NotEmpty Set<ID> ids) {
     var list = super.list(ids);
-    // todo... 一定要attach
-    return null;
+    list.forEach(this::attach);
+    return list;
   }
 }

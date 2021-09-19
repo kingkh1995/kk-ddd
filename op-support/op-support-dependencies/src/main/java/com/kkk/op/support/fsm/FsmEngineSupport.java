@@ -60,9 +60,7 @@ public abstract class FsmEngineSupport<
             context.getState(),
             context.getBiz(),
             context.getScene());
-    if (op.isEmpty()) {
-      throw new FsmEngineException("No processor found!");
-    }
+    op.orElseThrow(() -> new FsmEngineException("No processor found!"));
     var processorList = op.get();
     log.info(
         "processorList:{}",

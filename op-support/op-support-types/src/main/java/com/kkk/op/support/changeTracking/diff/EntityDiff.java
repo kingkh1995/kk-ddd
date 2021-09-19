@@ -44,16 +44,17 @@ public final class EntityDiff extends Diff {
     return true;
   }
 
-  void setSelfModified(boolean selfModified) {
+  EntityDiff setSelfModified(boolean selfModified) {
     // 仅Modify类型下才允许设置selfModified
     if (this.changeType == ChangeType.Modified) {
       this.selfModified = selfModified;
     }
+    return this;
   }
 
-  void setChangeType(ChangeType changeType) {
+  EntityDiff setChangeType(ChangeType changeType) {
     if (this.changeType != null || changeType == null) {
-      return;
+      return this;
     }
     if (changeType == ChangeType.Modified) {
       this.selfModified = false;
@@ -61,6 +62,7 @@ public final class EntityDiff extends Diff {
       this.selfModified = true;
     }
     this.changeType = changeType;
+    return this;
   }
 
   @Override

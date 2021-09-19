@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 
 /**
  * 使用Enum实现单例模式 <br>
- * todo... 使用 mapstruct 实现赋值
  *
  * @author KaiKoo
  */

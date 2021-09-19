@@ -53,7 +53,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
         distributedLock,
         cacheManager,
         ThreadLocalAggregateTrackingManager.<User, LongId>builder()
-            .snapshooter(Snapshooter.identity()) // todo...
+            .snapshooter(Snapshooter.identity()) // todo... snapshooter
             .build());
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;
@@ -81,24 +81,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     }
   }
 
-  @Override
-  protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
-    // todo...
-    return null;
-  }
-
-  @Override
-  protected Optional<User> onSelect(@NotNull LongId longId) {
-    // 查询User
-    var l = longId.getValue();
-    var op = userMapper.selectById(l).map(userDataConverter::fromData);
-    // 查询Accounts
-    op.ifPresent(
-        user ->
-            user.setAccounts(accountDataConverter.fromData(accountMapper.selectListByUserId(l))));
-    return op;
-  }
-
   @Transactional
   @Override
   protected void onUpdate(@NotNull User aggregate, @NotNull Diff diff) {
@@ -114,21 +96,21 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
               var oldValue = (Account) accountDiff.getOldValue();
               var newValue = (Account) accountDiff.getNewValue();
               switch (accountDiff.getChangeType()) {
-                case Added:
+                case Added -> {
                   // 新增情况
                   var accountDO = accountDataConverter.toData(newValue);
                   accountMapper.insert(accountDO);
                   // 填补id
                   newValue.fillInId(AccountId.from(accountDO.getId()));
-                  break;
-                case Removed:
+                }
+                case Removed -> {
                   // 移除情况
                   accountMapper.deleteById(oldValue.getId().getValue());
-                  break;
-                case Modified:
+                }
+                case Modified -> {
                   // 更新情况
                   accountMapper.updateById(accountDataConverter.toData(newValue));
-                  break;
+                }
               }
             });
   }
@@ -140,5 +122,23 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     userMapper.deleteById(aggregate.getId().getValue());
     // 删除Accounts
     accountMapper.deleteByUserId(aggregate.getId().getValue());
+  }
+
+  @Override
+  protected Optional<User> onSelect(@NotNull LongId longId) {
+    // 查询User
+    var l = longId.getValue();
+    var op = userMapper.selectById(l).map(userDataConverter::fromData);
+    // 查询Accounts
+    op.ifPresent(
+        user ->
+            user.setAccounts(accountDataConverter.fromData(accountMapper.selectListByUserId(l))));
+    return op;
+  }
+
+  @Override
+  protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
+    // todo...
+    return null;
   }
 }
