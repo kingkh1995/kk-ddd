@@ -16,7 +16,6 @@ import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -100,7 +99,7 @@ class OpUserWebApplicationTests {
         Account.builder()
             .id(AccountId.from(10))
             .state(AccountState.from(AccountStateEnum.ACTIVE))
-            .createTime(LocalDateTime.now())
+            .createTime(StampedTime.current())
             .build();
     var s = kson.writeJson(account);
     System.out.println(s);

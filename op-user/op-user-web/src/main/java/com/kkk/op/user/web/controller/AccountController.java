@@ -5,9 +5,7 @@ import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.command.CreateGroup;
 import com.kkk.op.support.model.command.UpdateGroup;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
-import com.kkk.op.user.domain.types.AccountId;
 import java.util.List;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -41,20 +39,21 @@ public class AccountController {
   @PostMapping("/user/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
   public long create(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
+      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
       @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
-    return service.createAccount(LongId.valueOf(userId, "userId"), createCommand);
+    createCommand.setUserId(userId);
+    return service.createAccount(createCommand);
   }
 
   /** PUT 全量更新资源 */
   @PutMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean update(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId,
+      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
+      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId,
       @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
-    service.updateAccount(
-        LongId.valueOf(userId, "userId"), AccountId.valueOf(accountId, "accountId"), updateCommand);
+    updateCommand.setId(accountId).setUserId(userId);
+    service.updateAccount(updateCommand);
     return true;
   }
 
@@ -62,9 +61,9 @@ public class AccountController {
   @DeleteMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean delete(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    service.deleteAccount(AccountId.valueOf(accountId, "accountId"));
+      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
+      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId) {
+    service.deleteAccount(userId, accountId);
     return true;
   }
 
@@ -72,14 +71,14 @@ public class AccountController {
   @GetMapping("/user/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.OK) // 200
   public AccountDTO queryById(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") String accountId) {
-    return service.queryAccount(AccountId.valueOf(accountId, "accountId"));
+      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
+      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId) {
+    return service.queryAccount(userId, accountId);
   }
 
   /** 查询用户下的所有账号 */
   @GetMapping("/user/{userId}/accounts")
-  public List<AccountDTO> queryByUserId(@PathVariable String userId) {
-    return service.queryAccounts(LongId.valueOf(userId, "userId"));
+  public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
+    return service.queryAccounts(userId);
   }
 }

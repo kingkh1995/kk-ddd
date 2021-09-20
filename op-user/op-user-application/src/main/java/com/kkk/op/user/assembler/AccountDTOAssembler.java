@@ -3,11 +3,12 @@ package com.kkk.op.user.assembler;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DTOAssembler;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.tool.DateUtil;
 import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -34,7 +35,8 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         .map(AccountStateEnum::name)
         .ifPresent(dto::setState);
     Optional.ofNullable(account.getCreateTime())
-        .map(DateUtil::toEpochMilli)
+        .map(StampedTime::toInstant)
+        .map(Instant::toEpochMilli)
         .ifPresent(dto::setCreateTime);
     return dto;
   }
@@ -52,9 +54,6 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         .map(AccountStateEnum::valueOf)
         .map(AccountState::from)
         .ifPresent(builder::state);
-    Optional.ofNullable(accountDTO.getCreateTime())
-        .map(DateUtil::toLocalDateTime)
-        .ifPresent(builder::createTime);
     return builder.build();
   }
 }

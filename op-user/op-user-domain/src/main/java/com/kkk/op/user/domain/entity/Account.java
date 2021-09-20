@@ -2,14 +2,15 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Entity;
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,7 +36,7 @@ public class Account extends Entity<AccountId> {
   private AccountState state;
 
   @DiffIgnore // 设置创建时间不参数对比
-  private LocalDateTime createTime;
+  private StampedTime createTime;
 
   @Override
   public void validate() {
@@ -59,7 +60,8 @@ public class Account extends Entity<AccountId> {
       // 新增逻辑
       // 设置初始状态
       this.state = AccountState.from(AccountStateEnum.INIT);
-      this.createTime = LocalDateTime.now();
+      // 设置创建时间
+      this.createTime = StampedTime.from(LocalRequestContextHolder.get().getCommitTime());
     } else {
       // 更新逻辑
       var oldAccount = this.checkIdExist(accountService);

@@ -20,6 +20,6 @@ public class InitAccountModifyStrategy implements AccountModifyStrategy {
   @Override
   public boolean allowModify(Account oldAccount, Account newAccount) {
     // todo...
-    return false;
+    return true;
   }
 }

@@ -1,7 +1,7 @@
 package com.kkk.op.support.handler;
 
-import com.kkk.op.support.bean.LocalRequestContext;
-import com.kkk.op.support.bean.LocalRequestContextHolder;
+import com.kkk.op.support.base.LocalRequestContext;
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import java.time.ZoneId;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * BaseRequestContextHolder处理拦截器 <br>
- * todo... 待完善
+ * todo... 待完善、添加dubbo过滤器
  *
  * @author KaiKoo
  */
@@ -28,17 +28,17 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
     // 前置保存http请求信息
-    var requestContext =
-        LocalRequestContext.builder()
-            .entrance("(" + request.getMethod() + ")" + request.getRequestURI())
-            .zoneId(
-                Optional.ofNullable(request.getHeader("Zone-Id"))
-                    .map(ZoneId::of)
-                    .orElse(ZoneId.systemDefault()))
-            .build();
+    var contextBuilder = LocalRequestContext.builder();
+    contextBuilder.entrance("(" + request.getMethod() + ")" + request.getRequestURI());
+    Optional.ofNullable(request.getHeader("Zone-Id"))
+        .map(ZoneId::of)
+        .ifPresent(contextBuilder::zoneId);
+    Optional.ofNullable(request.getHeader("Source")).ifPresent(contextBuilder::source);
+    Optional.ofNullable(request.getHeader("Request-Seq")).ifPresent(contextBuilder::requestSeq);
+    var context = contextBuilder.build();
     // 打印请求参数
-    log.info("{}", requestContext);
-    LocalRequestContextHolder.setLocalRequestContext(requestContext);
+    log.info("{}", context);
+    LocalRequestContextHolder.set(context);
     return true;
   }
 
@@ -47,6 +47,6 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
       throws Exception {
     // 完成时清空http请求信息
-    LocalRequestContextHolder.resetLocalRequestContext();
+    LocalRequestContextHolder.reset();
   }
 }

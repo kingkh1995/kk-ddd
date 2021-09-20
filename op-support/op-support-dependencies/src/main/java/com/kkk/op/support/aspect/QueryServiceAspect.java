@@ -2,7 +2,7 @@ package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.access.AccessConditionChecker;
 import com.kkk.op.support.access.AccessConditionForbiddenException;
-import com.kkk.op.support.bean.LocalRequestContextHolder;
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -33,10 +33,10 @@ public class QueryServiceAspect extends AbstractMethodAspect {
 
   @Override
   public void onSuccess(JoinPoint point, Object result) {
-    // 后置增强处理，成功查询出结果之后再判断是否允许访问
+    // 后置增强，成功查询出结果之后再判断是否允许访问
     var checkPass =
         this.checker.analyzeThenCheck(
-            result, LocalRequestContextHolder.getLocalRequestContext().replayAccessCondition());
+            result, LocalRequestContextHolder.get().replayAccessCondition());
     // 禁止访问则抛出异常
     if (!checkPass) {
       throw AccessConditionForbiddenException.INSTANCE;

@@ -44,6 +44,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected void onUpdate(@NotNull Account entity) {
+    // todo... 判断乐观锁是否更新成功
     accountMapper.updateById(accountDataConverter.toData(entity));
   }
 

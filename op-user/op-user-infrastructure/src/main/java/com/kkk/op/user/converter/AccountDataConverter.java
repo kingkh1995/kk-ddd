@@ -2,12 +2,13 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DataConverter;
-import com.kkk.op.support.tool.DateUtil;
 import com.kkk.op.support.types.LongId;
+import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.model.AccountDO;
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -32,7 +33,8 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
         .map(AccountStateEnum::name)
         .ifPresent(data::setState);
     Optional.ofNullable(account.getCreateTime())
-        .map(DateUtil::toTimestamp)
+        .map(StampedTime::toInstant)
+        .map(Timestamp::from)
         .ifPresent(data::setCreateTime);
     return data;
   }
@@ -51,7 +53,8 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
         .map(AccountState::from)
         .ifPresent(builder::state);
     Optional.ofNullable(accountDO.getCreateTime())
-        .map(DateUtil::toLocalDateTime)
+        .map(Timestamp::toInstant)
+        .map(StampedTime::from)
         .ifPresent(builder::createTime);
     return builder.build();
   }

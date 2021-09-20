@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.bean.LocalRequestContextHolder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -40,17 +39,24 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   protected void pointcut() {}
 
   @Override
-  public void onComplete(
-      JoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {
-    // 完成时增强，无论是否执行成功均打印日志
+  public boolean onBefore(JoinPoint point) {
+    // 前置增强，打印请求信息
     var signature = (MethodSignature) point.getSignature();
     log.info(
-        "|{}| ~ [{}.{}()] ~ [request = {}] ~ [thrown = {}] ~ [response = {}]",
-        LocalRequestContextHolder.getLocalRequestContext().getTraceId(),
+        "|{}| ~ [{}.{}()] ~ [request = {}]",
+        LocalRequestContextHolder.get().getTraceId(),
         signature.getDeclaringTypeName(),
         signature.getName(),
-        this.kson.writeJson(getMethodParams(signature, point.getArgs())),
-        thrown,
+        this.kson.writeJson(getMethodParams(signature, point.getArgs())));
+    return true;
+  }
+
+  @Override
+  public void onSuccess(JoinPoint point, Object result) {
+    // 后置增强，成功时打印响应信息
+    log.info(
+        "|{}| ~ [response = {}]",
+        LocalRequestContextHolder.get().getTraceId(),
         this.kson.writeJson(result));
   }
 

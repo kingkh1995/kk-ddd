@@ -1,8 +1,10 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.base;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -15,32 +17,35 @@ import lombok.ToString;
  *
  * @author KaiKoo
  */
-@Getter
 @ToString
 @Builder
 public class LocalRequestContext {
 
-  /** 日志链路追踪序号 */
-  @Default
+  /**
+   * 日志链路追踪序号
+   *
+   * <p>todo... 日志打印自动添加traceId
+   */
+  @Getter @Default
   private final String traceId = UUID.randomUUID().toString().replace("-", "").substring(16);
 
   /** 请求时间戳（请求处理过程中作为当前时间） */
   @Default private final Instant timestamp = Instant.now();
 
   /** 时区信息 */
-  private ZoneId zoneId;
+  @Getter @Default private ZoneId zoneId = ZoneId.systemDefault();
 
   /** 调用程序入口：(method)uri */
-  private String entrance;
+  @Getter private String entrance;
 
   /** 请求应用来源 */
-  private String source;
+  @Getter private String source;
 
-  /** 请求序列号（用于幂等处理） */
+  /** 请求序列号（用于幂等处理，未传则默认为traceId） */
   private String requestSeq;
 
   /** 操作人用户ID */
-  private Long operatorId;
+  @Getter private Long operatorId;
 
   /** accessCondition记录 */
   private String accessCondition;
@@ -48,8 +53,16 @@ public class LocalRequestContext {
   /** jwt payload map */
   private Map<String, Object> payload;
 
+  public ZonedDateTime getCommitTime() {
+    return this.timestamp.atZone(this.zoneId);
+  }
+
   public long calculateCostMillis() {
     return System.currentTimeMillis() - this.timestamp.toEpochMilli();
+  }
+
+  public String getRequestSeq() {
+    return Optional.ofNullable(this.requestSeq).orElse(this.traceId);
   }
 
   // 抓取accessCondition，不允许覆盖

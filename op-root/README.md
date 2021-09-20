@@ -9,11 +9,11 @@
 - java: 17
 - spring-boot: 2.5.4
 - spring-cloud-alibaba: 2021.1
-- guava: 30.1.1-jre
 - swagger: 3.0.0
+- guava: 30.1.1-jre
 - mybatis: 2.2.0
 - pagehelper: 1.3.1
-- redisson: 3.15.4
+- redisson: 3.15.6
 - mapstruct: 1.4.2.Final
 - transmittable-thread-local: 2.12.1
 

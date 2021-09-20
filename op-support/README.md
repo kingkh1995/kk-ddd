@@ -16,12 +16,11 @@
 
 > 供domain层使用的基础接口、基类、注解、异常等
 
-- Marker接口
+- marker接口
 - 数据模型的基类
-- 变更追踪支持
 - 业务异常类
 
-### models （application模块引用，依赖support-tools、support-enums）
+### models （application模块引用，依赖support-enums）
 
 > 对外暴露的数据模型
 

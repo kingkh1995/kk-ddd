@@ -18,6 +18,11 @@
       <artifactId>op-support-enums</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--ttl：InheritableThreadLocal增强-->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>transmittable-thread-local</artifactId>
+    </dependency>
   </dependencies>
 
 

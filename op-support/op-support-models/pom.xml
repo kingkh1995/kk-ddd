@@ -15,11 +15,6 @@
   <dependencies>
     <dependency>
       <groupId>com.kkk.op.support</groupId>
-      <artifactId>op-support-tools</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.kkk.op.support</groupId>
       <artifactId>op-support-enums</artifactId>
       <version>${project.version}</version>
     </dependency>

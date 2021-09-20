@@ -2,7 +2,7 @@ package com.kkk.op.support.access;
 
 import com.kkk.op.support.annotation.AccessCondition;
 import com.kkk.op.support.aspect.AbstractMethodAspect;
-import com.kkk.op.support.bean.LocalRequestContextHolder;
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -36,7 +36,7 @@ public class AccessConditionAspect extends AbstractMethodAspect {
             .getMethod()
             .getAnnotation(AccessCondition.class)
             .value();
-    LocalRequestContextHolder.getLocalRequestContext().captureAccessCondition(condition);
+    LocalRequestContextHolder.get().captureAccessCondition(condition);
     return true;
   }
 }

@@ -90,6 +90,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
 
   @Override
   public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
+    // onBefore返回false，故在onComplete中打印日志
     log.info("Mock return '{}'.", this.kson.writeJson(result));
   }
 

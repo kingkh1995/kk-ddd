@@ -1,15 +1,12 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.base;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
-import com.kkk.op.support.handler.LocalRequestInterceptor;
 import java.util.Optional;
 import org.springframework.lang.Nullable;
 
 /**
  * 参考RequestContextHolder设计 <br>
- * todo... 添加dubbo过滤器
  *
- * @see LocalRequestInterceptor spring拦截器 <br>
  * @author KaiKoo
  */
 public class LocalRequestContextHolder {
@@ -27,20 +24,20 @@ public class LocalRequestContextHolder {
   private static final TransmittableThreadLocal<LocalRequestContext> inheritableContextHolder =
       new TransmittableThreadLocal<>();
 
-  public static void resetLocalRequestContext() {
+  public static void reset() {
     contextHolder.remove();
     inheritableContextHolder.remove();
   }
 
   // 默认开启TransmittableThreadLocal
-  public static void setLocalRequestContext(@Nullable LocalRequestContext requestContext) {
-    setLocalRequestContext(requestContext, true);
+  public static void set(@Nullable LocalRequestContext requestContext) {
+    set(requestContext, true);
   }
 
-  public static void setLocalRequestContext(
+  public static void set(
       @Nullable LocalRequestContext requestContext, boolean inheritable) {
     if (requestContext == null) {
-      resetLocalRequestContext();
+      reset();
     } else {
       if (inheritable) {
         inheritableContextHolder.set(requestContext);
@@ -53,7 +50,7 @@ public class LocalRequestContextHolder {
   }
 
   @Nullable
-  public static LocalRequestContext getLocalRequestContext() {
+  public static LocalRequestContext get() {
     return Optional.ofNullable(contextHolder.get()).orElse(inheritableContextHolder.get());
   }
 }

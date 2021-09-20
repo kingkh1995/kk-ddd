@@ -4,17 +4,21 @@ import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * 将I不允许被修改但需要提供的参数（如ID）放在path上
  *
  * @author KaiKoo
  */
+@Accessors(chain = true)
 @Data
 public class AccountModifyCommand implements Serializable {
 
   @Null(message = "id必须为空！", groups = CreateGroup.class)
   private Long id;
+
+  private Long userId;
 
   @NotBlank(message = "test0不能为空！", groups = UpdateGroup.class)
   private String test0;

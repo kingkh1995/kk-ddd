@@ -2,6 +2,8 @@
 
 ### Ace
 
+> stage .RC next .GA
+
 - 基础项目结构搭建
 - 基础组件开发
 

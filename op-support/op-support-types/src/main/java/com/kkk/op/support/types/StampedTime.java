@@ -3,6 +3,7 @@ package com.kkk.op.support.types;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -23,6 +24,10 @@ public class StampedTime extends SpecificDateTime {
   @JsonCreator
   public static StampedTime from(@NotNull ZonedDateTime value) {
     return new StampedTime(value, "StampedTime", null);
+  }
+
+  public static StampedTime from(@NotNull Instant instant) {
+    return new StampedTime(instant.atZone(ZoneId.systemDefault()), "StampedTime", null);
   }
 
   public static StampedTime current() {

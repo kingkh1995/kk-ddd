@@ -40,11 +40,6 @@
       <artifactId>redisson-spring-boot-starter</artifactId>
       <optional>true</optional>
     </dependency>
-    <!--ttl：InheritableThreadLocal增强-->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>transmittable-thread-local</artifactId>
-    </dependency>
     <!--caffeine：local cache-->
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>

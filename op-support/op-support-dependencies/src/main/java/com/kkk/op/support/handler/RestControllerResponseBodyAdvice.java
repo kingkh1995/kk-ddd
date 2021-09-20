@@ -1,7 +1,7 @@
 package com.kkk.op.support.handler;
 
 import com.kkk.op.support.access.AccessConditionForbiddenException;
-import com.kkk.op.support.bean.LocalRequestContextHolder;
+import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.handler.IPControlInterceptor.IPControlBlockedException;
@@ -25,6 +25,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +60,7 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
     ConstraintViolationException.class, // 500 to 400
     BindException.class, // MethodArgumentNotValidException
     HttpMessageConversionException.class, //
+    HttpMediaTypeException.class, //
     TypeMismatchException.class //
   })
   @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -154,12 +156,12 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   }
 
   private void appendAddl(Result<?> result) {
-    var context = LocalRequestContextHolder.getLocalRequestContext();
+    var context = LocalRequestContextHolder.get();
     if (context == null) {
       return;
     }
     result.append("traceId", context.getTraceId());
-    result.append("commitTime", context.getTimestamp().atZone(context.getZoneId()));
+    result.append("commitTime", context.getCommitTime());
     result.append("cost", context.calculateCostMillis() + "ms");
   }
 }

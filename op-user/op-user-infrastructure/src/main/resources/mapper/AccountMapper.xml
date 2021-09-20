@@ -6,7 +6,7 @@
   <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO account
       (user_id, state, create_time)
-    VALUES (#{user_id}, #{state}, #{create_time})
+    VALUES (#{userId}, #{state}, #{createTime})
   </insert>
 
   <update id="updateById">

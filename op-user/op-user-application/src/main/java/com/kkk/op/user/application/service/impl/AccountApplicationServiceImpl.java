@@ -26,9 +26,11 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
   private final AccountService accountService;
 
   @Override
-  public long createAccount(LongId userId, AccountModifyCommand createCommand) {
+  public long createAccount(AccountModifyCommand createCommand) {
     // 转换对象
-    var account = Account.builder().userId(userId).build();
+    var account =
+        Account.builder().userId(LongId.valueOf(createCommand.getUserId(), "userId"))
+                .build();
     // 行为发生
     account.save(accountService);
     // todo... 触发事件
@@ -38,30 +40,49 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
   }
 
   @Override
-  public void updateAccount(
-      LongId userId, AccountId accountId, AccountModifyCommand updateCommand) {
+  public void updateAccount(AccountModifyCommand updateCommand) {
     // 转换对象
-    var account = Account.builder().id(accountId).userId(userId).build();
+    var account =
+        Account.builder()
+            .id(AccountId.valueOf(updateCommand.getId(), "id"))
+            .userId(LongId.valueOf(updateCommand.getUserId(), "userId"))
+            .build();
     // 行为发生
     account.save(accountService);
     // todo... 触发事件
 
+    return;
   }
 
   @Override
-  public void deleteAccount(AccountId accountId) {
-    var account = Account.builder().id(accountId).build();
+  public void deleteAccount(Long userId, Long accountId) {
+    // 转换对象
+    var account =
+        Account.builder()
+            .id(AccountId.valueOf(accountId, "id"))
+            .userId(LongId.valueOf(userId, "userId"))
+            .build();
+    // 行为发生
+
     account.remove(accountService);
+    // todo... 触发事件
+
+    return;
   }
 
   @Override
-  public AccountDTO queryAccount(AccountId accountId) {
-    return accountService.find(accountId).map(accountDTOAssembler::toDTO).get();
+  public AccountDTO queryAccount(Long userId, Long accountId) {
+    // todo...
+    return accountService
+        .find(AccountId.valueOf(accountId, "id"))
+        .map(accountDTOAssembler::toDTO)
+        .get();
   }
 
   @Override
-  public List<AccountDTO> queryAccounts(LongId userId) {
+  public List<AccountDTO> queryAccounts(Long userId) {
     // todo... 实现
+
     return null;
   }
 }

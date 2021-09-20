@@ -1,6 +1,5 @@
 package com.kkk.op.support.model.query;
 
-import com.kkk.op.support.enums.DatePattern;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +22,4 @@ public abstract class AbstractPageQuery implements Serializable {
 
   // 日期类默认为字符串，为格式化之后的值
   private String createTimeEnd;
-
-  protected DatePattern datePattern = DatePattern.EPOCH_MILLI;
 }
