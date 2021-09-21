@@ -7,6 +7,7 @@ package com.kkk.op.support.changeTracking;
  */
 @FunctionalInterface
 public interface Snapshooter<T> {
+
   T snapshoot(T t);
 
   // 参考Function.identity() 直接返回原值

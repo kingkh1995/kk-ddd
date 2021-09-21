@@ -40,18 +40,18 @@ class OpUserWebApplicationTests {
     var localCache = LocalCacheManager.builder().cache(Caffeine.newBuilder().build()).build();
     System.out.println(localCache.containsKey("a"));
     localCache.put("a", 1);
-    System.out.println(localCache.get("a", Integer.class));
+    System.out.println(localCache.getIfPresent("a", Integer.class));
     localCache.put("a", 2);
     System.out.println(localCache.containsKey("a"));
     System.out.println(localCache.containsKey("b"));
-    System.out.println(localCache.get("b", Integer.class));
-    System.out.println(localCache.get("c", Integer.class));
-    System.out.println(localCache.get("a", Integer.class));
+    System.out.println(localCache.getIfPresent("b", Integer.class));
+    System.out.println(localCache.getIfPresent("c", Integer.class));
+    System.out.println(localCache.getIfPresent("a", Integer.class));
     System.out.println(localCache.containsKey("a"));
     System.out.println(localCache.containsKey("b"));
     localCache.remove("b");
     localCache.remove("a");
-    System.out.println(localCache.get("a", Integer.class));
+    System.out.println(localCache.getIfPresent("a", Integer.class));
   }
 
   @Test

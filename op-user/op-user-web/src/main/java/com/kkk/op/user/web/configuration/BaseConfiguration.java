@@ -53,13 +53,6 @@ public class BaseConfiguration implements WebMvcConfigurer {
   public DistributedLock distributedLock() {
     return new MockDistributedLock();
   }
-  /*    public DistributedLock distributedLock(
-          @Autowired StringRedisTemplate stringRedisTemplate) {
-      var builder = RedisDistributedLock.builder()
-              .redisTemplate(stringRedisTemplate)
-              .sleepInterval(200L);
-      return builder.build();
-  }*/
 
   // 配置CacheManager // fixme... 暂时Mock住
   @Bean
@@ -78,7 +71,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .getValidator();
   }
 
-  // 配置Jackson-bean 使用 JsonMapper 面向json的ObjectMapper子类
+  // 配置ObjectMapper，使用JsonMapper（面向json的ObjectMapper子类）
   @Bean
   public JsonMapper jsonMapper() {
     return JsonMapper.builder()
@@ -94,6 +87,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .build();
   }
 
+  // 直接使用定义的jsonMapper，不会重复创建bean。
   @Bean
   public Kson kson() {
     return new Kson(jsonMapper());

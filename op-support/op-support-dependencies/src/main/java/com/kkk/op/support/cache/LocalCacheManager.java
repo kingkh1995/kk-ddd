@@ -26,7 +26,7 @@ public class LocalCacheManager implements CacheManager {
   }
 
   @Override
-  public <T> Optional<T> get(String key, Class<T> clazz) {
+  public <T> Optional<T> getIfPresent(String key, Class<T> clazz) {
     return Optional.ofNullable((T) cache.getIfPresent(key));
   }
 

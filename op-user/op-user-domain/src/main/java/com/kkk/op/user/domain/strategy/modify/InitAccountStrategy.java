@@ -5,12 +5,12 @@ import com.kkk.op.user.domain.entity.Account;
 import org.springframework.stereotype.Component;
 
 /**
- * <br>
+ * Init状态Account策略实现类 <br>
  *
  * @author KaiKoo
  */
 @Component
-public class InitAccountModifyStrategy implements AccountModifyStrategy {
+public class InitAccountStrategy implements AccountStrategy {
 
   @Override
   public AccountStateEnum getIdentifier() {

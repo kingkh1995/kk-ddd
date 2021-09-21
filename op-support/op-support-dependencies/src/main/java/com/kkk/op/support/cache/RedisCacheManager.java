@@ -39,13 +39,13 @@ public class RedisCacheManager implements CacheManager {
     return stringRedisTemplate.hasKey(key);
   }
 
-  private String get(@NotBlank String key) {
+  private String getIfPresent(@NotBlank String key) {
     return stringRedisTemplate.opsForValue().get(key);
   }
 
   @Override
-  public <T> Optional<T> get(String key, Class<T> clazz) {
-    return Optional.ofNullable(get(key)).map(content -> kson.readJson(content, clazz));
+  public <T> Optional<T> getIfPresent(String key, Class<T> clazz) {
+    return Optional.ofNullable(getIfPresent(key)).map(content -> kson.readJson(content, clazz));
   }
 
   @Override

@@ -39,11 +39,14 @@ public final class ClassUtil {
     // 集合类型
     if (List.class.isAssignableFrom(clazz)) {
       return Collections.emptyList();
-    } else if (Set.class.isAssignableFrom(clazz)) {
+    }
+    if (Set.class.isAssignableFrom(clazz)) {
       return Collections.emptySet();
-    } else if (Map.class.isAssignableFrom(clazz)) {
+    }
+    if (Map.class.isAssignableFrom(clazz)) {
       return Collections.emptyMap();
-    } else if (Iterator.class.isAssignableFrom(clazz)) {
+    }
+    if (Iterator.class.isAssignableFrom(clazz)) {
       return Collections.emptyIterator();
     }
     // 其他情况返回null

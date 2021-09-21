@@ -20,10 +20,10 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
   @Override
   public void fillInId(ID id) {
     if (this.isIdentified()) {
-      return;
+      throw new IllegalArgumentException("Already identified!");
     }
     if (id == null) {
-      throw new IllegalArgumentException("can't fill in id with null");
+      throw new IllegalArgumentException("Can't fill in with null");
     }
     this.setId(id);
   }

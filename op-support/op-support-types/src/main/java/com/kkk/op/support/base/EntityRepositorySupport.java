@@ -114,7 +114,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Override
   public Optional<T> cacheGetIfPresent(@NotNull ID id) {
     return this.getCacheManager()
-        .get(this.generateCacheKey(Objects.requireNonNull(id)), this.getTClass());
+        .getIfPresent(this.generateCacheKey(Objects.requireNonNull(id)), this.getTClass());
   }
 
   @Override

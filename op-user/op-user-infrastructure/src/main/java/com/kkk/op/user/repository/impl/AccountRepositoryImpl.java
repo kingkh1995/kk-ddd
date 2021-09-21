@@ -1,6 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.EntityRepositorySupport;
+import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -44,12 +45,14 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected void onUpdate(@NotNull Account entity) {
-    // todo... 判断乐观锁是否更新成功
-    accountMapper.updateById(accountDataConverter.toData(entity));
+    if (accountMapper.updateById(accountDataConverter.toData(entity)) < 1) {
+      throw new BusinessException("Update failed by OCC!");
+    }
   }
 
   @Override
   protected void onDelete(@NotNull Account entity) {
+    // todo... 逻辑删除 LD（logic delete） & 乐观锁 OCC （optimistic concurrency control）
     accountMapper.deleteById(entity.getId().getValue());
   }
 

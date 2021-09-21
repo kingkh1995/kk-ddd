@@ -5,6 +5,7 @@ import com.kkk.op.support.base.AutoCaching;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;
+import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.CacheManager;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.types.LongId;
@@ -109,7 +110,9 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
                 }
                 case Modified -> {
                   // 更新情况
-                  accountMapper.updateById(accountDataConverter.toData(newValue));
+                  if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
+                    throw new BusinessException("Update failed by OCC!");
+                  }
                 }
               }
             });

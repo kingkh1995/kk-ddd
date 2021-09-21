@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Qualifier("mock")
 @Component // 加上注解才能被ApplicationContext获取到
-public class MockInitAccountModifyStrategy implements AccountModifyStrategy {
+public class MockInitAccountStrategy implements AccountStrategy {
 
   @Override
   public AccountStateEnum getIdentifier() {

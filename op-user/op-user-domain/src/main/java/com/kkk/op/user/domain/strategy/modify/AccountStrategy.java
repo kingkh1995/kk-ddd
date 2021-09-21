@@ -6,11 +6,11 @@ import com.kkk.op.user.domain.entity.Account;
 import javax.validation.constraints.NotNull;
 
 /**
- * 账户更新策略类接口 <br>
+ * Account策略类接口 <br>
  *
  * @author KaiKoo
  */
-public interface AccountModifyStrategy extends Strategy<AccountStateEnum> {
+public interface AccountStrategy extends Strategy<AccountStateEnum> {
 
   /** 判断是否可以更新 */
   default boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {

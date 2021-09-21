@@ -16,13 +16,13 @@ public interface CacheManager {
   boolean containsKey(@NotBlank String key);
 
   @NonNull
-  <T> Optional<T> get(@NotBlank String key, @NotNull Class<T> clazz);
+  <T> Optional<T> getIfPresent(@NotBlank String key, @NotNull Class<T> clazz);
 
   default <T> Optional<T> get(
       @NotBlank String key,
       @NotNull Class<T> clazz,
       @NotNull Supplier<? extends Optional<? extends T>> supplier) {
-    var op = this.get(key, clazz);
+    var op = this.getIfPresent(key, clazz);
     if (op.isEmpty()) {
       op = op.or(supplier);
       op.ifPresent(t -> this.put(key, t));
