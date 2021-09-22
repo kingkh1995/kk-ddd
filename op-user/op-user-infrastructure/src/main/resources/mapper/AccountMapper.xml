@@ -24,7 +24,7 @@
     id, user_id, state, create_time, version
   </sql>
 
-  <select id="selectById" resultType="com.kkk.op.user.persistence.model.AccountDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.po.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -32,7 +32,7 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectListByUserId" resultType="com.kkk.op.user.persistence.model.AccountDO">
+  <select id="selectListByUserId" resultType="com.kkk.op.user.persistence.po.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM

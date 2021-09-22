@@ -6,7 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 请求方是否可访问方法条件检查切面注解，需要加在controller方法上。
+ * 请求方是否可访问方法条件检查切面注解 <br>
+ * 建议加在controller方法上，也可以加在application service方法上；<br>
+ * 注意不支持异步，但支持顺序执行多次校验。
  *
  * @author KaiKoo
  */

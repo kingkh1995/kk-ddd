@@ -1,6 +1,6 @@
 package com.kkk.op.user.persistence.mapper;
 
-import com.kkk.op.user.persistence.model.UserDO;
+import com.kkk.op.user.persistence.po.UserDO;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Delete;

@@ -34,7 +34,7 @@
     id, name, username, gender, age, email
   </sql>
 
-  <select id="selectById" resultType="com.kkk.op.user.persistence.model.UserDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.po.UserDO">
     SELECT
     <include refid="columns"/>
     FROM

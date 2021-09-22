@@ -1,4 +1,4 @@
-package com.kkk.op.user.persistence.model;
+package com.kkk.op.user.persistence.po;
 
 import java.io.Serializable;
 import java.sql.Timestamp;

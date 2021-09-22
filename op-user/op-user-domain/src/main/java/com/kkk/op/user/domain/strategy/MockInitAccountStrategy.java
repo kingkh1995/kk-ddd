@@ -1,4 +1,4 @@
-package com.kkk.op.user.domain.strategy.modify;
+package com.kkk.op.user.domain.strategy;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import org.springframework.beans.factory.annotation.Qualifier;

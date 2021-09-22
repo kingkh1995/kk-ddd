@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 /**
- * http请求上下文信息 <br>
+ * 请求的上下文信息，需要能在整个请求过程（包括子线程）中被获取。 <br>
  * todo... 待设计
  *
  * @author KaiKoo
@@ -47,9 +47,6 @@ public class LocalRequestContext {
   /** 操作人用户ID */
   @Getter private Long operatorId;
 
-  /** accessCondition记录 */
-  private String accessCondition;
-
   /** jwt payload map */
   private Map<String, Object> payload;
 
@@ -63,19 +60,5 @@ public class LocalRequestContext {
 
   public String getRequestSeq() {
     return Optional.ofNullable(this.requestSeq).orElse(this.traceId);
-  }
-
-  // 抓取accessCondition，不允许覆盖
-  public void captureAccessCondition(String accessCondition) {
-    if (this.accessCondition == null) {
-      this.accessCondition = accessCondition;
-    }
-  }
-
-  // 回放抓取的accessCondition，回放完清空，以便多次使用
-  public String replayAccessCondition() {
-    var accessCondition = this.accessCondition;
-    this.accessCondition = null;
-    return accessCondition;
   }
 }

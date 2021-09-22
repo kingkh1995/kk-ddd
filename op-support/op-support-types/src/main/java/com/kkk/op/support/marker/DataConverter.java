@@ -13,17 +13,17 @@ import java.util.stream.Stream;
  *
  * @author KaiKoo
  */
-public interface DataConverter<T extends Entity<?>, M> {
+public interface DataConverter<T extends Entity<?>, P> {
 
-  M toData(T t);
+  P toData(T t);
 
-  T fromData(M m);
+  T fromData(P p);
 
-  default List<M> toData(Collection<? extends T> entityCol) {
+  default List<P> toData(Collection<? extends T> entityCol) {
     return this.toData(entityCol, Collectors.toList());
   }
 
-  default <R> R toData(Collection<? extends T> entityCol, Collector<? super M, ?, R> collector) {
+  default <R> R toData(Collection<? extends T> entityCol, Collector<? super P, ?, R> collector) {
     return Stream.ofNullable(entityCol)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)
@@ -31,11 +31,11 @@ public interface DataConverter<T extends Entity<?>, M> {
         .collect(collector);
   }
 
-  default List<T> fromData(Collection<? extends M> dataCol) {
+  default List<T> fromData(Collection<? extends P> dataCol) {
     return this.fromData(dataCol, Collectors.toList());
   }
 
-  default <R> R fromData(Collection<? extends M> dataCol, Collector<? super T, ?, R> collector) {
+  default <R> R fromData(Collection<? extends P> dataCol, Collector<? super T, ?, R> collector) {
     return Stream.ofNullable(dataCol)
         .flatMap(Collection::stream)
         .filter(Objects::nonNull)

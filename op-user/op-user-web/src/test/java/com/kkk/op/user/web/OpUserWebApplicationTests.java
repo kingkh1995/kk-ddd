@@ -1,5 +1,7 @@
 package com.kkk.op.user.web;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.pagehelper.PageHelper;
@@ -16,6 +18,7 @@ import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import java.math.BigDecimal;
+import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
@@ -110,6 +113,16 @@ class OpUserWebApplicationTests {
     System.out.println(kson.readJson(sTime, StampedTime.class));
     System.out.println(kson.readJson(sTime, StampedTime.class).toLocalDateTime());
     System.out.println(TenThousandYuan.from(new BigDecimal("110.6")).toPlainString());
+  }
+
+  @Test
+  void testTTL() throws InterruptedException {
+    var ttl = new TransmittableThreadLocal<Object>();
+    final var o = new Object();
+    ttl.set(o);
+    var ttlExecutor = TtlExecutors.getTtlExecutor(Executors.newCachedThreadPool());
+    ttlExecutor.execute(() -> System.out.println(o == ttl.get()));
+    Thread.sleep(1000L);
   }
 
   private static void forRun(int time, IntConsumer consumer) {
