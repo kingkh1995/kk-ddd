@@ -13,15 +13,19 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   boolean isAutoCaching();
 
+  default boolean cacheNullValues() {
+    return false;
+  }
+
   String generateCacheKey(@NotNull ID id);
 
-  Optional<T> cacheGetIfPresent(@NotNull ID id);
+  Optional<ValueWrapper<T>> cacheGetIfPresent(@NotNull ID id);
 
   Optional<T> cacheGet(@NotNull ID id);
 
   void cachePut(@NotNull T t);
 
-  boolean cacheRemove(@NotNull T t);
+  void cacheRemove(@NotNull T t);
 
   // todo... 缓存双删 通过EventBus发送消息?
   default void cacheDoubleRemove(@NotNull T t, Runnable runnable) {

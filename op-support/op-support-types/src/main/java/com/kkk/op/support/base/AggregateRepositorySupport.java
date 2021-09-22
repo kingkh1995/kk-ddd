@@ -3,7 +3,7 @@ package com.kkk.op.support.base;
 import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
-import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
@@ -31,9 +31,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
   public AggregateRepositorySupport(
       @NotNull DistributedLock distributedLock,
-      @Nullable CacheManager cacheManager,
+      @Nullable Cache cache,
       @NotNull AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-    super(distributedLock, cacheManager);
+    super(distributedLock, cache);
     this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
   }
 

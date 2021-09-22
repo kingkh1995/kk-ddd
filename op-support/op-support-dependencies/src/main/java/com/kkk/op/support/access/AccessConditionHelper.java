@@ -11,7 +11,7 @@ public class AccessConditionHelper {
     throw new IllegalAccessException();
   }
 
-  private static ThreadLocal<String> helper = new ThreadLocal<>();
+  private static final ThreadLocal<String> helper = new ThreadLocal<>();
 
   // 抓取accessCondition，不允许覆盖
   public static void capture(String accessCondition) {

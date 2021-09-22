@@ -3,10 +3,8 @@ package com.kkk.op.user.web;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.cache.LocalCacheManager;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -36,25 +34,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountMapper accountMapper;
 
-  public static void main(String[] args) {}
-
-  @Test
-  void testCaffeine() {
-    var localCache = LocalCacheManager.builder().cache(Caffeine.newBuilder().build()).build();
-    System.out.println(localCache.containsKey("a"));
-    localCache.put("a", 1);
-    System.out.println(localCache.getIfPresent("a", Integer.class));
-    localCache.put("a", 2);
-    System.out.println(localCache.containsKey("a"));
-    System.out.println(localCache.containsKey("b"));
-    System.out.println(localCache.getIfPresent("b", Integer.class));
-    System.out.println(localCache.getIfPresent("c", Integer.class));
-    System.out.println(localCache.getIfPresent("a", Integer.class));
-    System.out.println(localCache.containsKey("a"));
-    System.out.println(localCache.containsKey("b"));
-    localCache.remove("b");
-    localCache.remove("a");
-    System.out.println(localCache.getIfPresent("a", Integer.class));
+  public static void main(String[] args) {
   }
 
   @Test

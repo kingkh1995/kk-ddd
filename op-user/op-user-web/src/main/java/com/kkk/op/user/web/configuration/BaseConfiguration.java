@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.cache.MockCacheManager;
+import com.kkk.op.support.cache.MockCache;
 import com.kkk.op.support.distributed.MockDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
 import com.kkk.op.support.handler.LocalRequestInterceptor;
 import com.kkk.op.support.handler.ThreadLocalRemoveInterceptor;
-import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -56,8 +56,8 @@ public class BaseConfiguration implements WebMvcConfigurer {
 
   // 配置CacheManager // fixme... 暂时Mock住
   @Bean
-  public CacheManager cacheManager() {
-    return new MockCacheManager();
+  public Cache cacheManager() {
+    return new MockCache("MockCache");
   }
 
   // 配置jakarta-valiator-bean，校验快速失败

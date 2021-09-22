@@ -1,11 +1,12 @@
 package com.kkk.op.support.base;
 
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.CacheManager;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
+import com.kkk.op.support.marker.ValueWrapper;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -44,7 +46,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Getter(AccessLevel.PROTECTED)
   private final String lockNamePrefix;
 
-  @Nullable private final CacheManager cacheManager;
+  @Nullable private final Cache cache;
 
   @Getter private final boolean autoCaching;
 
@@ -67,14 +69,13 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.lockNamePrefix = "LOCK:" + this.cacheKeyPrefix;
   }
 
-  public EntityRepositorySupport(
-      @NotNull DistributedLock distributedLock, @Nullable CacheManager cacheManager) {
+  public EntityRepositorySupport(@NotNull DistributedLock distributedLock, @Nullable Cache cache) {
     this.distributedLock = Objects.requireNonNull(distributedLock);
     // 开启自动缓存时才需要CacheManager
     if (this.isAutoCaching()) {
-      Objects.requireNonNull(cacheManager);
+      Objects.requireNonNull(cache);
     }
-    this.cacheManager = cacheManager;
+    this.cache = cache;
   }
 
   // todo... 如何更优雅的实现
@@ -102,8 +103,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // ===============================================================================================
 
   /** 以下是Cache相关方法 */
-  protected CacheManager getCacheManager() {
-    return Objects.requireNonNull(this.cacheManager);
+  protected Cache getCache() {
+    return Objects.requireNonNull(this.cache);
   }
 
   @Override
@@ -112,28 +113,34 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public Optional<T> cacheGetIfPresent(@NotNull ID id) {
-    return this.getCacheManager()
-        .getIfPresent(this.generateCacheKey(Objects.requireNonNull(id)), this.getTClass());
+  public Optional<ValueWrapper<T>> cacheGetIfPresent(@NotNull ID id) {
+    return this.getCache().get(this.generateCacheKey(Objects.requireNonNull(id)), this.getTClass());
   }
 
   @Override
   public Optional<T> cacheGet(@NotNull ID id) {
-    return this.getCacheManager()
-        .get(
-            this.generateCacheKey(Objects.requireNonNull(id)),
-            this.getTClass(),
-            () -> this.onSelect(id));
+    var key = this.generateCacheKey(Objects.requireNonNull(id));
+    var op = this.getCache().get(key, this.getTClass());
+    //  存在即获取，如果cacheNullValues可能是NullValue直接返回，否则则不可能是NullValue也是直接返回。
+    if (op.isPresent()) {
+      return op.map(ValueWrapper::get);
+    }
+    var select = this.onSelect(id);
+    // 不存在且非cacheNullValues才不缓存
+    if (select.isPresent() || this.cacheNullValues()) {
+      this.getCache().put(key, select.orElse(null));
+    }
+    return select;
   }
 
   @Override
   public void cachePut(@NotNull T t) {
-    this.getCacheManager().put(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
+    this.getCache().put(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
   }
 
   @Override
-  public boolean cacheRemove(@NotNull T t) {
-    return this.getCacheManager().remove(this.generateCacheKey(Objects.requireNonNull(t).getId()));
+  public void cacheRemove(@NotNull T t) {
+    this.getCache().evict(this.generateCacheKey(Objects.requireNonNull(t).getId()));
   }
 
   // ===============================================================================================
@@ -193,18 +200,31 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
             .filter( // 先查询缓存，过滤掉缓存存在的id
                 (id) -> {
                   var op = this.cacheGetIfPresent(id);
-                  op.ifPresent(list::add);
+                  op.map(ValueWrapper::get).ifPresent(list::add);
                   return op.isEmpty();
                 })
             .collect(Collectors.toSet());
     // 批量查询数据库，并加载缓存。
     if (!ids.isEmpty()) {
-      this.onSelectByIds(ids)
-          .forEach(
-              (entity) -> {
+      var selectList = this.onSelectByIds(ids);
+      // 如果cacheNullValues则对未查询到结果的缓存空值
+      if (this.cacheNullValues()) {
+        var map = selectList.stream().collect(Collectors.toMap(Entity::getId, Function.identity()));
+        ids.forEach(
+            id -> {
+              var entity = map.get(id);
+              if (entity != null) {
                 list.add(entity);
-                this.cachePut(entity);
-              });
+              }
+              this.getCache().put(this.generateCacheKey(id), entity);
+            });
+      } else {
+        selectList.forEach(
+            (entity) -> {
+              list.add(entity);
+              this.cachePut(entity);
+            });
+      }
     }
     return list;
   }
