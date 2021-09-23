@@ -1,6 +1,5 @@
 package com.kkk.op.support.handler;
 
-import com.kkk.op.support.access.AccessConditionForbiddenException;
 import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
@@ -99,13 +98,6 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   public Result<?> handleNoSuchElementException(NoSuchElementException e) {
     log.error("NoSuchElementException =>", e);
     return Result.fail("No Content");
-  }
-
-  // accessCondition异常
-  @ExceptionHandler(AccessConditionForbiddenException.class)
-  @ResponseStatus(HttpStatus.FORBIDDEN)
-  public Result<?> handleNoSuchElementException(AccessConditionForbiddenException e) {
-    return Result.fail("Forbidden");
   }
 
   // IP-Control异常

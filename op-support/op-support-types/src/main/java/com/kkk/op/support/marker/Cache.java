@@ -3,6 +3,7 @@ package com.kkk.op.support.marker;
 import java.util.Optional;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 
 /**
  * todo... 服务降级、设计优化
@@ -21,4 +22,9 @@ public interface Cache {
   void evict(@NotBlank String key);
 
   void clear();
+
+  interface ValueWrapper<T> {
+    @Nullable
+    T get();
+  }
 }

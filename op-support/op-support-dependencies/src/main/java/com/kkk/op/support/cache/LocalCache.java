@@ -1,8 +1,6 @@
 package com.kkk.op.support.cache;
 
 import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.ValueWrapper;
-import com.kkk.op.support.marker.ValueWrapper.SimpleValue;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.cache.support.NullValue;
 import org.springframework.util.Assert;
 
 /**
@@ -37,10 +34,10 @@ public class LocalCache implements Cache {
     var storeValue = cache.getNativeCache().getIfPresent(key);
     if (storeValue == null) {
       return Optional.empty();
-    } else if (storeValue == NullValue.INSTANCE) {
-      return Optional.ofNullable(ValueWrapper.NullValue.INSTANCE);
+    } else if (storeValue == org.springframework.cache.support.NullValue.INSTANCE) {
+      return Optional.of(NullValue.INSTANCE);
     }
-    return Optional.ofNullable(new SimpleValue<>((T) storeValue));
+    return Optional.of(new SimpleValue<>((T) storeValue));
   }
 
   @Override

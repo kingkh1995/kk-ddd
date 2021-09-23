@@ -2,11 +2,11 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
-import com.kkk.op.support.marker.ValueWrapper;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +103,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // ===============================================================================================
 
   /** 以下是Cache相关方法 */
-  protected Cache getCache() {
+  @Override
+  public Cache getCache() {
     return Objects.requireNonNull(this.cache);
   }
 
@@ -114,19 +115,19 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public Optional<ValueWrapper<T>> cacheGetIfPresent(@NotNull ID id) {
-    return this.getCache().get(this.generateCacheKey(Objects.requireNonNull(id)), this.getTClass());
+    return this.getCache().get(this.generateCacheKey(id), this.getTClass());
   }
 
   @Override
   public Optional<T> cacheGet(@NotNull ID id) {
-    var key = this.generateCacheKey(Objects.requireNonNull(id));
+    var key = this.generateCacheKey(id);
     var op = this.getCache().get(key, this.getTClass());
     //  存在即获取，如果cacheNullValues可能是NullValue直接返回，否则则不可能是NullValue也是直接返回。
     if (op.isPresent()) {
       return op.map(ValueWrapper::get);
     }
+    // 不存在则查询数据库，存在数据且非cacheNullValues才不缓存
     var select = this.onSelect(id);
-    // 不存在且非cacheNullValues才不缓存
     if (select.isPresent() || this.cacheNullValues()) {
       this.getCache().put(key, select.orElse(null));
     }

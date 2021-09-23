@@ -34,8 +34,10 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountMapper accountMapper;
 
-  public static void main(String[] args) {
-  }
+  public static void main(String[] args) {}
+
+  @Test
+  void test() {}
 
   @Test
   void testMybatis() {

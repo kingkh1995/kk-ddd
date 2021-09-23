@@ -1,6 +1,6 @@
 package com.kkk.op.user.domain.strategy;
 
-import com.kkk.op.support.base.AbstractStrategyManager;
+import com.kkk.op.support.base.AbstractEStrategyManager;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.user.domain.entity.Account;
 import java.util.EnumSet;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AccountStrategyManager
-    extends AbstractStrategyManager<AccountStateEnum, AccountStrategy> {
+    extends AbstractEStrategyManager<AccountStateEnum, AccountStrategy> {
 
   public AccountStrategyManager() {
     // 设置收集方案

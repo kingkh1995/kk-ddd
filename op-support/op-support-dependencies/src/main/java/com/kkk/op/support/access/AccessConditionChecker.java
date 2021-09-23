@@ -19,7 +19,7 @@ public class AccessConditionChecker {
   /**
    * 解析条件，支持短路 (A || B || (!C && D || (E || !F && G) && H)) || !I <br>
    * 例：要求操作人是创建人并且不能在小程序上操作 或 操作人拥有update权限且在内网操作 <br>
-   * (creator && !source:MP || permission:update && source:LAN)
+   * (creator && !source:MP || permit:update && source:LAN)
    *
    * @param condition 条件表达式，只支持短路符号，括号和非
    * @return 解析后校验的结果
@@ -27,7 +27,7 @@ public class AccessConditionChecker {
   public boolean analyzeThenCheck(Object obj, @NotBlank String condition) {
     log.info("Start analyzing with condition '{}'......", condition);
     if (condition == null || condition.isBlank()) {
-      throw new AccessConditionAnalyzeException("Analyzing error for condition is blank!");
+      throw new AccessConditionCheckException("Analyzing error for condition is blank!");
     }
     // 维护一个窗口
     var l = 0;
@@ -100,7 +100,7 @@ public class AccessConditionChecker {
       return checkPass;
     } catch (Exception e) {
       log.error("Analyzing error! l = {}, r = {}.", l, r, e);
-      throw new AccessConditionAnalyzeException("Analyzing access condition error!");
+      throw new AccessConditionCheckException("Analyzing access condition error!");
     }
   }
 
@@ -111,12 +111,5 @@ public class AccessConditionChecker {
     var canAccess = this.pluginManager.callPluginCheck(obj, input);
     stack.push(canAccess);
     log.info("Check finish, input '{}', canAccess '{}'.", input, canAccess);
-  }
-
-  public class AccessConditionAnalyzeException extends RuntimeException {
-
-    AccessConditionAnalyzeException(String message) {
-      super(message);
-    }
   }
 }

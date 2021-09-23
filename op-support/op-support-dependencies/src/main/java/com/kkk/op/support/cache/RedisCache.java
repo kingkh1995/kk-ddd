@@ -2,11 +2,10 @@ package com.kkk.op.support.cache;
 
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.ValueWrapper;
-import com.kkk.op.support.marker.ValueWrapper.SimpleValue;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,6 +18,7 @@ import org.springframework.util.Assert;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedisCache implements Cache {
 
+  @Getter private final RedissonClient redissonClient;
   private final RedissonCache redissonCache;
   private final Kson kson;
 
@@ -37,13 +37,10 @@ public class RedisCache implements Cache {
     var valueWrapper = redissonCache.get(key);
     if (valueWrapper == null) {
       return Optional.empty();
+    } else if (valueWrapper == org.redisson.spring.cache.NullValue.INSTANCE) {
+      return Optional.of(NullValue.INSTANCE);
     }
-    var storeValue = valueWrapper.get();
-    if (storeValue == null) {
-      return Optional.ofNullable(ValueWrapper.NullValue.INSTANCE);
-    }
-    return Optional.ofNullable(
-        new SimpleValue<>(kson.readJson((String) valueWrapper.get(), clazz)));
+    return Optional.of(new SimpleValue<>(kson.readJson((String) valueWrapper.get(), clazz)));
   }
 
   @Override
@@ -79,7 +76,7 @@ public class RedisCache implements Cache {
       // always allow null values
       var redissonCache =
           new RedissonCache(this.redissonClient.getMapCache(name), this.redissonCacheConfig, true);
-      return new RedisCache(redissonCache, kson);
+      return new RedisCache(this.redissonClient, redissonCache, this.kson);
     }
   }
 }

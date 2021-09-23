@@ -1,18 +1,18 @@
 package com.kkk.op.support.base;
 
 import com.kkk.op.support.marker.Strategy;
-import java.lang.reflect.ParameterizedType;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
@@ -25,7 +25,7 @@ import org.springframework.core.annotation.Order;
  *
  * @author KaiKoo
  */
-public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strategy<E>>
+public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
     extends ApplicationContextAwareBean {
 
   /**
@@ -45,25 +45,27 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
   }
 
   private final Set<CollectTactic> collectTactics;
-  private final Class<E> tClass;
-  private final Class<S> sClass;
   private Collection<S> strategys;
-  private Map<E, S> primaryMap;
-  private Map<E, List<S>> orderMap;
-  private Map<E, Map<String, S>> qualifierMap;
+  private Map<K, S> primaryMap;
+  private Map<K, List<S>> orderMap;
+  private Map<K, Map<String, S>> qualifierMap;
 
-  public AbstractStrategyManager(@NotEmpty Set<CollectTactic> collectTactics) {
-    if (collectTactics == null || collectTactics.isEmpty()) {
-      throw new NullPointerException("collectTactics is empty!");
-    }
-    this.collectTactics = collectTactics;
+  public AbstractStrategyManager(Set<CollectTactic> collectTactics) {
+    this.collectTactics = Optional.ofNullable(collectTactics).orElse(Collections.EMPTY_SET);
   }
 
-  {
-    var actualTypeArguments =
-        ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
-    this.tClass = (Class<E>) actualTypeArguments[0];
-    this.sClass = (Class<S>) actualTypeArguments[1];
+  protected abstract Class<S> getSClass();
+
+  protected Supplier<Map<K, S>> getPrimaryMapFactory() {
+    return HashMap::new;
+  }
+
+  protected Supplier<Map<K, List<S>>> getOrderMapFactory() {
+    return HashMap::new;
+  }
+
+  protected Supplier<Map<K, Map<String, S>>> getQualifierMapFactory() {
+    return HashMap::new;
   }
 
   @Override
@@ -71,7 +73,9 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
     if (strategys != null) {
       return;
     }
-    this.strategys = this.getApplicationContext().getBeansOfType(this.sClass).values();
+    this.strategys =
+        Collections.unmodifiableCollection(
+            this.getApplicationContext().getBeansOfType(this.getSClass()).values());
     collecting();
   }
 
@@ -85,7 +89,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
                       Strategy::getIdentifier,
                       Function.identity(),
                       (s, s2) -> s2.getClass().getAnnotation(Primary.class) == null ? s : s2,
-                      () -> new EnumMap<>(this.tClass)));
+                      this.getPrimaryMapFactory()));
     }
     // order 先分组收集为list再排序并转换为UnmodifiableList
     if (this.collectTactics.contains(CollectTactic.ORDER)) {
@@ -94,7 +98,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,
-                      () -> new EnumMap<>(this.tClass),
+                      this.getOrderMapFactory(),
                       Collectors.collectingAndThen(
                           Collectors.toList(),
                           ss ->
@@ -115,7 +119,7 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,
-                      () -> new EnumMap<>(this.tClass),
+                      this.getQualifierMapFactory(),
                       Collectors.toUnmodifiableMap(
                           s ->
                               Optional.ofNullable(s.getClass().getAnnotation(Qualifier.class))
@@ -129,15 +133,19 @@ public abstract class AbstractStrategyManager<E extends Enum<E>, S extends Strat
    * 根据策略枚举值获取收集到的策略实现类 <br>
    * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
    */
-  protected final S getSingleton(@NotNull E e) {
-    return Objects.requireNonNull(this.primaryMap).get(e);
+  protected final Collection<S> getAll() {
+    return this.strategys;
   }
 
-  protected final List<S> getList(@NotNull E e) {
-    return Objects.requireNonNull(this.orderMap).get(e);
+  protected final S getSingleton(@NotNull K k) {
+    return Objects.requireNonNull(this.primaryMap).get(k);
   }
 
-  protected final Map<String, S> getMap(@NotNull E e) {
-    return Objects.requireNonNull(this.qualifierMap).get(e);
+  protected final List<S> getList(@NotNull K k) {
+    return Objects.requireNonNull(this.orderMap).get(k);
+  }
+
+  protected final Map<String, S> getMap(@NotNull K k) {
+    return Objects.requireNonNull(this.qualifierMap).get(k);
   }
 }

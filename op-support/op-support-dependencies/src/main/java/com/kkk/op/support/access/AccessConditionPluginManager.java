@@ -7,16 +7,21 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <br>
+ * AccessConditionPluginManager   <br>
+ * 键不使用枚举是为了能够被拓展，因为枚举无法被继承。
  *
  * @author KaiKoo
  */
 @Slf4j
-public class AccessConditionPluginManager
-    extends AbstractStrategyManager<AccessConditionPluginEnum, AccessConditionCheckPlugin> {
+public class AccessConditionPluginManager extends AbstractStrategyManager<String, AccessConditionCheckPlugin> {
 
   public AccessConditionPluginManager() {
     super(EnumSet.of(CollectTactic.PRIMARY));
+  }
+
+  @Override
+  protected Class<AccessConditionCheckPlugin> getSClass() {
+    return AccessConditionCheckPlugin.class;
   }
 
   /**
@@ -30,7 +35,7 @@ public class AccessConditionPluginManager
   public boolean callPluginCheck(Object obj, String input) {
     var context = PluginCheckContext.buildFrom(input);
     log.info("Start checking with context '{}'......", context);
-    var canAccess = super.getSingleton(AccessConditionPluginEnum.valueOf(context.plugin())).canAccess(obj, context.args());
+    var canAccess = super.getSingleton(context.plugin()).canAccess(obj, context.args());
     return context.checkResult(canAccess);
   }
 
@@ -55,6 +60,7 @@ public class AccessConditionPluginManager
     boolean checkResult(boolean canAccess) {
       return reverse() ? !canAccess : canAccess;
     }
+
   }
 
   // mock方法
