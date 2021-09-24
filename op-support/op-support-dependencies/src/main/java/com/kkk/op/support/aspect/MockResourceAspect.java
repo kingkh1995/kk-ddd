@@ -1,9 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.MockResource;
-import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.tool.ClassUtil;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,10 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Order // 可以不添加@Order注解，默认级别为最低
 @Aspect
-@RequiredArgsConstructor
 public class MockResourceAspect extends AbstractMethodAspect {
-
-  private final Kson kson;
 
   @Override
   @Pointcut("@annotation(com.kkk.op.support.annotation.MockResource)")
@@ -89,9 +84,9 @@ public class MockResourceAspect extends AbstractMethodAspect {
   }
 
   @Override
-  public void onComplete(JoinPoint point, boolean permitted, boolean thrown, Object result) {
+  public void onAfter(JoinPoint point, boolean permitted, boolean thrown, Object result) {
     // onBefore返回false，故在onComplete中打印日志
-    log.info("Mock return '{}'.", this.kson.writeJson(result));
+    log.info("Mock return '{}'.", result);
   }
 
   public class MockException extends RuntimeException {

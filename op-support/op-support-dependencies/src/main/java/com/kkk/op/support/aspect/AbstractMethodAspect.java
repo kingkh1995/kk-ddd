@@ -54,11 +54,11 @@ public abstract class AbstractMethodAspect implements MethodAdviceHandler {
         // 禁止执行时的返回值
         result = this.getOnForbid(point);
       }
+      // 返回结果
+      return result;
     } finally {
       // 结束
-      this.onComplete(point, permitted, thrown, result);
+      this.onAfter(point, permitted, thrown, result);
     }
-    // 返回结果
-    return result;
   }
 }

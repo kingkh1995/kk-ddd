@@ -11,24 +11,22 @@ public class AccessConditionHelper {
     throw new IllegalAccessException();
   }
 
-  private static final ThreadLocal<String> helper = new ThreadLocal<>();
+  private static final ThreadLocal<String> holder = new ThreadLocal<>();
 
-  // 抓取accessCondition，不允许覆盖
-  public static void capture(String accessCondition) {
-    if (helper.get() == null) {
-      helper.set(accessCondition);
-    }
+  // 回放，并返回当前的备份
+  public static String replay(String captured) {
+    var backup = holder.get();
+    holder.set(captured);
+    return backup;
   }
 
-  // 回放抓取的accessCondition，回放完清空，以便多次使用
-  public static String replay() {
-    var accessCondition = helper.get();
-    helper.remove();
-    return accessCondition;
+  // 获取抓取的accessCondition
+  public static String get() {
+    return holder.get();
   }
 
-  // 手动清空（执行异常时）
-  public static void reset() {
-    helper.remove();
+  // 恢复回放前的备份
+  public static void restore(String backup) {
+    holder.set(backup);
   }
 }

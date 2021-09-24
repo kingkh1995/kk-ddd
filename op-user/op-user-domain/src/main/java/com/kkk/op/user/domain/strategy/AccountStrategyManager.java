@@ -4,7 +4,6 @@ import com.kkk.op.support.base.AbstractEStrategyManager;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.user.domain.entity.Account;
 import java.util.EnumSet;
-import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,6 @@ public class AccountStrategyManager
   }
 
   public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    return Objects.requireNonNull(super.getSingleton(oldAccount.getState().getValue()))
-        .allowModify(oldAccount, newAccount);
+    return super.getSingleton(oldAccount.getState().getValue()).allowModify(oldAccount, newAccount);
   }
 }

@@ -16,14 +16,17 @@ import java.util.function.Supplier;
 public abstract class AbstractEStrategyManager<E extends Enum<E>, S extends EStrategy<E>>
     extends AbstractStrategyManager<E, S> {
 
-  private final Class<E> eClass;
-  private final Class<S> sClass;
+  private Class<E> eClass;
+  private Class<S> sClass;
 
   {
-    var actualTypeArguments =
-        ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
-    this.eClass = (Class<E>) actualTypeArguments[0];
-    this.sClass = (Class<S>) actualTypeArguments[1];
+    // 只有直接子类才初始化，因为子类的子类泛型可能不会相同，会导致报错，无法创建实例。
+    if (AbstractEStrategyManager.class.equals(this.getClass().getSuperclass())) {
+      var parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+      var actualTypeArguments = parameterizedType.getActualTypeArguments();
+      this.eClass = (Class<E>) actualTypeArguments[0];
+      this.sClass = (Class<S>) actualTypeArguments[1];
+    }
   }
 
   public AbstractEStrategyManager(Set<CollectTactic> collectTactics) {

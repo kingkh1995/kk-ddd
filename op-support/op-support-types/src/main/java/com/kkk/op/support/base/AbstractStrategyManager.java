@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -68,22 +69,38 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
     return HashMap::new;
   }
 
-  @Override
-  public void afterPropertiesSet() {
-    if (strategys != null) {
-      return;
-    }
-    this.strategys =
-        Collections.unmodifiableCollection(
-            this.getApplicationContext().getBeansOfType(this.getSClass()).values());
-    collecting();
+  protected Comparator<K> getKComparator() {
+    return null;
   }
 
-  private void collecting() {
+  @Override
+  public void afterPropertiesSet() {
+    if (this.strategys != null) {
+      return;
+    }
+    collecting(this.getApplicationContext().getBeansOfType(this.getSClass()).values());
+  }
+
+  private void collecting(Collection<S> col) {
+    // all 如果存在比较器，则使用比较器收集为TreeSet，最后包装为unmodifiableCollection
+    this.strategys =
+        Optional.ofNullable(this.getKComparator())
+            .map(
+                kComparator ->
+                    col.stream()
+                        .collect(
+                            Collectors.collectingAndThen(
+                                Collectors.toCollection(
+                                    () ->
+                                        new TreeSet<>(
+                                            Comparator.comparing(
+                                                Strategy::getIdentifier, this.getKComparator()))),
+                                Collections::unmodifiableCollection)))
+            .orElse(Collections.unmodifiableCollection(col));
     // primary
     if (this.collectTactics.contains(CollectTactic.PRIMARY)) {
       this.primaryMap =
-          this.strategys.stream()
+          col.stream()
               .collect(
                   Collectors.toMap(
                       Strategy::getIdentifier,
@@ -94,7 +111,7 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
     // order 先分组收集为list再排序并转换为UnmodifiableList
     if (this.collectTactics.contains(CollectTactic.ORDER)) {
       this.orderMap =
-          this.strategys.stream()
+          col.stream()
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,
@@ -112,10 +129,10 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
                                                   .orElse(Ordered.LOWEST_PRECEDENCE)))
                                   .collect(Collectors.toUnmodifiableList()))));
     }
-    // 先分组，再将子组收集为UnmodifiableMap
+    // qualifier 先分组，再将子组收集为UnmodifiableMap
     if (this.collectTactics.contains(CollectTactic.QUALIFIER)) {
       this.qualifierMap =
-          this.strategys.stream()
+          col.stream()
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,

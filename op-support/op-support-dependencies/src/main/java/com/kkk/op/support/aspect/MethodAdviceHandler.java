@@ -65,6 +65,6 @@ public interface MethodAdviceHandler {
    * @param thrown 目标方法执行时是否抛出异常
    * @param result 执行获得的结果
    */
-  default void onComplete(
+  default void onAfter(
       JoinPoint point, boolean permitted, boolean thrown, @Nullable Object result) {}
 }

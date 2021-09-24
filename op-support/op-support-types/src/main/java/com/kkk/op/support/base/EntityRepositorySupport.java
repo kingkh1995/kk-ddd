@@ -1,5 +1,6 @@
 package com.kkk.op.support.base;
 
+import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
@@ -56,6 +57,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   {
     // 设置autoCaching
     this.autoCaching = this.getClass().isAnnotationPresent(AutoCaching.class);
+    // fixme... 这种写法不安全
     // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
     // 设置tClass 参数化类型获取实际Type

@@ -1,7 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
+import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.base.AggregateRepositorySupport;
-import com.kkk.op.support.base.AutoCaching;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;

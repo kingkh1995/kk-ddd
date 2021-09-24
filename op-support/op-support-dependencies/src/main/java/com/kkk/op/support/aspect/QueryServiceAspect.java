@@ -28,13 +28,13 @@ public class QueryServiceAspect extends AbstractMethodAspect {
   private final AccessConditionChecker checker;
 
   @Override
-  @Pointcut("@within(com.kkk.op.support.base.QueryService)")
+  @Pointcut("@within(com.kkk.op.support.annotation.QueryService)")
   protected void pointcut() {}
 
   @Override
   public void onSuccess(JoinPoint point, Object result) {
     // 后置增强，成功查询出结果之后再判断是否允许访问
-    var accessCondition = AccessConditionHelper.replay();
+    var accessCondition = AccessConditionHelper.get();
     if (accessCondition == null) {
       return;
     }

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -48,6 +49,9 @@ public final class ClassUtil {
     }
     if (Iterator.class.isAssignableFrom(clazz)) {
       return Collections.emptyIterator();
+    }
+    if (Optional.class.isAssignableFrom(clazz)) {
+      return Optional.empty();
     }
     // 其他情况返回null
     return null;
