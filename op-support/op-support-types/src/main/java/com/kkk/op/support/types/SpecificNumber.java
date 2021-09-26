@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
  *
  * @author KaiKoo
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public abstract class SpecificNumber extends Number implements Type {
 
   protected static final BigDecimal ZERO = BigDecimal.ZERO;
@@ -60,7 +60,7 @@ public abstract class SpecificNumber extends Number implements Type {
       if (value.scale() > scale) {
         throw IllegalArgumentExceptions.forScaleAbove(fieldName, scale);
       }
-      value = value.setScale(scale); // 最后设置sacle补全后面的0 同时保证scale非负时为原生数字表示 负数则为科学计数法表示
+      value = value.setScale(scale); // 最后设置scale补全后面的0 同时保证scale非负时为原生数字表示 负数则为科学计数法表示
     }
     this.value = Objects.requireNonNull(value);
   }

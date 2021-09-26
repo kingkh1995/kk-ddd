@@ -99,7 +99,7 @@ class OpUserWebApplicationTests {
 
   @Test
   void testTTL() throws InterruptedException {
-    var ttl = new TransmittableThreadLocal<Object>();
+    var ttl = new TransmittableThreadLocal<>();
     final var o = new Object();
     ttl.set(o);
     var ttlExecutor = TtlExecutors.getTtlExecutor(Executors.newCachedThreadPool());

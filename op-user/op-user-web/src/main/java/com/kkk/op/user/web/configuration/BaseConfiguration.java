@@ -32,12 +32,12 @@ public class BaseConfiguration implements WebMvcConfigurer {
 
   // todo... 配合nacos配置中心实时刷新
   @Value("${ip_control_switch:true}")
-  private boolean ipControlSwtich;
+  private boolean ipControlSwitch;
 
   // 注入IPControlInterceptor实现自动刷新配置
   @Bean
   public IPControlInterceptor ipControlInterceptor() {
-    return new IPControlInterceptor(ipControlSwtich);
+    return new IPControlInterceptor(ipControlSwitch);
   }
 
   // 拦截器配置
@@ -60,7 +60,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
     return new MockCache("MockCache");
   }
 
-  // 配置jakarta-valiator-bean，校验快速失败
+  // 配置jakarta-validator-bean，校验快速失败
   @Bean
   public Validator validator() {
     // todo... debug时不快速失败 通过配置或开关控制

@@ -11,11 +11,11 @@ import java.util.Map;
  */
 public class Result<T> implements Serializable {
 
-  private static final int SUCCESSED_CODE = 0;
+  private static final int SUCCEED_CODE = 0;
 
-  private static final int FAILED_CODE = 1;
+  private static final int FAIL_CODE = 1;
 
-  private static final String SUCCESSED_MESSAGE = "ok";
+  private static final String SUCCEED_MESSAGE = "ok";
 
   private int code;
 
@@ -24,7 +24,7 @@ public class Result<T> implements Serializable {
   private T data;
 
   /** 额外信息：url，traceId，timestamp等 */
-  private Map<String, Object> addl;
+  private Map<String, Object> adds;
 
   private Result(int code, String message) {
     this.code = code;
@@ -37,22 +37,22 @@ public class Result<T> implements Serializable {
   }
 
   public void append(String key, Object value) {
-    if (this.addl == null) {
-      this.addl = new LinkedHashMap<>();
+    if (this.adds == null) {
+      this.adds = new LinkedHashMap<>();
     }
-    this.addl.put(key, value);
+    this.adds.put(key, value);
   }
 
-  public static <T> Result<T> success() {
-    return new Result<>(SUCCESSED_CODE, SUCCESSED_MESSAGE);
+  public static <T> Result<T> succeed() {
+    return new Result<>(SUCCEED_CODE, SUCCEED_MESSAGE);
   }
 
-  public static <T> Result<T> success(T t) {
-    return new Result<>(SUCCESSED_CODE, SUCCESSED_MESSAGE, t);
+  public static <T> Result<T> succeed(T t) {
+    return new Result<>(SUCCEED_CODE, SUCCEED_MESSAGE, t);
   }
 
   public static <T> Result<T> fail(String message) {
-    return new Result<>(FAILED_CODE, message);
+    return new Result<>(FAIL_CODE, message);
   }
 
   public static <T> Result<T> fail(int code, String message) {

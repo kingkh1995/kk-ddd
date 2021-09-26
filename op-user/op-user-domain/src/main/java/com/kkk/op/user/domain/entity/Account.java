@@ -23,7 +23,7 @@ import lombok.Setter;
  * @author KaiKoo
  */
 @JsonDeserialize(builder = Account.AccountBuilder.class) // 设置反序列化使用Builder
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Builder
 public class Account extends Entity<AccountId> {

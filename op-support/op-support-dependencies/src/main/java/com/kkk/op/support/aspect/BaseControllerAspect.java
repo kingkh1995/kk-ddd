@@ -52,7 +52,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   }
 
   @Override
-  public void onSuccess(JoinPoint point, Object result) {
+  public void onSucceed(JoinPoint point, Object result) {
     // 后置增强，成功时打印响应信息
     log.info(
         "|{}| ~ [response = {}]",

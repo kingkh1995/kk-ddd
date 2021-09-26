@@ -70,7 +70,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     var diff = this.getAggregateTrackingManager().detectChanges(aggregate);
     // 无变更直接返回
     if (diff.isNoneDiff()) {
-      // TBD 特殊提示 httpstatus
+      // TBD 特殊提示 http status
       return;
     }
     super.tryRun(aggregate, (t) -> this.onUpdate(t, diff));

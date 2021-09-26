@@ -35,7 +35,7 @@ public class LocalCache implements Cache {
     if (storeValue == null) {
       return Optional.empty();
     } else if (storeValue == org.springframework.cache.support.NullValue.INSTANCE) {
-      return Optional.of(NullValue.INSTANCE);
+      return Optional.of(NullValue.instance());
     }
     return Optional.of(new SimpleValue<>((T) storeValue));
   }

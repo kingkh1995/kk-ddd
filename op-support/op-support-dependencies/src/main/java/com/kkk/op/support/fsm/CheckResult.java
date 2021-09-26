@@ -9,8 +9,8 @@ import com.kkk.op.support.exception.BusinessException;
  */
 public record CheckResult(boolean successed, String message) {
 
-  public static CheckResult success() {
-    return new CheckResult(true, "success");
+  public static CheckResult succeed() {
+    return new CheckResult(true, "succeed");
   }
 
   public static CheckResult fail(String message) {

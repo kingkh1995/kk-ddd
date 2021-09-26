@@ -27,7 +27,7 @@ public class CheckerExecutor {
       List<Checker<E, T, C>> checkers, C context, boolean isParallel) {
     // 空集合直接返回成功
     if (checkers == null || checkers.isEmpty()) {
-      return CheckResult.success();
+      return CheckResult.succeed();
     }
     // 只有一个直接处理
     if (checkers.size() == 1) {
@@ -36,14 +36,14 @@ public class CheckerExecutor {
     // 多个则批量处理，同步或异步（不使用线程池而是使用并行流）
     var stream = checkers.stream();
     if (isParallel) {
-      stream.parallel();
+      stream = checkers.parallelStream();
     }
     // 需要使用findAny，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
     return stream
         .map(checker -> checker.check(context))
         .filter(Predicate.not(CheckResult::successed))
         .findAny()
-        .orElse(CheckResult.success());
+        .orElse(CheckResult.succeed());
   }
 
   public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult parallelCheck(

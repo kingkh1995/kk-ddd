@@ -8,7 +8,6 @@
     <groupId>com.kkk.op.user</groupId>
     <version>Ace.RC</version>
   </parent>
-  <groupId>com.kkk.op.user</groupId>
   <artifactId>op-user-web</artifactId>
   <version>Ace.RC</version>
   <name>op-user-web</name>

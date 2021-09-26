@@ -58,7 +58,7 @@ public class AccessConditionPluginManager extends AbstractStrategyManager<String
     }
 
     boolean checkResult(boolean canAccess) {
-      return reverse() ? !canAccess : canAccess;
+      return reverse() != canAccess;
     }
 
   }

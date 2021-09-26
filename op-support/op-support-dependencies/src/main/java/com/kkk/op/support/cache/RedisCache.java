@@ -38,7 +38,7 @@ public class RedisCache implements Cache {
     if (valueWrapper == null) {
       return Optional.empty();
     } else if (valueWrapper == org.redisson.spring.cache.NullValue.INSTANCE) {
-      return Optional.of(NullValue.INSTANCE);
+      return Optional.of(NullValue.instance());
     }
     return Optional.of(new SimpleValue<>(kson.readJson((String) valueWrapper.get(), clazz)));
   }

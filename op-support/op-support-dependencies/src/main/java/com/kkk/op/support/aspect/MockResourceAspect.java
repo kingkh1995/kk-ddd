@@ -89,7 +89,7 @@ public class MockResourceAspect extends AbstractMethodAspect {
     log.info("Mock return '{}'.", result);
   }
 
-  public class MockException extends RuntimeException {
+  public static class MockException extends RuntimeException {
     MockException(Throwable cause) {
       super(cause);
     }

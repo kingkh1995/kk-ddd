@@ -2,7 +2,6 @@ package com.kkk.op.support.fsm;
 
 import com.kkk.op.support.annotation.EventProcessor;
 import com.kkk.op.support.base.ApplicationContextAwareBean;
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,10 +34,10 @@ public abstract class FsmEngineSupport<
     if (event.newCreate()) {
       throw new FsmEngineException("Entity can't be null!");
     }
-    this.sendEvent(event, this.findEnity(event.getEntityId()));
+    this.sendEvent(event, this.findEntity(event.getEntityId()));
   }
 
-  protected abstract T findEnity(String entityId);
+  protected abstract T findEntity(String entityId);
 
   @Override
   public void sendEvent(E event, T entity) throws Exception {
@@ -75,20 +74,12 @@ public abstract class FsmEngineSupport<
 
   // ===============================================================================================
   /** 以下是EventProcessor管理相关 */
-
-  /** 事件处理器基类class */
-  private Class<P> pClass;
-
-  {
-    var actualTypeArguments =
-        ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
-    this.pClass = (Class<P>) actualTypeArguments[3];
-  }
+  protected abstract Class<P> getPClass();
 
   /** 事件处理器实现类三层map */
   private Map<String, Map<String, Map<String, List<P>>>> processorMap;
 
-  private static String[] DEFAULT = new String[] {"#"};
+  private static final String[] DEFAULT = new String[] {"#"};
 
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -98,7 +89,7 @@ public abstract class FsmEngineSupport<
     // 使用HashMap和LinkedList，因为只会有并发get操作。
     this.processorMap = new HashMap<>();
     // 因为@EventProcessor是多个业务公用的，所以不能通过注解获取，需要根据业务的EventProcessor基类class去获取。
-    for (P p : this.getApplicationContext().getBeansOfType(pClass).values()) {
+    for (P p : this.getApplicationContext().getBeansOfType(this.getPClass()).values()) {
       var eventProcessor = p.getClass().getAnnotation(EventProcessor.class);
       if (eventProcessor == null) {
         continue;

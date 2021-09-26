@@ -55,7 +55,7 @@ public interface MethodAdviceHandler {
    * @param point 目标方法的连接点
    * @param result 执行获得的结果
    */
-  default void onSuccess(JoinPoint point, Object result) {}
+  default void onSucceed(JoinPoint point, Object result) {}
 
   /**
    * 目标方法完成时，执行的动作，同 @After 但是可以操作返回值（需注意若 permitted 为 false 或 thrown 为 true 时默认返回值会为 null）

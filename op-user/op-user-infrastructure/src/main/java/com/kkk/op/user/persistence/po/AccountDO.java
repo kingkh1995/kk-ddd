@@ -20,7 +20,7 @@ public class AccountDO implements Serializable {
   /** state用来标识可迁移的状态（如state machine），status用来表示不可迁移的状态（如Http status code） */
   private String state;
 
-  // mybatis 中 datetime 和 timestimp 类型对应的 jdbcType 均为 Timestamp
+  // mybatis 中 datetime 和 timestamp 类型对应的 jdbcType 均为 Timestamp
   // 数据库中除了 create_time update_time 等其他日期均使用 datetime
   private Timestamp createTime;
 

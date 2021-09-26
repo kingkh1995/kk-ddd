@@ -1,6 +1,7 @@
 package com.kkk.op.support.cache;
 
 import com.kkk.op.support.marker.Cache;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +100,7 @@ public class TwoStageCache implements Cache {
     static final long serialVersionUID = 1L;
 
     // 添加readResolve，反序列化返回INSTANCE
+    @Serial
     private Object readResolve() {
       return INSTANCE;
     }

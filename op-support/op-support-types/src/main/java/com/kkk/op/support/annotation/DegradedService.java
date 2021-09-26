@@ -13,4 +13,11 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface DegradedService {}
+public @interface DegradedService {
+
+  /** 被降级后，定时调用的心跳方法（同一个类中且无参数），心跳正常（不抛出异常）才恢复。 */
+  String health();
+
+  /** 降级时，会调用指定静态类的同名方法，如果不存在则默认抛出异常。 */
+  Class<?> callbackClass() default Object.class;
+}

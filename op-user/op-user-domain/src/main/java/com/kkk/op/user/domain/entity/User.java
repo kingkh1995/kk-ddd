@@ -17,7 +17,7 @@ import lombok.Setter;
  * @author KaiKoo
  */
 @JsonDeserialize(builder = User.UserBuilder.class)
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 @Getter
 @Builder
 public class User extends Aggregate<LongId> {

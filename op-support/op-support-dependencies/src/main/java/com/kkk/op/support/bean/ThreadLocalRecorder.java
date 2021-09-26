@@ -30,7 +30,7 @@ public final class ThreadLocalRecorder {
     recorder.get().add(threadLocal);
   }
 
-  /** 记录Talsc使用 定义为泛型方法 */
+  /** 记录Tlasc使用 定义为泛型方法 */
   public static <ID extends Identifier, T extends Aggregate<ID>> void recordTlasc(
       ThreadLocal<Map<ID, T>> threadLocal) {
     recorder.get().add(threadLocal);

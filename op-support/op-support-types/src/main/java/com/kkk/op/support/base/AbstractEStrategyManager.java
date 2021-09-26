@@ -22,8 +22,8 @@ public abstract class AbstractEStrategyManager<E extends Enum<E>, S extends EStr
   {
     // 只有直接子类才初始化，因为子类的子类泛型可能不会相同，会导致报错，无法创建实例。
     if (AbstractEStrategyManager.class.equals(this.getClass().getSuperclass())) {
-      var parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
-      var actualTypeArguments = parameterizedType.getActualTypeArguments();
+      var actualTypeArguments =
+          ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();
       this.eClass = (Class<E>) actualTypeArguments[0];
       this.sClass = (Class<S>) actualTypeArguments[1];
     }

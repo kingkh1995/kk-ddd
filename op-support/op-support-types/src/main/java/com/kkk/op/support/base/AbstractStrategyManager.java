@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -42,17 +41,17 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
      */
     ORDER,
     /** 全部收集为map，key为@Qualifier注解的值，无注解则默认为default */
-    QUALIFIER;
+    QUALIFIER
   }
 
   private final Set<CollectTactic> collectTactics;
-  private Collection<S> strategys;
+  private Collection<S> strategies;
   private Map<K, S> primaryMap;
   private Map<K, List<S>> orderMap;
   private Map<K, Map<String, S>> qualifierMap;
 
   public AbstractStrategyManager(Set<CollectTactic> collectTactics) {
-    this.collectTactics = Optional.ofNullable(collectTactics).orElse(Collections.EMPTY_SET);
+    this.collectTactics = Optional.ofNullable(collectTactics).orElse(Collections.emptySet());
   }
 
   protected abstract Class<S> getSClass();
@@ -69,38 +68,22 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
     return HashMap::new;
   }
 
-  protected Comparator<K> getKComparator() {
-    return null;
-  }
-
   @Override
   public void afterPropertiesSet() {
-    if (this.strategys != null) {
+    if (this.strategies != null) {
       return;
     }
-    collecting(this.getApplicationContext().getBeansOfType(this.getSClass()).values());
+    this.strategies =
+        Collections.unmodifiableCollection(
+            this.getApplicationContext().getBeansOfType(this.getSClass()).values());
+    collecting();
   }
 
-  private void collecting(Collection<S> col) {
-    // all 如果存在比较器，则使用比较器收集为TreeSet，最后包装为unmodifiableCollection
-    this.strategys =
-        Optional.ofNullable(this.getKComparator())
-            .map(
-                kComparator ->
-                    col.stream()
-                        .collect(
-                            Collectors.collectingAndThen(
-                                Collectors.toCollection(
-                                    () ->
-                                        new TreeSet<>(
-                                            Comparator.comparing(
-                                                Strategy::getIdentifier, this.getKComparator()))),
-                                Collections::unmodifiableCollection)))
-            .orElse(Collections.unmodifiableCollection(col));
+  private void collecting() {
     // primary
     if (this.collectTactics.contains(CollectTactic.PRIMARY)) {
       this.primaryMap =
-          col.stream()
+          this.strategies.stream()
               .collect(
                   Collectors.toMap(
                       Strategy::getIdentifier,
@@ -111,7 +94,7 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
     // order 先分组收集为list再排序并转换为UnmodifiableList
     if (this.collectTactics.contains(CollectTactic.ORDER)) {
       this.orderMap =
-          col.stream()
+          this.strategies.stream()
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,
@@ -127,12 +110,12 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
                                                       s.getClass().getAnnotation(Order.class))
                                                   .map(Order::value)
                                                   .orElse(Ordered.LOWEST_PRECEDENCE)))
-                                  .collect(Collectors.toUnmodifiableList()))));
+                                  .toList())));
     }
     // qualifier 先分组，再将子组收集为UnmodifiableMap
     if (this.collectTactics.contains(CollectTactic.QUALIFIER)) {
       this.qualifierMap =
-          col.stream()
+          this.strategies.stream()
               .collect(
                   Collectors.groupingBy(
                       Strategy::getIdentifier,
@@ -151,7 +134,7 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
    * 以下方法均不能返回空，因为从业务角度必须存在对应的策略实现类。
    */
   protected final Collection<S> getAll() {
-    return this.strategys;
+    return this.strategies;
   }
 
   protected final S getSingleton(@NotNull K k) {

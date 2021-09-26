@@ -8,12 +8,10 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -29,10 +27,10 @@ public final class DiffUtil { // 工具类声明为 final
   }
 
   // 添加缓存，解析属性，过滤@DiffIgnore注解的属性
-  private static final Map<Class<?>, SoftReference<List<Field>>> FIELD_CACHE =
+  private static final Map<Class<?>, SoftReference<Field[]>> FIELD_CACHE =
       new ConcurrentHashMap<>();
 
-  private static List<Field> resolve(Class<?> clazz) {
+  private static Field[] resolve(Class<?> clazz) {
     return Optional.ofNullable(FIELD_CACHE.get(clazz))
         .map(SoftReference::get)
         .orElseGet(
@@ -41,7 +39,7 @@ public final class DiffUtil { // 工具类声明为 final
                   Arrays.stream(clazz.getDeclaredFields())
                       .filter(field -> !field.isAnnotationPresent(DiffIgnore.class))
                       .filter(Field::trySetAccessible)
-                      .collect(Collectors.toUnmodifiableList());
+                      .toArray(Field[]::new);
               FIELD_CACHE.put(clazz, new SoftReference<>(fields));
               return fields;
             });
@@ -148,10 +146,7 @@ public final class DiffUtil { // 工具类声明为 final
         Stream.ofNullable(sCol)
             .flatMap(Collection::stream)
             .map(o -> (Entity<?>) o)
-            .forEach(
-                ss -> {
-                  collectionDiff.add(diff(ss, map.get(ss.getId())));
-                });
+            .forEach(ss -> collectionDiff.add(diff(ss, map.get(ss.getId()))));
       }
       // 对比完成，判断对比结果
       if (collectionDiff.isEmpty()) {

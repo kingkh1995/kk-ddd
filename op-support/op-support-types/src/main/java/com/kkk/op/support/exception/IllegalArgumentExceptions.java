@@ -30,23 +30,13 @@ public final class IllegalArgumentExceptions {
 
   public static IllegalArgumentException forMaxValue(
       String fieldName, Number max, boolean included) {
-    var message =
-        new StringBuilder(fieldName)
-            .append("必须小于")
-            .append(included ? "等于" : "")
-            .append(max)
-            .toString();
+    var message = fieldName + "必须小于" + (included ? "等于" : "") + max;
     return new IllegalArgumentException(message);
   }
 
   public static IllegalArgumentException forMinValue(
       String fieldName, Number min, boolean included) {
-    var message =
-        new StringBuilder(fieldName)
-            .append("必须大于")
-            .append(included ? "等于" : "")
-            .append(min)
-            .toString();
+    var message = fieldName + "必须大于" + (included ? "等于" : "") + min;
     return new IllegalArgumentException(message);
   }
 
@@ -64,21 +54,13 @@ public final class IllegalArgumentExceptions {
 
   public static IllegalArgumentException requireFuture(
       String fieldName, boolean includePresent, boolean obtainTime) {
-    var message =
-        new StringBuilder(fieldName)
-            .append(includePresent ? "不能早于" : "必须晚于")
-            .append(obtainTime ? "当前时间" : "今天")
-            .toString();
+    var message = fieldName + (includePresent ? "不能早于" : "必须晚于") + (obtainTime ? "当前时间" : "今天");
     return new IllegalArgumentException(message);
   }
 
   public static IllegalArgumentException requirePast(
       String fieldName, boolean includePresent, boolean obtainTime) {
-    var message =
-        new StringBuilder(fieldName)
-            .append(includePresent ? "不能晚于" : "必须早于")
-            .append(obtainTime ? "当前时间" : "今天")
-            .toString();
+    var message = fieldName + (includePresent ? "不能晚于" : "必须早于") + (obtainTime ? "当前时间" : "今天");
     return new IllegalArgumentException(message);
   }
 }

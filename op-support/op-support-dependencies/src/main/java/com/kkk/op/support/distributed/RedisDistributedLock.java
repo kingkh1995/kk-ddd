@@ -186,7 +186,7 @@ public class RedisDistributedLock implements DistributedLock {
                   log.warn("Dog watching '{}' execute return '{}'.", name, result);
                 }
               } catch (Exception e) {
-                log.warn("Dog watching excute error!", e);
+                log.warn("Dog watching execute error!", e);
               }
             },
             expireMills * 9 / 10,

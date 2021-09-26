@@ -20,7 +20,7 @@ public final class Kson {
     try {
       return this.jsonMapper.writeValueAsString(value);
     } catch (Exception e) {
-      throw new KsonExceptiion(e);
+      throw new KsonException(e);
     }
   }
 
@@ -28,7 +28,7 @@ public final class Kson {
     try {
       return this.jsonMapper.readValue(content, type);
     } catch (Exception e) {
-      throw new KsonExceptiion(e);
+      throw new KsonException(e);
     }
   }
 
@@ -37,7 +37,7 @@ public final class Kson {
     try {
       return this.jsonMapper.readValue(content, typeReference);
     } catch (Exception e) {
-      throw new KsonExceptiion(e);
+      throw new KsonException(e);
     }
   }
 
@@ -46,12 +46,12 @@ public final class Kson {
     try {
       return this.jsonMapper.readTree(content);
     } catch (Exception e) {
-      throw new KsonExceptiion(e);
+      throw new KsonException(e);
     }
   }
 
-  public class KsonExceptiion extends RuntimeException {
-    KsonExceptiion(Throwable cause) {
+  public static class KsonException extends RuntimeException {
+    KsonException(Throwable cause) {
       super(cause);
     }
   }

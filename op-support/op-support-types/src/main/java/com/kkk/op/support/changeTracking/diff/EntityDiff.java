@@ -22,7 +22,7 @@ public final class EntityDiff extends Diff {
   }
 
   /** 多数情况下map可能为空，为节约内存，在put时才去创建一个 HashMap */
-  protected Map<String, Diff> map = Collections.emptyMap();
+  private Map<String, Diff> map = Collections.emptyMap();
 
   /**
    * 一个 Aggregate 应该只由 Types（DP和其他基本数据类型）、 Entity 、 Collection 组成 <br>
@@ -56,11 +56,7 @@ public final class EntityDiff extends Diff {
     if (this.changeType != null || changeType == null) {
       return this;
     }
-    if (changeType == ChangeType.Modified) {
-      this.selfModified = false;
-    } else {
-      this.selfModified = true;
-    }
+    this.selfModified = changeType != ChangeType.Modified;
     this.changeType = changeType;
     return this;
   }

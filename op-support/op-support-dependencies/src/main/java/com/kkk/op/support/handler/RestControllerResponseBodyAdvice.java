@@ -75,8 +75,7 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
               .orElse(message);
     } else if (e instanceof BindException be) {
       message =
-          Optional.ofNullable(be)
-              .map(BindException::getBindingResult)
+          Optional.ofNullable(be.getBindingResult())
               .map(Errors::getFieldError)
               .map(FieldError::getDefaultMessage)
               .orElse(message);
@@ -87,8 +86,8 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   // 业务异常
   @ExceptionHandler(BusinessException.class)
   @ResponseStatus(HttpStatus.OK)
-  public Result<?> handleBussinessException(BusinessException e) {
-    log.error("BussinessException =>", e);
+  public Result<?> handleBusinessException(BusinessException e) {
+    log.error("BusinessException =>", e);
     return Result.fail(e.getMessage());
   }
 
@@ -134,20 +133,20 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
       ServerHttpResponse response) {
     if (returnType.hasMethodAnnotation(ExceptionHandler.class)) {
       // 异常拦截处理后可以再次处理，异常拦截类需要有@RestControllerAdvice注解，因为其包含@ResponseBody注解
-      appendAddl((Result<?>) body);
+      appendAdds((Result<?>) body);
       return body;
     }
     Result<?> result;
     if (body instanceof Result<?> r){
       result = r;
     } else {
-      result = Result.success(body);
+      result = Result.succeed(body);
     }
-    appendAddl(result);
+    appendAdds(result);
     return result;
   }
 
-  private void appendAddl(Result<?> result) {
+  private void appendAdds(Result<?> result) {
     var context = LocalRequestContextHolder.get();
     if (context == null) {
       return;

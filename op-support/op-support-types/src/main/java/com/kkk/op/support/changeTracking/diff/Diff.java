@@ -13,9 +13,9 @@ import lombok.Getter;
  */
 public abstract sealed class Diff permits EntityDiff, CollectionDiff, NoneDiff{
 
-  @Getter private Object oldValue;
+  @Getter private final Object oldValue;
 
-  @Getter private Object newValue;
+  @Getter private final Object newValue;
 
   Diff(Object oldValue, Object newValue) {
     this.oldValue = oldValue;
