@@ -1,6 +1,7 @@
 package com.kkk.op.support.access;
 
 import com.kkk.op.support.annotation.AccessCondition;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
  *
  * @author KaiKoo
  */
+@Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1) // 设置级别低于@BaseControllerAspect切面
 @Aspect
@@ -22,6 +24,7 @@ public class AccessConditionAspect {
 
   @Around("@annotation(com.kkk.op.support.annotation.AccessCondition)")
   public Object advice(ProceedingJoinPoint point) throws Throwable {
+    log.info("Method advice at '{}'.", point.getStaticPart());
     var condition =
         ((MethodSignature) point.getSignature())
             .getMethod()

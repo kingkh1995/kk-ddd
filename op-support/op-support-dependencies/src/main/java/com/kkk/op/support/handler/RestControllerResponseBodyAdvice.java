@@ -1,5 +1,6 @@
 package com.kkk.op.support.handler;
 
+import com.kkk.op.support.aspect.DegradedServiceAspect.DegradedServiceException;
 import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
@@ -75,7 +76,7 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
               .orElse(message);
     } else if (e instanceof BindException be) {
       message =
-          Optional.ofNullable(be.getBindingResult())
+          Optional.of(be.getBindingResult())
               .map(Errors::getFieldError)
               .map(FieldError::getDefaultMessage)
               .orElse(message);
@@ -104,6 +105,13 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS) // 429
   public Result<?> handleIPControlBlockedException(IPControlBlockedException e) {
     return Result.fail("Too Many Requests");
+  }
+
+  // degraded异常
+  @ExceptionHandler(DegradedServiceException.class)
+  @ResponseStatus(HttpStatus.I_AM_A_TEAPOT) // 418
+  public Result<?> handleDegradedServiceException(DegradedServiceException e) {
+    return Result.fail("I'm a teapot");
   }
 
   // 兜底500异常

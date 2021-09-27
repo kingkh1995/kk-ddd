@@ -46,6 +46,11 @@
         <scope>import</scope> &lt;!&ndash;maven是单继承，使用import相当于继承多个父项目&ndash;&gt;
       </dependency>-->
       <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>transmittable-thread-local</artifactId>
+        <version>${ttl.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
@@ -79,11 +84,6 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>transmittable-thread-local</artifactId>
-        <version>${ttl.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

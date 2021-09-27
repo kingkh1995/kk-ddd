@@ -23,6 +23,10 @@
       <artifactId>op-support-models</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <artifactId>spring-tx</artifactId>
+      <groupId>org.springframework</groupId>
+    </dependency>
   </dependencies>
 
 </project>

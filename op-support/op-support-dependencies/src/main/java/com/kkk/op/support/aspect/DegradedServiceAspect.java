@@ -1,117 +1,161 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.DegradedService;
-import com.kkk.op.support.exception.BusinessException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import org.aspectj.lang.JoinPoint;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.redisson.api.RRateLimiter;
-import org.redisson.api.RateIntervalUnit;
-import org.redisson.api.RateType;
-import org.redisson.api.RedissonClient;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 /**
  * 服务降级拦截切面 <br>
+ * 单机实现，分布式实现请使用RedissonClient
  *
  * @author KaiKoo
  */
+@Slf4j
+@Order(Ordered.LOWEST_PRECEDENCE - 1) // 优先级高于@MockResource切面
 @Aspect
-public class DegradedServiceAspect extends AbstractMethodAspect {
+public class DegradedServiceAspect {
 
-  @Override
-  @Pointcut("@within(com.kkk.op.support.annotation.DegradedService)")
-  protected void pointcut() {}
-
-  private final RedissonClient redissonClient;
-  private final DegradedServiceConfig config;
   private final ConcurrentHashMap<Class<?>, DegradedContext> map;
+  private final Executor executor;
 
-  public DegradedServiceAspect(RedissonClient redissonClient, DegradedServiceConfig config) {
-    this.redissonClient = redissonClient;
-    this.config = config;
+  public DegradedServiceAspect(int healthInterval) {
     this.map = new ConcurrentHashMap<>();
+    this.executor = CompletableFuture.delayedExecutor(healthInterval, TimeUnit.SECONDS);
   }
 
+  /** 降级服务上下文对象 */
   private static class DegradedContext {
-    RRateLimiter rateLimiter;
-    volatile boolean degraded = false;
+
+    Object target;
     Method health;
-    Class<?> callbackClass;
+    Class<? extends Throwable>[] permittedThrowables;
+    volatile Map<String, Method> callbackMethods = Collections.emptyMap();
+    volatile boolean degraded = false;
+
+    public boolean permit(Throwable e) {
+      return Arrays.stream(permittedThrowables).anyMatch(c -> c.isInstance(e));
+    }
   }
 
-  public record DegradedServiceConfig(
-      RateType rateType,
-      long rate,
-      long rateInterval,
-      RateIntervalUnit rateIntervalUnit,
-      long healthInterval,
-      TimeUnit healthIntervalUnit) {}
-
-  @Override
-  public boolean onBefore(JoinPoint point) {
-    return Optional.ofNullable(map.get(point.getSignature().getDeclaringType()))
-        .map(degradedContext -> degradedContext.degraded)
-        .orElse(true);
+  @Around("@within(com.kkk.op.support.annotation.DegradedService)")
+  public Object advice(ProceedingJoinPoint point) throws Throwable {
+    log.info("Method advice at '{}'.", point.getStaticPart());
+    var target = point.getTarget();
+    // 获取上下文对象或初始化
+    var context = map.getOrDefault(target.getClass(), init(target));
+    if (context.degraded) {
+      // 执行降级操作
+      return doDegrade(
+          context, ((MethodSignature) point.getSignature()).getMethod(), point.getArgs());
+    }
+    try {
+      return point.proceed();
+    } catch (Throwable e) {
+      // 抛出异常执行心跳检测
+      return doThrow(e, context);
+    }
   }
 
-  @Override
-  public Object getOnForbid(JoinPoint point) {
-    // todo... 调用回调类的方法或直接抛出异常
-    throw DegradedServiceException.INSTANCE;
+  private DegradedContext init(Object target) throws Throwable {
+    var clazz = target.getClass();
+    var context = new DegradedContext();
+    context.target = target;
+    // 先put，可能出现并发
+    var op = Optional.ofNullable(map.putIfAbsent(clazz, context));
+    if (op.isPresent()) {
+      // 如果其他线程已经put了，直接返回
+      return op.get();
+    } else {
+      // 开始解析
+      var degradedService = clazz.getDeclaredAnnotation(DegradedService.class);
+      context.health = clazz.getDeclaredMethod(degradedService.health());
+      context.health.setAccessible(true); // must succeed or throw
+      context.permittedThrowables = degradedService.permittedThrowables();
+      var callbackClass = degradedService.callbackClass();
+      if (callbackClass != Object.class) {
+        var declaredMethods = clazz.getDeclaredMethods();
+        context.callbackMethods = new HashMap<>(declaredMethods.length, 1.0f);
+        for (var method : declaredMethods) {
+          // 添加回调工具类中存在的对应public方法
+          if ((method.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC) {
+            try {
+              var callbackClassDeclaredMethod =
+                  callbackClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
+              callbackClassDeclaredMethod.trySetAccessible();
+              context.callbackMethods.put(method.toString(), callbackClassDeclaredMethod);
+            } catch (Exception e) {
+              // 失败或不存在对应方法，打印日志继续
+              log.warn("DegradedContext init error!", e);
+            }
+          }
+        }
+      }
+      return context;
+    }
   }
 
-  @Override
-  public Object getOnThrow(JoinPoint point, Throwable e) throws Throwable {
-    if (!(e instanceof BusinessException)) {
-      doAcquire(point);
+  private Object doDegrade(DegradedContext context, Method method, Object[] args) throws Throwable {
+    var callbackMethod = context.callbackMethods.get(method.toString());
+    if (callbackMethod == null) {
+      throw DegradedServiceException.INSTANCE;
+    }
+    log.info(
+        "Degraded service '{}' invoke method '{}'.",
+        context.target.getClass().getCanonicalName(),
+        callbackMethod);
+    return callbackMethod.invoke(null, args);
+  }
+
+  private Object doThrow(Throwable e, DegradedContext context) throws Throwable {
+    if (!context.permit(e)) {
+      // 降级
+      context.degraded = true;
+      // 开始心跳检测
+      healthCheck(context.target.getClass());
     }
     throw e;
   }
 
-  private void doAcquire(JoinPoint point) throws Throwable {
-    var signature = (MethodSignature) point.getSignature();
-    var clazz = signature.getDeclaringType();
-    var context = map.get(clazz);
-    if (context == null) {
-      // 初始化
-      context = new DegradedContext();
-      if (map.putIfAbsent(clazz, context) != null) {
-        //  put失败
-        return;
-      }
-      // 回调类
-      var annotation = signature.getMethod().getAnnotation(DegradedService.class);
-      context.callbackClass =
-          annotation.callbackClass() == Object.class ? null : annotation.callbackClass();
-      // 心跳方法
-      context.health = clazz.getDeclaredMethod(annotation.health());
-      // 限流器
-      context.rateLimiter =
-          redissonClient.getRateLimiter("DSAR:" + signature.getDeclaringTypeName());
-      if (!context.rateLimiter.trySetRate(
-          this.config.rateType,
-          this.config.rate,
-          this.config.rateInterval,
-          this.config.rateIntervalUnit)) {
-        // 设置限流失败
-        map.remove(clazz);
-        context.rateLimiter.unlink();
-        return;
-      }
-    }
-    if (!context.rateLimiter.tryAcquire() && !context.degraded) {
-      // 失败次数达到阈值且未被降级，则设置状态降级，并定时执行心跳
-      context.degraded = true;
-      // todo... 心跳检测
-    }
+  private void healthCheck(Class<?> clazz) {
+    executor.execute(
+        () -> {
+          var context = map.get(clazz);
+          try {
+            context.health.invoke(context.target);
+            log.info(
+                "Degraded service '{}' health check succeed!",
+                context.target.getClass().getCanonicalName());
+            // 心跳正常，进行恢复
+            context.degraded = false;
+          } catch (Throwable e) {
+            log.warn(
+                "Degraded service '{}' health check throw!",
+                context.target.getClass().getCanonicalName(),
+                e);
+            // 心跳失败，继续检测
+            healthCheck(clazz);
+          }
+        });
   }
 
   public static class DegradedServiceException extends RuntimeException {
+
     public static final DegradedServiceException INSTANCE =
         new DegradedServiceException("Blocked by degraded service!");
 

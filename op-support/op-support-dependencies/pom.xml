@@ -23,6 +23,11 @@
       <artifactId>op-support-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!-- aspectj注解 -->
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+    </dependency>
     <!--guava-->
     <dependency>
       <groupId>com.google.guava</groupId>

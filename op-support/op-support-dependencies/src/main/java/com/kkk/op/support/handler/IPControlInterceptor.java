@@ -48,8 +48,8 @@ public class IPControlInterceptor implements HandlerInterceptor {
           EnumSet.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE));
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-      throws Exception {
+  public boolean preHandle(
+      HttpServletRequest request, HttpServletResponse response, Object handler) {
     // 判断限流开关是否打开
     if (!controlSwitch) {
       return true;
@@ -59,7 +59,7 @@ public class IPControlInterceptor implements HandlerInterceptor {
     if (!METHODS.contains(HttpMethod.valueOf(method))) {
       return true;
     }
-    log.debug("IP-Control cache size '{}'.", CACHE.estimatedSize());
+    log.info("IP-Control cache size '{}'.", CACHE.estimatedSize());
     var ip = getRealIp(request);
     // 判断是否流量超出
     if (CACHE.get(ip).tryAcquire()) {

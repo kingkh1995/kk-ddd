@@ -14,12 +14,12 @@ public class MockDistributedLock implements DistributedLock {
 
   @Override
   public boolean tryLock(String name, long waitTime, TimeUnit unit) {
-    log.debug("Lock '{}', mock always return true!", name);
+    log.info("Lock '{}', mock always return true!", name);
     return true;
   }
 
   @Override
   public void unlock(String name) {
-    log.debug("Unlock '{}', mock always do nothing!", name);
+    log.info("Unlock '{}', mock always do nothing!", name);
   }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.cache.MockCache;
 import com.kkk.op.support.distributed.MockDistributedLock;
@@ -91,5 +92,10 @@ public class BaseConfiguration implements WebMvcConfigurer {
   @Bean
   public Kson kson() {
     return new Kson(jsonMapper());
+  }
+
+  @Bean
+  public DegradedServiceAspect degradedServiceAspect() {
+    return new DegradedServiceAspect(3);
   }
 }
