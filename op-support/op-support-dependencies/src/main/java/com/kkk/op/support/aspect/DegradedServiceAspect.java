@@ -1,22 +1,25 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.DegradedService;
+import com.kkk.op.support.base.ApplicationContextAwareBean;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
@@ -29,24 +32,23 @@ import org.springframework.core.annotation.Order;
 @Slf4j
 @Order(Ordered.LOWEST_PRECEDENCE - 1) // 优先级高于@MockResource切面
 @Aspect
-public class DegradedServiceAspect extends AbstractMethodAspect {
+public class DegradedServiceAspect extends ApplicationContextAwareBean {
 
-  private final ConcurrentHashMap<Class<?>, DegradedContext> map;
-  private final Executor executor;
+  private IdentityHashMap<Class<?>, DegradedContext> map;
+  private Executor executor;
 
   public DegradedServiceAspect(int healthInterval) {
-    this.map = new ConcurrentHashMap<>();
     this.executor = CompletableFuture.delayedExecutor(healthInterval, TimeUnit.SECONDS);
   }
 
-  /** 降级服务上下文对象 */
   private static class DegradedContext {
 
     Object target;
-    Method health;
     Class<? extends Throwable>[] permittedThrowables;
+    Method health;
     Map<String, Method> callbackMethods = Collections.emptyMap();
-    volatile boolean degraded = false;
+    /** 降级标记，使用原子类型，volatile只能保证每次取到的值都是最新值 */
+    final AtomicBoolean degraded = new AtomicBoolean(false);
 
     boolean permit(Throwable e) {
       return Arrays.stream(permittedThrowables).anyMatch(c -> c.isInstance(e));
@@ -54,75 +56,41 @@ public class DegradedServiceAspect extends AbstractMethodAspect {
   }
 
   @Override
-  @Around("@within(com.kkk.op.support.annotation.DegradedService)")
-  protected void pointcut() {}
-
-  @Override
-  public boolean onBefore(JoinPoint point) {
-    // 被降级则禁止
-    return Optional.ofNullable(map.get(point.getSignature().getDeclaringType()))
-        .map(context -> !context.degraded)
-        .orElse(true);
-  }
-
-  @Override
-  public Object getOnForbid(JoinPoint point) {
-    // 执行降级操作
-    return doDegrade(
-        point.getSignature().getDeclaringType(),
-        ((MethodSignature) point.getSignature()).getMethod(),
-        point.getArgs());
-  }
-
-  @Override
-  public void onThrow(JoinPoint point, Throwable e) {
-    // 异常抛出前触发心跳检测
-    // 获取上下文对象或初始化
-    var clazz = point.getSignature().getDeclaringType();
-    var context = map.getOrDefault(clazz, init(point.getTarget()));
-    // 判断是否允许异常类型是否被允许
-    if (!context.permit(e)) {
-      // 降级
-      context.degraded = true;
-      // 心跳检测
-      healthCheck(clazz);
+  public void afterPropertiesSet() throws Exception {
+    if (map != null) {
+      return;
+    }
+    // 初始化时即解析并加载
+    var objects =
+        this.getApplicationContext().getBeansWithAnnotation(DegradedService.class).values();
+    map = new IdentityHashMap<>(objects.size());
+    for (Object obj : objects) {
+      // 被ioc管理的是spring代理对象，需要获取到被代理对象
+      if (AopUtils.isAopProxy(obj)) {
+        init(AopProxyUtils.getSingletonTarget(obj));
+      }
     }
   }
 
-  private Object doDegrade(Class<?> clazz, Method method, Object[] args) {
-    var context = map.get(clazz);
-    var callbackMethod = context.callbackMethods.get(method.toString());
-    // 存在回调方法则执行，否则抛出指定异常
-    if (callbackMethod == null) {
-      throw DegradedServiceException.INSTANCE;
-    }
-    log.info("Degraded service '{}' invoke method '{}'.", clazz.getCanonicalName(), callbackMethod);
-    try {
-      return callbackMethod.invoke(null, args);
-    } catch (Exception e) {
-      throw new DegradedServiceException(e);
-    }
-  }
-
-  private DegradedContext init(Object target) {
+  private void init(Object target) throws Exception {
     var clazz = target.getClass();
     var context = new DegradedContext();
     context.target = target;
-    // 解析
+    // 开始解析
     var degradedService = clazz.getDeclaredAnnotation(DegradedService.class);
-    try {
-      context.health = clazz.getDeclaredMethod(degradedService.health());
-    } catch (NoSuchMethodException e) {
-      throw new DegradedServiceException(e);
-    }
-    context.health.setAccessible(true); // must succeed or throw
     context.permittedThrowables = degradedService.permittedThrowables();
+    // 心跳方法
+    context.health = clazz.getDeclaredMethod(degradedService.health());
+    context.health.trySetAccessible();
+    // 执行一次心跳检测
+    context.health.invoke(target);
+    // 解析回调方法
     var callbackClass = degradedService.callbackClass();
     if (callbackClass != Object.class) {
       var declaredMethods = clazz.getDeclaredMethods();
       context.callbackMethods = new HashMap<>(declaredMethods.length, 1.0f);
       for (var method : declaredMethods) {
-        // 添加回调工具类中存在的对应public方法
+        // 针对public方法在回调工具类中查找对应的静态方法
         if ((method.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC) {
           try {
             var callbackClassDeclaredMethod =
@@ -130,29 +98,71 @@ public class DegradedServiceAspect extends AbstractMethodAspect {
             callbackClassDeclaredMethod.trySetAccessible();
             context.callbackMethods.put(method.toString(), callbackClassDeclaredMethod);
           } catch (Exception e) {
-            // 失败或不存在对应方法，打印日志继续
-            log.warn("DegradedContext init error!", e);
+            // 不存在对应方法或反射失败，打印日志后继续
+            log.warn("DegradedContext init callback method error!", e);
           }
         }
       }
     }
-    // put可能出现并发，如果其他线程已经put了，直接返回。
-    return Optional.ofNullable(map.putIfAbsent(clazz, context)).orElse(context);
+    map.put(clazz, context);
   }
 
-  private void healthCheck(Class<?> clazz) {
+  @Around("@within(com.kkk.op.support.annotation.DegradedService)")
+  public Object advice(ProceedingJoinPoint point) throws Throwable {
+    log.info("Method advice at '{}'.", point.getStaticPart());
+    // 获取上下文对象，暂时要求上下文对象必须存在
+    var context = map.get(point.getSignature().getDeclaringType());
+    if (context.degraded.get()) {
+      // 执行降级操作
+      return doDegrade(
+          context, ((MethodSignature) point.getSignature()).getMethod(), point.getArgs());
+    }
+    try {
+      return point.proceed();
+    } catch (Throwable e) {
+      // 抛出异常前，降级并触发心跳检测
+      doThrow(e, context);
+      throw e;
+    }
+  }
+
+  private Object doDegrade(DegradedContext context, Method method, Object[] args) throws Throwable {
+    var callbackMethod = context.callbackMethods.get(method.toString());
+    if (callbackMethod == null) {
+      throw DegradedServiceException.INSTANCE;
+    }
+    log.info(
+        "Degraded service '{}' invoke method '{}'.",
+        context.target.getClass().getCanonicalName(),
+        callbackMethod);
+    return callbackMethod.invoke(null, args);
+  }
+
+  private void doThrow(Throwable e, DegradedContext context) {
+    // 异常类型不被允许情况下 ，CAS设置降级标记，成功则触发心跳检测
+    if (!context.permit(e) && context.degraded.compareAndSet(false, true)) {
+      healthCheck(context);
+    }
+  }
+
+  private void healthCheck(DegradedContext context) {
+    // 延迟执行
     executor.execute(
         () -> {
-          var context = map.get(clazz);
           try {
             context.health.invoke(context.target);
-            log.info("Degraded service '{}' health check succeed!", clazz.getCanonicalName());
+            log.info(
+                "Degraded service '{}' health check succeed!",
+                context.target.getClass().getCanonicalName());
             // 心跳正常，进行恢复
-            context.degraded = false;
+            context.degraded.set(false);
           } catch (Throwable e) {
-            log.warn("Degraded service '{}' health check throw!", clazz.getCanonicalName(), e);
+            log.warn(
+                "Degraded service '{}' health check throw!",
+                context.target.getClass().getCanonicalName(),
+                e);
             // 心跳失败，继续检测
-            healthCheck(clazz);
+            healthCheck(context);
           }
         });
   }
@@ -164,10 +174,6 @@ public class DegradedServiceAspect extends AbstractMethodAspect {
 
     public DegradedServiceException(String message) {
       super(message);
-    }
-
-    public DegradedServiceException(Throwable cause) {
-      super(cause);
     }
   }
 }
