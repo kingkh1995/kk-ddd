@@ -19,7 +19,7 @@ public @interface DegradedService {
   /** 定时调用的心跳方法（同一个类中且无参数），心跳失败则降级，心跳正常则恢复。 */
   String health() default "health";
 
-  /** 允许抛出的异常类型 */
+  /** 允许的异常类型 */
   Class<? extends Throwable>[] permittedThrowables() default {BusinessException.class};
 
   /** 降级时，会调用指定静态类的同名方法，如果不存在则默认抛出异常。 */
