@@ -2,6 +2,7 @@ package com.kkk.op.support.cache;
 
 import com.kkk.op.support.marker.Cache;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -30,14 +31,19 @@ public class LocalCache implements Cache {
   }
 
   @Override
-  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> clazz) {
-    var storeValue = cache.getNativeCache().getIfPresent(key);
-    if (storeValue == null) {
+  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> type) {
+    var valueWrapper = cache.get(key);
+    if (valueWrapper == null) {
       return Optional.empty();
-    } else if (storeValue == org.springframework.cache.support.NullValue.INSTANCE) {
-      return Optional.of(NullValue.instance());
     }
-    return Optional.of(new SimpleValue<>((T) storeValue));
+    return Optional.ofNullable(valueWrapper.get())
+        .map(value -> SimpleValue.from((T) value))
+        .or(() -> Optional.of(NullValue.instance()));
+  }
+
+  @Override
+  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
+    return Optional.ofNullable(cache.get(key, loader));
   }
 
   @Override

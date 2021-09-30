@@ -23,6 +23,10 @@
       <artifactId>op-support-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+    </dependency>
     <!-- aspectj注解 -->
     <dependency>
       <groupId>org.aspectj</groupId>

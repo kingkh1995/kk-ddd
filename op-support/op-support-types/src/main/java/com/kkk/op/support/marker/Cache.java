@@ -1,6 +1,7 @@
 package com.kkk.op.support.marker;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
@@ -15,7 +16,9 @@ public interface Cache {
 
   String getName();
 
-  <T> Optional<ValueWrapper<T>> get(@NotBlank String key, @NotNull Class<T> clazz);
+  <T> Optional<ValueWrapper<T>> get(@NotBlank String key, @NotNull Class<T> type);
+
+  <T> Optional<T> get(@NotBlank String key, @NotNull Class<T> type, @NotNull Callable<T> loader);
 
   void put(@NotBlank String key, @NotNull Object obj);
 

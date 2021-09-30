@@ -4,6 +4,7 @@ import com.kkk.op.support.marker.Cache;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RTopic;
 import org.springframework.util.Assert;
@@ -51,32 +52,29 @@ public class TwoStageCache implements Cache {
   }
 
   @Override
-  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> clazz) {
+  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> type) {
     // 先在local中查找
-    var op = localCache.get(key, clazz);
+    var op = localCache.get(key, type);
     if (op.isPresent()) {
       return op;
     }
-    // 再到redis中查找，如果缓存命中，拉取到local，拉取允许失败
-    op = redisCache.get(key, clazz);
-    try {
-      op.ifPresent(wrapper -> localCache.put(key, wrapper.get()));
-    } catch (Exception e) {
-      log.warn("Pull cache from redis to local error!", e);
-    }
+    // 再到redis中查找，如果缓存命中，拉取到local
+    op = redisCache.get(key, type);
+    op.ifPresent(wrapper -> localCache.put(key, wrapper.get()));
     return op;
   }
 
   @Override
+  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
+    return localCache.get(key, type, () -> redisCache.get(key, type, loader).orElse(null));
+  }
+
+  @Override
   public void put(String key, Object obj) {
-    // 先put到redis，不允许失败
+    // 先put到redis
     redisCache.put(key, obj);
-    // 再put到local，允许失败
-    try {
-      localCache.put(key, obj);
-    } catch (Exception e) {
-      log.warn("Push to local error!", e);
-    }
+    // 再put到local
+    localCache.put(key, obj);
   }
 
   @Override

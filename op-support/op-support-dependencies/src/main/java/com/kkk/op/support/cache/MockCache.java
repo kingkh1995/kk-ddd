@@ -4,6 +4,7 @@ import com.kkk.op.support.annotation.DegradedService;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.AllArgsConstructor;
 import org.springframework.util.Assert;
@@ -26,7 +27,7 @@ public class MockCache implements Cache {
   }
 
   @Override
-  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> clazz) {
+  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> type) {
     if (ThreadLocalRandom.current().nextBoolean()) {
       if (ThreadLocalRandom.current().nextBoolean()) {
         throw new RuntimeException("未知异常！");
@@ -34,6 +35,11 @@ public class MockCache implements Cache {
         throw new BusinessException("业务异常！");
       }
     }
+    return Optional.empty();
+  }
+
+  @Override
+  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
     return Optional.empty();
   }
 

@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -122,18 +121,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public Optional<T> cacheGet(@NotNull ID id) {
-    var key = this.generateCacheKey(id);
-    var op = this.getCache().get(key, this.getTClass());
-    //  存在即获取，如果cacheNullValues可能是NullValue直接返回，否则则不可能是NullValue也是直接返回。
-    if (op.isPresent()) {
-      return op.map(ValueWrapper::get);
-    }
-    // 不存在则查询数据库，存在数据且非cacheNullValues才不缓存
-    var select = this.onSelect(id);
-    if (select.isPresent() || this.cacheNullValues()) {
-      this.getCache().put(key, select.orElse(null));
-    }
-    return select;
+    // 加载时会获取锁，防止了缓存穿透，但是会有线程阻塞，如果需要fail-fast要自行实现。
+    return this.getCache()
+        .get(this.generateCacheKey(id), this.getTClass(), () -> this.onSelect(id).orElse(null));
   }
 
   @Override
@@ -142,8 +132,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public void cacheRemove(@NotNull T t) {
-    this.getCache().evict(this.generateCacheKey(Objects.requireNonNull(t).getId()));
+  public void cacheRemove(@NotNull ID id) {
+    this.getCache().evict(this.generateCacheKey(id));
   }
 
   // ===============================================================================================
@@ -173,7 +163,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
                 () -> {
                   if (this.isAutoCaching()) {
                     // 开启了自动缓存则使用延迟双删清除缓存
-                    this.cacheDoubleRemove(entity, () -> consumer.accept(entity));
+                    this.cacheDoubleRemove(entity.getId(), () -> consumer.accept(entity));
                   } else {
                     consumer.accept(entity);
                   }
@@ -193,42 +183,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public List<T> list(@NotEmpty Set<ID> ids) {
-    if (!this.isAutoCaching()) {
-      return this.onSelectByIds(ids);
+    if (this.isAutoCaching()) {
+      // 有缓存情况，是否有必要批量加载？
+      return ids.stream()
+          .map(this::cacheGet)
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .collect(Collectors.toCollection(() -> new ArrayList<>(ids.size()))); // 指定初始容量避免扩容
     }
-    // 有缓存情况下
-    var list = new ArrayList<T>(ids.size()); // ArrayList初始容量指定为ids的大小
-    ids =
-        ids.stream()
-            .filter( // 先查询缓存，过滤掉缓存存在的id
-                (id) -> {
-                  var op = this.cacheGetIfPresent(id);
-                  op.map(ValueWrapper::get).ifPresent(list::add);
-                  return op.isEmpty();
-                })
-            .collect(Collectors.toSet());
-    // 批量查询数据库，并加载缓存。
-    if (!ids.isEmpty()) {
-      var selectList = this.onSelectByIds(ids);
-      // 如果cacheNullValues则对未查询到结果的缓存空值
-      if (this.cacheNullValues()) {
-        var map = selectList.stream().collect(Collectors.toMap(Entity::getId, Function.identity()));
-        ids.forEach(
-            id -> {
-              var entity = map.get(id);
-              if (entity != null) {
-                list.add(entity);
-              }
-              this.getCache().put(this.generateCacheKey(id), entity);
-            });
-      } else {
-        selectList.forEach(
-            (entity) -> {
-              list.add(entity);
-              this.cachePut(entity);
-            });
-      }
-    }
-    return list;
+    return this.onSelectByIds(ids);
   }
 }

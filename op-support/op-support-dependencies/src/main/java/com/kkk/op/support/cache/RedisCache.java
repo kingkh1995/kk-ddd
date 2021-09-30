@@ -3,6 +3,7 @@ package com.kkk.op.support.cache;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.marker.Cache;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,15 +33,20 @@ public class RedisCache implements Cache {
   }
 
   @Override
-  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> clazz) {
-    // redissonCache get return null if not exist
+  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> type) {
     var valueWrapper = redissonCache.get(key);
     if (valueWrapper == null) {
       return Optional.empty();
-    } else if (valueWrapper == org.redisson.spring.cache.NullValue.INSTANCE) {
-      return Optional.of(NullValue.instance());
     }
-    return Optional.of(new SimpleValue<>(kson.readJson((String) valueWrapper.get(), clazz)));
+    return Optional.ofNullable(valueWrapper.get())
+        .map(value -> SimpleValue.from(kson.readJson((String) value, type)))
+        .or(() -> Optional.of(NullValue.instance()));
+  }
+
+  @Override
+  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
+    return Optional.ofNullable(
+        kson.readJson(redissonCache.get(key, () -> kson.writeJson(loader.call())), type));
   }
 
   @Override

@@ -17,6 +17,9 @@ public final class Kson {
   private final JsonMapper jsonMapper;
 
   public String writeJson(Object value) {
+    if (value == null) {
+      return null;
+    }
     try {
       return this.jsonMapper.writeValueAsString(value);
     } catch (Exception e) {
@@ -25,6 +28,9 @@ public final class Kson {
   }
 
   public <T> T readJson(String content, Class<T> type) {
+    if (content == null) {
+      return null;
+    }
     try {
       return this.jsonMapper.readValue(content, type);
     } catch (Exception e) {
@@ -34,6 +40,9 @@ public final class Kson {
 
   // 带泛型情况下使用
   public <T> T readJson(String content, TypeReference<T> typeReference) {
+    if (content == null) {
+      return null;
+    }
     try {
       return this.jsonMapper.readValue(content, typeReference);
     } catch (Exception e) {
@@ -43,6 +52,9 @@ public final class Kson {
 
   // 类型未知或只需要部分解析情况下使用
   public JsonNode readJson(String content) {
+    if (content == null) {
+      return null;
+    }
     try {
       return this.jsonMapper.readTree(content);
     } catch (Exception e) {

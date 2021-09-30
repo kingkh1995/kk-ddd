@@ -5,15 +5,17 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.cache.MockCache;
+import com.kkk.op.support.cache.LocalCache;
 import com.kkk.op.support.distributed.MockDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
 import com.kkk.op.support.handler.LocalRequestInterceptor;
 import com.kkk.op.support.handler.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
+import java.util.concurrent.TimeUnit;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
@@ -55,10 +57,13 @@ public class BaseConfiguration implements WebMvcConfigurer {
     return new MockDistributedLock();
   }
 
-  // 配置CacheManager // fixme... 暂时Mock住
+  // 配置CacheManager
   @Bean
   public Cache cacheManager() {
-    return new MockCache("MockCache");
+    return LocalCache.builder()
+        .name("LocalCache")
+        .caffeineCache(Caffeine.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build())
+        .build();
   }
 
   // 配置jakarta-validator-bean，校验快速失败
