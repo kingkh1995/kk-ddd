@@ -55,17 +55,10 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     this.getAggregateTrackingManager().detach(aggregate);
   }
 
-  /** EntityRepository 的保存方法实现 */
+  /** EntityRepository 的保存方法实现重写 */
   @Override
-  public void save(@NotNull T aggregate) {
-    // insert操作
-    if (!aggregate.isIdentified()) {
-      this.onInsert(aggregate);
-      // 添加跟踪
-      this.attach(aggregate);
-      return;
-    }
-    // update操作
+  protected void update(@NotNull T aggregate) {
+    // 完全重写父类更新方法
     // 变更对比
     var diff = this.getAggregateTrackingManager().detectChanges(aggregate);
     // 无变更直接返回
@@ -73,10 +66,16 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
       // TBD 特殊提示 http status
       return;
     }
-    super.tryRun(aggregate, (t) -> this.onUpdate(t, diff));
+    super.tryLockThenConsume(aggregate, (t) -> this.onUpdate(t, diff));
     // 合并跟踪变更
     this.getAggregateTrackingManager().merge(aggregate);
-    return;
+  }
+
+  @Override
+  protected void insert(@NotNull T aggregate) {
+    super.insert(aggregate);
+    // 添加跟踪
+    this.attach(aggregate);
   }
 
   /**

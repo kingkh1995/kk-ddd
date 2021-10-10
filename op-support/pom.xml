@@ -24,7 +24,7 @@
   </modules>
 
   <dependencies>
-    <!--基础依赖-->
+    <!-- 基础依赖 -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter</artifactId>
@@ -45,23 +45,18 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
+      <scope>provided</scope> <!-- 只作用在编译和测试时，没有传递性 -->
+      <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
     </dependency>
-    <!-- validation注解 -->
+    <!--validation注解-->
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
-    <!-- jackson注解 -->
+    <!--jackson-->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <!--slf4j注解-->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
     </dependency>
   </dependencies>
 

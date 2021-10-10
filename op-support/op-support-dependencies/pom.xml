@@ -27,7 +27,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
     </dependency>
-    <!-- aspectj注解 -->
+    <!--aspectj注解-->
     <dependency>
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
@@ -37,7 +37,7 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>
-    <!--caffeine：local cache-->
+    <!--caffeine:local cache-->
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>org.redisson</groupId>
       <artifactId>redisson-spring-boot-starter</artifactId>
-      <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
+      <optional>true</optional>
     </dependency>
   </dependencies>
 

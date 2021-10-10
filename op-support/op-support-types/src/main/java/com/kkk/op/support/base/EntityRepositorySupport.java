@@ -81,7 +81,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   // todo... 如何更优雅的实现
   public String generateLockName(@NotNull ID id) {
-    return this.getLockNamePrefix() + id.identifier();
+    return this.getLockNamePrefix() + Objects.requireNonNull(id).identifier();
   }
 
   // ===============================================================================================
@@ -141,21 +141,33 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Override
   public void save(@NotNull T entity) {
     if (entity.isIdentified()) {
-      // update操作需要获取分布式锁
-      this.tryRun(entity, this::onUpdate);
+      this.update(entity);
     } else {
-      // insert操作不需要获取分布式锁
-      this.onInsert(entity);
+      this.insert(entity);
+    }
+  }
+
+  protected void update(@NotNull T entity) {
+    // update操作需要获取分布式锁
+    this.tryLockThenConsume(entity, this::onUpdate);
+  }
+
+  protected void insert(@NotNull T entity) {
+    // insert操作不需要获取分布式锁
+    this.onInsert(entity);
+    if (this.isAutoCaching()) {
+      // 因为缓存了空值，需要更新缓存
+      this.cachePut(entity);
     }
   }
 
   @Override
   public void remove(@NotNull T entity) {
-    this.tryRun(entity, this::onDelete);
+    this.tryLockThenConsume(entity, this::onDelete);
   }
 
   // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换
-  protected void tryRun(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
+  protected void tryLockThenConsume(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
     var finished =
         this.getDistributedLock()
             .tryRun(
