@@ -57,7 +57,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
 
   /** EntityRepository 的保存方法实现重写 */
   @Override
-  protected void update(@NotNull T aggregate) {
+  protected void update0(@NotNull T aggregate) {
     // 完全重写父类更新方法
     // 变更对比
     var diff = this.getAggregateTrackingManager().detectChanges(aggregate);
@@ -72,8 +72,8 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   }
 
   @Override
-  protected void insert(@NotNull T aggregate) {
-    super.insert(aggregate);
+  protected void insert0(@NotNull T aggregate) {
+    super.insert0(aggregate);
     // 添加跟踪
     this.attach(aggregate);
   }

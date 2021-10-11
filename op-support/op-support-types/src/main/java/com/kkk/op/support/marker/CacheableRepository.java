@@ -26,10 +26,11 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   void cacheRemove(@NotNull ID id);
 
-  // todo... 缓存双删 通过EventBus发送消息?
+  void cacheDelayRemove(@NotNull ID id);
+
   default void cacheDoubleRemove(@NotNull ID id, Runnable runnable) {
     this.cacheRemove(id);
     runnable.run();
-    // 延迟删除
+    this.cacheDelayRemove(id);
   }
 }

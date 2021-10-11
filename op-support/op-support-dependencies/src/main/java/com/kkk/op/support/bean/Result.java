@@ -1,5 +1,7 @@
 package com.kkk.op.support.bean;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,8 +25,9 @@ public class Result<T> implements Serializable {
 
   private T data;
 
-  /** 额外信息：url，traceId，timestamp等 */
-  private Map<String, Object> adds;
+  /** 额外字段：url，traceId，timestamp等 */
+  @JsonAnyGetter // 其他额外字段序列化为属性
+  private Map<String, Object> attrs;
 
   private Result(int code, String message) {
     this.code = code;
@@ -36,11 +39,12 @@ public class Result<T> implements Serializable {
     this.data = data;
   }
 
+  @JsonAnySetter // 反序列化时未知属性全部添加到attrs中
   public void append(String key, Object value) {
-    if (this.adds == null) {
-      this.adds = new LinkedHashMap<>();
+    if (this.attrs == null) {
+      this.attrs = new LinkedHashMap<>();
     }
-    this.adds.put(key, value);
+    this.attrs.put(key, value);
   }
 
   public static <T> Result<T> succeed() {

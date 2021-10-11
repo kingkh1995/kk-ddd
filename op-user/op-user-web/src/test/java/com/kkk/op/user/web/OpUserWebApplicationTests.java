@@ -19,6 +19,7 @@ import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.math.BigDecimal;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
@@ -114,12 +115,37 @@ class OpUserWebApplicationTests {
 
   @Test
   void testTTL() throws InterruptedException {
+    var executor = Executors.newSingleThreadExecutor();
+    var ttlExecutor = TtlExecutors.getTtlExecutor(executor);
+    // 先提交一个任务，让线程池启动，创建好线程。
+    executor.execute(() -> {});
+    var countDownLatch = new CountDownLatch(4);
+    var itl = new InheritableThreadLocal<>();
     var ttl = new TransmittableThreadLocal<>();
     final var o = new Object();
+    itl.set(o);
     ttl.set(o);
-    var ttlExecutor = TtlExecutors.getTtlExecutor(Executors.newCachedThreadPool());
-    ttlExecutor.execute(() -> System.out.println(o == ttl.get()));
-    Thread.sleep(1000L);
+    executor.execute(
+        () -> {
+          System.out.println(o == itl.get()); // false
+          countDownLatch.countDown();
+        });
+    ttlExecutor.execute(
+        () -> {
+          System.out.println(o == itl.get()); // false
+          countDownLatch.countDown();
+        });
+    executor.execute(
+        () -> {
+          System.out.println(o == ttl.get()); // false
+          countDownLatch.countDown();
+        });
+    ttlExecutor.execute(
+        () -> {
+          System.out.println(o == ttl.get()); // truel
+          countDownLatch.countDown();
+        });
+    countDownLatch.await();
   }
 
   private static void forRun(int time, IntConsumer consumer) {

@@ -7,9 +7,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -147,17 +146,24 @@ public class RedisDistributedLock implements DistributedLock {
     }
   }
 
-  /** watchdog机制 自动延长锁时间 */
-
-  // fixme... 线程池定义
-  private static final ScheduledExecutorService WATCH_DOG =
-      Executors.newSingleThreadScheduledExecutor(
+  /**
+   * watchdog机制 自动延长锁时间 <br>
+   * 参考CompletableFuture.Delayer.delayer
+   */
+  private static final ScheduledThreadPoolExecutor WATCH_DOG =
+      new ScheduledThreadPoolExecutor(
+          1,
           r -> {
+            var t = new Thread(r);
             // 设置为守护线程
-            var t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
+            t.setName("RedisDistributedLockDoggy");
             return t;
           });
+
+  static {
+    WATCH_DOG.setRemoveOnCancelPolicy(true);
+  }
 
   private static final RedisScript<Long> WATCH_DOG_SCRIPT =
       new DefaultRedisScript<>(

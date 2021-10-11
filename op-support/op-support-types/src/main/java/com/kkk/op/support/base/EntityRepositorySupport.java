@@ -136,28 +136,35 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.getCache().evict(this.generateCacheKey(id));
   }
 
+  @Override
+  public void cacheDelayRemove(ID id) {
+    // todo...
+    // ScheduledFuture<?> delay(Runnable command, long delay, TimeUnit unit);
+    this.cacheRemove(id);
+  }
+
   // ===============================================================================================
 
   @Override
   public void save(@NotNull T entity) {
     if (entity.isIdentified()) {
-      this.update(entity);
+      this.update0(entity);
     } else {
-      this.insert(entity);
+      this.insert0(entity);
     }
   }
 
-  protected void update(@NotNull T entity) {
+  protected void update0(@NotNull T entity) {
     // update操作需要获取分布式锁
     this.tryLockThenConsume(entity, this::onUpdate);
   }
 
-  protected void insert(@NotNull T entity) {
+  protected void insert0(@NotNull T entity) {
     // insert操作不需要获取分布式锁
     this.onInsert(entity);
     if (this.isAutoCaching()) {
-      // 因为缓存了空值，需要更新缓存
-      this.cachePut(entity);
+      // 因为缓存了空值，需要延迟双删。
+      this.cacheDoubleRemove(entity.getId(), () -> {});
     }
   }
 
