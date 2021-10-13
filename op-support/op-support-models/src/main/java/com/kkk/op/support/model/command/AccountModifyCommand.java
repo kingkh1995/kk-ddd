@@ -1,5 +1,7 @@
 package com.kkk.op.support.model.command;
 
+import com.kkk.op.support.model.groups.Create;
+import com.kkk.op.support.model.groups.Update;
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
@@ -15,16 +17,14 @@ import lombok.experimental.Accessors;
 @Data
 public class AccountModifyCommand implements Serializable {
 
-  @Null(message = "id必须为空！", groups = CreateGroup.class)
+  @Null(message = "id必须为空！", groups = Create.class)
   private Long id;
 
   private Long userId;
 
-  @NotBlank(message = "test0不能为空！", groups = UpdateGroup.class)
+  @NotBlank(message = "test0不能为空！", groups = Update.class)
   private String test0;
 
-  @NotBlank(
-      message = "test1不能为空！",
-      groups = {CreateGroup.class, UpdateGroup.class})
+  @NotBlank(message = "test1不能为空！") // 默认校验分组，Create、Update均会生效
   private String test1;
 }

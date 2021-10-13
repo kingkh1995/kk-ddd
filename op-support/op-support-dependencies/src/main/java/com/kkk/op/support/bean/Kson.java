@@ -2,6 +2,7 @@ package com.kkk.op.support.bean;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +16,10 @@ import lombok.RequiredArgsConstructor;
 public final class Kson {
 
   private final JsonMapper jsonMapper;
+
+  public ObjectMapper getMapper() {
+    return jsonMapper.copy();
+  }
 
   public String writeJson(Object value) {
     if (value == null) {
@@ -39,12 +44,12 @@ public final class Kson {
   }
 
   // 带泛型情况下使用
-  public <T> T readJson(String content, TypeReference<T> typeReference) {
+  public <T> T readJson(String content, TypeReference<T> typeRef) {
     if (content == null) {
       return null;
     }
     try {
-      return this.jsonMapper.readValue(content, typeReference);
+      return this.jsonMapper.readValue(content, typeRef);
     } catch (Exception e) {
       throw new KsonException(e);
     }
@@ -60,6 +65,22 @@ public final class Kson {
     } catch (Exception e) {
       throw new KsonException(e);
     }
+  }
+
+  // 对象深拷贝
+  public <T> T convertValue(Object source, Class<T> targetType) {
+    if (source == null) {
+      return null;
+    }
+    return this.jsonMapper.convertValue(source, targetType);
+  }
+
+  // 对象深拷贝 带泛型情况下使用
+  public <T> T convertValue(Object source, TypeReference<T> targetTypeRef) {
+    if (source == null) {
+      return null;
+    }
+    return this.jsonMapper.convertValue(source, targetTypeRef);
   }
 
   public static class KsonException extends RuntimeException {

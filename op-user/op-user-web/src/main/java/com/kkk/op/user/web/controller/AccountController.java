@@ -2,9 +2,9 @@ package com.kkk.op.user.web.controller;
 
 import com.kkk.op.support.annotation.BaseController;
 import com.kkk.op.support.model.command.AccountModifyCommand;
-import com.kkk.op.support.model.command.CreateGroup;
-import com.kkk.op.support.model.command.UpdateGroup;
 import com.kkk.op.support.model.dto.AccountDTO;
+import com.kkk.op.support.model.groups.Create;
+import com.kkk.op.support.model.groups.Update;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
 import javax.validation.constraints.Min;
@@ -40,7 +40,7 @@ public class AccountController {
   @ResponseStatus(HttpStatus.CREATED) // 201
   public long create(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
-      @RequestBody @Validated(CreateGroup.class) AccountModifyCommand createCommand) {
+      @RequestBody @Validated(Create.class) AccountModifyCommand createCommand) {
     createCommand.setUserId(userId);
     return service.createAccount(createCommand);
   }
@@ -51,7 +51,7 @@ public class AccountController {
   public boolean update(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
       @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId,
-      @RequestBody @Validated(UpdateGroup.class) AccountModifyCommand updateCommand) {
+      @RequestBody @Validated(Update.class) AccountModifyCommand updateCommand) {
     updateCommand.setId(accountId).setUserId(userId);
     service.updateAccount(updateCommand);
     return true;

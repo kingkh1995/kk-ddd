@@ -69,7 +69,8 @@ public class BaseConfiguration implements WebMvcConfigurer {
   // 配置jakarta-validator-bean，校验快速失败
   @Bean
   public Validator validator() {
-    // todo... debug时不快速失败 通过配置或开关控制
+    // 指定HibernateValidator，并设置快速失败参数
+    // Validation.buildDefaultValidatorFactory().getValidator(); 配置默认Validator
     return Validation.byProvider(HibernateValidator.class)
         .configure()
         .failFast(false)

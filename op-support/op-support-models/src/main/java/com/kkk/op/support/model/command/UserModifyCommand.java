@@ -3,8 +3,8 @@ package com.kkk.op.support.model.command;
 import java.io.Serializable;
 import java.util.List;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.experimental.Delegate;
 
 /**
  * todo... 待完善
@@ -14,6 +14,6 @@ import lombok.experimental.Delegate;
 @Data
 public class UserModifyCommand implements Serializable {
 
-  @Valid @Delegate // 声明注解校验集合内对象
-  private List<AccountModifyCommand> accountModifyCommandList;
+  // 声明注解校验集合内对象
+  private List<@NotNull @Valid AccountModifyCommand> accountModifyCommandList;
 }

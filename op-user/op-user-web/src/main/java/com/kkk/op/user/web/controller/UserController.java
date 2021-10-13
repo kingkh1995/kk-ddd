@@ -1,9 +1,9 @@
 package com.kkk.op.user.web.controller;
 
 import com.kkk.op.support.annotation.BaseController;
-import com.kkk.op.support.model.command.CreateGroup;
-import com.kkk.op.support.model.command.UpdateGroup;
 import com.kkk.op.support.model.command.UserModifyCommand;
+import com.kkk.op.support.model.groups.Create;
+import com.kkk.op.support.model.groups.Update;
 import com.kkk.op.user.domain.service.UserService;
 import javax.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +32,7 @@ public class UserController {
 
   @PostMapping("/user")
   @ResponseStatus(HttpStatus.CREATED) // 201
-  public long createUser(
-      @RequestBody @Validated(CreateGroup.class) UserModifyCommand createCommand) {
+  public long createUser(@RequestBody @Validated(Create.class) UserModifyCommand createCommand) {
     // todo... 实现
     return 0;
   }
@@ -42,7 +41,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public long updateUser(
       @PathVariable @Min(value = 1, message = "userId必须大于0！") String userId,
-      @RequestBody @Validated(UpdateGroup.class) UserModifyCommand updateCommand) {
+      @RequestBody @Validated(Update.class) UserModifyCommand updateCommand) {
     // todo... 实现
     return 0;
   }

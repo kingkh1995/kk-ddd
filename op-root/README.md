@@ -7,7 +7,7 @@
 #### 组件依赖
 
 - java: 17
-- spring-boot: 2.5.4
+- spring-boot: 2.5.5
 - spring-cloud-alibaba: 2021.1
 - guava: 31.0-jre
 - caffeine: 3.0.4

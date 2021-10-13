@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
+import javax.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +44,8 @@ class OpUserWebApplicationTests {
   @Autowired private AccountRepository accountRepository;
 
   @Autowired private Cache cache;
+
+  @Autowired private Validator validator;
 
   @Test
   void testCache() {
