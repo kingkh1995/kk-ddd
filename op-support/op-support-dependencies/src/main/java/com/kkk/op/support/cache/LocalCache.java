@@ -52,6 +52,11 @@ public class LocalCache implements Cache {
   }
 
   @Override
+  public boolean putIfAbsent(String key, Object obj) {
+    return cache.putIfAbsent(key, obj) == null;
+  }
+
+  @Override
   public void evict(String key) {
     cache.evict(key);
   }

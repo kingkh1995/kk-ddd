@@ -39,19 +39,27 @@ public class RedisCache implements Cache {
       return Optional.empty();
     }
     return Optional.ofNullable(valueWrapper.get())
-        .map(value -> SimpleValue.from(kson.readJson((String) value, type)))
+        .map(value -> kson.readJson((String) value, type))
+        .map(SimpleValue::from)
         .or(() -> Optional.of(NullValue.instance()));
   }
 
   @Override
   public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
     return Optional.ofNullable(
-        kson.readJson(redissonCache.get(key, () -> kson.writeJson(loader.call())), type));
+            redissonCache.get(
+                key, () -> Optional.ofNullable(loader.call()).map(kson::writeJson).orElse(null)))
+        .map(s -> kson.readJson(s, type));
   }
 
   @Override
   public void put(String key, Object obj) {
     redissonCache.put(key, kson.writeJson(obj));
+  }
+
+  @Override
+  public boolean putIfAbsent(String key, Object obj) {
+    return redissonCache.putIfAbsent(key, obj) == null;
   }
 
   @Override

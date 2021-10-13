@@ -110,29 +110,34 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public String generateCacheKey(@NotNull ID id) {
+  public String generateCacheKey(ID id) {
     return this.getCacheKeyPrefix() + Objects.requireNonNull(id).identifier();
   }
 
   @Override
-  public Optional<ValueWrapper<T>> cacheGetIfPresent(@NotNull ID id) {
+  public Optional<ValueWrapper<T>> cacheGetIfPresent(ID id) {
     return this.getCache().get(this.generateCacheKey(id), this.getTClass());
   }
 
   @Override
-  public Optional<T> cacheGet(@NotNull ID id) {
+  public Optional<T> cacheGet(ID id) {
     // 加载时会获取锁，防止了缓存穿透，但是会有线程阻塞，如果需要fail-fast要自行实现。
     return this.getCache()
         .get(this.generateCacheKey(id), this.getTClass(), () -> this.onSelect(id).orElse(null));
   }
 
   @Override
-  public void cachePut(@NotNull T t) {
+  public void cachePut(T t) {
     this.getCache().put(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
   }
 
   @Override
-  public void cacheRemove(@NotNull ID id) {
+  public boolean cachePutIfAbsent(T t) {
+    return this.getCache().putIfAbsent(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
+  }
+
+  @Override
+  public void cacheRemove(ID id) {
     this.getCache().evict(this.generateCacheKey(id));
   }
 

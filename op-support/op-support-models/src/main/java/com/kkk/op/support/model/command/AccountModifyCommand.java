@@ -3,7 +3,9 @@ package com.kkk.op.support.model.command;
 import com.kkk.op.support.model.groups.Create;
 import com.kkk.op.support.model.groups.Update;
 import java.io.Serializable;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -18,8 +20,11 @@ import lombok.experimental.Accessors;
 public class AccountModifyCommand implements Serializable {
 
   @Null(message = "id必须为空！", groups = Create.class)
+  @Null(message = "id不能为空！", groups = Update.class)
   private Long id;
 
+  @NotNull
+  @Min(value = 1, message = "userId需要大于${value - 1}！") // 使用${}表达式
   private Long userId;
 
   @NotBlank(message = "test0不能为空！", groups = Update.class)

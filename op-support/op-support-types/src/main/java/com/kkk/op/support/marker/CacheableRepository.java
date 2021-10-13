@@ -24,6 +24,8 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   void cachePut(@NotNull T t);
 
+  boolean cachePutIfAbsent(@NotNull T t);
+
   void cacheRemove(@NotNull ID id);
 
   void cacheDelayRemove(@NotNull ID id);

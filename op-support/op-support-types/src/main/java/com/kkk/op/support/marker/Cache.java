@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import org.springframework.lang.Nullable;
 
 /**
- * todo... 服务降级、设计优化
+ * 缓存接口
  *
  * @see org.springframework.cache.Cache
  * @author KaiKoo
@@ -21,6 +21,8 @@ public interface Cache {
   <T> Optional<T> get(@NotBlank String key, @NotNull Class<T> type, @NotNull Callable<T> loader);
 
   void put(@NotBlank String key, @NotNull Object obj);
+
+  boolean putIfAbsent(@NotBlank String key, @Nullable Object obj);
 
   void evict(@NotBlank String key);
 

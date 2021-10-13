@@ -51,11 +51,13 @@ class OpUserWebApplicationTests {
   void testCache() {
     System.out.println(cache.getName());
     System.out.println(cache.get("Test", Account.class));
+    System.out.println(cache.get("Test0", Account.class, () -> null));
+    System.out.println(cache.get("Test0", Account.class));
     System.out.println(
         cache
             .get("Test", Account.class, () -> accountRepository.find(AccountId.from(1L)).get())
             .orElse(null));
-    System.out.println(cache.get("Test", Account.class).map(ValueWrapper::get).orElse(null));
+    System.out.println(cache.get("Test", Account.class).map(ValueWrapper::get));
   }
 
   @Test

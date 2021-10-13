@@ -38,10 +38,8 @@ public class QueryServiceAspect extends AbstractMethodAspect {
     if (accessCondition == null) {
       return;
     }
-    // 存在accessCondition则校验
-    var checkPass = this.checker.analyzeThenCheck(result, accessCondition);
     // 禁止访问则抛出异常
-    if (!checkPass) {
+    if (!this.checker.analyzeThenCheck(result, accessCondition)) {
       throw AccessConditionForbiddenException.INSTANCE;
     }
   }

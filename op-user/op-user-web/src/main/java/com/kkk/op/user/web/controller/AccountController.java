@@ -7,7 +7,7 @@ import com.kkk.op.support.model.groups.Create;
 import com.kkk.op.support.model.groups.Update;
 import com.kkk.op.user.application.service.AccountApplicationService;
 import java.util.List;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,29 +28,30 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * @author KaiKoo
  */
 @Slf4j
+@Validated
 @RequiredArgsConstructor
 @BaseController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/user")
 public class AccountController {
 
   private final AccountApplicationService service;
 
   /** POST 新增资源 */
-  @PostMapping("/user/{userId}/account")
+  @PostMapping("/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
   public long create(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
+      @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
       @RequestBody @Validated(Create.class) AccountModifyCommand createCommand) {
     createCommand.setUserId(userId);
     return service.createAccount(createCommand);
   }
 
   /** PUT 全量更新资源 */
-  @PutMapping("/user/{userId}/account/{accountId}")
+  @PutMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean update(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId,
+      @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
+      @PathVariable @Positive(message = "accountId必须为正整数！") Long accountId,
       @RequestBody @Validated(Update.class) AccountModifyCommand updateCommand) {
     updateCommand.setId(accountId).setUserId(userId);
     service.updateAccount(updateCommand);
@@ -58,26 +59,26 @@ public class AccountController {
   }
 
   /** Delete 删除资源 */
-  @DeleteMapping("/user/{userId}/account/{accountId}")
+  @DeleteMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean delete(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId) {
+      @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
+      @PathVariable @Positive(message = "accountId必须为正整数！") Long accountId) {
     service.deleteAccount(userId, accountId);
     return true;
   }
 
   /** GET 获取资源 */
-  @GetMapping("/user/{userId}/account/{accountId}")
+  @GetMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.OK) // 200
   public AccountDTO queryById(
-      @PathVariable @Min(value = 1, message = "userId必须大于0！") Long userId,
-      @PathVariable @Min(value = 1, message = "accountId必须大于0！") Long accountId) {
+      @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
+      @PathVariable @Positive(message = "accountId必须为正整数！") Long accountId) {
     return service.queryAccount(userId, accountId);
   }
 
   /** 查询用户下的所有账号 */
-  @GetMapping("/user/{userId}/accounts")
+  @GetMapping("/{userId}/accounts")
   public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
     return service.queryAccounts(userId);
   }

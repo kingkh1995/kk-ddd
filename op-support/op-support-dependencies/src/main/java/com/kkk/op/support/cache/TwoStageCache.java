@@ -60,7 +60,7 @@ public class TwoStageCache implements Cache {
     }
     // 再到redis中查找，如果缓存命中，拉取到local
     op = redisCache.get(key, type);
-    op.ifPresent(wrapper -> localCache.put(key, wrapper.get()));
+    op.ifPresent(wrapper -> localCache.putIfAbsent(key, wrapper.get()));
     return op;
   }
 
@@ -75,6 +75,17 @@ public class TwoStageCache implements Cache {
     redisCache.put(key, obj);
     // 再put到local
     localCache.put(key, obj);
+  }
+
+  @Override
+  public boolean putIfAbsent(String key, Object obj) {
+    // 先put到redis，put成功强制put到local
+    if (redisCache.putIfAbsent(key, obj)) {
+      localCache.put(key, obj);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override

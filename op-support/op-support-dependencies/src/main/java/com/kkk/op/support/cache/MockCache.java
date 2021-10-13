@@ -47,6 +47,11 @@ public class MockCache implements Cache {
   public void put(String key, Object obj) {}
 
   @Override
+  public boolean putIfAbsent(String key, Object obj) {
+    return false;
+  }
+
+  @Override
   public void evict(String key) {}
 
   @Override

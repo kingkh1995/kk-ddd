@@ -34,7 +34,7 @@ import org.springframework.core.annotation.Order;
 @Aspect
 public class DegradedServiceAspect extends ApplicationContextAwareBean {
 
-  private IdentityHashMap<Class<?>, DegradedContext> map;
+  private Map<Class<?>, DegradedContext> map;
   private Executor executor;
 
   public DegradedServiceAspect(int healthInterval) {
@@ -64,7 +64,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareBean {
     var objects =
         this.getApplicationContext().getBeansWithAnnotation(DegradedService.class).values();
     map = new IdentityHashMap<>(objects.size());
-    for (Object obj : objects) {
+    for (var obj : objects) {
       // 被ioc管理的是spring代理对象，需要获取到被代理对象
       if (AopUtils.isAopProxy(obj)) {
         init(AopProxyUtils.getSingletonTarget(obj));
