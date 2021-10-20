@@ -3,11 +3,11 @@ package com.kkk.op.user.assembler;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DTOAssembler;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
+import com.kkk.op.user.domain.types.UserId;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -28,8 +28,8 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
       return null;
     }
     var dto = new AccountDTO();
-    Optional.ofNullable(account.getId()).map(AccountId::longValue).ifPresent(dto::setId);
-    Optional.ofNullable(account.getUserId()).map(LongId::longValue).ifPresent(dto::setUserId);
+    Optional.ofNullable(account.getId()).map(AccountId::getValue).ifPresent(dto::setId);
+    Optional.ofNullable(account.getUserId()).map(UserId::getValue).ifPresent(dto::setUserId);
     Optional.ofNullable(account.getState())
         .map(AccountState::getValue)
         .map(AccountStateEnum::name)
@@ -37,7 +37,7 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
     Optional.ofNullable(account.getCreateTime())
         .map(StampedTime::toInstant)
         .map(Instant::toEpochMilli)
-        .ifPresent(dto::setCreateTime);
+        .ifPresent(dto::setCreateTimestamp);
     return dto;
   }
 
@@ -48,7 +48,7 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
     }
     var builder = Account.builder();
     Optional.ofNullable(accountDTO.getId()).map(AccountId::from).ifPresent(builder::id);
-    Optional.ofNullable(accountDTO.getUserId()).map(LongId::from).ifPresent(builder::userId);
+    Optional.ofNullable(accountDTO.getUserId()).map(UserId::from).ifPresent(builder::userId);
     Optional.ofNullable(accountDTO.getState())
         .filter(Predicate.not(String::isBlank))
         .map(AccountStateEnum::valueOf)

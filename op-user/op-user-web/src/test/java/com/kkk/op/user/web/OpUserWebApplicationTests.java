@@ -8,17 +8,21 @@ import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
+import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.support.types.TenThousandYuan;
+import com.kkk.op.user.assembler.AccountAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
+import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
@@ -43,6 +47,8 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountRepository accountRepository;
 
+  @Autowired private AccountAssembler accountAssembler;
+
   @Autowired private Cache cache;
 
   @Autowired private Validator validator;
@@ -58,6 +64,18 @@ class OpUserWebApplicationTests {
             .get("Test", Account.class, () -> accountRepository.find(AccountId.from(1L)).get())
             .orElse(null));
     System.out.println(cache.get("Test", Account.class).map(ValueWrapper::get));
+  }
+
+  @Test
+  void testMapstruct() {
+    var account = accountRepository.find(AccountId.from(1L)).get();
+    var accountDTO = accountAssembler.toDTO(account);
+    System.out.println(accountDTO);
+    System.out.println(accountAssembler.fromDTO(accountDTO));
+    System.out.println(accountAssembler.fromDTO(List.of(accountDTO)));
+    var target = new AccountDTO();
+    accountAssembler.buildDTO(UserId.from(100L), account, target);
+    System.out.println(target);
   }
 
   @Test

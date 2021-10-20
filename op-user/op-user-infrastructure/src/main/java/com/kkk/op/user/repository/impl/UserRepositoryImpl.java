@@ -8,12 +8,12 @@ import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.types.AccountId;
+import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
@@ -33,7 +33,7 @@ import org.springframework.util.CollectionUtils;
  */
 @AutoCaching // 开启自动缓存功能
 @Repository
-public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
+public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     implements UserRepository {
 
   private final UserDataConverter userDataConverter = UserDataConverter.INSTANCE;
@@ -53,7 +53,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     super(
         distributedLock,
             cache,
-        ThreadLocalAggregateTrackingManager.<User, LongId>builder()
+        ThreadLocalAggregateTrackingManager.<User, UserId>builder()
             .snapshooter(Snapshooter.identity()) // todo... snapshooter
             .build());
     this.userMapper = userMapper;
@@ -68,7 +68,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
     var userDO = userDataConverter.toData(aggregate);
     userMapper.insert(userDO);
     // 填补id
-    aggregate.fillInId(LongId.from(userDO.getId()));
+    aggregate.fillInId(UserId.from(userDO.getId()));
     // 循环插入Accounts
     var accounts = aggregate.getAccounts();
     if (!CollectionUtils.isEmpty(accounts)) {
@@ -97,19 +97,17 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
               var oldValue = (Account) accountDiff.getOldValue();
               var newValue = (Account) accountDiff.getNewValue();
               switch (accountDiff.getChangeType()) {
+                // 新增情况
                 case Added -> {
-                  // 新增情况
                   var accountDO = accountDataConverter.toData(newValue);
                   accountMapper.insert(accountDO);
                   // 填补id
                   newValue.fillInId(AccountId.from(accountDO.getId()));
                 }
-                case Removed -> {
-                  // 移除情况
-                  accountMapper.deleteById(oldValue.getId().getValue());
-                }
+                // 移除情况
+                case Removed -> accountMapper.deleteById(oldValue.getId().getValue());
+                // 更新情况
                 case Modified -> {
-                  // 更新情况
                   if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
                     throw new BusinessException("Update failed by OCC!");
                   }
@@ -128,9 +126,9 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   }
 
   @Override
-  protected Optional<User> onSelect(@NotNull LongId longId) {
+  protected Optional<User> onSelect(@NotNull UserId userId) {
     // 查询User
-    var l = longId.getValue();
+    var l = userId.getValue();
     var op = userMapper.selectById(l).map(userDataConverter::fromData);
     // 查询Accounts
     op.ifPresent(
@@ -140,7 +138,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, LongId>
   }
 
   @Override
-  protected List<User> onSelectByIds(@NotEmpty Set<LongId> longIds) {
+  protected List<User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
     // todo...
     return null;
   }

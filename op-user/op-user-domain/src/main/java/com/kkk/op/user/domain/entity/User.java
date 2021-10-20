@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.types.LongId;
+import com.kkk.op.user.domain.types.UserId;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,10 +20,10 @@ import lombok.Setter;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @Builder
-public class User extends Aggregate<LongId> {
+public class User extends Aggregate<UserId> {
 
   @Setter(AccessLevel.PROTECTED)
-  private LongId id;
+  private UserId id;
 
   private String name;
 

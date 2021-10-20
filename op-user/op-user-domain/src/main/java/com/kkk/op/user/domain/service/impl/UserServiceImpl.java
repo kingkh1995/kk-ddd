@@ -1,8 +1,8 @@
 package com.kkk.op.user.domain.service.impl;
 
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
+import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -34,12 +34,12 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Optional<User> find(@NotNull LongId longId) {
-    return userRepository.find(longId);
+  public Optional<User> find(@NotNull UserId userId) {
+    return userRepository.find(userId);
   }
 
   @Override
-  public List<User> list(@NotEmpty Set<LongId> longIds) {
-    return userRepository.list(longIds);
+  public List<User> list(@NotEmpty Set<UserId> userIds) {
+    return userRepository.list(userIds);
   }
 }

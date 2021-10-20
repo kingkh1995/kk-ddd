@@ -6,11 +6,11 @@ import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
+import com.kkk.op.user.domain.types.UserId;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -31,7 +31,7 @@ public class Account extends Entity<AccountId> {
   @Setter(AccessLevel.PROTECTED)
   private AccountId id;
 
-  private LongId userId;
+  private UserId userId;
 
   private AccountState state;
 

@@ -2,12 +2,12 @@ package com.kkk.op.user.application.service.impl;
 
 import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.types.LongId;
 import com.kkk.op.user.application.service.AccountApplicationService;
-import com.kkk.op.user.assembler.AccountDTOAssembler;
+import com.kkk.op.user.assembler.AccountAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
+import com.kkk.op.user.domain.types.UserId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountApplicationServiceImpl implements AccountApplicationService {
 
-  private final AccountDTOAssembler accountDTOAssembler = AccountDTOAssembler.INSTANCE;
+  private final AccountAssembler accountAssembler;
 
   private final AccountService accountService;
 
@@ -29,8 +29,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
   public long createAccount(AccountModifyCommand createCommand) {
     // 转换对象
     var account =
-        Account.builder().userId(LongId.valueOf(createCommand.getUserId(), "userId"))
-                .build();
+        Account.builder().userId(UserId.valueOf(createCommand.getUserId(), "userId")).build();
     // 行为发生
     account.save(accountService);
     // todo... 触发事件
@@ -45,7 +44,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     var account =
         Account.builder()
             .id(AccountId.valueOf(updateCommand.getId(), "id"))
-            .userId(LongId.valueOf(updateCommand.getUserId(), "userId"))
+            .userId(UserId.valueOf(updateCommand.getUserId(), "userId"))
             .build();
     // 行为发生
     account.save(accountService);
@@ -60,7 +59,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     var account =
         Account.builder()
             .id(AccountId.valueOf(accountId, "id"))
-            .userId(LongId.valueOf(userId, "userId"))
+            .userId(UserId.valueOf(userId, "userId"))
             .build();
     // 行为发生
 
@@ -75,7 +74,7 @@ public class AccountApplicationServiceImpl implements AccountApplicationService 
     // todo...
     return accountService
         .find(AccountId.valueOf(accountId, "id"))
-        .map(accountDTOAssembler::toDTO)
+        .map(accountAssembler::toDTO)
         .get();
   }
 

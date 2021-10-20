@@ -24,5 +24,5 @@ public class AccountDTO implements Serializable {
   private String state;
 
   /** 日期类默认转换为毫秒时间戳 */
-  private Long createTime;
+  private Long createTimestamp;
 }
