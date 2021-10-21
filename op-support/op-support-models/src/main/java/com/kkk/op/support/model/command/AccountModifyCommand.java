@@ -15,8 +15,8 @@ import lombok.experimental.Accessors;
  *
  * @author KaiKoo
  */
-@Accessors(chain = true)
 @Data
+@Accessors(chain = true)
 public class AccountModifyCommand implements Serializable {
 
   @Null(message = "id必须为空！", groups = Create.class)

@@ -28,7 +28,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
@@ -40,7 +39,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @author KaiKoo
  */
 @Slf4j
-@RestControllerAdvice(annotations = {RestController.class, RestControllerAdvice.class}) // 指定拦截范围
+@RestControllerAdvice(basePackages = "com.kkk.op") // 实际是拦截@ResponseBody，故会拦截@ExceptionHandler方法
 public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
   // ===============================================================================================

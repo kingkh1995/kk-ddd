@@ -24,7 +24,7 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <artifactId>spring-tx</artifactId>
+      <artifactId>spring-jdbc</artifactId>
       <groupId>org.springframework</groupId>
     </dependency>
     <dependency>

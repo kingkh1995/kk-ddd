@@ -165,7 +165,7 @@ class OpUserWebApplicationTests {
         });
     ttlExecutor.execute(
         () -> {
-          System.out.println(o == ttl.get()); // truel
+          System.out.println(o == ttl.get()); // true
           countDownLatch.countDown();
         });
     countDownLatch.await();

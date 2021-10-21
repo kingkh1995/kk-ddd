@@ -1,5 +1,6 @@
 package com.kkk.op.user.assembler;
 
+import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.types.AccountId;
@@ -43,8 +44,9 @@ public class UserCommonMapper {
     return AccountId.from(l);
   }
 
-  public String mapFromAccountState(AccountState accountState) {
-    return accountState.getValue().name();
+  // 可以直接映射为枚举，会自动调用name()方法转为字符串
+  public AccountStateEnum mapFromAccountState(AccountState accountState) {
+    return accountState.getValue();
   }
 
   public AccountState map2AccountState(String s) {

@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.groups.ConvertGroup;
 import javax.validation.groups.Default;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * todo... 待完善
@@ -15,6 +16,7 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
+@Accessors(chain = true)
 public class UserModifyCommand implements Serializable {
 
   // 声明注解校验集合内对象
