@@ -3,8 +3,6 @@ package com.kkk.op.support.distributed;
 import com.kkk.op.support.marker.DistributedLock;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +32,10 @@ public class RedissonDistributedLock implements DistributedLock {
   }
 
   @Override
-  public boolean tryLock(@NotBlank String name, long waitTime, @NotNull TimeUnit unit) {
+  public boolean tryLock(String name, long waitSeconds) {
     var locked = false;
     try {
-      return this.client
-          .getLock(name)
-          .tryLock(unit.toMillis(waitTime), this.expireMills, TimeUnit.MILLISECONDS);
+      return this.client.getLock(name).tryLock(waitSeconds, this.expireMills, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error(String.format("线程【%s】睡眠被中断！", Thread.currentThread().getName()), e);
     }
@@ -47,7 +43,7 @@ public class RedissonDistributedLock implements DistributedLock {
   }
 
   @Override
-  public void unlock(@NotBlank String name) {
+  public void unlock(String name) {
     this.client.getLock(name).unlock();
   }
 }

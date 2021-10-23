@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.tool.SleepHelper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +11,6 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +73,7 @@ public class RedisDistributedLock implements DistributedLock {
 
   /** 获取锁，失败则自旋重试 */
   @Override
-  public boolean tryLock(@NotBlank String name, long waitTime, @NotNull TimeUnit unit) {
+  public boolean tryLock(String name, long waitSeconds) {
     // 可重入锁，判断该线程是否获取到了锁
     var op = this.getLocker(name);
     // 已获取到锁则次数加一
@@ -84,20 +83,11 @@ public class RedisDistributedLock implements DistributedLock {
     }
     // 尝试获取锁
     var locker = new Locker();
-    var locked = this.lock(name, locker.requestId);
-    // 获取失败则sleep一段时间再次获取，直到总休眠时间超过waitTime
-    var waitMills = unit.toMillis(waitTime);
-    for (var i = 0; !locked && waitMills > 0; i++) {
-      try {
-        var interval = DistributedLock.generateSleepMills(i, this.sleepInterval);
-        Thread.sleep(interval);
-        waitMills -= interval;
-      } catch (InterruptedException e) {
-        log.warn("Interrupted when sleeping after try lock failed!", e);
-      }
-      // 睡眠完再次获取锁
-      locked = this.lock(name, locker.requestId);
-    }
+    var locked =
+        SleepHelper.tryGetThenSleep(
+            () -> this.lock(name, locker.requestId),
+            TimeUnit.SECONDS.toMillis(waitSeconds),
+            this.sleepInterval);
     if (locked) {
       // 获取到锁 则保存锁信息
       LOCKER_HOLDER.get().put(name, locker);
@@ -118,7 +108,7 @@ public class RedisDistributedLock implements DistributedLock {
           "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end",
           Long.class);
 
-  public void unlock(@NotBlank String name) {
+  public void unlock(String name) {
     var op = this.getLocker(name);
     if (op.isEmpty()) {
       return;

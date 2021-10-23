@@ -8,6 +8,7 @@ import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
+import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -23,16 +24,20 @@ import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import javax.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+@Slf4j
 @SpringBootTest
 @ActiveProfiles("dev")
 class OpUserWebApplicationTests {
@@ -52,6 +57,8 @@ class OpUserWebApplicationTests {
   @Autowired private Cache cache;
 
   @Autowired private Validator validator;
+
+  @Autowired private DistributedLock distributedLock;
 
   @Test
   void testCache() {
@@ -172,11 +179,30 @@ class OpUserWebApplicationTests {
   }
 
   private static void forRun(int time, IntConsumer consumer) {
+    var cyclicBarrier = new CyclicBarrier(time);
+    var countDownLatch = new CountDownLatch(time);
     IntStream.range(0, time)
         .forEach(
             i -> {
-              System.out.println("Round =>=>=> " + i);
-              consumer.accept(i);
+              new Thread(
+                      () -> {
+                        try {
+                          cyclicBarrier.await();
+                        } catch (InterruptedException e) {
+                          e.printStackTrace();
+                        } catch (BrokenBarrierException e) {
+                          e.printStackTrace();
+                        }
+                        log.info("Round <{}>", i);
+                        consumer.accept(i);
+                        countDownLatch.countDown();
+                      })
+                  .start();
             });
+    try {
+      countDownLatch.await();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }

@@ -35,7 +35,7 @@ import org.springframework.core.annotation.Order;
 public class DegradedServiceAspect extends ApplicationContextAwareBean {
 
   private Map<Class<?>, DegradedContext> map;
-  private Executor executor;
+  private final Executor executor;
 
   public DegradedServiceAspect(int healthInterval) {
     this.executor = CompletableFuture.delayedExecutor(healthInterval, TimeUnit.SECONDS);

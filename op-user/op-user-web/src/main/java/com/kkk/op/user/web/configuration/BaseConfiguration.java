@@ -9,13 +9,14 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.cache.LocalCache;
-import com.kkk.op.support.distributed.MockDistributedLock;
+import com.kkk.op.support.distributed.JdbcDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
 import com.kkk.op.support.handler.LocalRequestInterceptor;
 import com.kkk.op.support.handler.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
 import java.util.concurrent.TimeUnit;
+import javax.sql.DataSource;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
@@ -51,10 +52,17 @@ public class BaseConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 
-  // 配置分布式可重入锁bean // fixme... 暂时Mock住
+  // 配置分布式可重入锁bean
   @Bean
-  public DistributedLock distributedLock() {
-    return new MockDistributedLock();
+  public DistributedLock distributedLock(DataSource dataSource) {
+    // todo... 待测试，需要Mysql8.0
+    return JdbcDistributedLock.builder()
+        .dataSource(dataSource)
+        .select4UpdateNowaitSql(
+            "SELECT lock_name FROM distributed_lock WHERE lock_name = ? FOR UPDATE NOWAIT")
+        .insertSql("INSERT INTO distributed_lock (lock_name) VALUES (?)")
+        .sleepInterval(200)
+        .build();
   }
 
   // 配置CacheManager

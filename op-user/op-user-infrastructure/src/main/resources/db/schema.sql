@@ -8,7 +8,7 @@ CREATE TABLE account
     version     BIGINT(20) UNSIGNED NOT NULL DEFAULT 0 COMMENT '版本号',
     create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS user;
 
@@ -24,4 +24,12 @@ CREATE TABLE user
     version  INT(11) UNSIGNED NOT NULL DEFAULT 1 COMMENT '乐观锁版本号',
     deleted  TINYINT(1) NOT NULL DEFAULT 0 COMMENT '逻辑删除标识符',
     PRIMARY KEY (id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS distributed_lock;
+
+CREATE TABLE distributed_lock
+(
+    lock_name VARCHAR(500) NOT NULL COMMENT '主键及锁名',
+    PRIMARY KEY (lock_name)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
