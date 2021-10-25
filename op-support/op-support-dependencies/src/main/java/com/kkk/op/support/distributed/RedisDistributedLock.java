@@ -185,7 +185,7 @@ public class RedisDistributedLock implements DistributedLock {
                 log.warn("Dog watching execute error!", e);
               }
             },
-            expireMills * 9 / 10,
+            expireMills * 2 / 3,
             TimeUnit.MILLISECONDS);
   }
 }

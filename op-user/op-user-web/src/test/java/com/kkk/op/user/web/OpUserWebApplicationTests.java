@@ -5,6 +5,7 @@ import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
@@ -42,8 +43,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 class OpUserWebApplicationTests {
 
-  public static void main(String[] args) {}
-
   @Autowired private Kson kson;
 
   @Autowired private UserMapper userMapper;
@@ -59,6 +58,8 @@ class OpUserWebApplicationTests {
   @Autowired private Validator validator;
 
   @Autowired private DistributedLock distributedLock;
+
+  @Autowired private WheelTimer wheelTimer;
 
   @Test
   void testCache() {

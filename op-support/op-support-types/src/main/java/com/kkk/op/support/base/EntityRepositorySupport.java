@@ -141,13 +141,6 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.getCache().evict(this.generateCacheKey(id));
   }
 
-  @Override
-  public void cacheDelayRemove(ID id) {
-    // todo...
-    // ScheduledFuture<?> delay(Runnable command, long delay, TimeUnit unit);
-    this.cacheRemove(id);
-  }
-
   // ===============================================================================================
 
   @Override

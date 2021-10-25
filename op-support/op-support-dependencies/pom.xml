@@ -50,6 +50,11 @@
       <artifactId>caffeine</artifactId>
       <!--      <optional>true</optional>-->
     </dependency>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-common</artifactId>
+      <!--      <optional>true</optional>-->
+    </dependency>
     <!--redisson-->  <!--不传递该依赖，因为功能是可选的-->
     <dependency>
       <groupId>org.redisson</groupId>

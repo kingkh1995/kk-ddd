@@ -60,6 +60,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     this.accountMapper = accountMapper;
   }
 
+  @Override
+  public void cacheDelayRemove(UserId userId) {
+    // todo...
+    this.cacheRemove(userId);
+  }
+
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
   @Transactional
   @Override

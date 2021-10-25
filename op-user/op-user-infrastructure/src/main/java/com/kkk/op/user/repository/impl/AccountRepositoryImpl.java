@@ -1,6 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.EntityRepositorySupport;
+import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.user.converter.AccountDataConverter;
@@ -11,6 +12,7 @@ import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -29,10 +31,21 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   private final AccountMapper accountMapper;
 
+  private final WheelTimer wheelTimer;
+
   public AccountRepositoryImpl(
-      final DistributedLock distributedLock, final AccountMapper accountMapper) {
+      final DistributedLock distributedLock,
+      final AccountMapper accountMapper,
+      final WheelTimer wheelTimer) {
     super(distributedLock, null); // 不开启AutoCaching则不需要CacheManager
     this.accountMapper = accountMapper;
+    this.wheelTimer = wheelTimer;
+  }
+
+  @Override
+  public void cacheDelayRemove(AccountId accountId) {
+    // 使用时间轮算法，延迟两秒删除缓存
+    wheelTimer.delay(() -> cacheRemove(accountId), 2, TimeUnit.SECONDS);
   }
 
   @Override

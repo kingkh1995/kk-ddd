@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.cache.LocalCache;
 import com.kkk.op.support.distributed.JdbcDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
@@ -54,7 +55,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
 
   // 配置分布式可重入锁bean
   @Bean
-  public DistributedLock distributedLock(DataSource dataSource) {
+  public DistributedLock jdbcDistributedLock(DataSource dataSource) {
     // todo... 待测试，需要Mysql8.0
     return JdbcDistributedLock.builder()
         .dataSource(dataSource)
@@ -111,5 +112,10 @@ public class BaseConfiguration implements WebMvcConfigurer {
   @Bean
   public DegradedServiceAspect degradedServiceAspect() {
     return new DegradedServiceAspect(3);
+  }
+
+  @Bean
+  public WheelTimer wheelTimer() {
+    return new WheelTimer(50, TimeUnit.MILLISECONDS);
   }
 }
