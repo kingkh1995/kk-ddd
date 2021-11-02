@@ -11,6 +11,7 @@ import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.cache.LocalCache;
 import com.kkk.op.support.distributed.JdbcDistributedLock;
+import com.kkk.op.support.distributed.RedisDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
 import com.kkk.op.support.handler.LocalRequestInterceptor;
 import com.kkk.op.support.handler.ThreadLocalRemoveInterceptor;
@@ -21,9 +22,11 @@ import javax.sql.DataSource;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -53,10 +56,9 @@ public class BaseConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 
-  // 配置分布式可重入锁bean
   @Bean
+  @Qualifier("jdbcDistributedLock")
   public DistributedLock jdbcDistributedLock(DataSource dataSource) {
-    // todo... 待测试，需要Mysql8.0
     return JdbcDistributedLock.builder()
         .dataSource(dataSource)
         .select4UpdateNowaitSql(
@@ -64,6 +66,12 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .insertSql("INSERT INTO distributed_lock (lock_name) VALUES (?)")
         .sleepInterval(200)
         .build();
+  }
+
+  // 配置分布式可重入锁bean
+  @Bean
+  public DistributedLock distributedLock(StringRedisTemplate redisTemplate) {
+    return RedisDistributedLock.builder().redisTemplate(redisTemplate).build();
   }
 
   // 配置CacheManager

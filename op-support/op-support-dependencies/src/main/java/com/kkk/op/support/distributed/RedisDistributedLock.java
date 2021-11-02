@@ -39,7 +39,7 @@ public class RedisDistributedLock implements DistributedLock {
       ThreadLocal.withInitial(HashMap::new);
 
   // 供builder使用
-  private RedisDistributedLock(
+  public RedisDistributedLock(
       long sleepInterval, long expireMills, StringRedisTemplate redisTemplate) {
     if (expireMills <= 0) {
       throw new IllegalArgumentException(
@@ -68,6 +68,7 @@ public class RedisDistributedLock implements DistributedLock {
         this.redisTemplate
             .opsForValue()
             .setIfAbsent(name, requestId, this.expireMills, TimeUnit.MILLISECONDS);
+    log.info("Try lock '{}' using '{}', return '{}'.", name, requestId, result);
     return result != null && result;
   }
 
@@ -123,8 +124,9 @@ public class RedisDistributedLock implements DistributedLock {
       var result =
           this.redisTemplate.execute(
               UNLOCK_SCRIPT, Collections.singletonList(name), locker.requestId);
+      log.info("Unlock '{}', execute return '{}'.", name, result);
       if (result == null || result < 1) {
-        log.warn("Unlock '{}' execute return '{}'.", name, result);
+        log.warn("Unlock '{}' failed.", name);
       }
     } catch (Exception e) {
       log.warn("Unlock error!", e);
@@ -156,14 +158,24 @@ public class RedisDistributedLock implements DistributedLock {
   }
 
   private static final RedisScript<Long> WATCH_DOG_SCRIPT =
-      new DefaultRedisScript<>(
-          "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2]) else return 0 end",
-          Long.class);
+          new DefaultRedisScript<>("""
+                  if redis.call('GET', KEYS[1]) == ARGV[1]
+                  then
+                    if redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2])
+                    then
+                      return 1
+                    else
+                      return 0
+                    end
+                  else
+                    return 0
+                  end
+                  """, Long.class);
 
   // locker需要通过参数传递过来，无法通过ThreadLocal取出。也不使用TTL了，减少性能消耗。
   private void watching(String name, Locker locker) {
     // 保存或更新future，在释放锁的时候可以中断任务
-    // 延迟 expireMills * 9 / 10 时间执行脚本
+    // 延迟 2/3 expireMills 执行脚本
     locker.future =
         WATCH_DOG.schedule(
             () -> {
@@ -174,12 +186,11 @@ public class RedisDistributedLock implements DistributedLock {
                         WATCH_DOG_SCRIPT,
                         Collections.singletonList(name),
                         locker.requestId,
-                        this.expireMills);
+                        String.valueOf(this.expireMills)); // 使用StringRedisTemplate要求参数必须为String类型
                 // 如果延长成功，继续watch
+                log.warn("Dog watching '{}' execute return '{}'.", name, result);
                 if (result != null && result > 0) {
                   watching(name, locker);
-                } else {
-                  log.warn("Dog watching '{}' execute return '{}'.", name, result);
                 }
               } catch (Exception e) {
                 log.warn("Dog watching execute error!", e);

@@ -22,7 +22,7 @@ public class RedissonDistributedLock implements DistributedLock {
   private final RedissonClient client;
 
   // 供builder使用
-  private RedissonDistributedLock(long expireMills, RedissonClient client) {
+  public RedissonDistributedLock(long expireMills, RedissonClient client) {
     if (expireMills <= 0) {
       throw new IllegalArgumentException(
           "RedissonDistributedLock expireMills should be greater than 0!");

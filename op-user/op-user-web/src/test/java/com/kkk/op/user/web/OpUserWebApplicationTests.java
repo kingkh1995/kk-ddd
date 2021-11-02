@@ -62,6 +62,25 @@ class OpUserWebApplicationTests {
   @Autowired private WheelTimer wheelTimer;
 
   @Test
+  void testLock() {
+    var name = "LOCK:Test";
+    var tryLock = distributedLock.tryLock(name);
+    System.out.println(tryLock);
+    var tryRun =
+        distributedLock.tryRun(
+            name,
+            () -> {
+              try {
+                Thread.sleep(10000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            });
+    System.out.println(tryRun);
+    distributedLock.unlock(name);
+  }
+
+  @Test
   void testCache() {
     System.out.println(cache.getName());
     System.out.println(cache.get("Test", Account.class));
