@@ -7,9 +7,9 @@ import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.enums.AccountStateEnum;
-import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @SpringBootTest
@@ -53,7 +54,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountAssembler accountAssembler;
 
-  @Autowired private Cache cache;
+  @Autowired private EntityCache cache;
 
   @Autowired private Validator validator;
 
@@ -62,7 +63,9 @@ class OpUserWebApplicationTests {
   @Autowired private WheelTimer wheelTimer;
 
   @Test
+  @Transactional
   void testLock() {
+    System.out.println(distributedLock.getClass().getCanonicalName());
     var name = "LOCK:Test";
     var tryLock = distributedLock.tryLock(name);
     System.out.println(tryLock);
@@ -83,14 +86,18 @@ class OpUserWebApplicationTests {
   @Test
   void testCache() {
     System.out.println(cache.getName());
-    System.out.println(cache.get("Test", Account.class));
-    System.out.println(cache.get("Test0", Account.class, () -> null));
-    System.out.println(cache.get("Test0", Account.class));
+    var key = "TestKey";
+    System.out.println(cache.get(key, Account.class));
+    System.out.println(cache.putIfAbsent(key, null));
+    cache.evict(key);
+    System.out.println(cache.get(key, Account.class));
+    System.out.println(cache.putIfAbsent(key, null));
+    cache.put(key, null);
+    System.out.println(cache.get(key, Account.class));
+    cache.evict(key);
     System.out.println(
-        cache
-            .get("Test", Account.class, () -> accountRepository.find(AccountId.from(1L)).get())
-            .orElse(null));
-    System.out.println(cache.get("Test", Account.class).map(ValueWrapper::get));
+        cache.get(key, () -> accountRepository.find(AccountId.from(1L)).get()).orElse(null));
+    System.out.println(cache.get(key, Account.class).map(ValueWrapper::get));
   }
 
   @Test

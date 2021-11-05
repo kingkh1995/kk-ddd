@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.annotation.Propagation;
@@ -22,10 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.MANDATORY) // 设置要求必须存在事务
 public class JdbcDistributedLock implements DistributedLock {
 
-  private final long sleepInterval;
+  @Default private final long sleepInterval = 200L;
+
   private final DataSource dataSource;
-  private final String select4UpdateNowaitSql;
-  private final String insertSql;
+
+  @Default
+  private final String select4UpdateNowaitSql =
+      "SELECT lock_name FROM distributed_lock WHERE lock_name = ? FOR UPDATE NOWAIT";
+
+  @Default private final String insertSql = "INSERT INTO distributed_lock (lock_name) VALUES (?)";
 
   @Override
   public boolean tryRun(String name, Runnable runnable) {

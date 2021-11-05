@@ -38,4 +38,13 @@ public final class SleepHelper {
       }
     }
   }
+
+  public static void delay(Runnable runnable, long sleepMills) {
+    try {
+      Thread.sleep(sleepMills);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    runnable.run();
+  }
 }

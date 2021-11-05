@@ -1,10 +1,8 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.marker.Cache;
-import java.util.Optional;
-import java.util.concurrent.Callable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,53 +15,12 @@ import org.springframework.util.Assert;
  * @author KaiKoo
  */
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class LocalCache implements Cache {
+public class LocalCache extends SpringCacheWrapper {
 
-  private final CaffeineCache cache;
+  @Getter private final CaffeineCache cache;
 
   public static LocalCacheBuilder builder() {
     return new LocalCacheBuilder();
-  }
-
-  @Override
-  public String getName() {
-    return cache.getName();
-  }
-
-  @Override
-  public <T> Optional<ValueWrapper<T>> get(String key, Class<T> type) {
-    var valueWrapper = cache.get(key);
-    if (valueWrapper == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(valueWrapper.get())
-        .map(value -> SimpleValue.from((T) value))
-        .or(() -> Optional.of(NullValue.instance()));
-  }
-
-  @Override
-  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
-    return Optional.ofNullable(cache.get(key, loader));
-  }
-
-  @Override
-  public void put(String key, Object obj) {
-    cache.put(key, obj);
-  }
-
-  @Override
-  public boolean putIfAbsent(String key, Object obj) {
-    return cache.putIfAbsent(key, obj) == null;
-  }
-
-  @Override
-  public void evict(String key) {
-    cache.evict(key);
-  }
-
-  @Override
-  public void clear() {
-    cache.clear();
   }
 
   @Setter

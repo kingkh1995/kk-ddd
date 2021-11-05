@@ -1,6 +1,6 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.EntityCache;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  * @author KaiKoo
  */
 @Slf4j
-public class TwoStageCache implements Cache {
+public class TwoStageCache implements EntityCache {
 
   private final String name;
   private final LocalCache localCache;
@@ -65,8 +65,8 @@ public class TwoStageCache implements Cache {
   }
 
   @Override
-  public <T> Optional<T> get(String key, Class<T> type, Callable<T> loader) {
-    return localCache.get(key, type, () -> redisCache.get(key, type, loader).orElse(null));
+  public <T> Optional<T> get(String key, Callable<T> loader) {
+    return localCache.get(key, () -> redisCache.get(key, loader).orElse(null));
   }
 
   @Override

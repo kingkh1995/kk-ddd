@@ -1,7 +1,7 @@
 package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
-import com.kkk.op.support.marker.Cache.ValueWrapper;
+import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import java.util.Optional;
 import javax.validation.constraints.NotNull;
 
@@ -14,7 +14,7 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   boolean isAutoCaching();
 
-  Cache getCache();
+  EntityCache getCache();
 
   String generateCacheKey(@NotNull ID id);
 

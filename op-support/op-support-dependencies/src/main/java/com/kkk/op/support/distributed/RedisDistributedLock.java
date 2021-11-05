@@ -159,10 +159,8 @@ public class RedisDistributedLock implements DistributedLock {
 
   private static final RedisScript<Long> WATCH_DOG_SCRIPT =
           new DefaultRedisScript<>("""
-                  if redis.call('GET', KEYS[1]) == ARGV[1]
-                  then
-                    if redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2])
-                    then
+                  if redis.call('GET', KEYS[1]) == ARGV[1] then
+                    if redis.call('SET', KEYS[1], ARGV[1], 'XX', 'PX', ARGV[2]) then
                       return 1
                     else
                       return 0
@@ -188,7 +186,7 @@ public class RedisDistributedLock implements DistributedLock {
                         locker.requestId,
                         String.valueOf(this.expireMills)); // 使用StringRedisTemplate要求参数必须为String类型
                 // 如果延长成功，继续watch
-                log.warn("Dog watching '{}' execute return '{}'.", name, result);
+                log.info("Dog watching '{}' execute return '{}'.", name, result);
                 if (result != null && result > 0) {
                   watching(name, locker);
                 }

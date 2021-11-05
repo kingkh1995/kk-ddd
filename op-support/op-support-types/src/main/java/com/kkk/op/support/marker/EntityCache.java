@@ -12,13 +12,13 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.cache.Cache
  * @author KaiKoo
  */
-public interface Cache {
+public interface EntityCache {
 
   String getName();
 
   <T> Optional<ValueWrapper<T>> get(@NotBlank String key, @NotNull Class<T> type);
 
-  <T> Optional<T> get(@NotBlank String key, @NotNull Class<T> type, @NotNull Callable<T> loader);
+  <T> Optional<T> get(@NotBlank String key, @NotNull Callable<T> loader);
 
   void put(@NotBlank String key, @NotNull Object obj);
 

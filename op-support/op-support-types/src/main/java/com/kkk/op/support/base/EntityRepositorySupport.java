@@ -2,10 +2,10 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import java.lang.reflect.ParameterizedType;
@@ -46,7 +46,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Getter(AccessLevel.PROTECTED)
   private final String lockNamePrefix;
 
-  @Nullable private final Cache cache;
+  @Nullable private final EntityCache cache;
 
   @Getter private final boolean autoCaching;
 
@@ -70,7 +70,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.lockNamePrefix = "LOCK:" + this.cacheKeyPrefix;
   }
 
-  public EntityRepositorySupport(@NotNull DistributedLock distributedLock, @Nullable Cache cache) {
+  public EntityRepositorySupport(
+      @NotNull DistributedLock distributedLock, @Nullable EntityCache cache) {
     this.distributedLock = Objects.requireNonNull(distributedLock);
     // 开启自动缓存时才需要CacheManager
     if (this.isAutoCaching()) {
@@ -105,7 +106,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   /** 以下是Cache相关方法 */
   @Override
-  public Cache getCache() {
+  public EntityCache getCache() {
     return Objects.requireNonNull(this.cache);
   }
 
@@ -122,8 +123,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Override
   public Optional<T> cacheGet(ID id) {
     // 加载时会获取锁，防止了缓存穿透，但是会有线程阻塞，如果需要fail-fast要自行实现。
-    return this.getCache()
-        .get(this.generateCacheKey(id), this.getTClass(), () -> this.onSelect(id).orElse(null));
+    return this.getCache().get(this.generateCacheKey(id), () -> this.onSelect(id).orElse(null));
   }
 
   @Override

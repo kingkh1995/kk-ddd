@@ -6,8 +6,9 @@ import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.tool.SleepHelper;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -46,7 +47,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
 
   public UserRepositoryImpl(
       final DistributedLock distributedLock,
-      final Cache cache,
+      final EntityCache cache,
       final UserMapper userMapper,
       final AccountMapper accountMapper) {
     // 使用ThreadLocalAggregateTrackingManager
@@ -63,7 +64,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   @Override
   public void cacheDelayRemove(UserId userId) {
     // todo...
-    this.cacheRemove(userId);
+    SleepHelper.delay(() -> this.cacheRemove(userId),2000L);
   }
 
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */

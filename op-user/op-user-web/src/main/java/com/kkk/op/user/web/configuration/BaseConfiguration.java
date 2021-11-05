@@ -5,24 +5,22 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
-import com.kkk.op.support.cache.LocalCache;
-import com.kkk.op.support.distributed.JdbcDistributedLock;
+import com.kkk.op.support.cache.RedisCache;
 import com.kkk.op.support.distributed.RedisDistributedLock;
 import com.kkk.op.support.handler.IPControlInterceptor;
 import com.kkk.op.support.handler.LocalRequestInterceptor;
 import com.kkk.op.support.handler.ThreadLocalRemoveInterceptor;
-import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.EntityCache;
 import java.util.concurrent.TimeUnit;
-import javax.sql.DataSource;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.redisson.api.RedissonClient;
+import org.redisson.spring.cache.CacheConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,18 +54,6 @@ public class BaseConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 
-  @Bean
-  @Qualifier("jdbcDistributedLock")
-  public DistributedLock jdbcDistributedLock(DataSource dataSource) {
-    return JdbcDistributedLock.builder()
-        .dataSource(dataSource)
-        .select4UpdateNowaitSql(
-            "SELECT lock_name FROM distributed_lock WHERE lock_name = ? FOR UPDATE NOWAIT")
-        .insertSql("INSERT INTO distributed_lock (lock_name) VALUES (?)")
-        .sleepInterval(200)
-        .build();
-  }
-
   // 配置分布式可重入锁bean
   @Bean
   public DistributedLock distributedLock(StringRedisTemplate redisTemplate) {
@@ -76,10 +62,12 @@ public class BaseConfiguration implements WebMvcConfigurer {
 
   // 配置CacheManager
   @Bean
-  public Cache cacheManager() {
-    return LocalCache.builder()
-        .name("LocalCache")
-        .caffeineCache(Caffeine.newBuilder().expireAfterAccess(30, TimeUnit.SECONDS).build())
+  public EntityCache cacheManager(RedissonClient redissonClient) {
+    return RedisCache.builder()
+        .name("RedisCache")
+        .redissonClient(redissonClient)
+        .redissonCacheConfig(new CacheConfig(1000L * 60L * 30L, 0))
+        .objectMapper(jsonMapper())
         .build();
   }
 

@@ -1,6 +1,6 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.marker.Cache.ValueWrapper;
+import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 
 /**
  * <br>
