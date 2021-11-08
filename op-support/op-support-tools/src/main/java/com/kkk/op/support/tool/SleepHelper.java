@@ -1,6 +1,7 @@
 package com.kkk.op.support.tool;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 
@@ -39,9 +40,9 @@ public final class SleepHelper {
     }
   }
 
-  public static void delay(Runnable runnable, long sleepMills) {
+  public static void delay(@NotNull Runnable runnable, long delay, TimeUnit unit) {
     try {
-      Thread.sleep(sleepMills);
+      Thread.sleep(unit.toMillis(delay));
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

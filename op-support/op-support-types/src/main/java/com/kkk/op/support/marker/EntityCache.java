@@ -9,7 +9,6 @@ import org.springframework.lang.Nullable;
 /**
  * 缓存接口
  *
- * @see org.springframework.cache.Cache
  * @author KaiKoo
  */
 public interface EntityCache {

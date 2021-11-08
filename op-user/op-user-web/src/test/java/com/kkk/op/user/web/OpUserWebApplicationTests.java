@@ -34,8 +34,15 @@ import java.util.stream.IntStream;
 import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RScript.Mode;
+import org.redisson.api.RScript.ReturnType;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +68,29 @@ class OpUserWebApplicationTests {
   @Autowired private DistributedLock distributedLock;
 
   @Autowired private WheelTimer wheelTimer;
+
+  @Autowired private StringRedisTemplate stringRedisTemplate;
+
+  @Autowired private RedissonClient redissonClient;
+
+  @Test
+  void testFlashSale() {
+    var script = new DefaultRedisScript<Long>();
+    script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
+    var sha1 = script.getSha1();
+    System.out.println(sha1);
+    var item = "A0001";
+    stringRedisTemplate.delete(List.of(item, item + "_limit", item + "_user", item + "_context"));
+    stringRedisTemplate.opsForValue().set(item, "10");
+    stringRedisTemplate.opsForValue().set(item + "_limit", "1");
+    var rScript = redissonClient.getScript();
+    var eval =
+        rScript.evalSha(
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of("A0001", "a001", 1, "id:a001"));
+    System.out.println(eval);
+    System.out.println(stringRedisTemplate.opsForValue().get(item));
+    rScript.scriptFlush();
+  }
 
   @Test
   @Transactional

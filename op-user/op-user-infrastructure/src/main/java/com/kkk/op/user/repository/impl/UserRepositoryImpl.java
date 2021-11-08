@@ -21,6 +21,7 @@ import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
@@ -64,7 +65,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   @Override
   public void cacheDelayRemove(UserId userId) {
     // todo...
-    SleepHelper.delay(() -> this.cacheRemove(userId),2000L);
+    SleepHelper.delay(() -> this.cacheRemove(userId), 2L, TimeUnit.SECONDS);
   }
 
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
