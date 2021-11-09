@@ -26,39 +26,45 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-aop</artifactId>
-      <!--      <optional>true</optional>-->
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
-      <!--      <optional>true</optional>-->
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-jdbc</artifactId>
-      <!--      <optional>true</optional>-->
     </dependency>
     <!--guava-->
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <!--      <optional>true</optional>-->
     </dependency>
-    <!--caffeine:local cache-->
-    <dependency>
-      <groupId>com.github.ben-manes.caffeine</groupId>
-      <artifactId>caffeine</artifactId>
-      <!--      <optional>true</optional>-->
-    </dependency>
+    <!--netty common-->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-common</artifactId>
-      <!--      <optional>true</optional>-->
     </dependency>
-    <!--redisson-->  <!--不传递该依赖，因为功能是可选的-->
+    <!--caffeine-->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <!--可选依赖，optional设置为true不传递依赖-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-redis</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.redisson</groupId>
-      <artifactId>redisson-spring-boot-starter</artifactId>
+      <artifactId>redisson</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>

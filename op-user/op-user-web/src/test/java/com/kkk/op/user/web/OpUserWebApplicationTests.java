@@ -75,20 +75,32 @@ class OpUserWebApplicationTests {
 
   @Test
   void testFlashSale() {
-    var script = new DefaultRedisScript<Long>();
-    script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
-    var sha1 = script.getSha1();
-    System.out.println(sha1);
     var item = "A0001";
     stringRedisTemplate.delete(List.of(item, item + "_limit", item + "_user", item + "_context"));
-    stringRedisTemplate.opsForValue().set(item, "10");
-    stringRedisTemplate.opsForValue().set(item + "_limit", "1");
+    var script = new DefaultRedisScript<Long>();
+    script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
+    script.setResultType(Long.class);
+    var sha1 = script.getSha1();
+    System.out.println(sha1);
+    System.out.println(stringRedisTemplate.execute(script, List.of(item, "a001", "2", "id:a001")));
+    stringRedisTemplate.opsForValue().set(item, "20");
+    stringRedisTemplate.opsForValue().set(item + "_limit", "3");
     var rScript = redissonClient.getScript();
-    var eval =
+    var eval1 =
         rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of("A0001", "a001", 1, "id:a001"));
-    System.out.println(eval);
-    System.out.println(stringRedisTemplate.opsForValue().get(item));
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 2, "id:a001"));
+    System.out.println(eval1);
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
+    var eval2 =
+        rScript.evalSha(
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "id:a001"));
+    System.out.println(eval2);
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
+    var eval3 =
+        rScript.evalSha(
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "id:a001"));
+    System.out.println(eval3);
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
     rScript.scriptFlush();
   }
 
@@ -120,13 +132,10 @@ class OpUserWebApplicationTests {
     System.out.println(cache.get(key, Account.class));
     System.out.println(cache.putIfAbsent(key, null));
     cache.evict(key);
-    System.out.println(cache.get(key, Account.class));
     System.out.println(cache.putIfAbsent(key, null));
-    cache.put(key, null);
     System.out.println(cache.get(key, Account.class));
     cache.evict(key);
-    System.out.println(
-        cache.get(key, () -> accountRepository.find(AccountId.from(1L)).get()).orElse(null));
+    System.out.println(cache.get(key, () -> accountRepository.find(AccountId.from(1L)).get()));
     System.out.println(cache.get(key, Account.class).map(ValueWrapper::get));
   }
 

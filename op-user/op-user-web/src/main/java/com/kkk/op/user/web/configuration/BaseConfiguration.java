@@ -67,7 +67,7 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .name("RedisCache")
         .redissonClient(redissonClient)
         .redissonCacheConfig(new CacheConfig(1000L * 60L * 30L, 0))
-        .objectMapper(jsonMapper())
+        .objectMapper(kson().getMapper())
         .build();
   }
 

@@ -15,7 +15,7 @@ public interface EntityCache {
 
   String getName();
 
-  <T> Optional<ValueWrapper<T>> get(@NotBlank String key, @NotNull Class<T> type);
+  <T> Optional<ValueWrapper<T>> get(@NotBlank String key, @Nullable Class<T> type);
 
   <T> Optional<T> get(@NotBlank String key, @NotNull Callable<T> loader);
 

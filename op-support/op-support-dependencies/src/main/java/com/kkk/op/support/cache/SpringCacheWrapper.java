@@ -26,7 +26,14 @@ public abstract class SpringCacheWrapper implements EntityCache {
       return Optional.empty();
     }
     return Optional.ofNullable(valueWrapper.get())
-        .map(value -> (T) value)
+        .map(
+            value -> {
+              if (type != null && !type.isInstance(value)) {
+                throw new IllegalStateException(
+                    "Cached value is not of required type [" + type.getName() + "]: " + value);
+              }
+              return (T) value;
+            })
         .map(SimpleValue::from)
         .or(() -> Optional.of(NullValue.instance()));
   }
