@@ -1,5 +1,6 @@
 package com.kkk.op.support.cache;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class LocalCache extends SpringCacheWrapper {
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
   public static class LocalCacheBuilder {
     private String name;
-    private com.github.benmanes.caffeine.cache.Cache<Object, Object> caffeineCache;
+    private Cache<Object, Object> caffeineCache;
 
     public LocalCache build() {
       Assert.hasText(this.name, "Is empty!");
