@@ -107,7 +107,6 @@ class OpUserWebApplicationTests {
   @Test
   @Transactional
   void testLock() {
-    System.out.println(distributedLock.getClass().getCanonicalName());
     var name = "LOCK:Test";
     var tryLock = distributedLock.tryLock(name);
     System.out.println(tryLock);

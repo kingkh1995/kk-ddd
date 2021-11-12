@@ -17,9 +17,11 @@ public final class SleepHelper {
   }
 
   // 睡眠时间递增，并且取随机值，防止雪崩
-  public static long generateSleepMills(int i, long initialInterval) {
+  public static long generateSleepMills(int i, long initialInterval, long maxInterval) {
     var interval = initialInterval << i;
-    return ThreadLocalRandom.current().nextLong((long) (interval * 0.8), (long) (interval * 1.2));
+    interval = interval > 0 && interval < maxInterval ? interval : maxInterval;
+    // todo... 随机数生成
+    return interval + (ThreadLocalRandom.current().nextLong(-interval, interval) >> 3);
   }
 
   public static boolean tryGetThenSleep(
@@ -32,7 +34,7 @@ public final class SleepHelper {
         return false;
       } else {
         try {
-          Thread.sleep(generateSleepMills(i, initialInterval));
+          Thread.sleep(generateSleepMills(i, initialInterval, 2048L));
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
