@@ -12,7 +12,7 @@
 - guava: 31.0.1-jre
 - caffeine: 3.0.4
 - swagger: 3.0.0
-- mybatis: 2.2.0
+- mybatis: 3.5.7
 - pagehelper: 1.4.0
 - redisson: 3.16.4
 - mapstruct: 1.4.2.Final

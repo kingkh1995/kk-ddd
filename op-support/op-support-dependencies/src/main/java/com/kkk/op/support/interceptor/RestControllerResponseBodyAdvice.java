@@ -1,10 +1,10 @@
-package com.kkk.op.support.handler;
+package com.kkk.op.support.interceptor;
 
 import com.kkk.op.support.aspect.DegradedServiceAspect.DegradedServiceException;
 import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.handler.IPControlInterceptor.IPControlBlockedException;
+import com.kkk.op.support.interceptor.IPControlInterceptor.IPControlBlockedException;
 import java.time.DateTimeException;
 import java.util.NoSuchElementException;
 import java.util.Optional;

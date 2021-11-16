@@ -101,7 +101,7 @@ public class JdbcDistributedLock implements DistributedLock {
       return connection.getTransactionIsolation();
     } catch (SQLException e) {
       log.error(
-          "*This should be unreachable!* JdbcDistributedLock set transactionIsolation error!", e);
+          "*This should be unreachable!* JdbcDistributedLock get transactionIsolation error!", e);
       return Isolation.DEFAULT.value();
     }
   }

@@ -21,7 +21,7 @@
     <guava.version>31.0.1-jre</guava.version>
     <caffeine.version>3.0.4</caffeine.version>
     <springfox.version>3.0.0</springfox.version>
-    <mybatis.version>2.2.0</mybatis.version>
+    <mybatis.version>3.5.7</mybatis.version>
     <pagehelper.version>1.4.0</pagehelper.version>
     <redisson.version>3.16.4</redisson.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
@@ -66,8 +66,8 @@
         <version>${springfox.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.mybatis.spring.boot</groupId>
-        <artifactId>mybatis-spring-boot-starter</artifactId>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
         <version>${mybatis.version}</version>
       </dependency>
       <dependency>

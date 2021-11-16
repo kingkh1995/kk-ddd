@@ -36,7 +36,7 @@ public class AccountController {
 
   private final AccountApplicationService service;
 
-  /** POST 新增资源 */
+  /** POST 新增资源 （不幂等且url不能被缓存） */
   @PostMapping("/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
   public long create(
@@ -46,7 +46,7 @@ public class AccountController {
     return service.createAccount(createCommand);
   }
 
-  /** PUT 全量更新资源 */
+  /** PUT 全量更新资源 （幂等但url不能被缓存） */
   @PutMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean update(
@@ -58,7 +58,7 @@ public class AccountController {
     return true;
   }
 
-  /** Delete 删除资源 */
+  /** Delete 删除资源 （幂等但url不能被缓存） */
   @DeleteMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
   public boolean delete(
@@ -68,7 +68,7 @@ public class AccountController {
     return true;
   }
 
-  /** GET 获取资源 */
+  /** GET 获取资源 （url可以被缓存） */
   @GetMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.OK) // 200
   public AccountDTO queryById(

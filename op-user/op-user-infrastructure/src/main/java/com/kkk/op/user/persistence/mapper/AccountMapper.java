@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Mapper;
  *
  * @author KaiKoo
  */
-@Mapper
+@Mapper // 可以不加
 public interface AccountMapper {
 
   int insert(AccountDO accountDO);
