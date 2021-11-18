@@ -15,6 +15,7 @@
 - mybatis: 3.5.7
 - pagehelper: 1.4.0
 - redisson: 3.16.4
+- curator: 5.2.0
 - mapstruct: 1.4.2.Final
 - transmittable-thread-local: 2.12.2
 

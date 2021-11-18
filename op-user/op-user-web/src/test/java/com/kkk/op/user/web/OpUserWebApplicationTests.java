@@ -33,6 +33,8 @@ import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RScript.Mode;
 import org.redisson.api.RScript.ReturnType;
@@ -72,6 +74,28 @@ class OpUserWebApplicationTests {
   @Autowired private StringRedisTemplate stringRedisTemplate;
 
   @Autowired private RedissonClient redissonClient;
+
+  @Autowired private CuratorFramework curatorClient;
+
+  @Test
+  void testZookeeper() {
+    System.out.println(curatorClient.getNamespace());
+    var lock = new InterProcessMutex(curatorClient, "/test/1");
+    try {
+      lock.acquire();
+      lock.acquire();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println(lock.isAcquiredInThisProcess());
+    try {
+      lock.release();
+      lock.release();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println(lock.isAcquiredInThisProcess());
+  }
 
   @Test
   void testFlashSale() {

@@ -66,7 +66,8 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
       // TBD 特殊提示 http status
       return;
     }
-    super.tryLockThenConsume(aggregate, (t) -> this.onUpdate(t, diff));
+    super.tryLockThenConsume(
+        aggregate, this.cacheDoubleRemoveWrap(this.isAutoCaching(), (t) -> this.onUpdate(t, diff)));
     // 合并跟踪变更
     this.getAggregateTrackingManager().merge(aggregate);
   }

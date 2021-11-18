@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <scope>provided</scope> <!-- 只作用在编译和测试时，没有传递性 -->
+      <scope>provided</scope> <!-- 只作用在编译和测试时，由JDK或者容器提供。 -->
       <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
     </dependency>
     <!--validation注解-->

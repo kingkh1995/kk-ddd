@@ -1,6 +1,5 @@
 package com.kkk.op.support.bean;
 
-import com.alibaba.ttl.TransmittableThreadLocal;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
@@ -46,14 +45,8 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
           T extends Aggregate<ID>, ID extends Identifier>
       implements AggregateSnapshotContext<T, ID> {
 
-    // 使用TransmittableThreadLocal
-    private final ThreadLocal<Map<ID, T>> threadLocal =
-        new TransmittableThreadLocal<>() {
-          @Override
-          protected Map<ID, T> initialValue() {
-            return new HashMap<>();
-          }
-        };
+    // todo... 待定
+    private final ThreadLocal<Map<ID, T>> threadLocal = ThreadLocal.withInitial(HashMap::new);
 
     @Override
     public boolean existSnapshot(@NotNull ID id) {

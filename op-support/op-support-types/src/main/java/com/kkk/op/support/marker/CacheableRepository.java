@@ -3,6 +3,7 @@ package com.kkk.op.support.marker;
 import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import java.util.Optional;
+import java.util.function.Consumer;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -30,9 +31,15 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   void cacheDelayRemove(@NotNull ID id);
 
-  default void cacheDoubleRemove(@NotNull ID id, Runnable runnable) {
-    this.cacheRemove(id);
-    runnable.run();
-    this.cacheDelayRemove(id);
+  default Consumer<? super T> cacheDoubleRemoveWrap(
+      boolean isAutoCaching, Consumer<? super T> consumer) {
+    if (!isAutoCaching) {
+      return consumer;
+    }
+    return t -> {
+      this.cacheRemove(t.getId());
+      consumer.accept(t);
+      this.cacheDelayRemove(t.getId());
+    };
   }
 }
