@@ -1,6 +1,6 @@
 package com.kkk.op.support.distributed;
 
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import com.kkk.op.support.tool.SleepHelper;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Builder
 @Transactional(propagation = Propagation.MANDATORY) // 设置要求必须存在事务
-public class JdbcDistributedLock implements DistributedLock {
+public class JdbcDistributedLocker implements DistributedLocker {
 
   @Default private final long sleepInterval = 200L;
 
@@ -38,17 +38,17 @@ public class JdbcDistributedLock implements DistributedLock {
 
   @Override
   public boolean tryRun(String name, Runnable runnable) {
-    return DistributedLock.super.tryRun(name, runnable);
+    return DistributedLocker.super.tryRun(name, runnable);
   }
 
   @Override
   public boolean tryRun(String name, long waitSeconds, Runnable runnable) {
-    return DistributedLock.super.tryRun(name, waitSeconds, runnable);
+    return DistributedLocker.super.tryRun(name, waitSeconds, runnable);
   }
 
   @Override
   public boolean tryLock(String name) {
-    return DistributedLock.super.tryLock(name);
+    return DistributedLocker.super.tryLock(name);
   }
 
   @Override

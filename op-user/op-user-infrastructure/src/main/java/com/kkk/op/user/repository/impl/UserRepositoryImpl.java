@@ -6,7 +6,7 @@ import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import com.kkk.op.support.marker.EntityCache;
 import com.kkk.op.support.tool.SleepHelper;
 import com.kkk.op.user.converter.AccountDataConverter;
@@ -47,13 +47,13 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   private final AccountMapper accountMapper;
 
   public UserRepositoryImpl(
-      final DistributedLock distributedLock,
+      final DistributedLocker distributedLocker,
       final EntityCache cache,
       final UserMapper userMapper,
       final AccountMapper accountMapper) {
     // 使用ThreadLocalAggregateTrackingManager
     super(
-        distributedLock,
+            distributedLocker,
             cache,
         ThreadLocalAggregateTrackingManager.<User, UserId>builder()
             .snapshooter(Snapshooter.identity()) // todo... snapshooter

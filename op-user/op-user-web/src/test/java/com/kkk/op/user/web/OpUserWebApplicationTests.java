@@ -7,7 +7,7 @@ import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.enums.AccountStateEnum;
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import com.kkk.op.support.marker.EntityCache;
 import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.model.dto.AccountDTO;
@@ -67,7 +67,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private Validator validator;
 
-  @Autowired private DistributedLock distributedLock;
+  @Autowired private DistributedLocker distributedLocker;
 
   @Autowired private WheelTimer wheelTimer;
 
@@ -131,11 +131,11 @@ class OpUserWebApplicationTests {
   @Test
   @Transactional
   void testLock() {
-    var name = "LOCK:Test";
-    var tryLock = distributedLock.tryLock(name);
+    var name = distributedLocker.getLockNameGenerator().generate("test", "1");
+    var tryLock = distributedLocker.tryLock(name);
     System.out.println(tryLock);
     var tryRun =
-        distributedLock.tryRun(
+        distributedLocker.tryRun(
             name,
             () -> {
               try {
@@ -145,7 +145,7 @@ class OpUserWebApplicationTests {
               }
             });
     System.out.println(tryRun);
-    distributedLock.unlock(name);
+    distributedLocker.unlock(name);
   }
 
   @Test
@@ -165,6 +165,7 @@ class OpUserWebApplicationTests {
   @Test
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
+    System.out.println(kson.writeJson(account));
     var accountDTO = accountAssembler.toDTO(account);
     System.out.println(accountDTO);
     System.out.println(accountAssembler.fromDTO(accountDTO));

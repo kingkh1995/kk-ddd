@@ -3,7 +3,7 @@ package com.kkk.op.user.repository.impl;
 import com.kkk.op.support.base.EntityRepositorySupport;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
@@ -34,10 +34,10 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   private final WheelTimer wheelTimer;
 
   public AccountRepositoryImpl(
-      final DistributedLock distributedLock,
+      final DistributedLocker distributedLocker,
       final AccountMapper accountMapper,
       final WheelTimer wheelTimer) {
-    super(distributedLock, null); // 不开启AutoCaching则不需要CacheManager
+    super(distributedLocker, null); // 不开启AutoCaching则不需要CacheManager
     this.accountMapper = accountMapper;
     this.wheelTimer = wheelTimer;
   }

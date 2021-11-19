@@ -3,11 +3,12 @@ package com.kkk.op.support.base;
 import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.CacheableRepository;
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import com.kkk.op.support.marker.EntityCache;
 import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
+import com.kkk.op.support.marker.NameGenerator;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,17 +42,14 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   private final Class<T> tClass;
 
   @Getter(AccessLevel.PROTECTED)
-  private final DistributedLock distributedLock;
+  private final DistributedLocker distributedLocker;
 
   @Getter(AccessLevel.PROTECTED)
-  private final String lockNamePrefix;
+  private final String[] cnSplit;
 
   @Nullable private final EntityCache cache;
 
   @Getter private final boolean autoCaching;
-
-  @Getter(AccessLevel.PROTECTED)
-  private final String cacheKeyPrefix;
 
   {
     // 设置autoCaching
@@ -61,28 +59,17 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
     // 设置tClass 参数化类型获取实际Type
     this.tClass = (Class<T>) type.getActualTypeArguments()[0];
-    var split = this.tClass.getCanonicalName().split("\\.");
-    var className = split[split.length - 1];
-    // 设置cacheKeyPrefix
-    this.cacheKeyPrefix =
-        split.length > 4 ? String.format("%s:%s:", split[3].toUpperCase(), className) : className;
-    // 设置lockNamePrefix
-    this.lockNamePrefix = "LOCK:" + this.cacheKeyPrefix;
+    this.cnSplit = this.tClass.getCanonicalName().split("\\.");
   }
 
   public EntityRepositorySupport(
-      @NotNull DistributedLock distributedLock, @Nullable EntityCache cache) {
-    this.distributedLock = Objects.requireNonNull(distributedLock);
+      @NotNull DistributedLocker distributedLocker, @Nullable EntityCache cache) {
+    this.distributedLocker = Objects.requireNonNull(distributedLocker);
     // 开启自动缓存时才需要CacheManager
     if (this.isAutoCaching()) {
       Objects.requireNonNull(cache);
     }
     this.cache = cache;
-  }
-
-  // todo... 如何更优雅的实现
-  public String generateLockName(@NotNull ID id) {
-    return this.getLockNamePrefix() + Objects.requireNonNull(id).identifier();
   }
 
   // ===============================================================================================
@@ -112,7 +99,12 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public String generateCacheKey(ID id) {
-    return this.getCacheKeyPrefix() + Objects.requireNonNull(id).identifier();
+    return NameGenerator.joiner(":", "", "")
+        .generate(
+            cnSplit[2],
+            cnSplit[3],
+            cnSplit[cnSplit.length - 1],
+            Objects.requireNonNull(id).identifier());
   }
 
   @Override
@@ -143,6 +135,22 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   // ===============================================================================================
 
+  public String generateLockName(@NotNull ID id) {
+    return this.distributedLocker
+        .getLockNameGenerator()
+        .generate(cnSplit[3], cnSplit[cnSplit.length - 1], Objects.requireNonNull(id).identifier());
+  }
+
+  // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换
+  protected void tryLockThenConsume(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
+    var finished =
+        this.getDistributedLocker()
+            .tryRun(this.generateLockName(entity.getId()), () -> consumer.accept(entity));
+    if (!finished) {
+      throw new BusinessException("尝试的人太多了，请稍后再试！");
+    }
+  }
+
   @Override
   public void save(@NotNull T entity) {
     if (entity.isIdentified()) {
@@ -168,16 +176,6 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     // delete操作需要获取分布式锁
     this.tryLockThenConsume(
         entity, this.cacheDoubleRemoveWrap(this.isAutoCaching(), this::onDelete));
-  }
-
-  // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换
-  protected void tryLockThenConsume(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
-    var finished =
-        this.getDistributedLock()
-            .tryRun(this.generateLockName(entity.getId()), () -> consumer.accept(entity));
-    if (!finished) {
-      throw new BusinessException("尝试的人太多了，请稍后再试！");
-    }
   }
 
   @Override

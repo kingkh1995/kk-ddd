@@ -1,6 +1,6 @@
 package com.kkk.op.support.distributed;
 
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author KaiKoo
  */
 @Slf4j
-public class MockDistributedLock implements DistributedLock {
+public class MockDistributedLocker implements DistributedLocker {
 
   @Override
   public boolean tryLock(String name, long waitSeconds) {

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author KaiKoo
  */
 @Data
-@ConfigurationProperties(prefix = "spring.zookeeper.curator")
+@ConfigurationProperties("spring.zookeeper.curator")
 public class CuratorProperties {
   private String connection = "localhost:2181";
   private String namespace;

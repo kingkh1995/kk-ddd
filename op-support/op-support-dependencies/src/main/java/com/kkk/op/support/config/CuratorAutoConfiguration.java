@@ -35,7 +35,7 @@ public class CuratorAutoConfiguration {
             .retryPolicy(
                 new ExponentialBackoffRetry(
                     properties.getRetryBaseSleepTimeMs(), properties.getMaxRetries()))
-            // 关闭ensembleTracker，可以用于动态获取connectString。
+            // 关闭ensembleTracker，可以用于动态获取connectString
             .ensembleTracker(false)
             .build();
     // 启动客户端

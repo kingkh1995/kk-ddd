@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
+import com.kkk.op.support.marker.NameGenerator;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.Builder;
@@ -9,26 +10,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 
 /**
- * Redisson分布式锁（redlock算法）
+ * Redisson分布式锁
  *
  * @author KaiKoo
  */
 @Slf4j
 @Builder
-public class RedissonDistributedLock implements DistributedLock {
+public class RedissonDistributedLocker implements DistributedLocker {
 
   @Default private long expireMills = 10L * 1000L;
 
   private final RedissonClient client;
 
   // 供builder使用
-  public RedissonDistributedLock(long expireMills, RedissonClient client) {
+  public RedissonDistributedLocker(long expireMills, RedissonClient client) {
     if (expireMills <= 0) {
       throw new IllegalArgumentException(
           "RedissonDistributedLock expireMills should be greater than 0!");
     }
     this.expireMills = expireMills;
     this.client = Objects.requireNonNull(client);
+  }
+
+  @Override
+  public NameGenerator getLockNameGenerator() {
+    return NameGenerator.joiner(":", "lock:", "");
   }
 
   @Override

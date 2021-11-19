@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
-import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLocker;
+import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.support.tool.SleepHelper;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ import org.springframework.data.redis.core.script.RedisScript;
  */
 @Slf4j
 @Builder
-public class RedisDistributedLock implements DistributedLock {
+public class RedisDistributedLocker implements DistributedLocker {
 
   @Default private long sleepInterval = 200;
 
@@ -35,11 +36,11 @@ public class RedisDistributedLock implements DistributedLock {
   private final StringRedisTemplate redisTemplate;
 
   // ThreadLocal使用时尽量用static修饰、理论上不会出现内存泄漏，因为加锁成功后就一定会释放锁。
-  private static final ThreadLocal<Map<String, Locker>> LOCKER_HOLDER =
+  private static final ThreadLocal<Map<String, Lock>> holder =
       ThreadLocal.withInitial(HashMap::new);
 
   // 供builder使用
-  public RedisDistributedLock(
+  public RedisDistributedLocker(
       long sleepInterval, long expireMills, StringRedisTemplate redisTemplate) {
     if (expireMills <= 0) {
       throw new IllegalArgumentException(
@@ -50,7 +51,12 @@ public class RedisDistributedLock implements DistributedLock {
     this.redisTemplate = Objects.requireNonNull(redisTemplate);
   }
 
-  private static class Locker {
+  @Override
+  public NameGenerator getLockNameGenerator() {
+    return NameGenerator.joiner(":", "lock:", "");
+  }
+
+  private static class Lock {
 
     private final String requestId = UUID.randomUUID().toString();
 
@@ -59,8 +65,8 @@ public class RedisDistributedLock implements DistributedLock {
     private Future<?> future;
   }
 
-  private Optional<Locker> getLocker(String name) {
-    return Optional.ofNullable(LOCKER_HOLDER.get().get(name));
+  private Optional<Lock> getLock(String name) {
+    return Optional.ofNullable(holder.get().get(name));
   }
 
   private boolean lock(String name, String requestId) {
@@ -76,26 +82,26 @@ public class RedisDistributedLock implements DistributedLock {
   @Override
   public boolean tryLock(String name, long waitSeconds) {
     // 可重入锁，判断该线程是否获取到了锁
-    var op = this.getLocker(name);
+    var op = this.getLock(name);
     // 已获取到锁则次数加一
     if (op.isPresent()) {
       op.get().status++;
       return true;
     }
     // 尝试获取锁
-    var locker = new Locker();
-    var locked =
+    var lock = new Lock();
+    var isLocked =
         SleepHelper.tryGetThenSleep(
-            () -> this.lock(name, locker.requestId),
+            () -> this.lock(name, lock.requestId),
             TimeUnit.SECONDS.toMillis(waitSeconds),
             this.sleepInterval);
-    if (locked) {
+    if (isLocked) {
       // 获取到锁 则保存锁信息
-      LOCKER_HOLDER.get().put(name, locker);
+      holder.get().put(name, lock);
       // 开启watchdog
-      watching(name, locker);
+      watching(name, lock);
     }
-    return locked;
+    return isLocked;
   }
 
   /**
@@ -110,20 +116,20 @@ public class RedisDistributedLock implements DistributedLock {
           Long.class);
 
   public void unlock(String name) {
-    var op = this.getLocker(name);
+    var op = this.getLock(name);
     if (op.isEmpty()) {
       return;
     }
     // 重入锁次数减一 status仍大于0 则表示未完全释放 直接return
-    var locker = op.get();
-    if (--locker.status > 0) {
+    var lock = op.get();
+    if (--lock.status > 0) {
       return;
     }
     // 释放锁
     try {
       var result =
           this.redisTemplate.execute(
-              UNLOCK_SCRIPT, Collections.singletonList(name), locker.requestId);
+              UNLOCK_SCRIPT, Collections.singletonList(name), lock.requestId);
       log.info("Unlock '{}', execute return '{}'.", name, result);
       if (result == null || result < 1) {
         log.warn("Unlock '{}' failed.", name);
@@ -132,9 +138,9 @@ public class RedisDistributedLock implements DistributedLock {
       log.warn("Unlock error!", e);
     } finally {
       // 使用future中断任务
-      locker.future.cancel(true);
+      lock.future.cancel(true);
       // 移除Key
-      LOCKER_HOLDER.get().remove(name);
+      holder.get().remove(name);
     }
   }
 
@@ -170,11 +176,11 @@ public class RedisDistributedLock implements DistributedLock {
                   end
                   """, Long.class);
 
-  // locker需要通过参数传递过来，无法通过ThreadLocal取出。也不使用TTL了，减少性能消耗。
-  private void watching(String name, Locker locker) {
+  // lock需要通过参数传递过来，无法通过ThreadLocal取出。也不使用TTL了，减少性能消耗。
+  private void watching(String name, Lock lock) {
     // 保存或更新future，在释放锁的时候可以中断任务
     // 延迟 2/3 expireMills 执行脚本
-    locker.future =
+    lock.future =
         WATCH_DOG.schedule(
             () -> {
               try {
@@ -183,12 +189,12 @@ public class RedisDistributedLock implements DistributedLock {
                     this.redisTemplate.execute(
                         WATCH_DOG_SCRIPT,
                         Collections.singletonList(name),
-                        locker.requestId,
+                        lock.requestId,
                         String.valueOf(this.expireMills)); // 使用StringRedisTemplate要求参数必须为String类型
                 // 如果延长成功，继续watch
                 log.info("Dog watching '{}' execute return '{}'.", name, result);
                 if (result != null && result > 0) {
-                  watching(name, locker);
+                  watching(name, lock);
                 }
               } catch (Exception e) {
                 log.warn("Dog watching execute error!", e);

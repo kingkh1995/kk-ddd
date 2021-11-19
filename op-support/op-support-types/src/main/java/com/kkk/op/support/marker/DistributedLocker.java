@@ -12,7 +12,11 @@ import org.springframework.validation.annotation.Validated;
  * @author KaiKoo
  */
 @Validated
-public interface DistributedLock {
+public interface DistributedLocker {
+
+  default NameGenerator getLockNameGenerator() {
+    return NameGenerator.joiner("#", "", "");
+  }
 
   /** 获取锁并执行一段任务，获取锁失败立即返回，执行完成自动释放锁。 */
   default boolean tryRun(@NotBlank String name, @NotNull Runnable runnable) {
