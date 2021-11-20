@@ -2,11 +2,9 @@ package com.kkk.op.user.assembler;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
-import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
@@ -19,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class UserCommonMapper {
+public class UserTypesMapper {
 
   /** 自定义类型转换方法 */
   public Long mapFromUserId(UserId userId) {
@@ -51,14 +49,6 @@ public class UserCommonMapper {
 
   public AccountState map2AccountState(String s) {
     return AccountState.valueOf(s, "账户状态");
-  }
-
-  public StampedTime map2StampedTime(Long l) {
-    return StampedTime.from(Instant.ofEpochMilli(l));
-  }
-
-  public Long mapFromStampedTime(StampedTime stampedTime) {
-    return stampedTime.toInstant().toEpochMilli();
   }
 
   /** 自定义工厂方法 */

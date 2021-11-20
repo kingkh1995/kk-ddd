@@ -1,10 +1,7 @@
 package com.kkk.op.support.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.kkk.op.support.marker.Identifier;
-import java.math.BigDecimal;
-import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -13,48 +10,27 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true) // 重写EqualsAndHashCode
-public class LongId extends SpecificNumber implements Identifier {
+public class LongId extends RangedLong implements Identifier {
 
-  protected LongId(@NotNull BigDecimal value, String fieldName) {
-    super(value, fieldName, ZERO, false, LONG_MAX, true, 0);
+  protected LongId(long value, String fieldName) {
+    super(value, fieldName, 0L, false, null, null);
   }
 
-  /**
-   * 内部实现提供私有的 of 静态方法 （如果无特殊处理逻辑可以不提供）<br>
-   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 from（可靠输入） 静态方法 <br>
-   */
-  private static LongId of(@NotNull BigDecimal value, String fieldName) {
-    return new LongId(value, fieldName);
-  }
-
-  // 针对可靠输入的 from 方法
-  @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
+  @JsonCreator
   public static LongId from(long l) {
-    return of(new BigDecimal(l), "LongId");
+    return new LongId(l, "LongId");
   }
 
-  // 针对不可靠输入的 valueOf 方法
   public static LongId valueOf(Long l, String fieldName) {
-    return of(parseBigDecimal(l, fieldName), fieldName);
+    return new LongId(parseLong(l, fieldName), fieldName);
   }
 
   public static LongId valueOf(String s, String fieldName) {
-    return of(parseBigDecimal(s, fieldName), fieldName);
+    return new LongId(parseLong(s, fieldName), fieldName);
   }
 
   @Override
   public String identifier() {
-    return super.value().toString();
-  }
-
-  @Override
-  @JsonValue(false) // 需要覆盖父类的注释，不然会报错重复定义
-  public BigDecimal value() {
-    return super.value();
-  }
-
-  @JsonValue // 子类自定义序列化
-  public long getValue() {
-    return super.longValue();
+    return String.valueOf(getValue());
   }
 }

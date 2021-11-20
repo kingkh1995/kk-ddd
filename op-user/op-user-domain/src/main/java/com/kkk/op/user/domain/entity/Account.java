@@ -7,6 +7,7 @@ import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.types.StampedTime;
+import com.kkk.op.support.types.Version;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -37,6 +38,8 @@ public class Account extends Entity<AccountId> {
 
   @DiffIgnore // 设置创建时间不参数对比
   private StampedTime createTime;
+
+  @DiffIgnore private Version version;
 
   @Override
   public void validate() {

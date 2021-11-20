@@ -1,5 +1,6 @@
 package com.kkk.op.user.assembler;
 
+import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.UserId;
@@ -20,9 +21,9 @@ import org.mapstruct.factory.Mappers;
  * @author KaiKoo
  */
 @Mapper(
-    imports = {}, // 可注入外部类，以在@Mapping注解表达式中使用，否则需要指定外部类的全路径
-    uses = UserCommonMapper.class, // 注入外部映射类
     componentModel = "spring", // 使用spring依赖注入
+    imports = {}, // 可注入外部类，以在@Mapping注解表达式中使用，否则需要指定外部类的全路径
+    uses = {CommonTypesMapper.class, UserTypesMapper.class}, // 注入外部映射类
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS, // 配置总是对参数进行空检查
     nullValueMappingStrategy =
         NullValueMappingStrategy.RETURN_NULL, // 源为空则返回null，配置RETURN_DEFAULT则返回空对象

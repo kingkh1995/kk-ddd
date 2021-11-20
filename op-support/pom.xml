@@ -38,15 +38,15 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
+      <scope>provided</scope> <!-- 只作用在编译和测试时，由JDK或者容器提供。 -->
+      <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
     </dependency>
     <!--lombok-->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <scope>provided</scope> <!-- 只作用在编译和测试时，由JDK或者容器提供。 -->
-      <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <!--validation注解-->
     <dependency>

@@ -77,7 +77,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   @Override
   protected List<Account> onSelectByIds(@NotEmpty Set<AccountId> accountIds) {
     var ids =
-        accountIds.stream().mapToLong(AccountId::longValue).boxed().collect(Collectors.toSet());
+        accountIds.stream().mapToLong(AccountId::getValue).boxed().collect(Collectors.toSet());
     // todo...
     return null;
   }

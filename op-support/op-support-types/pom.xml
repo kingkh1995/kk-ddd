@@ -18,6 +18,12 @@
       <artifactId>op-support-enums</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
     <!--ttl：InheritableThreadLocal增强-->
     <dependency>
       <groupId>com.alibaba</groupId>

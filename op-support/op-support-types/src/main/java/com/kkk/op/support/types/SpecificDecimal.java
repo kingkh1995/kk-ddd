@@ -15,13 +15,7 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public abstract class SpecificNumber extends Number implements Type {
-
-  protected static final BigDecimal ZERO = BigDecimal.ZERO;
-  protected static final BigDecimal TEN = BigDecimal.TEN;
-  protected static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
-  protected static final BigDecimal LONG_MAX = new BigDecimal(Long.MAX_VALUE);
-  protected static final BigDecimal INTEGER_MAX = new BigDecimal(Integer.MAX_VALUE);
+public abstract class SpecificDecimal extends Number implements Type {
 
   private final BigDecimal value;
 
@@ -34,7 +28,7 @@ public abstract class SpecificNumber extends Number implements Type {
    * @param includeMax 是否包含最大值
    * @param scale 小数位
    */
-  protected SpecificNumber(
+  protected SpecificDecimal(
       @NotNull BigDecimal value,
       String fieldName,
       BigDecimal min,
@@ -92,8 +86,8 @@ public abstract class SpecificNumber extends Number implements Type {
     }
   }
 
-  @JsonValue // 自定义Jackson序列化，也可以注释到字段（最好不要，因为无法被子类覆盖）
-  protected BigDecimal value() {
+  @JsonValue
+  public BigDecimal getValue() {
     return this.value;
   }
 

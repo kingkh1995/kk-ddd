@@ -1,6 +1,7 @@
 package com.kkk.op.support.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import javax.validation.constraints.NotNull;
@@ -12,25 +13,35 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public class TenThousandYuan extends SpecificNumber {
+public class TenThousandYuan extends SpecificDecimal {
 
-  protected TenThousandYuan(@NotNull BigDecimal value, String fieldName) {
-    super(value, fieldName, ZERO, true, null, null, -2);
-  }
+  private final BigDecimal valueBy10k; // 万元值缓存
 
-  private static TenThousandYuan of(@NotNull BigDecimal value, String fieldName) {
-    return new TenThousandYuan(value.movePointRight(4), fieldName);
+  protected TenThousandYuan(@NotNull BigDecimal valueBy10k, String fieldName) {
+    super(valueBy10k.movePointRight(4), fieldName, BigDecimal.ZERO, true, null, null, -2);
+    this.valueBy10k = valueBy10k;
   }
 
   // 针对可靠输入的 from 方法
   @JsonCreator
-  public static TenThousandYuan from(@NotNull BigDecimal tenThousandYuan) {
-    return of(tenThousandYuan, "TenThousandYuan");
+  public static TenThousandYuan from(@NotNull BigDecimal valueBy10k) {
+    return new TenThousandYuan(valueBy10k, "TenThousandYuan");
   }
 
   // 针对不可靠输入的 valueOf 方法
   public static TenThousandYuan valueOf(String s, String fieldName) {
-    return of(parseBigDecimal(s, fieldName), fieldName);
+    return new TenThousandYuan(parseBigDecimal(s, fieldName), fieldName);
+  }
+
+  @JsonValue(false) // 声明覆盖父类注解，不然会报错重复定义
+  @Override
+  public BigDecimal getValue() {
+    return super.getValue();
+  }
+
+  @JsonValue
+  public BigDecimal getValueBy10k() {
+    return this.valueBy10k;
   }
 
   private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#,###.00");
@@ -40,7 +51,7 @@ public class TenThousandYuan extends SpecificNumber {
   /** 格式化表示 */
   public String toFormattedString() {
     if (this.formattedStringCache == null) {
-      this.formattedStringCache = DECIMAL_FORMAT.format(super.value().movePointLeft(4)) + "（万元）";
+      this.formattedStringCache = DECIMAL_FORMAT.format(getValueBy10k()) + "（万元）";
     }
     return this.formattedStringCache;
   }

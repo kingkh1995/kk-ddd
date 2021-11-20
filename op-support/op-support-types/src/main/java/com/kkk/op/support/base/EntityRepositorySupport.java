@@ -39,17 +39,20 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
   @Getter(AccessLevel.PROTECTED)
-  private final Class<T> tClass;
-
-  @Getter(AccessLevel.PROTECTED)
   private final DistributedLocker distributedLocker;
-
-  @Getter(AccessLevel.PROTECTED)
-  private final String[] cnSplit;
 
   @Nullable private final EntityCache cache;
 
   @Getter private final boolean autoCaching;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final Class<T> tClass;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final String artifact;
+
+  @Getter(AccessLevel.PROTECTED)
+  private final String tClassName;
 
   {
     // 设置autoCaching
@@ -59,7 +62,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     var type = (ParameterizedType) this.getClass().getGenericSuperclass();
     // 设置tClass 参数化类型获取实际Type
     this.tClass = (Class<T>) type.getActualTypeArguments()[0];
-    this.cnSplit = this.tClass.getCanonicalName().split("\\.");
+    var split = this.tClass.getCanonicalName().split("\\.");
+    this.artifact = split[3];
+    this.tClassName = split[split.length - 1];
   }
 
   public EntityRepositorySupport(
@@ -99,12 +104,8 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   @Override
   public String generateCacheKey(ID id) {
-    return NameGenerator.joiner(":", "", "")
-        .generate(
-            cnSplit[2],
-            cnSplit[3],
-            cnSplit[cnSplit.length - 1],
-            Objects.requireNonNull(id).identifier());
+    return NameGenerator.DEFAULT.generate(
+        this.artifact, this.tClassName, Objects.requireNonNull(id).identifier());
   }
 
   @Override
@@ -138,7 +139,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   public String generateLockName(@NotNull ID id) {
     return this.distributedLocker
         .getLockNameGenerator()
-        .generate(cnSplit[3], cnSplit[cnSplit.length - 1], Objects.requireNonNull(id).identifier());
+        .generate(this.artifact, this.tClassName, Objects.requireNonNull(id).identifier());
   }
 
   // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换

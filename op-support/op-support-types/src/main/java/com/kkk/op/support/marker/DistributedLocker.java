@@ -15,7 +15,7 @@ import org.springframework.validation.annotation.Validated;
 public interface DistributedLocker {
 
   default NameGenerator getLockNameGenerator() {
-    return NameGenerator.joiner("#", "", "");
+    return NameGenerator.DEFAULT;
   }
 
   /** 获取锁并执行一段任务，获取锁失败立即返回，执行完成自动释放锁。 */

@@ -2,6 +2,7 @@ package com.kkk.op.user.web.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonGenerator.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -66,8 +67,8 @@ public class BaseConfiguration implements WebMvcConfigurer {
     return RedisCache.builder()
         .name("RedisCache")
         .redissonClient(redissonClient)
-        .redissonCacheConfig(new CacheConfig(1000L * 60L * 30L, 0))
-        .objectMapper(kson().getMapper())
+        .redissonCacheConfig(new CacheConfig(1000L * 60L, 1000L * 60L * 30L))
+        .objectMapper(jsonMapper())
         .build();
   }
 
@@ -93,9 +94,11 @@ public class BaseConfiguration implements WebMvcConfigurer {
         .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
         .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
         // 反序列化时忽略多余字段 反序列化默认使用无参构造器
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         // 序列化时日期不转为时间戳
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        // BigDecimal按plain方式序列化
+        .enable(Feature.WRITE_BIGDECIMAL_AS_PLAIN)
         .build();
   }
 

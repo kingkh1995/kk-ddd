@@ -3,6 +3,7 @@ package com.kkk.op.user.converter;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DataConverter;
 import com.kkk.op.support.types.StampedTime;
+import com.kkk.op.support.types.Version;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -36,6 +37,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
         .map(StampedTime::toInstant)
         .map(Timestamp::from)
         .ifPresent(data::setCreateTime);
+    Optional.ofNullable(account.getVersion()).map(Version::getValue).ifPresent(data::setVersion);
     return data;
   }
 
@@ -56,6 +58,7 @@ public enum AccountDataConverter implements DataConverter<Account, AccountDO> {
         .map(Timestamp::toInstant)
         .map(StampedTime::from)
         .ifPresent(builder::createTime);
+    Optional.ofNullable(accountDO.getVersion()).map(Version::from).ifPresent(builder::version);
     return builder.build();
   }
 }

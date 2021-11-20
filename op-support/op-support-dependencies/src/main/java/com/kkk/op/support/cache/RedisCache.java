@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
+import org.redisson.codec.CompositeCodec;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonCache;
@@ -39,10 +41,13 @@ public class RedisCache extends SpringCacheWrapper {
       Assert.notNull(this.redissonClient, "Is null!");
       Assert.notNull(this.redissonCacheConfig, "Is null!");
       Assert.notNull(this.objectMapper, "Is null!");
-      // use jackson json & always allow null values
+      // use composite codec key:String value:Json & always allow null values
       var redissonCache =
           new RedissonCache(
-              this.redissonClient.getMapCache(name, new JsonJacksonCodec(this.objectMapper)),
+              this.redissonClient.getMapCache(
+                  name,
+                  new CompositeCodec(
+                      StringCodec.INSTANCE, new JsonJacksonCodec(this.objectMapper))),
               this.redissonCacheConfig,
               true);
       return new RedisCache(this.redissonClient, redissonCache);

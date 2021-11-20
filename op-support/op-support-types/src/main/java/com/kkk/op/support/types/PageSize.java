@@ -1,9 +1,7 @@
 package com.kkk.op.support.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import java.math.BigDecimal;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -12,29 +10,36 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public class PageSize extends SpecificNumber {
+public class PageSize extends RangedLong {
 
-  // 对默认分页大小10条添加缓存
-  public static final PageSize DEFAULT_SIZE = new PageSize(TEN);
+  // todo... 以下改为可配置，并且是不同项目不同配置
 
-  // todo... 改为可配置，并且是不同项目不同配置
+  // 默认分页大小，并添加缓存
+  public static final PageSize DEFAULT = new PageSize(10L, null);
+
   // 默认最大查询条数
-  private static final BigDecimal MAX_SIZE = new BigDecimal(500);
+  private static final long MAX_SIZE = 500L;
 
-  private PageSize(@NotNull BigDecimal value) {
-    super(value, "PageSize", ZERO, false, MAX_SIZE, true, 0);
+  private PageSize(long value, String fieldName) {
+    super(value, fieldName, 0L, false, MAX_SIZE, true);
   }
 
-  // 私有的基础 of 静态方法
-  private static PageSize of(@NotNull BigDecimal size) {
-    return Objects.requireNonNull(size).equals(DEFAULT_SIZE.value())
-        ? DEFAULT_SIZE
-        : new PageSize(size);
+  /**
+   * 内部实现提供私有的 of 静态方法 （如果无特殊处理逻辑可以不提供）<br>
+   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 from（可靠输入） 静态方法 <br>
+   */
+  private static PageSize of(long value, String fieldName) {
+    return Objects.equals(DEFAULT.getValue(), value) ? DEFAULT : new PageSize(value, fieldName);
   }
 
   // 针对可靠输入的 from 方法
-  @JsonCreator
+  @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
   public static PageSize from(long l) {
-    return of(new BigDecimal(l));
+    return of(l, "PageSize");
+  }
+
+  // 针对不可靠输入的 valueOf 方法
+  public static PageSize valueOf(Long l, String fieldName) {
+    return of(parseLong(l, fieldName), fieldName);
   }
 }
