@@ -25,6 +25,7 @@ import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
@@ -34,7 +35,11 @@ import java.util.stream.IntStream;
 import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.locks.InterProcessMutex;
+import org.apache.curator.framework.api.CuratorWatcher;
+import org.apache.curator.framework.recipes.cache.CuratorCache;
+import org.apache.curator.framework.recipes.cache.CuratorCacheListener;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.data.Stat;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RScript.Mode;
 import org.redisson.api.RScript.ReturnType;
@@ -79,23 +84,96 @@ class OpUserWebApplicationTests {
   @Autowired private AccountAssembler accountAssembler;
 
   @Test
-  void testZookeeper() {
+  void testZookeeper() throws Exception {
     System.out.println(curatorClient.getNamespace());
-    var lock = new InterProcessMutex(curatorClient, "/test/1");
-    try {
-      lock.acquire();
-      lock.acquire();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    System.out.println(lock.isAcquiredInThisProcess());
-    try {
-      lock.release();
-      lock.release();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    System.out.println(lock.isAcquiredInThisProcess());
+    String path = "/test/ZKTest";
+    // 永久型事件监听，Watcher每次触发后都会被移除。
+    var cacheBridge = CuratorCache.bridgeBuilder(curatorClient, path).build();
+    // 添加监听器
+    cacheBridge
+        .listenable()
+        .addListener(
+            // 监听所有事件
+            CuratorCacheListener.builder()
+                .forAll(
+                    (type, oldData, data) -> {
+                      log.info("type:{}, oldData:{}, data:{}", type, oldData, data);
+                    })
+                .build());
+    cacheBridge.start();
+    // 删除节点
+    curatorClient
+        .delete()
+        .quietly() // 节点不存在时不会抛出异常
+        .deletingChildrenIfNeeded() // 删除所有子节点
+        .forPath(path);
+    // 创建节点并返回节点路径（路径可能被修改，如开启保护机制）
+    var pPath =
+        curatorClient
+            .create()
+            .creatingParentContainersIfNeeded() // 沿路径递归创建所需父容器节点
+            .withMode(CreateMode.PERSISTENT) // 需要为永久节点，临时节点无法创建子节点
+            .forPath(path, "这是永久父节点！".getBytes());
+    System.out.println(pPath);
+    var cPath =
+        curatorClient
+            .create()
+            .withProtection() // Curator保护机制，防止服务器创建成功未通知到客户端，创建节点时自动添加GUID
+            .withMode(CreateMode.EPHEMERAL)
+            .forPath(path + "/child", "这是临时子节点！".getBytes());
+    System.out.println(cPath);
+    // 为Client添加一个异步事件监听器（只能获取到inBackground(Object context)传递的参数）
+    curatorClient
+        .getCuratorListenable()
+        .addListener((client, event) -> log.info("CuratorListener -> '{}'", event));
+    Thread.sleep(2000);
+    // 异步新增
+    var node = path + "/" + UUID.randomUUID() + "/1";
+    var forPath =
+        curatorClient
+            .create()
+            .creatingParentContainersIfNeeded()
+            .withMode(CreateMode.PERSISTENT)
+            .inBackground("first") // 异步执行并传递上下文，事件完成后监听器会接受到上下文对象
+            .forPath(node, "这是异步创建的子节点！".getBytes());
+    curatorClient
+        .create()
+        .creatingParentContainersIfNeeded()
+        .withMode(CreateMode.PERSISTENT)
+        .inBackground("second")
+        .forPath(node + "/2");
+    Thread.sleep(2000);
+    // 查询子节点
+    curatorClient.getChildren().forPath(path);
+    // 查询数据和节点信息
+    var stat = new Stat();
+    System.out.println(new String(curatorClient.getData().storingStatIn(stat).forPath(pPath)));
+    System.out.println(stat);
+    System.out.println(new String(curatorClient.getData().storingStatIn(stat).forPath(cPath)));
+    System.out.println(stat);
+    System.out.println(
+        new String(
+            curatorClient
+                .getData()
+                .storingStatIn(stat)
+                // 添加临时监听器，只能监听一次节点的事件。
+                .usingWatcher((CuratorWatcher) event -> log.info("CuratorWatcher : {}", event))
+                .forPath(node)));
+    System.out.println(stat);
+    // 异步删除
+    System.out.println("异步删除节点,此时节点创建状态，node:" + forPath);
+    var countDownLatch = new CountDownLatch(1);
+    curatorClient
+        .delete()
+        .guaranteed() // 保证删除，会一直重试直到连接失效。
+        // 异步执行，完成后执行callback
+        .inBackground(
+            (client, event) -> {
+              log.info("删除节点完成 -> '{}'", event);
+              countDownLatch.countDown();
+            })
+        .forPath(node);
+    countDownLatch.await();
   }
 
   @Test
