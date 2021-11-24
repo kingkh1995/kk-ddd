@@ -54,7 +54,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
-@Transactional
 @SpringBootTest
 @ActiveProfiles("dev")
 class OpUserWebApplicationTests {
@@ -122,7 +121,7 @@ class OpUserWebApplicationTests {
             .withMode(CreateMode.EPHEMERAL)
             .forPath(path + "/child", "这是临时子节点！".getBytes());
     System.out.println(cPath);
-    // 为Client添加一个异步事件监听器（只能获取到inBackground(Object context)传递的参数）
+    // 为Client添加一个异步事件监听器（只监听无回调函数的事件，能获取到inBackground(Object context)传递的参数）
     curatorClient
         .getCuratorListenable()
         .addListener((client, event) -> log.info("CuratorListener -> '{}'", event));
@@ -162,7 +161,6 @@ class OpUserWebApplicationTests {
     System.out.println(stat);
     // 异步删除
     System.out.println("异步删除节点,此时节点创建状态，node:" + forPath);
-    var countDownLatch = new CountDownLatch(1);
     curatorClient
         .delete()
         .guaranteed() // 保证删除，会一直重试直到连接失效。
@@ -170,10 +168,10 @@ class OpUserWebApplicationTests {
         .inBackground(
             (client, event) -> {
               log.info("删除节点完成 -> '{}'", event);
-              countDownLatch.countDown();
             })
         .forPath(node);
-    countDownLatch.await();
+    curatorClient.delete().inBackground().forPath(node + "/2");
+    Thread.sleep(5000);
   }
 
   @Test
@@ -208,6 +206,7 @@ class OpUserWebApplicationTests {
   }
 
   @Test
+  @Transactional
   void testLock() {
     var name = distributedLocker.getLockNameGenerator().generate("test", "1");
     var tryLock = distributedLocker.tryLock(name);
@@ -258,6 +257,7 @@ class OpUserWebApplicationTests {
   }
 
   @Test
+  @Transactional
   void testMybatis() {
     var userDOList = userMapper.selectList();
     System.out.println(kson.writeJson(userDOList));
