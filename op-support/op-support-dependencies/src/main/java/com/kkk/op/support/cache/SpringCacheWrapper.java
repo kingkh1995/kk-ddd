@@ -1,18 +1,17 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.Cache;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import org.springframework.cache.Cache;
 
 /**
  * 封装 spring cache <br>
  *
  * @author KaiKoo
  */
-public abstract class SpringCacheWrapper implements EntityCache {
+public abstract class SpringCacheWrapper implements Cache {
 
-  public abstract Cache getCache();
+  public abstract org.springframework.cache.Cache getCache();
 
   @Override
   public String getName() {

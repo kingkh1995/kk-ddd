@@ -2,10 +2,9 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.exception.BusinessException;
+import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.CacheableRepository;
-import com.kkk.op.support.marker.DistributedLocker;
-import com.kkk.op.support.marker.EntityCache;
-import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import com.kkk.op.support.marker.NameGenerator;
@@ -38,10 +37,7 @@ import org.springframework.lang.Nullable;
 public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends Identifier>
     implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
-  @Getter(AccessLevel.PROTECTED)
-  private final DistributedLocker distributedLocker;
-
-  @Nullable private final EntityCache cache;
+  @Nullable private final Cache cache;
 
   @Getter private final boolean autoCaching;
 
@@ -67,9 +63,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     this.tClassName = split[split.length - 1];
   }
 
-  public EntityRepositorySupport(
-      @NotNull DistributedLocker distributedLocker, @Nullable EntityCache cache) {
-    this.distributedLocker = Objects.requireNonNull(distributedLocker);
+  public EntityRepositorySupport(@Nullable Cache cache) {
     // 开启自动缓存时才需要CacheManager
     if (this.isAutoCaching()) {
       Objects.requireNonNull(cache);
@@ -98,7 +92,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   /** 以下是Cache相关方法 */
   @Override
-  public EntityCache getCache() {
+  public Cache getCache() {
     return Objects.requireNonNull(this.cache);
   }
 
@@ -136,18 +130,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   // ===============================================================================================
 
-  public String generateLockName(@NotNull ID id) {
-    return this.distributedLocker
-        .getLockNameGenerator()
-        .generate(this.artifact, this.tClassName, Objects.requireNonNull(id).identifier());
-  }
-
   // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换
   protected void tryLockThenConsume(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
-    var finished =
-        this.getDistributedLocker()
-            .tryRun(this.generateLockName(entity.getId()), () -> consumer.accept(entity));
-    if (!finished) {
+    if (!EntityLocker.tryLockThenRun(entity, () -> consumer.accept(entity))) {
       throw new BusinessException("尝试的人太多了，请稍后再试！");
     }
   }

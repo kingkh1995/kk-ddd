@@ -2,6 +2,8 @@ package com.kkk.op.support.base;
 
 import com.kkk.op.support.marker.Identifiable;
 import com.kkk.op.support.marker.Identifier;
+import com.kkk.op.support.marker.NameGenerator;
+import javax.validation.constraints.NotBlank;
 
 /**
  * Entity：拥有唯一标识和业务行为，尽可能的由DP组成 <br>
@@ -16,6 +18,8 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
 
   /** 设置id */
   protected abstract void setId(ID id);
+
+  public abstract @NotBlank String generateLockName(NameGenerator lockNameGenerator);
 
   @Override
   public void fillInId(ID id) {

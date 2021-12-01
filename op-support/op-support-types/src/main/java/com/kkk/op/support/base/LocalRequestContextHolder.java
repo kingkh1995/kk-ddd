@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
  *
  * @author KaiKoo
  */
-public class LocalRequestContextHolder {
+public final class LocalRequestContextHolder {
 
   private LocalRequestContextHolder() throws IllegalAccessException {
     throw new IllegalAccessException();

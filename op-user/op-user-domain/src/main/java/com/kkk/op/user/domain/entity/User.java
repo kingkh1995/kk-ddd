@@ -2,8 +2,10 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
+import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.user.domain.types.UserId;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -43,4 +45,10 @@ public class User extends Aggregate<UserId> {
 
   @Override
   public void validate() {}
+
+  @Override
+  public String generateLockName(NameGenerator lockNameGenerator) {
+    return lockNameGenerator.generate(
+        "user", "User", Objects.requireNonNull(this.getId()).identifier());
+  }
 }

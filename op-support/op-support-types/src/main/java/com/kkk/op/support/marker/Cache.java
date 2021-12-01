@@ -11,7 +11,7 @@ import org.springframework.lang.Nullable;
  *
  * @author KaiKoo
  */
-public interface EntityCache {
+public interface Cache {
 
   String getName();
 

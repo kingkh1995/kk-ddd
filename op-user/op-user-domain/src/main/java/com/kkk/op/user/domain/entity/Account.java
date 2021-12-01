@@ -6,12 +6,14 @@ import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
+import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.support.types.Version;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -47,6 +49,12 @@ public class Account extends Entity<AccountId> {
     if (this.userId == null) {
       throw new IllegalArgumentException("userId不能为空");
     }
+  }
+
+  @Override
+  public String generateLockName(NameGenerator lockNameGenerator) {
+    return lockNameGenerator.generate(
+        "user", "Account", Objects.requireNonNull(this.getId()).identifier());
   }
 
   public void remove(AccountService accountService) {

@@ -2,7 +2,7 @@ package com.kkk.op.support.cache;
 
 import com.kkk.op.support.annotation.DegradedService;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.Cache;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
  */
 @DegradedService(callbackClass = DegradedMockCache.class)
 @AllArgsConstructor
-public class MockCache implements EntityCache {
+public class MockCache implements Cache {
 
   private final String name;
 

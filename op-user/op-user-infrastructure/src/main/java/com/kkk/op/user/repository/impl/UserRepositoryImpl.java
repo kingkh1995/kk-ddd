@@ -6,8 +6,7 @@ import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.DistributedLocker;
-import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.tool.SleepHelper;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
@@ -47,14 +46,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   private final AccountMapper accountMapper;
 
   public UserRepositoryImpl(
-      final DistributedLocker distributedLocker,
-      final EntityCache cache,
-      final UserMapper userMapper,
-      final AccountMapper accountMapper) {
+      final Cache cache, final UserMapper userMapper, final AccountMapper accountMapper) {
     // 使用ThreadLocalAggregateTrackingManager
     super(
-            distributedLocker,
-            cache,
+        cache,
         ThreadLocalAggregateTrackingManager.<User, UserId>builder()
             .snapshooter(Snapshooter.identity()) // todo... snapshooter
             .build());
@@ -105,21 +100,21 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
               var oldValue = (Account) accountDiff.getOldValue();
               var newValue = (Account) accountDiff.getNewValue();
               switch (accountDiff.getChangeType()) {
-                // 新增情况
-                case Added -> {
-                  var accountDO = accountDataConverter.toData(newValue);
-                  accountMapper.insert(accountDO);
-                  // 填补id
-                  newValue.fillInId(AccountId.from(accountDO.getId()));
-                }
-                // 移除情况
-                case Removed -> accountMapper.deleteById(oldValue.getId().getValue());
-                // 更新情况
-                case Modified -> {
-                  if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
-                    throw new BusinessException("Update failed by OCC!");
+                  // 新增情况
+                  case Added -> {
+                    var accountDO = accountDataConverter.toData(newValue);
+                    accountMapper.insert(accountDO);
+                    // 填补id
+                    newValue.fillInId(AccountId.from(accountDO.getId()));
                   }
-                }
+                  // 移除情况
+                  case Removed -> accountMapper.deleteById(oldValue.getId().getValue());
+                  // 更新情况
+                  case Modified -> {
+                    if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
+                      throw new BusinessException("Update failed by OCC!");
+                    }
+                  }
               }
             });
   }

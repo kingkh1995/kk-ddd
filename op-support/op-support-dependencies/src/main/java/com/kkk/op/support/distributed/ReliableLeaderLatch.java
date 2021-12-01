@@ -68,12 +68,14 @@ public class ReliableLeaderLatch {
     return id.equals(latch.getLeader().getId());
   }
 
-  public void doWorkIfHasLeadership(Runnable runnable) throws Exception {
+  public boolean doWorkIfHasLeadership(Runnable runnable) throws Exception {
     if (this.hasLeadership()) {
       log.info("{} run as leader now!", id);
       runnable.run();
+      return true;
     } else {
       log.info("{} run as slave now!", id);
+      return false;
     }
   }
 }

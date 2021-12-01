@@ -1,6 +1,5 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.annotation.EventProcessor;
 import com.kkk.op.support.base.ApplicationContextAwareBean;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -82,7 +81,7 @@ public abstract class FsmEngineSupport<
   private static final String[] DEFAULT = new String[] {"#"};
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
     if (this.processorMap != null) {
       return;
     }

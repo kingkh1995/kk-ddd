@@ -14,8 +14,8 @@ import com.kkk.op.support.distributed.CuratorDistributedLocker;
 import com.kkk.op.support.interceptor.IPControlInterceptor;
 import com.kkk.op.support.interceptor.LocalRequestInterceptor;
 import com.kkk.op.support.interceptor.ThreadLocalRemoveInterceptor;
+import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLocker;
-import com.kkk.op.support.marker.EntityCache;
 import java.util.concurrent.TimeUnit;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -61,9 +61,9 @@ public class BaseConfiguration implements WebMvcConfigurer {
     return CuratorDistributedLocker.builder().client(curatorFramework).build();
   }
 
-  // 配置CacheManager
+  // 配置Cache
   @Bean
-  public EntityCache cacheManager(RedissonClient redissonClient) {
+  public Cache cache(RedissonClient redissonClient) {
     return RedisCache.builder()
         .name("RedisCache")
         .redissonClient(redissonClient)

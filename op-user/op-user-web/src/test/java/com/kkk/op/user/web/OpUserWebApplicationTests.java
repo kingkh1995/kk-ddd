@@ -7,9 +7,9 @@ import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.enums.AccountStateEnum;
+import com.kkk.op.support.marker.Cache;
+import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.DistributedLocker;
-import com.kkk.op.support.marker.EntityCache;
-import com.kkk.op.support.marker.EntityCache.ValueWrapper;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -64,7 +64,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private WheelTimer wheelTimer;
 
-  @Autowired private EntityCache cache;
+  @Autowired private Cache cache;
 
   @Autowired private DistributedLocker distributedLocker;
 

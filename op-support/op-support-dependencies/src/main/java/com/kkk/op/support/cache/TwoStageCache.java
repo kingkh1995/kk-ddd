@@ -1,6 +1,6 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.marker.EntityCache;
+import com.kkk.op.support.marker.Cache;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  * @author KaiKoo
  */
 @Slf4j
-public class TwoStageCache implements EntityCache {
+public class TwoStageCache implements Cache {
 
   private final String name;
   private final LocalCache localCache;
