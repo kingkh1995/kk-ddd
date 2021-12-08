@@ -1,7 +1,6 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
-import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.marker.NameGenerator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,7 @@ import org.redisson.api.RedissonClient;
  */
 @Slf4j
 @Builder
-public class RedissonDistributedLockFactory implements DistributedLockFactory {
+public class RedissonDistributedLockFactory extends AbstractDistributedLockFactory {
 
   private final RedissonClient client;
 
@@ -46,8 +45,8 @@ public class RedissonDistributedLockFactory implements DistributedLockFactory {
     }
 
     @Override
-    public boolean isLocked() {
-      return this.lock.isLocked();
+    public boolean tryLock() {
+      return this.lock.tryLock();
     }
 
     @Override

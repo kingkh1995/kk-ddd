@@ -52,14 +52,13 @@ public abstract class FsmEngineSupport<
 
   private P getEventProcessor(C context) {
     // 查询事件处理器集合
-    var op =
+    var processorList =
         this.acquireEventProcessor(
-            context.getEvent().getEventType(),
-            context.getState(),
-            context.getBiz(),
-            context.getScene());
-    op.orElseThrow(() -> new FsmEngineException("No processor found!"));
-    var processorList = op.get();
+                context.getEvent().getEventType(),
+                context.getState(),
+                context.getBiz(),
+                context.getScene())
+            .orElseThrow(() -> new FsmEngineException("No processor found!"));
     log.info(
         "processorList:{}",
         processorList.stream()
@@ -94,9 +93,8 @@ public abstract class FsmEngineSupport<
         continue;
       }
       // 第一层key是事件
-      String eventType = eventProcessor.event();
       this.processorMap.compute(
-          eventType,
+          eventProcessor.event(),
           (k1, eventMap) -> {
             if (eventMap == null) {
               eventMap = new HashMap<>();

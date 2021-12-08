@@ -9,7 +9,7 @@ import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
-import com.kkk.op.support.marker.DistributedLocker;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
@@ -66,7 +67,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private Cache cache;
 
-  @Autowired private DistributedLocker distributedLocker;
+  @Autowired private DistributedLockFactory distributedLockFactory;
 
   @Autowired private StringRedisTemplate stringRedisTemplate;
 
@@ -81,6 +82,20 @@ class OpUserWebApplicationTests {
   @Autowired private AccountRepository accountRepository;
 
   @Autowired private AccountAssembler accountAssembler;
+
+  @Test
+  void test() throws InterruptedException {
+    var lock = distributedLockFactory.getLock("lock:test:007");
+    System.out.println(lock.tryLock());
+    Thread.sleep(10000);
+    System.out.println(lock.tryLock());
+    lock.unlock();
+    Thread.sleep(10000);
+    System.out.println(lock.tryLock());
+    lock.unlock();
+    lock.unlock();
+    Thread.sleep(5000);
+  }
 
   @Test
   void testZookeeper() throws Exception {
@@ -177,52 +192,59 @@ class OpUserWebApplicationTests {
   @Test
   void testFlashSale() {
     var item = "A0001";
-    stringRedisTemplate.delete(List.of(item, item + "_limit", item + "_user", item + "_context"));
+    var iteml = item + ":limit";
+    var itemu = item + ":user";
+    var itemc = item + ":context";
     var script = new DefaultRedisScript<Long>();
     script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
     script.setResultType(Long.class);
     var sha1 = script.getSha1();
     System.out.println(sha1);
-    System.out.println(stringRedisTemplate.execute(script, List.of(item, "a001", "2", "id:a001")));
+    System.out.println(stringRedisTemplate.execute(script, List.of(item, "a001", "2", "num:2")));
     stringRedisTemplate.opsForValue().set(item, "20");
-    stringRedisTemplate.opsForValue().set(item + "_limit", "3");
+    stringRedisTemplate.opsForValue().set(iteml, "3");
     var rScript = redissonClient.getScript();
     var eval1 =
         rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 2, "id:a001"));
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 2, "num:2"));
     System.out.println(eval1);
     System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
     var eval2 =
         rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "id:a001"));
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "num:1"));
     System.out.println(eval2);
     System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
     var eval3 =
         rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "id:a001"));
+            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "num:1"));
     System.out.println(eval3);
     System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
+    stringRedisTemplate.delete(List.of(item, iteml, itemu, itemc));
     rScript.scriptFlush();
   }
 
   @Test
-  @Transactional
-  void testLock() {
-    var name = distributedLocker.getLockNameGenerator().generate("test", "1");
-    var tryLock = distributedLocker.tryLock(name);
-    System.out.println(tryLock);
-    var tryRun =
-        distributedLocker.tryRun(
-            name,
-            () -> {
-              try {
-                Thread.sleep(2000);
-              } catch (InterruptedException e) {
-                e.printStackTrace();
-              }
-            });
-    System.out.println(tryRun);
-    distributedLocker.unlock(name);
+  void testLock() throws Exception {
+    var name1 = distributedLockFactory.getLockNameGenerator().generate("test", "1");
+    var name2 = distributedLockFactory.getLockNameGenerator().generate("test", "2");
+    var name3 = distributedLockFactory.getLockNameGenerator().generate("test", "3");
+    var list = List.of(name1, name2, name3);
+    var multiLock = distributedLockFactory.getMultiLock(list);
+    log.info("multi lock '{}' return '{}'", list, multiLock.tryLock());
+    var slist = List.of(name2, name3);
+    var smultiLock = distributedLockFactory.getMultiLock(slist);
+    log.info("multi lock '{}' return '{}'", slist, smultiLock.tryLock());
+    var lock = distributedLockFactory.getLock(name1);
+    log.info("lock '{}' return '{}'", name1, lock.tryLock());
+    log.info("lock '{}' return '{}'", name1, lock.tryLock());
+    lock.unlock();
+    lock.unlock();
+    CompletableFuture.runAsync(() -> log.info("async lock '{}' return '{}'", name1, lock.tryLock()))
+        .get();
+    log.info("lock '{}' return '{}'", list, multiLock.tryLock());
+    multiLock.unlock();
+    multiLock.unlock();
+    smultiLock.unlock();
   }
 
   @Test
@@ -244,6 +266,7 @@ class OpUserWebApplicationTests {
   }
 
   @Test
+  @Transactional
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
     System.out.println(kson.writeJson(account));
@@ -254,6 +277,7 @@ class OpUserWebApplicationTests {
     var target = new AccountDTO();
     accountAssembler.buildDTO(UserId.from(100L), account, target);
     System.out.println(target);
+    accountRepository.remove(account);
   }
 
   @Test
@@ -365,7 +389,6 @@ class OpUserWebApplicationTests {
                         } catch (BrokenBarrierException e) {
                           e.printStackTrace();
                         }
-                        log.info("Round <{}>", i);
                         consumer.accept(i);
                         countDownLatch.countDown();
                       })

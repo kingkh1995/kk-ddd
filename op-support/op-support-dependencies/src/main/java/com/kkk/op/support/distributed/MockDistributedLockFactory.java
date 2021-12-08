@@ -1,9 +1,9 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
-import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.Arrays;
 import java.util.List;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -12,7 +12,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author KaiKoo
  */
 @Slf4j
-public class MockDistributedLockeFactory implements DistributedLockFactory {
+@Builder
+public class MockDistributedLockFactory extends AbstractDistributedLockFactory {
 
   @Override
   public DistributedLock getLock(String name) {
@@ -30,12 +31,6 @@ public class MockDistributedLockeFactory implements DistributedLockFactory {
 
     public MockLock(String... names) {
       this.names = names;
-    }
-
-    @Override
-    public boolean isLocked() {
-      log.info("MockLock '{}' is always not locked!", Arrays.toString(names));
-      return false;
     }
 
     @Override

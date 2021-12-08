@@ -10,22 +10,26 @@ import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.cache.RedisCache;
-import com.kkk.op.support.distributed.CuratorDistributedLocker;
+import com.kkk.op.support.distributed.RedisDistributedLockFactory;
 import com.kkk.op.support.interceptor.IPControlInterceptor;
 import com.kkk.op.support.interceptor.LocalRequestInterceptor;
 import com.kkk.op.support.interceptor.ThreadLocalRemoveInterceptor;
 import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.DistributedLocker;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.concurrent.TimeUnit;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import org.apache.curator.framework.CuratorFramework;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.hibernate.validator.HibernateValidator;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.CacheConfig;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -35,7 +39,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author KaiKoo
  */
 @Configuration
-public class BaseConfiguration implements WebMvcConfigurer {
+public class BaseConfiguration implements WebMvcConfigurer, ApplicationContextAware {
 
   // todo... 配合nacos配置中心实时刷新
   @Value("${ipControl.switch:true}")
@@ -55,11 +59,28 @@ public class BaseConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**"); // 最后执行
   }
 
-  // 配置分布式可重入锁bean
-  @Bean
-  public DistributedLocker distributedLock(CuratorFramework curatorFramework) {
-    return CuratorDistributedLocker.builder().client(curatorFramework).build();
+  // todo... ApplicationContext完成后操作
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    // 从spring容器获取sqlSessionFactory再获取到typeHandler注册器
+    var typeHandlerRegistry =
+        applicationContext
+            .getBean(SqlSessionFactory.class)
+            .getConfiguration()
+            .getTypeHandlerRegistry();
   }
+
+  // 配置分布式可重入锁工厂
+  @Bean
+  public DistributedLockFactory distributedLockFactory(StringRedisTemplate stringRedisTemplate) {
+    return RedisDistributedLockFactory.builder().redisTemplate(stringRedisTemplate).build();
+  }
+  /*public DistributedLockFactory distributedLockFactory(RedissonClient redissonClient) {
+    return RedissonDistributedLockFactory.builder().client(redissonClient).build();
+  }*/
+  /*public DistributedLockFactory distributedLockFactory(CuratorFramework curatorFramework) {
+    return CuratorDistributedLockFactory.builder().client(curatorFramework).build();
+  }*/
 
   // 配置Cache
   @Bean

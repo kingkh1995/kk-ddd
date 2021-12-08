@@ -6,28 +6,35 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 分布式锁工具类 <br>
  *
  * @author KaiKoo
  */
+@Slf4j
 public final class EntityLocker {
 
-  private static DistributedLockFactory factory;
+  private static DistributedLockFactory FACTORY;
+
+  public static void setFactory(@NotNull DistributedLockFactory factory) {
+    log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
+    FACTORY = factory;
+  }
 
   private EntityLocker() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
 
   public static DistributedLock getLock(@NotNull Entity<?> entity) {
-    return factory.getLock(entity.generateLockName(factory.getLockNameGenerator()));
+    return FACTORY.getLock(entity.generateLockName(FACTORY.getLockNameGenerator()));
   }
 
   public static DistributedLock getMultiLock(@Size(min = 2) List<Entity<?>> entities) {
-    return factory.getMultiLock(
+    return FACTORY.getMultiLock(
         entities.stream()
-            .map(entity -> entity.generateLockName(factory.getLockNameGenerator()))
+            .map(entity -> entity.generateLockName(FACTORY.getLockNameGenerator()))
             .toList());
   }
 
