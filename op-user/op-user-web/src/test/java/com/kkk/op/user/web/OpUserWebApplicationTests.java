@@ -84,18 +84,7 @@ class OpUserWebApplicationTests {
   @Autowired private AccountAssembler accountAssembler;
 
   @Test
-  void test() throws InterruptedException {
-    var lock = distributedLockFactory.getLock("lock:test:007");
-    System.out.println(lock.tryLock());
-    Thread.sleep(10000);
-    System.out.println(lock.tryLock());
-    lock.unlock();
-    Thread.sleep(10000);
-    System.out.println(lock.tryLock());
-    lock.unlock();
-    lock.unlock();
-    Thread.sleep(5000);
-  }
+  void test() throws Exception {}
 
   @Test
   void testZookeeper() throws Exception {
@@ -266,7 +255,6 @@ class OpUserWebApplicationTests {
   }
 
   @Test
-  @Transactional
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
     System.out.println(kson.writeJson(account));
@@ -277,7 +265,6 @@ class OpUserWebApplicationTests {
     var target = new AccountDTO();
     accountAssembler.buildDTO(UserId.from(100L), account, target);
     System.out.println(target);
-    accountRepository.remove(account);
   }
 
   @Test
@@ -300,7 +287,9 @@ class OpUserWebApplicationTests {
         PageHelper.startPage(2, 1)
             .doSelectPage(() -> userMapper.selectListByGender(userDO.getGender()));
     System.out.println(kson.writeJson(page));
-    System.out.println(accountMapper.deleteByUserId(userDOList.get(1).getId()));
+    var account = accountRepository.find(AccountId.from(userDOList.get(1).getId())).get();
+    System.out.println(kson.writeJson(account));
+    accountRepository.remove(account);
   }
 
   @Test

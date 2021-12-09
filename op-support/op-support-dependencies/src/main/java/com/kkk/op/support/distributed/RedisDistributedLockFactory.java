@@ -84,8 +84,8 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
   private static final String ID = UUID.randomUUID().toString().replace("-", "").substring(16);
 
-  public static String getSeq(String name) {
-    return name + ":" + ID + ":" + Thread.currentThread().getId();
+  public static String getSeq() {
+    return ID + ":" + Thread.currentThread().getId();
   }
 
   @Override
@@ -95,7 +95,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
   @Override
   public DistributedLock getMultiLock(List<String> names) {
-    return null;
+    return new RedisMultiLock(names, this);
   }
 
   private final Map<String, Bone> bowl = new ConcurrentHashMap<>();
@@ -112,25 +112,25 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
   }
 
   private static final RedisScript<Boolean> WATCH_SCRIPT = new DefaultRedisScript<>("""
-            if redis.call('GET', KEYS[1]) == KEYS[2] then
-                return redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
-            else
-                return false
-            end
-            """, Boolean.class);
+          if redis.call('GET', KEYS[1]) == KEYS[2] then
+              return redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
+          else
+              return false
+          end
+          """, Boolean.class);
 
   public void watch(String name, String seq) {
     var bone = new Bone(name, seq);
-    if (this.bowl.putIfAbsent(name, bone) != null) {
+    if (this.bowl.putIfAbsent(name, bone) == null) {
+      log.info("Doggy start watching '{}'!", name);
+    } else {
       log.warn("Doggy has watched '{}'!", name);
       throw new IllegalCallerException();
-    } else {
-      log.info("Doggy start watching '{}'!", name);
     }
-    watch(bone);
+    watch0(bone);
   }
 
-  public void watch(Bone bone) {
+  public void watch0(Bone bone) {
     // 延迟 2/3 expireMills 执行脚本
     bone.future =
         this.watchDog.schedule(
@@ -148,7 +148,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
                     result);
                 // 如果延长成功，继续watch
                 if (result != null && result) {
-                  watch(bone);
+                  watch0(bone);
                 }
               } catch (Exception e) {
                 log.warn("Dog watching execute error!", e);
@@ -167,6 +167,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
           // 返回null表示移除键
           return null;
         });
+    log.info("Currently holding {} bones.", this.bowl.size());
   }
 
   @AllArgsConstructor
@@ -184,23 +185,23 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
     private static final RedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>("""
             local seq = redis.call('GET', KEYS[1])
+            local ckey = KEYS[1] .. ':' .. KEYS[2]
             -- 键不存在时需要使用false判断
             if seq == false then
                 -- 初次获取锁
                 redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
-                redis.call('SET', KEYS[2], 1)
+                redis.call('SET', ckey, 1)
                 return 1
             elseif seq == KEYS[2] then
                 -- 锁重入
-                redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
-                return redis.call('INCR', KEYS[2])
+                return redis.call('INCR', ckey)
             else
                 return 0
             end
             """, Long.class);
 
     private boolean tryLock0() {
-      var seq = getSeq(this.name);
+      var seq = getSeq();
       // 使用StringRedisTemplate执行lua脚本时要求参数必须为String类型
       var result =
           this.factory.redisTemplate.execute(
@@ -221,10 +222,11 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
     private static final RedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
           if redis.call('GET', KEYS[1]) == KEYS[2] then
-              local count = redis.call('DECR', KEYS[2])
+              local ckey = KEYS[1] .. ':' .. KEYS[2]
+              local count = redis.call('DECR', ckey)
               -- 如果加锁次数减少为0则删除锁信息
               if count <= 0 then
-                  redis.call('DEL', KEYS[1], KEYS[2])
+                  redis.call('DEL', KEYS[1], ckey)
               end
               -- 返回当前加锁次数
               return count
@@ -235,7 +237,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
     @Override
     public void unlock() {
-      var seq = getSeq(this.name);
+      var seq = getSeq();
       var result = this.factory.redisTemplate.execute(UNLOCK_SCRIPT, Arrays.asList(this.name, seq));
       log.info("Unlock '{}' use '{}' return '{}'.", this.name, seq, result);
       // result大于0表示锁仍然被持有，等于0表示锁完全释放，小于0为异常情况

@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
@@ -24,7 +25,7 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 @Builder
 public class CuratorDistributedLockFactory extends AbstractDistributedLockFactory {
 
-  private final CuratorFramework client;
+  @NonNull private final CuratorFramework client;
 
   // ThreadLocal使用时尽量用static修饰、理论上不会出现内存泄漏，因为加锁成功后就一定会释放锁。
   private static final ThreadLocal<Map<String, InterProcessMutex>> holder =

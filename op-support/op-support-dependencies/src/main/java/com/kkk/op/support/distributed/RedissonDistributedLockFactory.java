@@ -5,6 +5,7 @@ import com.kkk.op.support.marker.NameGenerator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -18,7 +19,7 @@ import org.redisson.api.RedissonClient;
 @Builder
 public class RedissonDistributedLockFactory extends AbstractDistributedLockFactory {
 
-  private final RedissonClient client;
+  @NonNull private final RedissonClient client;
 
   @Override
   public NameGenerator getLockNameGenerator() {

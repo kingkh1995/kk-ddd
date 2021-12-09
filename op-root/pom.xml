@@ -20,11 +20,11 @@
     <java.version>17</java.version>
     <spring-boot.version>2.6.1</spring-boot.version>
     <guava.version>31.0.1-jre</guava.version>
-    <caffeine.version>3.0.4</caffeine.version>
+    <caffeine.version>3.0.5</caffeine.version>
     <springfox.version>3.0.0</springfox.version>
     <mybatis.version>3.5.7</mybatis.version>
     <pagehelper.version>1.4.1</pagehelper.version>
-    <redisson.version>3.16.5</redisson.version>
+    <redisson.version>3.16.6</redisson.version>
     <curator.version>5.2.0</curator.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
     <ttl.version>2.12.2</ttl.version>

@@ -6,15 +6,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import javax.sql.DataSource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * 数据库分布式锁，基于事务和 select for update nowait实现，要求PreparedStatement为线程安全 <br>
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Builder
 public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
 
-  private final DataSource dataSource;
+  @NonNull private final DataSourceTransactionManager transactionManager;
 
   @Default private final long spinInterval = 200L;
 
@@ -40,7 +41,11 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
   @Override
   public DistributedLock getLock(String name) {
     return new Lock(
-        name, this.dataSource, this.spinInterval, this.select4UpdateNowaitSql, this.insertSql);
+        name,
+        this.transactionManager,
+        this.spinInterval,
+        this.select4UpdateNowaitSql,
+        this.insertSql);
   }
 
   @Override
@@ -50,12 +55,11 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
   }
 
   @AllArgsConstructor
-  @Transactional(propagation = Propagation.MANDATORY) // 设置要求必须存在事务
   private static class Lock implements DistributedLock {
 
     private final String name;
 
-    private final DataSource dataSource;
+    private final DataSourceTransactionManager transactionManager;
 
     private final long spinInterval;
 
@@ -63,24 +67,52 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
 
     private final String insertSql;
 
-    @Override
-    public boolean tryLock() {
-      return DistributedLock.super.tryLock();
+    private static final TransactionDefinition TD =
+        new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY);
+
+    private Connection getConnection() {
+      // 获取事务，要求必须存在事务
+      this.transactionManager.getTransaction(TD);
+      // 获取当前连接，如果不存在会创建一个。
+      return DataSourceUtils.getConnection(this.transactionManager.getDataSource());
     }
 
     @Override
     public boolean tryLock(long waitSeconds) {
-      // 获取当前连接，如果不存在会创建一个。
-      var connection = DataSourceUtils.getConnection(this.dataSource);
-      // 获取当前隔离级别
-      var isolation = getTransactionIsolation(connection);
+      var connection = getConnection();
       // 执行select4update需要设置隔离级别为RC，因为RR级别下如果未匹配到数据会加上间隙锁，之后的插入操作会导致死锁，结果会是无法并发获取锁。
-      setTransactionIsolation(connection, Isolation.READ_COMMITTED.value());
+      var isolation = setTransactionIsolation(connection, Isolation.READ_COMMITTED.value());
+      // 需要将readOnly置为false
+      var readOnly = setReadOnly(connection, false);
       try {
         return tryLock0(connection, waitSeconds);
       } finally {
-        // 执行结束将隔离级别回滚
+        // 执行结束将隔离级别回滚和readOnly标识
         setTransactionIsolation(connection, isolation);
+        setReadOnly(connection, readOnly);
+      }
+    }
+
+    private int setTransactionIsolation(Connection connection, int isolation) {
+      try {
+        var backup = connection.getTransactionIsolation();
+        connection.setTransactionIsolation(isolation);
+        return backup;
+      } catch (SQLException e) {
+        log.error(
+            "*This should be unreachable!* JdbcDistributedLock set transactionIsolation error!", e);
+        return Isolation.DEFAULT.value();
+      }
+    }
+
+    private boolean setReadOnly(Connection connection, boolean readOnly) {
+      try {
+        var backup = connection.isReadOnly();
+        connection.setReadOnly(readOnly);
+        return backup;
+      } catch (SQLException e) {
+        log.error("*This should be unreachable!* JdbcDistributedLock set readOnly error!", e);
+        return false;
       }
     }
 
@@ -110,25 +142,6 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
       } catch (Exception e) {
         log.error("JdbcDistributedLock lock error!", e);
         return false;
-      }
-    }
-
-    private int getTransactionIsolation(Connection connection) {
-      try {
-        return connection.getTransactionIsolation();
-      } catch (SQLException e) {
-        log.error(
-            "*This should be unreachable!* JdbcDistributedLock get transactionIsolation error!", e);
-        return Isolation.DEFAULT.value();
-      }
-    }
-
-    private void setTransactionIsolation(Connection connection, int isolation) {
-      try {
-        connection.setTransactionIsolation(isolation);
-      } catch (SQLException e) {
-        log.error(
-            "*This should be unreachable!* JdbcDistributedLock set transactionIsolation error!", e);
       }
     }
 
