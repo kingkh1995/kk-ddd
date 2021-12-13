@@ -24,7 +24,8 @@ import org.springframework.data.redis.core.script.RedisScript;
 
 /**
  * 基于redis的分布式锁实现 （适用于redis单机模式，或者对可用性要求不是特别高） <br>
- * 主从模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了
+ * 主从模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了  <br>
+ * 基于lua脚本，使用一个键保存锁信息，一个键保存加锁次数。
  *
  * @author KaiKoo
  */
@@ -82,10 +83,10 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
     return NameGenerator.joiner(":", "lock:", "");
   }
 
-  private static final String ID = UUID.randomUUID().toString().replace("-", "").substring(16);
+  private static final String ID = ":" + UUID.randomUUID().toString().replace("-", "").substring(20) + ":";
 
   public static String getSeq() {
-    return ID + ":" + Thread.currentThread().getId();
+    return ID + Thread.currentThread().getId();
   }
 
   @Override
@@ -127,6 +128,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
       log.warn("Doggy has watched '{}'!", name);
       throw new IllegalCallerException();
     }
+    log.info("Currently holding {} bones.", this.bowl.size());
     watch0(bone);
   }
 
@@ -185,7 +187,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
     private static final RedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>("""
             local seq = redis.call('GET', KEYS[1])
-            local ckey = KEYS[1] .. ':' .. KEYS[2]
+            local ckey = KEYS[1] .. KEYS[2]
             -- 键不存在时需要使用false判断
             if seq == false then
                 -- 初次获取锁
@@ -222,7 +224,7 @@ public class RedisDistributedLockFactory extends AbstractDistributedLockFactory 
 
     private static final RedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
           if redis.call('GET', KEYS[1]) == KEYS[2] then
-              local ckey = KEYS[1] .. ':' .. KEYS[2]
+              local ckey = KEYS[1] .. KEYS[2]
               local count = redis.call('DECR', ckey)
               -- 如果加锁次数减少为0则删除锁信息
               if count <= 0 then

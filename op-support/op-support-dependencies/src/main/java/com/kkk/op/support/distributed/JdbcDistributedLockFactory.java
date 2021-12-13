@@ -5,6 +5,7 @@ import com.kkk.op.support.tool.SleepHelper;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,7 +75,8 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
       // 获取事务，要求必须存在事务
       this.transactionManager.getTransaction(TD);
       // 获取当前连接，如果不存在会创建一个。
-      return DataSourceUtils.getConnection(this.transactionManager.getDataSource());
+      return DataSourceUtils.getConnection(
+          Objects.requireNonNull(this.transactionManager.getDataSource()));
     }
 
     @Override
@@ -87,7 +89,7 @@ public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
       try {
         return tryLock0(connection, waitSeconds);
       } finally {
-        // 执行结束将隔离级别回滚和readOnly标识
+        // 执行结束将隔离级别和readOnly标识回滚
         setTransactionIsolation(connection, isolation);
         setReadOnly(connection, readOnly);
       }

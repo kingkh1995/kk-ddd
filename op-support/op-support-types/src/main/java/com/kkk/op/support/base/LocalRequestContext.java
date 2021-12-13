@@ -26,8 +26,7 @@ public class LocalRequestContext {
    *
    * <p>todo... 日志打印自动添加traceId
    */
-  @Getter @Default
-  private final String traceId = UUID.randomUUID().toString().replace("-", "").substring(16);
+  @Getter @Default private final String traceId = UUID.randomUUID().toString();
 
   /** 请求时间戳（请求处理过程中作为当前时间） */
   @Default private final Instant timestamp = Instant.now();

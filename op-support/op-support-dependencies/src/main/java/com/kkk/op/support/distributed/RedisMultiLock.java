@@ -62,7 +62,7 @@ public class RedisMultiLock implements DistributedLock {
           -- 执行操作
           for i = 1, size
           do
-              local ckey = KEYS[i] .. ':' .. seq
+              local ckey = KEYS[i] .. seq
               if list[i] == 1 then
                   -- 初次获取锁
                   redis.call('SET', KEYS[i], seq, 'PX', ARGV[1])
@@ -103,7 +103,7 @@ public class RedisMultiLock implements DistributedLock {
           for i = 1, #KEYS - 1
           do
               if redis.call('GET', KEYS[i]) == seq then
-                  local ckey = KEYS[i] .. ':' ..seq
+                  local ckey = KEYS[i] .. seq
                   local count = redis.call('DECR', ckey)
                   -- 如果加锁次数减少为0则删除锁信息
                   if count <= 0 then
