@@ -6,20 +6,17 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 分布式锁工具类 <br>
  *
  * @author KaiKoo
  */
-@Slf4j
 public final class EntityLocker {
 
   private static DistributedLockFactory FACTORY;
 
   public static void setFactory(@NotNull DistributedLockFactory factory) {
-    log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
     FACTORY = factory;
   }
 

@@ -5,23 +5,23 @@
 
   <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO account
-      (user_id, state, create_time)
-    VALUES (#{userId}, #{state}, #{createTime})
+      (user_id, state)
+    VALUES (#{userId}, #{state})
   </insert>
 
   <update id="updateById">
     UPDATE account
     <set>
-      version = #{version} + 1,
       <if test="state != null">
         state = #{state},
       </if>
+      version = #{version} + 1,
     </set>
     WHERE id = #{id} AND version = #{version}
   </update>
 
   <sql id="account_columns">
-    id, user_id, state, create_time, version
+    id, user_id, state, version, create_time, update_time
   </sql>
 
   <select id="selectById" resultType="com.kkk.op.user.persistence.po.AccountDO">

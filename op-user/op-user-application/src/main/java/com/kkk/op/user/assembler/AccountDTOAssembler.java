@@ -3,7 +3,6 @@ package com.kkk.op.user.assembler;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DTOAssembler;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -35,7 +34,6 @@ public enum AccountDTOAssembler implements DTOAssembler<Account, AccountDTO> {
         .map(AccountStateEnum::name)
         .ifPresent(dto::setState);
     Optional.ofNullable(account.getCreateTime())
-        .map(StampedTime::toInstant)
         .map(Instant::toEpochMilli)
         .ifPresent(dto::setCreateTimestamp);
     return dto;

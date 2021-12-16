@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Builder
-public class MockDistributedLockFactory extends AbstractDistributedLockFactory {
+public class MockDistributedLockFactory implements DistributedLockFactory {
 
   @Override
   public DistributedLock getLock(String name) {

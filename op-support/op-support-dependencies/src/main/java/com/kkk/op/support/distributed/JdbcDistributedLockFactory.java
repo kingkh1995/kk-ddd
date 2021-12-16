@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.tool.SleepHelper;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -27,7 +28,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
  */
 @Slf4j
 @Builder
-public class JdbcDistributedLockFactory extends AbstractDistributedLockFactory {
+public class JdbcDistributedLockFactory implements DistributedLockFactory {
 
   @NonNull private final DataSourceTransactionManager transactionManager;
 

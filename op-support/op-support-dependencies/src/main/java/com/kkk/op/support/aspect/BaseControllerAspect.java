@@ -1,6 +1,5 @@
 package com.kkk.op.support.aspect;
 
-import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.Kson;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,8 +42,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
     // 前置增强，打印请求信息
     var signature = (MethodSignature) point.getSignature();
     log.info(
-        "|{}| ~ [{}.{}()] ~ [request = {}]",
-        LocalRequestContextHolder.get().getTraceId(),
+        "[{}.{}()] ~ [request = {}]",
         signature.getDeclaringTypeName(),
         signature.getName(),
         this.kson.writeJson(getMethodParams(signature, point.getArgs())));
@@ -54,10 +52,7 @@ public class BaseControllerAspect extends AbstractMethodAspect {
   @Override
   public void onSucceed(JoinPoint point, Object result) {
     // 后置增强，成功时打印响应信息
-    log.info(
-        "|{}| ~ [response = {}]",
-        LocalRequestContextHolder.get().getTraceId(),
-        this.kson.writeJson(result));
+    log.info("[response = {}]", this.kson.writeJson(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {

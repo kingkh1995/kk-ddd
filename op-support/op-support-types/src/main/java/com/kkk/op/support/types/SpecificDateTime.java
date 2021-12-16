@@ -32,7 +32,7 @@ public abstract class SpecificDateTime implements Type {
       @Nullable Instant current, // 当前时间戳作为参数传入
       Boolean future,
       Boolean includePresent) {
-    // 忽略毫秒值
+    // current存在才对比（兼容读取值），且忽略毫秒值。
     if (current != null) {
       // 先对比日期 再对比时间
       var zonedCurrent = current.atZone(value.getZone());

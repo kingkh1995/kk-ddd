@@ -46,4 +46,12 @@ public class CommonTypesMapper {
   public Long mapFromStampedTime(StampedTime stampedTime) {
     return stampedTime.toInstant().toEpochMilli();
   }
+
+  public Instant map2Instant(Long l) {
+    return Instant.ofEpochMilli(l);
+  }
+
+  public Long mapFromInstant(Instant instant) {
+    return instant.toEpochMilli();
+  }
 }

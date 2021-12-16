@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RScript.Mode;
 import org.redisson.api.RScript.ReturnType;
 import org.redisson.api.RedissonClient;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
@@ -315,7 +316,6 @@ class OpUserWebApplicationTests {
         Account.builder()
             .id(AccountId.from(10))
             .state(AccountState.from(AccountStateEnum.ACTIVE))
-            .createTime(StampedTime.current())
             .build();
     var s = kson.writeJson(account);
     System.out.println(s);
@@ -334,33 +334,42 @@ class OpUserWebApplicationTests {
     var ttlExecutor = TtlExecutors.getTtlExecutor(executor);
     // 先提交一个任务，让线程池启动，创建好线程。
     executor.execute(() -> {});
-    var countDownLatch = new CountDownLatch(4);
+    var countDownLatch = new CountDownLatch(2);
     var itl = new InheritableThreadLocal<>();
     var ttl = new TransmittableThreadLocal<>();
     final var o = new Object();
     itl.set(o);
     ttl.set(o);
+    MDC.put("test", "mdc");
     executor.execute(
         () -> {
           System.out.println(o == itl.get()); // false
+          System.out.println(MDC.get("test")); // null
           countDownLatch.countDown();
         });
     ttlExecutor.execute(
         () -> {
           System.out.println(o == itl.get()); // false
-          countDownLatch.countDown();
-        });
-    executor.execute(
-        () -> {
-          System.out.println(o == ttl.get()); // false
-          countDownLatch.countDown();
-        });
-    ttlExecutor.execute(
-        () -> {
-          System.out.println(o == ttl.get()); // true
+          System.out.println(MDC.get("test")); // mdc
           countDownLatch.countDown();
         });
     countDownLatch.await();
+    System.out.println(MDC.get("test")); // mdc
+    MDC.remove("test");
+    executor.execute(
+        () -> {
+          System.out.println((o == ttl.get())); // false
+          System.out.println(MDC.get("test")); // null
+          countDownLatch.countDown();
+        });
+    ttlExecutor.execute(
+        () -> {
+          System.out.println((o == ttl.get())); // true
+          System.out.println(MDC.get("test")); // null
+          countDownLatch.countDown();
+        });
+    countDownLatch.await();
+    System.out.println(MDC.get("test")); // null
   }
 
   private static void forRun(int time, IntConsumer consumer) {

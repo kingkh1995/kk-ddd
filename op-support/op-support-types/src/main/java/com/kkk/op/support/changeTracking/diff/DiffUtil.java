@@ -38,7 +38,7 @@ public final class DiffUtil { // 工具类声明为 final
               var fields =
                   Arrays.stream(clazz.getDeclaredFields())
                       .filter(field -> !field.isAnnotationPresent(DiffIgnore.class))
-                      .filter(Field::trySetAccessible)
+                      .filter(Field::trySetAccessible) // 使用java模块化时如类未export会设置失败
                       .toArray(Field[]::new);
               FIELD_CACHE.put(clazz, new SoftReference<>(fields));
               return fields;

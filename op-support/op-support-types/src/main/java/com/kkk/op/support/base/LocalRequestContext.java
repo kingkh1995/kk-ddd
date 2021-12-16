@@ -32,19 +32,19 @@ public class LocalRequestContext {
   @Default private final Instant timestamp = Instant.now();
 
   /** 时区信息 */
-  @Getter @Default private ZoneId zoneId = ZoneId.systemDefault();
+  @Getter @Default private final ZoneId zoneId = ZoneId.systemDefault();
 
   /** 调用程序入口：(method)uri */
-  @Getter private String entrance;
+  @Getter private final String entrance;
 
   /** 请求应用来源 */
-  @Getter private String source;
+  @Getter private final String source;
 
   /** 请求序列号（用于幂等处理，未传则默认为traceId） */
-  private String requestSeq;
+  private final String requestSeq;
 
   /** 操作人用户ID */
-  @Getter private Long operatorId;
+  @Getter private final Long operatorId;
 
   /** jwt payload map */
   private Map<String, Object> payload;

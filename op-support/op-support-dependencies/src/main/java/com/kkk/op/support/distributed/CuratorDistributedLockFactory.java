@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.marker.NameGenerator;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.apache.curator.framework.recipes.locks.InterProcessMutex;
  */
 @Slf4j
 @Builder
-public class CuratorDistributedLockFactory extends AbstractDistributedLockFactory {
+public class CuratorDistributedLockFactory implements DistributedLockFactory {
 
   @NonNull private final CuratorFramework client;
 

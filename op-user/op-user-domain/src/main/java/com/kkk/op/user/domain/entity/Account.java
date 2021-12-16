@@ -2,17 +2,16 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Entity;
-import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.NameGenerator;
-import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.support.types.Version;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
+import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,10 +37,12 @@ public class Account extends Entity<AccountId> {
 
   private AccountState state;
 
-  @DiffIgnore // 设置创建时间不参数对比
-  private StampedTime createTime;
-
+  // 版本号、创建时间、更新时间不参数对比
   @DiffIgnore private Version version;
+
+  @DiffIgnore private Instant createTime;
+
+  @DiffIgnore private Instant updateTime;
 
   @Override
   public void validate() {
@@ -71,8 +72,6 @@ public class Account extends Entity<AccountId> {
       // 新增逻辑
       // 设置初始状态
       this.state = AccountState.from(AccountStateEnum.INIT);
-      // 设置创建时间
-      this.createTime = StampedTime.from(LocalRequestContextHolder.get().getCommitTime());
     } else {
       // 更新逻辑
       var oldAccount = this.checkIdExist(accountService);

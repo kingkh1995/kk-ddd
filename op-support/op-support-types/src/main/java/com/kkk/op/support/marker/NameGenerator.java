@@ -15,7 +15,7 @@ public interface NameGenerator {
 
   String generate(String... paths);
 
-  NameGenerator DEFAULT = joiner("#", "", "");
+  NameGenerator DEFAULT = joiner("@", "", "");
 
   static NameGenerator joiner(String delimiter, String prefix, String suffix) {
     return paths ->

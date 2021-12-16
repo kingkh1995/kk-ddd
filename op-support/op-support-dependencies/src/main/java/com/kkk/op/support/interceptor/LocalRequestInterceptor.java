@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
  */
 @Slf4j
 public class LocalRequestInterceptor implements HandlerInterceptor {
+
+  private static String TRACE_ID = "traceId";
 
   /**
    * handler参数为HandlerMethod对象 <br>
@@ -36,9 +39,11 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
     Optional.ofNullable(request.getHeader("Source")).ifPresent(contextBuilder::source);
     Optional.ofNullable(request.getHeader("Request-Seq")).ifPresent(contextBuilder::requestSeq);
     var context = contextBuilder.build();
+    // 添加traceId到logger
+    MDC.put(TRACE_ID, context.getTraceId());
+    LocalRequestContextHolder.set(context);
     // 打印请求参数
     log.info("{}", context);
-    LocalRequestContextHolder.set(context);
     return true;
   }
 
@@ -48,5 +53,7 @@ public class LocalRequestInterceptor implements HandlerInterceptor {
       throws Exception {
     // 完成时清空http请求信息
     LocalRequestContextHolder.reset();
+    // 移除traceId
+    MDC.remove(TRACE_ID);
   }
 }

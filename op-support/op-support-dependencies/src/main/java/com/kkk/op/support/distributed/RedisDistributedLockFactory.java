@@ -1,6 +1,7 @@
 package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
+import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.support.tool.SleepHelper;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ import org.springframework.data.redis.core.script.RedisScript;
  */
 @Slf4j
 @Builder
-public class RedisDistributedLockFactory extends AbstractDistributedLockFactory {
+public class RedisDistributedLockFactory implements DistributedLockFactory {
 
   @Getter private final StringRedisTemplate redisTemplate;
 
