@@ -6,7 +6,7 @@ VALUES (1, 'INIT', '2002-02-02 02:02:02.123', '2002-02-02 02:02:02.123'),
        (1, 'ACTIVE', '2011-11-11 11:11:11.111', '2011-11-11 11:11:11.111');
 
 INSERT INTO account (user_id, state)
-VALUES (2, 'INIT'),
+VALUES (2, 'FROZEN'),
        (2, 'TERMINATED');
 
 DELETE

@@ -9,5 +9,6 @@ elasticjob:
       elasticJobClass: com.kkk.op.user.web.job.UserCommonJob
       cron: 0,30 * * * * ?
       shardingTotalCount: 2
+      shardingItemParameters: 0=A,1=B
       overwrite: true
       disabled: false

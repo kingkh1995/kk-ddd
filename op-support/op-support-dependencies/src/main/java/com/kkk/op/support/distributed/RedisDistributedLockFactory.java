@@ -4,7 +4,6 @@ import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.support.tool.SleepHelper;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -81,7 +80,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
 
   @Override
   public NameGenerator getLockNameGenerator() {
-    return NameGenerator.joiner(":", "lock:", "");
+    // 使用{}包裹name将其作为hashtag以保证能在redis集群中正常执行
+    return NameGenerator.joiner(":", "lock:{", "}");
   }
 
   private static final String ID = ":" + UUID.randomUUID().toString().replace("-", "").substring(20) + ":";
@@ -114,8 +114,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
   }
 
   private static final RedisScript<Boolean> WATCH_SCRIPT = new DefaultRedisScript<>("""
-          if redis.call('GET', KEYS[1]) == KEYS[2] then
-              return redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
+          if redis.call('GET', KEYS[1]) == ARGV[1] then
+              return redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2])
           else
               return false
           end
@@ -141,9 +141,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
               try {
                 var result =
                     this.redisTemplate.execute(
-                        WATCH_SCRIPT,
-                        Arrays.asList(bone.name, bone.seq),
-                        String.valueOf(this.expireMills));
+                        WATCH_SCRIPT, List.of(bone.name), bone.seq, String.valueOf(this.expireMills));
                 log.info(
                     "Doggy watching '{}' using '{}' execute return '{}'.",
                     bone.name,
@@ -188,14 +186,14 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
 
     private static final RedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>("""
             local seq = redis.call('GET', KEYS[1])
-            local ckey = KEYS[1] .. KEYS[2]
+            local ckey = KEYS[1] .. ARGV[1]
             -- 键不存在时需要使用false判断
             if seq == false then
                 -- 初次获取锁
-                redis.call('SET', KEYS[1], KEYS[2], 'PX', ARGV[1])
+                redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2])
                 redis.call('SET', ckey, 1)
                 return 1
-            elseif seq == KEYS[2] then
+            elseif seq == ARGV[1] then
                 -- 锁重入
                 return redis.call('INCR', ckey)
             else
@@ -208,7 +206,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
       // 使用StringRedisTemplate执行lua脚本时要求参数必须为String类型
       var result =
           this.factory.redisTemplate.execute(
-              LOCK_SCRIPT, Arrays.asList(this.name, seq), String.valueOf(this.factory.expireMills));
+              LOCK_SCRIPT, List.of(this.name), seq, String.valueOf(this.factory.expireMills));
       log.info("Lock '{}' use '{}' return '{}'.", this.name, seq, result);
       if (result == null || result == 0) {
         // 结果为0 获取锁失败
@@ -224,8 +222,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     }
 
     private static final RedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
-          if redis.call('GET', KEYS[1]) == KEYS[2] then
-              local ckey = KEYS[1] .. KEYS[2]
+          if redis.call('GET', KEYS[1]) == ARGV[1] then
+              local ckey = KEYS[1] .. ARGV[1]
               local count = redis.call('DECR', ckey)
               -- 如果加锁次数减少为0则删除锁信息
               if count <= 0 then
@@ -241,7 +239,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     @Override
     public void unlock() {
       var seq = getSeq();
-      var result = this.factory.redisTemplate.execute(UNLOCK_SCRIPT, Arrays.asList(this.name, seq));
+      var result = this.factory.redisTemplate.execute(UNLOCK_SCRIPT, List.of(this.name), seq);
       log.info("Unlock '{}' use '{}' return '{}'.", this.name, seq, result);
       // result大于0表示锁仍然被持有，等于0表示锁完全释放，小于0为异常情况
       if (result != null && result == 0) {

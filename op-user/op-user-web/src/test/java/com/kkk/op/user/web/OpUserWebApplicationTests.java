@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RScript.Mode;
 import org.redisson.api.RScript.ReturnType;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -181,35 +182,36 @@ class OpUserWebApplicationTests {
 
   @Test
   void testFlashSale() {
-    var item = "A0001";
-    var iteml = item + ":limit";
-    var itemu = item + ":user";
-    var itemc = item + ":context";
+    var tag = "{A00001}";
+    var kl = tag + "limit";
+    var ku = tag + "user";
+    var kc = tag + "context";
+    var id = tag + "U00001";
     var script = new DefaultRedisScript<Long>();
     script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
     script.setResultType(Long.class);
     var sha1 = script.getSha1();
     System.out.println(sha1);
-    System.out.println(stringRedisTemplate.execute(script, List.of(item, "a001", "2", "num:2")));
-    stringRedisTemplate.opsForValue().set(item, "20");
-    stringRedisTemplate.opsForValue().set(iteml, "3");
-    var rScript = redissonClient.getScript();
+    System.out.println(stringRedisTemplate.execute(script, List.of(tag, id), "2", "num:2"));
+    stringRedisTemplate.opsForValue().set(tag, "20");
+    stringRedisTemplate.opsForValue().set(kl, "3");
+    System.out.println(stringRedisTemplate.execute(script, List.of(tag, id), "5", "num:2"));
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(tag));
+    // 键值均使用字符串序列化
+    var rScript = redissonClient.getScript(StringCodec.INSTANCE);
     var eval1 =
-        rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 2, "num:2"));
+        rScript.evalSha(Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(tag, id), "2", "num:2");
     System.out.println(eval1);
-    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(tag));
     var eval2 =
-        rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "num:1"));
+        rScript.evalSha(Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(tag, id), "1", "num:1");
     System.out.println(eval2);
-    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(tag));
     var eval3 =
-        rScript.evalSha(
-            Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(item, "a001", 1, "num:1"));
+        rScript.evalSha(Mode.READ_WRITE, sha1, ReturnType.INTEGER, List.of(tag, id), "1", "num:1");
     System.out.println(eval3);
-    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(item));
-    stringRedisTemplate.delete(List.of(item, iteml, itemu, itemc));
+    System.out.println("stock:" + stringRedisTemplate.opsForValue().get(tag));
+    stringRedisTemplate.delete(List.of(tag, kl, ku, kc));
     rScript.scriptFlush();
   }
 

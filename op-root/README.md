@@ -7,7 +7,7 @@
 #### 组件依赖
 
 - java: 17
-- spring-boot: 2.6.1
+- spring-boot: 2.6.2
 - guava: 31.0.1-jre
 - caffeine: 3.0.5
 - mybatis: 3.5.8

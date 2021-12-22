@@ -2,7 +2,6 @@ package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.tool.SleepHelper;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.validation.constraints.NotNull;
@@ -13,6 +12,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 
 /**
  * redis多重可重入锁（lua脚本实现）<br>
+ * fixme... 只能用于单机模式，因为无法将键全部映射到同一个slot。
  *
  * @author KaiKoo
  */
@@ -29,12 +29,6 @@ public class RedisMultiLock implements DistributedLock {
     this.factory = factory;
   }
 
-  private List<String> keys(String seq) {
-    var keys = new LinkedList<>(this.names);
-    keys.add(seq);
-    return keys;
-  }
-
   @Override
   public boolean tryLock(long waitSeconds) {
     return SleepHelper.tryGetThenSleep(
@@ -44,10 +38,9 @@ public class RedisMultiLock implements DistributedLock {
   // lua脚本返回数组需要使用List类型接收，元素如果是整数则默认是Long类型
   private static final RedisScript<List> LOCK_SCRIPT = new DefaultRedisScript<>("""
           local list = {}
-          local seq = KEYS[#KEYS]
-          local size = #KEYS - 1
+          local seq = ARGV[1]
           -- 遍历判断是否能获取锁
-          for i = 1, size
+          for i = 1, #KEYS
           do
               local lseq = redis.call('GET', KEYS[i])
               -- 键不存在时需要使用false判断
@@ -60,12 +53,12 @@ public class RedisMultiLock implements DistributedLock {
               end
           end
           -- 执行操作
-          for i = 1, size
+          for i = 1, #KEYS
           do
               local ckey = KEYS[i] .. seq
               if list[i] == 1 then
                   -- 初次获取锁
-                  redis.call('SET', KEYS[i], seq, 'PX', ARGV[1])
+                  redis.call('SET', KEYS[i], seq, 'PX', ARGV[2])
                   redis.call('SET', ckey, 1)
               else
                   -- 锁重入
@@ -81,7 +74,7 @@ public class RedisMultiLock implements DistributedLock {
     var result =
         this.factory
             .getRedisTemplate()
-            .execute(LOCK_SCRIPT, keys(seq), String.valueOf(this.factory.getExpireMills()));
+            .execute(LOCK_SCRIPT, this.names, seq, String.valueOf(this.factory.getExpireMills()));
     log.info("Lock '{}' use '{}' return '{}'.", this.names, seq, result);
     if (result == null) {
       // 结果为null 获取锁失败
@@ -99,8 +92,8 @@ public class RedisMultiLock implements DistributedLock {
 
   private static final RedisScript<List> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
           local list = {}
-          local seq = KEYS[#KEYS]
-          for i = 1, #KEYS - 1
+          local seq = ARGV[1]
+          for i = 1, #KEYS
           do
               if redis.call('GET', KEYS[i]) == seq then
                   local ckey = KEYS[i] .. seq
@@ -121,7 +114,7 @@ public class RedisMultiLock implements DistributedLock {
   @Override
   public void unlock() {
     var seq = RedisDistributedLockFactory.getSeq();
-    var result = this.factory.getRedisTemplate().execute(UNLOCK_SCRIPT, keys(seq));
+    var result = this.factory.getRedisTemplate().execute(UNLOCK_SCRIPT, this.names, seq);
     log.info("Unlock '{}' use '{}' return '{}'.", this.names, seq, result);
     // 判断是否需要关闭watch
     if (result != null) {
