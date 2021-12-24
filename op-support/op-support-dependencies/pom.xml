@@ -77,6 +77,11 @@
       <artifactId>curator-recipes</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-spring-boot-web-starter</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
 </project>

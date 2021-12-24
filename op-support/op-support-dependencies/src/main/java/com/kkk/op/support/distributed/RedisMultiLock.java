@@ -121,7 +121,7 @@ public class RedisMultiLock implements DistributedLock {
       for (var i = 0; i < result.size(); i++) {
         // 当前元素为0表示锁被完全释放
         if(result.get(i) instanceof Long l && l == 0){
-          this.factory.cancelWatching(this.names.get(i));
+          this.factory.cancelWatching(this.names.get(i), seq);
         }
       }
     }

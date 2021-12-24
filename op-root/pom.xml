@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.1</version>
+    <version>2.6.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.kkk.op</groupId>
@@ -30,6 +30,7 @@
     <!--以下为接口层依赖-->
     <springfox.version>3.0.0</springfox.version>
     <elasticjob.version>3.0.1</elasticjob.version>
+    <shiro.version>1.8.0</shiro.version>
   </properties>
 
   <modules>
@@ -42,13 +43,13 @@
   <!--依赖管理-->
   <dependencyManagement>
     <dependencies>
-      <!--<dependency>
-        <groupId>com.alibaba.cloud</groupId>
-        <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-        <version>2021.1</version>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2021.0.0</version>
         <type>pom</type>
-        <scope>import</scope> &lt;!&ndash;maven是单继承，使用import相当于继承多个父项目&ndash;&gt;
-      </dependency>-->
+        <scope>import</scope> <!-- Maven是单继承，使用import相当于继承多个父项目 -->
+      </dependency>
       <dependency>
         <groupId>com.alibaba</groupId>
         <artifactId>transmittable-thread-local</artifactId>
@@ -118,6 +119,11 @@
             <artifactId>curator-recipes</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.shiro</groupId>
+        <artifactId>shiro-spring-boot-web-starter</artifactId>
+        <version>${shiro.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

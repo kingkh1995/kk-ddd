@@ -31,7 +31,7 @@ public class CuratorAutoConfiguration {
   public CuratorFramework curatorFramework() {
     var client =
         CuratorFrameworkFactory.builder()
-            .connectString(properties.getConnection())
+            .connectString(properties.getConnectString())
             .namespace(properties.getNamespace())
             .connectionTimeoutMs(properties.getConnectionTimeoutMs()) // 连接超时时间
             .sessionTimeoutMs(properties.getSessionTimeoutMs()) // 客户端超时时间

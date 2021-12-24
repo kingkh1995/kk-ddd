@@ -9,7 +9,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -21,26 +23,27 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 public class IPControlInterceptor implements HandlerInterceptor {
 
-  /** 限流开关 */
-  private boolean controlSwitch;
+  /** 导入配置类Bean，实现动态刷新。 */
+  private final IPControlProperties properties;
 
-  public IPControlInterceptor(boolean controlSwitch) {
-    this.controlSwitch = controlSwitch;
+  private final LoadingCache<String, RateLimiter> cache;
+
+  public IPControlInterceptor(IPControlProperties properties) {
+    this.properties = properties;
+    // 使用caffeine同步加载缓存
+    this.cache =
+        Caffeine.newBuilder()
+            // 30秒未访问则过期
+            .expireAfterAccess(1L, TimeUnit.SECONDS)
+            // 设置为软引用，在内存不足时回收缓存
+            .softValues()
+            // 需要设置一个合适的初始容量，因为扩容消耗很大
+            .initialCapacity(1 << 10)
+            // 需要设置最大容量，软引用对象数量不能太多，对性能有影响
+            .maximumSize(1 << 14)
+            // 使用CacheLoader初始化RateLimiter
+            .build(key -> RateLimiter.create(this.properties.getPermitsPerSecond()));
   }
-
-  private static final LoadingCache<String, RateLimiter> CACHE =
-      // 使用caffeine同步加载缓存
-      Caffeine.newBuilder()
-          // 30秒未访问则过期
-          .expireAfterAccess(30L, TimeUnit.SECONDS)
-          // 设置为软引用，在内存不足时回收缓存
-          .softValues()
-          // 需要设置一个合适的初始容量，因为扩容消耗很大
-          .initialCapacity(1 << 10)
-          // 需要设置最大容量，软引用对象数量不能太多，对性能有影响
-          .maximumSize(1 << 14)
-          // 使用CacheLoader初始化RateLimiter，限制每秒访问一次
-          .build(key -> RateLimiter.create(1D));
 
   // 对写请求做IP限流
   private static final Set<HttpMethod> METHODS =
@@ -50,8 +53,9 @@ public class IPControlInterceptor implements HandlerInterceptor {
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
-    // 判断限流开关是否打开
-    if (!controlSwitch) {
+    log.info("config:{}, cache size: {}.", properties, cache.estimatedSize());
+    // 判断是否限流控制
+    if (properties.isDisabled()) {
       return true;
     }
     // 判断请求方式
@@ -59,10 +63,9 @@ public class IPControlInterceptor implements HandlerInterceptor {
     if (!METHODS.contains(HttpMethod.valueOf(method))) {
       return true;
     }
-    log.info("IP-Control cache size '{}'.", CACHE.estimatedSize());
     var ip = getRealIp(request);
     // 判断是否流量超出
-    if (CACHE.get(ip).tryAcquire()) {
+    if (cache.get(ip).tryAcquire()) {
       return true;
     }
     log.warn("Request '{}({}:{})' blocked by IP-Control!", ip, method, request.getRequestURI());
@@ -105,6 +108,13 @@ public class IPControlInterceptor implements HandlerInterceptor {
   // 判断IP是否合法，仅简单判断
   private static boolean isIPValid(String ip) {
     return !(ip == null || ip.isBlank() || "unknown".equalsIgnoreCase(ip));
+  }
+
+  @Data
+  @ConfigurationProperties("ip-control")
+  public static class IPControlProperties {
+    private boolean disabled = false;
+    private double permitsPerSecond = 1D;
   }
 
   public static class IPControlBlockedException extends RuntimeException {

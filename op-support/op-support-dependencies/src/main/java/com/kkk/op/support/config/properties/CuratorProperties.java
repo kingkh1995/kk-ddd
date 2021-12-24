@@ -11,7 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @ConfigurationProperties("spring.zookeeper.curator")
 public class CuratorProperties {
-  private String connection = "localhost:2181";
+  private String connectString = "localhost:2181";
   private String namespace;
   private int connectionTimeoutMs = 15 * 1000;
   private int sessionTimeoutMs = 60 * 1000;

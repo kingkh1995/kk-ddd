@@ -8,6 +8,7 @@
 
 - java: 17
 - spring-boot: 2.6.2
+- spring-cloud: 2021.0.0
 - guava: 31.0.1-jre
 - caffeine: 3.0.5
 - mybatis: 3.5.8
@@ -19,9 +20,9 @@
 
 #### 接口层依赖（web项目中定义）
 
-- spring-cloud-alibaba: 2021.1
 - swagger: 3.0.0
 - elasticjob: 3.0.1
+- shiro: 1.8.0
 
 #### 工具包（support-tools项目中定义）
 

@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 
 /**
  * 基于redis的分布式锁实现 （适用于redis单机模式，或者对可用性要求不是特别高） <br>
- * 主从模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了  <br>
+ * 主从模式redis下有一个明显的竞争条件，因为复制是异步的，客户端A在master节点拿到了锁，master节点在把A创建的key写入slave之前宕机了 <br>
  * 基于lua脚本，使用一个键保存锁信息，一个键保存加锁次数。
  *
  * @author KaiKoo
@@ -37,7 +37,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
 
   @Getter @Default private long spinInterval = 200L;
 
-  @Getter @Default private long expireMills = 10L * 1000L;
+  @Getter @Default private long expireMills = 20L * 1000L;
 
   /** watchdog机制 自动延长锁时间 <br> */
   @Default private ScheduledExecutorService watchDog = defaultDoggy();
@@ -84,7 +84,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     return NameGenerator.joiner(":", "lock:{", "}");
   }
 
-  private static final String ID = ":" + UUID.randomUUID().toString().replace("-", "").substring(20) + ":";
+  private static final String ID =
+      ":" + UUID.randomUUID().toString().replace("-", "").substring(20) + ":";
 
   public static String getSeq() {
     return ID + Thread.currentThread().getId();
@@ -100,12 +101,12 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     return new RedisMultiLock(names, this);
   }
 
-  private final Map<String, Bone> bowl = new ConcurrentHashMap<>();
+  private static final Map<String, Bone> BOWL = new ConcurrentHashMap<>();
 
   private static class Bone {
     private final String name;
     private final String seq;
-    private Future<?> future;
+    private volatile Future<?> future;
 
     private Bone(String name, String seq) {
       this.name = name;
@@ -123,13 +124,22 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
 
   public void watch(String name, String seq) {
     var bone = new Bone(name, seq);
-    if (this.bowl.putIfAbsent(name, bone) == null) {
-      log.info("Doggy start watching '{}'!", name);
-    } else {
-      log.warn("Doggy has watched '{}'!", name);
-      throw new IllegalCallerException();
-    }
-    log.info("Currently holding {} bones.", this.bowl.size());
+    BOWL.compute(
+        name,
+        (key, old) -> {
+          if (Objects.nonNull(old)) {
+            // old可能不为null，unlock操作释放锁和取消watch非原子操作，故中间态时可被其他线程获取到锁。
+            var cancelled = old.future.cancel(true);
+            log.info(
+                "Help cancel watching '{}' of '{}' return '{}' by concurrency.",
+                old.name,
+                old.seq,
+                cancelled);
+          }
+          log.info("Doggy start watching '{}'!", name);
+          return bone;
+        });
+    log.info("Currently holding {} bones.", BOWL.size());
     watch0(bone);
   }
 
@@ -141,7 +151,10 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
               try {
                 var result =
                     this.redisTemplate.execute(
-                        WATCH_SCRIPT, List.of(bone.name), bone.seq, String.valueOf(this.expireMills));
+                        WATCH_SCRIPT,
+                        List.of(bone.name),
+                        bone.seq,
+                        String.valueOf(this.expireMills));
                 log.info(
                     "Doggy watching '{}' using '{}' execute return '{}'.",
                     bone.name,
@@ -155,20 +168,26 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
                 log.warn("Dog watching execute error!", e);
               }
             },
-            this.expireMills * 2 / 3,
+            this.expireMills / 2,
             TimeUnit.MILLISECONDS);
   }
 
-  public void cancelWatching(String name) {
-    this.bowl.computeIfPresent(
+  public void cancelWatching(String name, String seq) {
+    BOWL.computeIfPresent(
         name,
         (s, bone) -> {
-          var cancelled = bone.future.cancel(true);
-          log.info("Cancel watching '{}' return '{}'.", name, cancelled);
-          // 返回null表示移除键
-          return null;
+          if (Objects.equals(seq, bone.seq)) {
+            var cancelled = bone.future.cancel(true);
+            log.info("Cancel watching '{}' of '{}' return '{}'.", name, seq, cancelled);
+            // 返回null表示移除键
+            return null;
+          } else {
+            // 存在并发情况，可能在其他线程watch操作时帮助取消了watch
+            log.info("Found that '{}' of '{}' has been cancelled by concurrency.", name, seq);
+            return bone;
+          }
         });
-    log.info("Currently holding {} bones.", this.bowl.size());
+    log.info("Currently holding {} bones.", BOWL.size());
   }
 
   @AllArgsConstructor
@@ -244,7 +263,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
       // result大于0表示锁仍然被持有，等于0表示锁完全释放，小于0为异常情况
       if (result != null && result == 0) {
         // 锁被完全释放则取消watch
-        this.factory.cancelWatching(this.name);
+        this.factory.cancelWatching(this.name, seq);
       }
     }
   }
