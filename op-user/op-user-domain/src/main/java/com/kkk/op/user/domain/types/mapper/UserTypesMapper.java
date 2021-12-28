@@ -1,7 +1,6 @@
-package com.kkk.op.user.assembler;
+package com.kkk.op.user.domain.types.mapper;
 
 import com.kkk.op.support.enums.AccountStateEnum;
-import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
@@ -49,10 +48,5 @@ public class UserTypesMapper {
 
   public AccountState map2AccountState(String s) {
     return AccountState.valueOf(s, "账户状态");
-  }
-
-  /** 自定义工厂方法 */
-  public AccountDTO createAccountDTO() {
-    return new AccountDTO();
   }
 }

@@ -4,6 +4,7 @@ import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.support.types.Version;
+import java.sql.Timestamp;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 
@@ -53,5 +54,13 @@ public class CommonTypesMapper {
 
   public Long mapFromInstant(Instant instant) {
     return instant.toEpochMilli();
+  }
+
+  public Timestamp mapInstant2Timestamp(Instant instant) {
+    return Timestamp.from(instant);
+  }
+
+  public Instant mapTimestamp2Instant(Timestamp timestamp) {
+    return timestamp.toInstant();
   }
 }

@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author KaiKoo
  */
-public interface AccountApplicationService {
+public interface AccountAppService {
 
   long createAccount(AccountModifyCommand createCommand);
 

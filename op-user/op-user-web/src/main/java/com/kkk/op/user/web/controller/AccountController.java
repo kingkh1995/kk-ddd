@@ -5,7 +5,7 @@ import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.model.groups.Create;
 import com.kkk.op.support.model.groups.Update;
-import com.kkk.op.user.application.service.AccountApplicationService;
+import com.kkk.op.user.application.service.AccountAppService;
 import java.util.List;
 import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/api/v1/user")
 public class AccountController {
 
-  private final AccountApplicationService service;
+  private final AccountAppService service;
 
   /** POST 新增资源 （不幂等且url不能被缓存） */
   @PostMapping("/{userId}/account")
@@ -77,7 +77,7 @@ public class AccountController {
     return service.queryAccount(userId, accountId);
   }
 
-  /** 查询用户下的所有账号 */
+  /** 查询用户所有的账户 */
   @GetMapping("/{userId}/accounts")
   public List<AccountDTO> queryByUserId(@PathVariable Long userId) {
     return service.queryAccounts(userId);

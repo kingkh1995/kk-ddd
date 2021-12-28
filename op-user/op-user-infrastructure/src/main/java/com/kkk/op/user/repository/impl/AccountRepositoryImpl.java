@@ -3,7 +3,7 @@ package com.kkk.op.user.repository.impl;
 import com.kkk.op.support.base.EntityRepositorySupport;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.user.converter.AccountDataConverter;
+import com.kkk.op.user.converter.AccountConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 public class AccountRepositoryImpl extends EntityRepositorySupport<Account, AccountId>
     implements AccountRepository {
 
-  private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
+  private final AccountConverter accountConverter = AccountConverter.INSTANCE;
 
   private final AccountMapper accountMapper;
 
@@ -46,7 +46,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected void onInsert(@NotNull Account entity) {
-    var data = accountDataConverter.toData(entity);
+    var data = accountConverter.toData(entity);
     accountMapper.insert(data);
     // 填补id
     entity.fillInId(AccountId.from(data.getId()));
@@ -54,7 +54,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected void onUpdate(@NotNull Account entity) {
-    if (accountMapper.updateById(accountDataConverter.toData(entity)) < 1) {
+    if (accountMapper.updateById(accountConverter.toData(entity)) < 1) {
       throw new BusinessException("Update failed by OCC!");
     }
   }
@@ -67,7 +67,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected Optional<Account> onSelect(@NotNull AccountId accountId) {
-    return accountMapper.selectById(accountId.getValue()).map(accountDataConverter::fromData);
+    return accountMapper.selectById(accountId.getValue()).map(accountConverter::fromData);
   }
 
   @Override

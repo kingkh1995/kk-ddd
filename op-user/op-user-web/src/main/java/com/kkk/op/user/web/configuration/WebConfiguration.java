@@ -30,11 +30,9 @@ public class WebConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     // 先添加的开始时先执行，结束时后执行
-    registry
-        .addInterceptor(new IPControlInterceptor(ipControlProperties))
-        .addPathPatterns("/api/**");
-    registry.addInterceptor(new LocalRequestInterceptor()).addPathPatterns("/api/**");
-    registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/api/**");
+    registry.addInterceptor(new IPControlInterceptor(ipControlProperties)).addPathPatterns("/**");
+    registry.addInterceptor(new LocalRequestInterceptor()).addPathPatterns("/**");
+    registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/**");
   }
 
   @Bean

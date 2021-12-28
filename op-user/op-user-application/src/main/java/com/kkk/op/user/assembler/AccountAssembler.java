@@ -4,6 +4,7 @@ import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.types.mapper.UserTypesMapper;
 import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;
@@ -67,4 +68,9 @@ public interface AccountAssembler {
   @Mapping(target = "createTimestamp", source = "account.createTime")
   @Mapping(target = "userId", source = "userId")
   void buildDTO(UserId userId, Account account, @MappingTarget AccountDTO accountDTO);
+
+  /** 自定义工厂方法 */
+  default AccountDTO createAccountDTO() {
+    return new AccountDTO();
+  }
 }

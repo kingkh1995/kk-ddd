@@ -1,13 +1,12 @@
-package com.kkk.op.user.converter;
+package com.kkk.op.user.assembler;
 
 import com.kkk.op.support.base.CommonTypesMapper;
-import com.kkk.op.user.domain.entity.Account;
+import com.kkk.op.support.model.dto.UserAuthcInfo;
+import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.types.mapper.UserTypesMapper;
-import com.kkk.op.user.persistence.po.AccountDO;
-import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -23,15 +22,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS,
     nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface AccountDataConverter {
-  AccountDO toData(Account account);
+public interface UserDTOAssembler {
 
-  @InheritInverseConfiguration(name = "toData")
-  Account fromData(AccountDO accountDO);
+  @Mapping(target = "encryptedPassword", source = "password")
+  UserAuthcInfo toAuthcInfo(User user);
 
-  @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  List<AccountDO> toData(List<Account> accountList);
-
-  @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  List<Account> fromData(List<AccountDO> accountDOList);
+  @InheritInverseConfiguration(name = "toAuthcInfo")
+  User fromAuthcInfo(UserAuthcInfo authcInfo);
 }

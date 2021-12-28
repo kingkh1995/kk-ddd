@@ -2,8 +2,8 @@ package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.base.AggregateRepositorySupport;
+import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
-import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
@@ -16,6 +16,7 @@ import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
+import com.kkk.op.user.persistence.po.UserDO;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -37,24 +38,34 @@ import org.springframework.util.CollectionUtils;
 public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     implements UserRepository {
 
-  private final UserDataConverter userDataConverter = UserDataConverter.INSTANCE;
-
-  private final AccountDataConverter accountDataConverter = AccountDataConverter.INSTANCE;
-
   private final UserMapper userMapper;
 
   private final AccountMapper accountMapper;
 
+  private final UserDataConverter userDataConverter;
+
+  private final AccountDataConverter accountDataConverter;
+
+  private final Kson kson;
+
   public UserRepositoryImpl(
-      final Cache cache, final UserMapper userMapper, final AccountMapper accountMapper) {
+      final Cache cache,
+      final UserMapper userMapper,
+      final AccountMapper accountMapper,
+      final UserDataConverter userDataConverter,
+      final AccountDataConverter accountDataConverter,
+          final Kson kson) {
     // 使用ThreadLocalAggregateTrackingManager
     super(
         cache,
         ThreadLocalAggregateTrackingManager.<User, UserId>builder()
-            .snapshooter(Snapshooter.identity()) // todo... snapshooter
+            .snapshooter(user -> kson.convertValue(user, User.class))
             .build());
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;
+    this.userDataConverter = userDataConverter;
+    this.accountDataConverter = accountDataConverter;
+    this.kson = kson;
   }
 
   @Override
@@ -128,21 +139,29 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     accountMapper.deleteByUserId(aggregate.getId().getValue());
   }
 
+  private Optional<User> buildAggregate(Optional<UserDO> optional) {
+    return optional.map(userDO -> userDataConverter.fromData(userDO, accountMapper.selectListByUserId(userDO.getId())));
+  }
+
+  private void attach(Optional<User> optional) {
+    optional.ifPresent(this.getAggregateTrackingManager()::attach);
+  }
+
   @Override
   protected Optional<User> onSelect(@NotNull UserId userId) {
-    // 查询User
-    var l = userId.getValue();
-    var op = userMapper.selectById(l).map(userDataConverter::fromData);
-    // 查询Accounts
-    op.ifPresent(
-        user ->
-            user.setAccounts(accountDataConverter.fromData(accountMapper.selectListByUserId(l))));
-    return op;
+    return buildAggregate(userMapper.selectById(userId.getValue()));
   }
 
   @Override
   protected List<User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
     // todo...
     return null;
+  }
+
+  @Override
+  public Optional<User> findByUsername(String username) {
+    var optional = buildAggregate(userMapper.selectByUsername(username));
+    attach(optional);
+    return optional;
   }
 }

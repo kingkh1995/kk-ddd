@@ -5,8 +5,9 @@ import java.sql.Timestamp;
 import lombok.Data;
 
 /**
- * account <br>
+ * account：用户账户（收付款账户、虚拟账户等）<br>
  * PO类字段和字段类型要求与数据库完全一致 <br>
+ * todo... no、type、json等字段待补充
  *
  * @author KaiKoo
  */

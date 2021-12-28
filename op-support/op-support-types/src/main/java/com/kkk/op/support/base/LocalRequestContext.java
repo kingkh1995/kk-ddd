@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -44,10 +45,10 @@ public class LocalRequestContext {
   private final String requestSeq;
 
   /** 操作人用户ID */
-  @Getter private final Long operatorId;
+  @Getter @Setter private Long operatorId;
 
-  /** jwt payload map */
-  private Map<String, Object> payload;
+  /** jwt claims */
+  @Getter @Setter private Map<String, Object> claims;
 
   public ZonedDateTime getCommitTime() {
     return this.timestamp.atZone(this.zoneId);

@@ -13,6 +13,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 
 /**
@@ -22,6 +23,7 @@ import org.springframework.lang.Nullable;
  *
  * @author KaiKoo
  */
+@Slf4j
 public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends Identifier>
     extends EntityRepositorySupport<T, ID> implements AggregateRepository<T, ID> {
 
@@ -60,7 +62,7 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     var diff = this.getAggregateTrackingManager().detectChanges(aggregate);
     // 无变更直接返回
     if (diff.isNoneDiff()) {
-      // TBD 特殊提示 http status
+      log.info("None diff, return!");
       return;
     }
     super.tryLockThenConsume(

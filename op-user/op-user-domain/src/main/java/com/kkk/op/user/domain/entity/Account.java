@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 用户账号
+ * 用户账户
  *
  * @author KaiKoo
  */

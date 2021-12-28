@@ -29,4 +29,7 @@ public interface UserMapper {
 
   @Select("SELECT * FROM user")
   List<UserDO> selectList();
+
+  @Select("SELECT * FROM user WHERE username = #{username}")
+  Optional<UserDO> selectByUsername(String username);
 }

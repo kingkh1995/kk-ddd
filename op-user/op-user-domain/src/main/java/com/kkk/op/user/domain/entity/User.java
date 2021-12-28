@@ -3,6 +3,7 @@ package com.kkk.op.user.domain.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.marker.NameGenerator;
+import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.domain.types.UserId;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +40,7 @@ public class User extends Aggregate<UserId> {
 
   private String email;
 
-  /** 用户账号 */
+  /** 用户账户 */
   @Setter // todo... 优化
   private List<Account> accounts;
 
@@ -50,5 +51,12 @@ public class User extends Aggregate<UserId> {
   public String generateLockName(NameGenerator lockNameGenerator) {
     return lockNameGenerator.generate(
         "user", "User", Objects.requireNonNull(this.getId()).identifier());
+  }
+
+  public void savePassword(UserService userService) {
+    // todo...
+    var old = userService.find(this.id).get();
+    old.password = this.password;
+    userService.save(old);
   }
 }

@@ -77,7 +77,7 @@ public class BeanConfiguration implements ApplicationContextAware {
     return RedisCache.builder()
         .name("RedisCache")
         .redissonClient(redissonClient)
-        .redissonCacheConfig(new CacheConfig(1000L * 60L, 1000L * 60L * 30L))
+        .redissonCacheConfig(new CacheConfig(1000L * 60L * 30L, 1000L * 60L * 30L))
         .objectMapper(jsonMapper)
         .build();
   }

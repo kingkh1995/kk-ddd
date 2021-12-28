@@ -2,7 +2,7 @@ package com.kkk.op.user.application.service.impl;
 
 import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.dto.AccountDTO;
-import com.kkk.op.user.application.service.AccountApplicationService;
+import com.kkk.op.user.application.service.AccountAppService;
 import com.kkk.op.user.assembler.AccountAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class AccountApplicationServiceImpl implements AccountApplicationService {
+public class AccountAppServiceImpl implements AccountAppService {
 
   private final AccountAssembler accountAssembler;
 

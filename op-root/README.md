@@ -23,6 +23,7 @@
 - swagger: 3.0.0
 - elasticjob: 3.0.1
 - shiro: 1.8.0
+- jwt: 3.18.2
 
 #### 工具包（support-tools项目中定义）
 
