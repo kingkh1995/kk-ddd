@@ -5,7 +5,7 @@ import com.kkk.op.support.shiro.JWTShiroProperties;
 import com.kkk.op.support.shiro.JWTShiroWebAutoConfiguration;
 import com.kkk.op.support.shiro.JWTShiroWebFilterConfiguration;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -50,7 +50,7 @@ public class AuthcConfiguration {
   }
 
   @Bean
-  public Realm adminRealm(@Value("${shiro.admin}") List<String> admins) {
-    return new AdminRealm(admins);
+  public Realm adminRealm(@Value("#{${shiro.admin:{}}}") Map<String, String> admin) {
+    return new AdminRealm(admin);
   }
 }

@@ -1,13 +1,10 @@
 package com.kkk.op.support.shiro;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.kkk.op.support.base.LocalRequestContextHolder;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
@@ -46,8 +43,7 @@ public class JWTRealm extends AuthenticatingRealm {
     var requestContext = LocalRequestContextHolder.get();
     var decodedJWT =
         decode(((BearerToken) token).getToken(), requestContext.getCommitTime().toInstant());
-    requestContext.setOperatorId(Long.valueOf(decodedJWT.getKeyId()));
-    requestContext.setClaims(buildClaims(decodedJWT.getClaims()));
+    save2LocalRequestContext(decodedJWT);
     return new SimpleAuthenticationInfo(decodedJWT.getSubject(), null, getName());
   }
 
@@ -68,13 +64,12 @@ public class JWTRealm extends AuthenticatingRealm {
     return decodedJWT;
   }
 
-  private Map<String, Object> buildClaims(Map<String, Claim> claims) {
-    if (claims == null || claims.isEmpty()) {
-      return Collections.emptyMap();
-    }
-    var map = new HashMap<String, Object>(claims.size());
-    // todo...
-    map.put("name", claims.get("name").asString());
-    return map;
+  private void save2LocalRequestContext(DecodedJWT decodedJWT) {
+    var requestContext = LocalRequestContextHolder.get();
+    requestContext.setOperatorId(Long.valueOf(decodedJWT.getKeyId()));
+    var claims = decodedJWT.getClaims();
+    requestContext.setClaims(
+        Map.of("username", decodedJWT.getSubject(), "name", claims.get("name").asString()));
+    log.info("requestContext => {}", requestContext);
   }
 }

@@ -41,7 +41,6 @@ public class User extends Aggregate<UserId> {
   private String email;
 
   /** 用户账户 */
-  @Setter // todo... 优化
   private List<Account> accounts;
 
   @Override

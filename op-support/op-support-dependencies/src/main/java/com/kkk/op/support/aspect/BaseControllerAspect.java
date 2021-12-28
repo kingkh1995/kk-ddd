@@ -14,7 +14,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author KaiKoo
  */
 @Slf4j
-@Component // 需要添加 @Component 注解
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect // 切面类需要添加 @Aspect 注解
 @RequiredArgsConstructor

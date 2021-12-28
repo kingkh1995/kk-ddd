@@ -1,4 +1,4 @@
-package com.kkk.op.support.interceptor;
+package com.kkk.op.support.bean;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.Executor;
@@ -9,6 +9,7 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 
 /**
  * DML控制Mybatis拦截器 <br>
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
  * @author KaiKoo
  */
 @Slf4j
+@RefreshScope
 @Intercepts(
     @Signature(
         type = Executor.class,
@@ -30,13 +32,12 @@ import org.springframework.beans.factory.annotation.Value;
         args = {MappedStatement.class, Object.class}))
 public class DMLSwitchMybatisInterceptor implements Interceptor {
 
-  // todo... 改为动态配置
-  @Value("${dml.switch.mybatis:false}")
-  private boolean dmlSwitch;
+  @Value("${sql.dml-disable:false}")
+  private boolean dmlDisable;
 
   @Override
   public Object intercept(Invocation invocation) throws Throwable {
-    if (!dmlSwitch) {
+    if (dmlDisable) {
       // getBoundsql方法需要传入parameter，不过此处传入null，只获取解析后的sql即可。
       log.debug(
           "Preparing: {}", ((MappedStatement) invocation.getArgs()[0]).getBoundSql(null).getSql());

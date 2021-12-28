@@ -3,7 +3,7 @@ package com.kkk.op.user.application.service.impl;
 import com.kkk.op.support.model.command.AccountModifyCommand;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.user.application.service.AccountAppService;
-import com.kkk.op.user.assembler.AccountAssembler;
+import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.types.AccountId;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountAppServiceImpl implements AccountAppService {
 
-  private final AccountAssembler accountAssembler;
+  private final AccountDTOAssembler accountDTOAssembler;
 
   private final AccountService accountService;
 
@@ -74,7 +74,7 @@ public class AccountAppServiceImpl implements AccountAppService {
     // todo...
     return accountService
         .find(AccountId.valueOf(accountId, "id"))
-        .map(accountAssembler::toDTO)
+        .map(accountDTOAssembler::toDTO)
         .get();
   }
 

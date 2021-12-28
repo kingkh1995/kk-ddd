@@ -15,7 +15,7 @@ import com.kkk.op.support.types.LongId;
 import com.kkk.op.support.types.PageSize;
 import com.kkk.op.support.types.StampedTime;
 import com.kkk.op.support.types.TenThousandYuan;
-import com.kkk.op.user.assembler.AccountAssembler;
+import com.kkk.op.user.assembler.AccountDTOAssembler;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
@@ -83,7 +83,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private AccountRepository accountRepository;
 
-  @Autowired private AccountAssembler accountAssembler;
+  @Autowired private AccountDTOAssembler accountDTOAssembler;
 
   @Test
   void test() throws Exception {}
@@ -261,12 +261,12 @@ class OpUserWebApplicationTests {
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
     System.out.println(kson.writeJson(account));
-    var accountDTO = accountAssembler.toDTO(account);
+    var accountDTO = accountDTOAssembler.toDTO(account);
     System.out.println(accountDTO);
-    System.out.println(accountAssembler.fromDTO(accountDTO));
-    System.out.println(accountAssembler.fromDTO(List.of(accountDTO)));
+    System.out.println(accountDTOAssembler.fromDTO(accountDTO));
+    System.out.println(accountDTOAssembler.fromDTO(List.of(accountDTO)));
     var target = new AccountDTO();
-    accountAssembler.buildDTO(UserId.from(100L), account, target);
+    accountDTOAssembler.buildDTO(UserId.from(100L), account, target);
     System.out.println(target);
   }
 

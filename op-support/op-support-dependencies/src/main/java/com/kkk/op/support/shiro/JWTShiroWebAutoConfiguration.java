@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -43,12 +44,14 @@ public class JWTShiroWebAutoConfiguration extends ShiroWebAutoConfiguration {
   }
 
   @Bean
+  @RefreshScope
   @ConditionalOnMissingBean
   public Algorithm algorithm() {
     return Algorithm.HMAC256(jwtProperties.getSecretKey());
   }
 
   @Bean
+  @RefreshScope
   @ConditionalOnMissingBean
   public JWTVerifier jwtVerifier(Algorithm algorithm) {
     return JWT.require(algorithm).withIssuer(jwtProperties.getIssuer()).build();

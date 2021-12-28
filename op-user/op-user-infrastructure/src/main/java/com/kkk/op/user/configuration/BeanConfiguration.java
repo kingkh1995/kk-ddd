@@ -10,19 +10,21 @@ import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.cache.RedisCache;
-import com.kkk.op.support.distributed.RedisDistributedLockFactory;
+import com.kkk.op.support.distributed.CuratorDistributedLockFactory;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.concurrent.TimeUnit;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.CacheConfig;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * 基础层定义实现 <br>
@@ -62,15 +64,15 @@ public class BeanConfiguration implements ApplicationContextAware {
   }
 
   @Bean
-  public DistributedLockFactory distributedLockFactory(StringRedisTemplate stringRedisTemplate) {
+  /*public DistributedLockFactory distributedLockFactory(StringRedisTemplate stringRedisTemplate) {
     return RedisDistributedLockFactory.builder().redisTemplate(stringRedisTemplate).build();
-  }
+  }*/
   /*public DistributedLockFactory distributedLockFactory(RedissonClient redissonClient) {
     return RedissonDistributedLockFactory.builder().client(redissonClient).build();
   }*/
-  /*public DistributedLockFactory distributedLockFactory(CuratorFramework curatorFramework) {
+  public DistributedLockFactory distributedLockFactory(CuratorFramework curatorFramework) {
     return CuratorDistributedLockFactory.builder().client(curatorFramework).build();
-  }*/
+  }
 
   @Bean
   public Cache cache(RedissonClient redissonClient, JsonMapper jsonMapper) {
@@ -88,12 +90,14 @@ public class BeanConfiguration implements ApplicationContextAware {
   }
 
   @Bean
-  public DegradedServiceAspect degradedServiceAspect() {
-    return new DegradedServiceAspect(3);
+  public WheelTimer wheelTimer() {
+    return new WheelTimer(50, TimeUnit.MILLISECONDS);
   }
 
   @Bean
-  public WheelTimer wheelTimer() {
-    return new WheelTimer(50, TimeUnit.MILLISECONDS);
+  @RefreshScope
+  public DegradedServiceAspect degradedServiceAspect(
+      @Value("${degrade.health-interval:3}") int healthInterval) {
+    return new DegradedServiceAspect(healthInterval);
   }
 }

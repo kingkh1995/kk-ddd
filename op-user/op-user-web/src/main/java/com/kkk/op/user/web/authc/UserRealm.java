@@ -1,10 +1,15 @@
 package com.kkk.op.user.web.authc;
 
+import com.kkk.op.support.base.LocalRequestContextHolder;
+import com.kkk.op.support.model.dto.UserAuthcInfo;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
@@ -25,10 +30,21 @@ public class UserRealm extends AuthenticatingRealm implements InitializingBean {
 
   private final AuthcService service;
 
-  @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
       throws AuthenticationException {
-    return service.getAuthenticationInfo((UsernamePasswordToken) token, getName());
+    var userAuthenticationInfo =
+        service.getAuthenticationInfo((UsernamePasswordToken) token, getName());
+    Optional.ofNullable(userAuthenticationInfo).orElseThrow(UnknownAccountException::new);
+    save2LocalRequestContext(userAuthenticationInfo.getUserAuthcInfo());
+    return userAuthenticationInfo;
+  }
+
+  private void save2LocalRequestContext(UserAuthcInfo userAuthcInfo) {
+    var requestContext = LocalRequestContextHolder.get();
+    requestContext.setOperatorId(userAuthcInfo.getId());
+    requestContext.setClaims(
+        Map.of("username", userAuthcInfo.getUsername(), "name", userAuthcInfo.getName()));
+    log.info("requestContext => {}", requestContext);
   }
 
   /**

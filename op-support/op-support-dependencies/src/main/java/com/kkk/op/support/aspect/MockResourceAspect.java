@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 /**
  * mock切面实现 <br>
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
  * @author KaiKoo
  */
 @Slf4j
-@Component
 @Order // 可以不添加@Order注解，默认级别为最低
 @Aspect
 public class MockResourceAspect extends AbstractMethodAspect {

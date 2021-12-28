@@ -19,7 +19,6 @@ import org.springframework.core.annotation.Order;
  * @author KaiKoo
  */
 @Slf4j
-// @Component
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect
 @RequiredArgsConstructor

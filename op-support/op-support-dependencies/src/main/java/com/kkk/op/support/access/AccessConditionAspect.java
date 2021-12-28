@@ -8,7 +8,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
 /**
  * AccessCondition切面 <br>
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
  * @author KaiKoo
  */
 @Slf4j
-@Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1) // 设置级别低于@BaseControllerAspect切面
 @Aspect
 public class AccessConditionAspect {

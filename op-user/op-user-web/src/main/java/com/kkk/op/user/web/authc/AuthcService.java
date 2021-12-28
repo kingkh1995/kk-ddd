@@ -6,7 +6,6 @@ import com.kkk.op.support.model.dto.UserAuthcInfo;
 import com.kkk.op.user.application.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -33,7 +32,8 @@ public class AuthcService {
 
   private final UserAppService service;
 
-  public AuthenticationInfo getAuthenticationInfo(UsernamePasswordToken token, String realmName) {
+  public UserAuthenticationInfo getAuthenticationInfo(
+      UsernamePasswordToken token, String realmName) {
     return service
         .getAuthcInfo(token.getUsername())
         .map(

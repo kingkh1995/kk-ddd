@@ -68,9 +68,9 @@ public class JWTAuthenticatingFilter extends AuthenticatingFilter {
       ServletResponse response) {
     // 自动认证失败返回401
     var httpResponse = WebUtils.toHttp(response);
-    httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401未登录
+    httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
     httpResponse.setCharacterEncoding("UTF-8");
-    httpResponse.setHeader("Content-Type", "application/json");
+    httpResponse.setContentType("application/json");
     try (var out = response.getWriter()) {
       out.print("please login!");
     } catch (IOException ex) {

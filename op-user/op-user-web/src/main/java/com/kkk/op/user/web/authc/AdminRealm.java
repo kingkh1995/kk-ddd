@@ -1,7 +1,14 @@
 package com.kkk.op.user.web.authc;
 
-import java.util.List;
+import com.kkk.op.support.base.LocalRequestContextHolder;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.realm.SimpleAccountRealm;
 
 /**
@@ -12,13 +19,22 @@ import org.apache.shiro.realm.SimpleAccountRealm;
 @Slf4j
 public class AdminRealm extends SimpleAccountRealm {
 
-  public AdminRealm(final List<String> admins) {
+  public AdminRealm(final Map<String, String> admin) {
     super("AdminRealm");
-    log.info("admins = {}", admins);
-    admins.forEach(
-        s -> {
-          var split = s.split(":");
-          super.addAccount(split[0], split[1]);
-        });
+    log.info("admin = {}", admin);
+    Optional.ofNullable(admin).orElse(Collections.emptyMap()).forEach(super::addAccount);
+  }
+
+  @Override
+  protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
+      throws AuthenticationException {
+    var account = super.doGetAuthenticationInfo(token);
+    Optional.ofNullable(account).orElseThrow(UnknownAccountException::new);
+    var requestContext = LocalRequestContextHolder.get();
+    requestContext.setOperatorId(0L);
+    requestContext.setClaims(
+        Map.of("username", account.getPrincipals().getPrimaryPrincipal(), "name", "管理员"));
+    log.info("requestContext => {}", requestContext);
+    return account;
   }
 }
