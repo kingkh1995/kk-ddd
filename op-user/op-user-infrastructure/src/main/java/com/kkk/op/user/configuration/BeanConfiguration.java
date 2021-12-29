@@ -8,12 +8,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.bean.WheelTimer;
+import com.kkk.op.support.bean.NettyDelayer;
 import com.kkk.op.support.cache.RedisCache;
 import com.kkk.op.support.distributed.CuratorDistributedLockFactory;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLockFactory;
-import java.util.concurrent.TimeUnit;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RedissonClient;
@@ -90,8 +89,8 @@ public class BeanConfiguration implements ApplicationContextAware {
   }
 
   @Bean
-  public WheelTimer wheelTimer() {
-    return new WheelTimer(50, TimeUnit.MILLISECONDS);
+  public NettyDelayer nettyDelayer() {
+    return new NettyDelayer();
   }
 
   @Bean

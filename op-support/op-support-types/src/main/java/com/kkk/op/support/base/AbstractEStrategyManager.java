@@ -20,7 +20,7 @@ public abstract class AbstractEStrategyManager<E extends Enum<E>, S extends EStr
   private Class<S> sClass;
 
   {
-    // 只有直接子类才初始化，因为子类的子类泛型可能不会相同，会导致报错，无法创建实例。
+    // 初始化代码是在具体的子类中执行，如果是子类的子类，则可能修改了泛型，会导致报错，故只有直接子类才调用。
     if (AbstractEStrategyManager.class.equals(this.getClass().getSuperclass())) {
       var actualTypeArguments =
           ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments();

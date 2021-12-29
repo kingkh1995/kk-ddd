@@ -3,7 +3,6 @@ package com.kkk.op.support.base;
 import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
-import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Identifier;
 import java.util.List;
 import java.util.Objects;
@@ -12,9 +11,8 @@ import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 
 /**
  * AggregateRepository支持类 <br>
@@ -27,13 +25,15 @@ import org.springframework.lang.Nullable;
 public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends Identifier>
     extends EntityRepositorySupport<T, ID> implements AggregateRepository<T, ID> {
 
-  @Getter(AccessLevel.PROTECTED)
-  private final AggregateTrackingManager<T, ID> aggregateTrackingManager;
+  @Setter(AccessLevel.PROTECTED)
+  private AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
-  public AggregateRepositorySupport(
-      @Nullable Cache cache, @NotNull AggregateTrackingManager<T, ID> aggregateTrackingManager) {
-    super(cache);
-    this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
+  public AggregateRepositorySupport(Class<T> tClass) {
+    super(tClass);
+  }
+
+  public AggregateTrackingManager<T, ID> getAggregateTrackingManager() {
+    return Objects.requireNonNull(this.aggregateTrackingManager);
   }
 
   /**

@@ -1,7 +1,6 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.EntityRepositorySupport;
-import com.kkk.op.support.bean.WheelTimer;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.user.converter.AccountConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -11,6 +10,8 @@ import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
@@ -28,20 +29,20 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   private final AccountConverter accountConverter = AccountConverter.INSTANCE;
 
+  // 并没有创建线程池，而是通过内部类Delayer延迟提交任务到执行线程池。
+  private static final Executor DELAYED_EXECUTOR =
+      CompletableFuture.delayedExecutor(2L, TimeUnit.SECONDS);
+
   private final AccountMapper accountMapper;
 
-  private final WheelTimer wheelTimer;
-
-  public AccountRepositoryImpl(final AccountMapper accountMapper, final WheelTimer wheelTimer) {
-    super(null); // 不开启AutoCaching则不需要CacheManager
+  public AccountRepositoryImpl(final AccountMapper accountMapper) {
+    super(Account.class);
     this.accountMapper = accountMapper;
-    this.wheelTimer = wheelTimer;
   }
 
   @Override
-  public void cacheDelayRemove(AccountId accountId) {
-    // 使用时间轮算法，延迟两秒删除缓存
-    wheelTimer.delay(() -> cacheRemove(accountId), 2, TimeUnit.SECONDS);
+  public void cacheDelayRemoveAsync(AccountId accountId) {
+    DELAYED_EXECUTOR.execute(() -> cacheRemove(accountId));
   }
 
   @Override

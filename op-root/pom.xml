@@ -12,7 +12,7 @@
   <groupId>com.kkk.op</groupId>
   <artifactId>op-root</artifactId>
   <packaging>pom</packaging>
-  <version>Ace.RC</version>
+  <version>2021.0.0</version>
   <name>op-root</name>
   <description>KKK-OP-ROOT</description>
 

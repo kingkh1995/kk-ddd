@@ -29,7 +29,7 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   void cacheRemove(@NotNull ID id);
 
-  void cacheDelayRemove(@NotNull ID id);
+  void cacheDelayRemoveAsync(@NotNull ID id);
 
   default Consumer<? super T> cacheDoubleRemoveWrap(
       boolean isAutoCaching, Consumer<? super T> consumer) {
@@ -39,7 +39,7 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
     return t -> {
       this.cacheRemove(t.getId());
       consumer.accept(t);
-      this.cacheDelayRemove(t.getId());
+      this.cacheDelayRemoveAsync(t.getId());
     };
   }
 }

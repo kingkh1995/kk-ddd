@@ -3,11 +3,11 @@ package com.kkk.op.user.repository.impl;
 import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.base.AggregateRepositorySupport;
 import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.bean.NettyDelayer;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.tool.SleepHelper;
 import com.kkk.op.user.converter.AccountDataConverter;
 import com.kkk.op.user.converter.UserDataConverter;
 import com.kkk.op.user.domain.entity.Account;
@@ -48,30 +48,35 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
 
   private final Kson kson;
 
+  private final NettyDelayer delayer;
+
   public UserRepositoryImpl(
       final Cache cache,
       final UserMapper userMapper,
       final AccountMapper accountMapper,
       final UserDataConverter userDataConverter,
       final AccountDataConverter accountDataConverter,
-          final Kson kson) {
-    // 使用ThreadLocalAggregateTrackingManager
-    super(
-        cache,
-        ThreadLocalAggregateTrackingManager.<User, UserId>builder()
-            .snapshooter(user -> kson.convertValue(user, User.class))
-            .build());
+      final Kson kson,
+      final NettyDelayer delayer) {
+    super(User.class);
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;
     this.userDataConverter = userDataConverter;
     this.accountDataConverter = accountDataConverter;
     this.kson = kson;
+    this.delayer = delayer;
+    super.setCache(cache);
+    // 使用ThreadLocalAggregateTrackingManager
+    super.setAggregateTrackingManager(
+        ThreadLocalAggregateTrackingManager.<User, UserId>builder()
+            .snapshooter(user -> this.kson.convertValue(user, User.class))
+            .build());
   }
 
   @Override
-  public void cacheDelayRemove(UserId userId) {
-    // todo...
-    SleepHelper.delay(() -> this.cacheRemove(userId), 2L, TimeUnit.SECONDS);
+  public void cacheDelayRemoveAsync(UserId userId) {
+    // 使用时间轮算法，延迟两秒删除缓存
+    delayer.delay(() -> cacheRemove(userId), 2, TimeUnit.SECONDS);
   }
 
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
@@ -140,7 +145,9 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   }
 
   private Optional<User> buildAggregate(Optional<UserDO> optional) {
-    return optional.map(userDO -> userDataConverter.fromData(userDO, accountMapper.selectListByUserId(userDO.getId())));
+    return optional.map(
+        userDO ->
+            userDataConverter.fromData(userDO, accountMapper.selectListByUserId(userDO.getId())));
   }
 
   private void attach(Optional<User> optional) {

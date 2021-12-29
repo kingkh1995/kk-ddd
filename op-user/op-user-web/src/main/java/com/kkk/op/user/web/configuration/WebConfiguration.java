@@ -28,6 +28,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableConfigurationProperties(IPControlProperties.class) // 加载IPControl配置
 public class WebConfiguration implements WebMvcConfigurer {
 
+  // 消息总线会在收到远程配置变更事件后触发环境重新加载刷新配置类属性。
   @Autowired private IPControlProperties ipControlProperties;
 
   // 拦截器配置
@@ -55,7 +56,7 @@ public class WebConfiguration implements WebMvcConfigurer {
   }
 
   @Bean
-  @RefreshScope // 开启自动刷新，配置变更时，触发所有@RefreshScope的Bean被destory，使用时再重新加载。
+  @RefreshScope // 设置作用域为refresh，远程配置变更时，触发RefreshScope的bean缓存失效，获取时再重新加载。
   public Validator validator(@Value("${validator.fail-fast:false}") boolean failFast) {
     // 指定HibernateValidator，并设置快速失败参数
     return Validation.byProvider(HibernateValidator.class)

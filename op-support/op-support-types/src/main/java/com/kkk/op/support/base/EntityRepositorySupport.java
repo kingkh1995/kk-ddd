@@ -8,7 +8,6 @@ import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import com.kkk.op.support.marker.NameGenerator;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,8 +19,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 
 /**
  * 缓存实现 <br>
@@ -37,10 +36,6 @@ import org.springframework.lang.Nullable;
 public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends Identifier>
     implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
 
-  @Nullable private final Cache cache;
-
-  @Getter private final boolean autoCaching;
-
   @Getter(AccessLevel.PROTECTED)
   private final Class<T> tClass;
 
@@ -50,25 +45,18 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   @Getter(AccessLevel.PROTECTED)
   private final String tClassName;
 
-  {
-    // 设置autoCaching
-    this.autoCaching = this.getClass().isAnnotationPresent(AutoCaching.class);
-    // fixme... 这种写法不安全
-    // 该方法的主体是具体的业务子类，所以获取到的泛型父类是：EntityRepositorySupport<具体的Entity, 具体的Identifier>为参数化类型
-    var type = (ParameterizedType) this.getClass().getGenericSuperclass();
-    // 设置tClass 参数化类型获取实际Type
-    this.tClass = (Class<T>) type.getActualTypeArguments()[0];
+  @Getter private final boolean autoCaching;
+
+  @Setter(AccessLevel.PROTECTED)
+  private Cache cache;
+
+  public EntityRepositorySupport(Class<T> tClass) {
+    this.tClass = Objects.requireNonNull(tClass);
     var split = this.tClass.getCanonicalName().split("\\.");
     this.artifact = split[3];
     this.tClassName = split[split.length - 1];
-  }
-
-  public EntityRepositorySupport(@Nullable Cache cache) {
-    // 开启自动缓存时才需要CacheManager
-    if (this.isAutoCaching()) {
-      Objects.requireNonNull(cache);
-    }
-    this.cache = cache;
+    // 设置autoCaching
+    this.autoCaching = this.getClass().isAnnotationPresent(AutoCaching.class);
   }
 
   // ===============================================================================================

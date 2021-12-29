@@ -1,8 +1,6 @@
 # Version Info
 
-### Ace
-
-> stage .RC next .GA
+### 2021.0.0 (GA) 【*Ace*】 
 
 - 基础项目结构搭建
 - 基础组件开发

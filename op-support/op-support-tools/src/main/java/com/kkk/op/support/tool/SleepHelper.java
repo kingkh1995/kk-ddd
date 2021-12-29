@@ -1,5 +1,6 @@
 package com.kkk.op.support.tool;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -43,11 +44,16 @@ public final class SleepHelper {
   }
 
   public static void delay(@NotNull Runnable runnable, long delay, TimeUnit unit) {
-    try {
-      Thread.sleep(unit.toMillis(delay));
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    runnable.run();
+    // not recommended
+    CompletableFuture.runAsync(
+            () -> {
+              try {
+                Thread.sleep(unit.toMillis(delay));
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+              runnable.run();
+            })
+        .whenCompleteAsync((unused, throwable) -> {});
   }
 }

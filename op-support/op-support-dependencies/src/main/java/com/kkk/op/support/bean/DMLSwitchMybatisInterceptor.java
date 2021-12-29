@@ -1,6 +1,7 @@
 package com.kkk.op.support.bean;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;
@@ -41,7 +42,7 @@ public class DMLSwitchMybatisInterceptor implements Interceptor {
       // getBoundsql方法需要传入parameter，不过此处传入null，只获取解析后的sql即可。
       log.debug(
           "Preparing: {}", ((MappedStatement) invocation.getArgs()[0]).getBoundSql(null).getSql());
-      throw new IllegalStateException("系统更新中，暂时无法使用！");
+      throw new PersistenceException("系统更新中，暂时无法使用！");
     }
     return invocation.proceed();
   }

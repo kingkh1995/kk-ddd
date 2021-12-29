@@ -6,10 +6,10 @@
   <parent>
     <artifactId>op-user</artifactId>
     <groupId>com.kkk.op.user</groupId>
-    <version>Ace.RC</version>
+    <version>2021.0.0</version>
   </parent>
   <artifactId>op-user-web</artifactId>
-  <version>Ace.RC</version>
+  <version>2021.0.0</version>
   <name>op-user-web</name>
   <description>KKK-OP-USER-WEB</description>
 

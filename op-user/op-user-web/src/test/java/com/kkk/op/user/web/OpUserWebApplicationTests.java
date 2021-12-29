@@ -5,7 +5,7 @@ import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
-import com.kkk.op.support.bean.WheelTimer;
+import com.kkk.op.support.bean.NettyDelayer;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.Cache.ValueWrapper;
@@ -26,11 +26,11 @@ import com.kkk.op.user.repository.AccountRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import javax.validation.Validator;
@@ -65,7 +65,7 @@ class OpUserWebApplicationTests {
 
   @Autowired private Validator validator;
 
-  @Autowired private WheelTimer wheelTimer;
+  @Autowired private NettyDelayer delayer;
 
   @Autowired private Cache cache;
 
@@ -86,7 +86,31 @@ class OpUserWebApplicationTests {
   @Autowired private AccountDTOAssembler accountDTOAssembler;
 
   @Test
-  void test() throws Exception {}
+  void testDelayer() throws Exception {
+    var downLatch = new CountDownLatch(2);
+    delayer.delay(
+        () -> {
+          try {
+            Thread.sleep(2000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          log.info("3");
+          downLatch.countDown();
+        },
+        2,
+        TimeUnit.SECONDS);
+    delayer.delay(
+        () -> {
+          log.info("2");
+          downLatch.countDown();
+        },
+        2,
+        TimeUnit.SECONDS);
+    log.info("1");
+    downLatch.await();
+    log.info("finish！");
+  }
 
   @Test
   void testZookeeper() throws Exception {
@@ -101,9 +125,8 @@ class OpUserWebApplicationTests {
             // 监听所有事件
             CuratorCacheListener.builder()
                 .forAll(
-                    (type, oldData, data) -> {
-                      log.info("type:{}, oldData:{}, data:{}", type, oldData, data);
-                    })
+                    (type, oldData, data) ->
+                        log.info("type:{}, oldData:{}, data:{}", type, oldData, data))
                 .build());
     cacheBridge.start();
     // 删除节点
@@ -171,10 +194,7 @@ class OpUserWebApplicationTests {
         .delete()
         .guaranteed() // 保证删除，会一直重试直到连接失效。
         // 异步执行，完成后执行callback
-        .inBackground(
-            (client, event) -> {
-              log.info("删除节点完成 -> '{}'", event);
-            })
+        .inBackground((client, event) -> log.info("删除节点完成 -> '{}'", event))
         .forPath(node);
     curatorClient.delete().inBackground().forPath(node + "/2");
     Thread.sleep(5000);
@@ -379,21 +399,18 @@ class OpUserWebApplicationTests {
     var countDownLatch = new CountDownLatch(time);
     IntStream.range(0, time)
         .forEach(
-            i -> {
-              new Thread(
-                      () -> {
-                        try {
-                          cyclicBarrier.await();
-                        } catch (InterruptedException e) {
-                          e.printStackTrace();
-                        } catch (BrokenBarrierException e) {
-                          e.printStackTrace();
-                        }
-                        consumer.accept(i);
-                        countDownLatch.countDown();
-                      })
-                  .start();
-            });
+            i ->
+                new Thread(
+                        () -> {
+                          try {
+                            cyclicBarrier.await();
+                          } catch (Exception e) {
+                            e.printStackTrace();
+                          }
+                          consumer.accept(i);
+                          countDownLatch.countDown();
+                        })
+                    .start());
     try {
       countDownLatch.await();
     } catch (InterruptedException e) {
