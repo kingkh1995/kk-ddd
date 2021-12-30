@@ -26,9 +26,9 @@ public abstract class AbstractAggregateTrackingManager<
 
   @Override
   public void attach(@NotNull T aggregate) {
-    if (aggregate.isIdentified() && !this.context.existSnapshot(aggregate.getId())) {
-      // 借助merge
-      this.merge(aggregate);
+    if (aggregate.isIdentified()) {
+      // 生成一份快照并保存
+      this.context.putSnapshot(this.snapshoot(aggregate));
     }
   }
 
@@ -40,13 +40,8 @@ public abstract class AbstractAggregateTrackingManager<
   }
 
   @Override
-  public void merge(@NotNull T aggregate) {
-    // 生成一份快照并保存
-    this.context.putSnapshot(this.snapshoot(aggregate));
-  }
-
-  @Override
   public Diff detectChanges(@NotNull T aggregate) {
+    // 生成快照进行对比，因为属性可能被Diff持有，有被修改的风险
     return DiffUtil.diff(this.find(aggregate.getId()), aggregate);
   }
 
@@ -58,6 +53,6 @@ public abstract class AbstractAggregateTrackingManager<
   @Override
   public T find(@NotNull ID id) {
     // 使用snapshoot方法将快照复制一份返回
-    return this.snapshoot(this.context.getSnapshot(id));
+    return this.exist(id) ? this.snapshoot(this.context.getSnapshot(id)) : null;
   }
 }

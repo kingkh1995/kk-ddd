@@ -13,6 +13,7 @@ import org.apache.shiro.spring.web.config.ShiroFilterChainDefinition;
 import org.apache.shiro.web.filter.mgt.DefaultFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -50,6 +51,7 @@ public class AuthcConfiguration {
   }
 
   @Bean
+  @RefreshScope
   public Realm adminRealm(@Value("#{${shiro.admin:{}}}") Map<String, String> admin) {
     return new AdminRealm(admin);
   }

@@ -5,7 +5,7 @@ import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountStrategyManager;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
@@ -45,8 +45,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public List<Account> list(@NotEmpty Set<AccountId> accountIds) {
-    return accountRepository.list(accountIds);
+  public Map<AccountId, Account> find(@NotEmpty Set<AccountId> accountIds) {
+    return accountRepository.find(accountIds);
   }
 
   @Override

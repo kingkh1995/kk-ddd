@@ -16,12 +16,15 @@ import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
+import com.kkk.op.user.persistence.po.AccountDO;
 import com.kkk.op.user.persistence.po.UserDO;
 import com.kkk.op.user.repository.UserRepository;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Repository;
@@ -144,31 +147,37 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     accountMapper.deleteByUserId(aggregate.getId().getValue());
   }
 
-  private Optional<User> buildAggregate(Optional<UserDO> optional) {
-    return optional.map(
-        userDO ->
-            userDataConverter.fromData(userDO, accountMapper.selectListByUserId(userDO.getId())));
-  }
-
-  private void attach(Optional<User> optional) {
-    optional.ifPresent(this.getAggregateTrackingManager()::attach);
-  }
-
   @Override
   protected Optional<User> onSelect(@NotNull UserId userId) {
-    return buildAggregate(userMapper.selectById(userId.getValue()));
+    return userMapper
+        .selectById(userId.getValue())
+        .map(
+            userDO ->
+                userDataConverter.fromData(userDO, accountMapper.selectByUserId(userDO.getId())));
   }
 
   @Override
-  protected List<User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
-    // todo...
-    return null;
+  protected Map<UserId, User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
+    var longs = userIds.stream().mapToLong(UserId::getValue).boxed().collect(Collectors.toSet());
+    var accountDOListMap =
+        accountMapper.selectByUserIds(longs).stream()
+            .collect(Collectors.groupingBy(AccountDO::getUserId));
+    return userMapper.selectByIds(longs).stream()
+        .map(userDO -> userDataConverter.fromData(userDO, accountDOListMap.get(userDO.getId())))
+        .collect(Collectors.toMap(User::getId, Function.identity()));
   }
 
   @Override
   public Optional<User> findByUsername(String username) {
-    var optional = buildAggregate(userMapper.selectByUsername(username));
-    attach(optional);
-    return optional;
+    return userMapper.selectByUsername(username).map(this::findThenBuild);
+  }
+
+  private User findThenBuild(@NotNull UserDO userDO) {
+    var user = userDataConverter.fromData(userDO, accountMapper.selectByUserId(userDO.getId()));
+    // 添加缓存
+    cachePutIfAbsent(user.getId(), user);
+    // 添加追踪
+    attach(user);
+    return user;
   }
 }

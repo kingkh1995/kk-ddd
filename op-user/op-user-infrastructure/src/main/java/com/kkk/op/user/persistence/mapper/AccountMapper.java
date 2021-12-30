@@ -1,6 +1,7 @@
 package com.kkk.op.user.persistence.mapper;
 
 import com.kkk.op.user.persistence.po.AccountDO;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Delete;
@@ -28,5 +29,9 @@ public interface AccountMapper {
   // Mybatis支持封装为Optional
   Optional<AccountDO> selectById(Long id);
 
-  List<AccountDO> selectListByUserId(Long userId);
+  List<AccountDO> selectByIds(Collection<Long> ids);
+
+  List<AccountDO> selectByUserId(Long userId);
+
+  List<AccountDO> selectByUserIds(Collection<Long> userIds);
 }

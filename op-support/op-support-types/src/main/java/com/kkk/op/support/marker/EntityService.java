@@ -1,7 +1,7 @@
 package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
@@ -21,5 +21,5 @@ public interface EntityService<T extends Entity<ID>, ID extends Identifier> {
 
   Optional<T> find(@NotNull ID id);
 
-  List<T> list(@NotEmpty Set<ID> ids);
+  Map<ID, T> find(@NotEmpty Set<ID> ids);
 }

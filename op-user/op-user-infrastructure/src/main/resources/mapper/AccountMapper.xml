@@ -32,12 +32,34 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectListByUserId" resultType="com.kkk.op.user.persistence.po.AccountDO">
+  <select id="selectByIds" resultType="com.kkk.op.user.persistence.po.AccountDO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="selectByUserId" resultType="com.kkk.op.user.persistence.po.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM
     account
     WHERE user_id = #{userId}
+  </select>
+
+  <select id="selectByUserIds" resultType="com.kkk.op.user.persistence.po.AccountDO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE user_id IN
+    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
   </select>
 
 </mapper>

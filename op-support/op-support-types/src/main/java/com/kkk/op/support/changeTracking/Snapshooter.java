@@ -1,5 +1,7 @@
 package com.kkk.op.support.changeTracking;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 快照拍摄者 <br>
  *
@@ -8,7 +10,7 @@ package com.kkk.op.support.changeTracking;
 @FunctionalInterface
 public interface Snapshooter<T> {
 
-  T snapshoot(T t);
+  T snapshoot(@NotNull T t);
 
   // 参考Function.identity() 直接返回原值
   static <T> Snapshooter<T> identity() {

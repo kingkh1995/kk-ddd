@@ -29,8 +29,7 @@
         email = #{email},
       </if>
     </set>
-    WHERE
-    id = #{id}
+    WHERE id = #{id}
   </update>
 
   <sql id="columns">
@@ -43,6 +42,17 @@
     FROM
     user
     WHERE id = #{id}
+  </select>
+
+  <select id="selectByIds" resultType="com.kkk.op.user.persistence.po.UserDO">
+    SELECT
+    <include refid="columns"/>
+    FROM
+    user
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
   </select>
 
 </mapper>

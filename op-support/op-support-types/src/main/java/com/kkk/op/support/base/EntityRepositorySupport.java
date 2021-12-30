@@ -8,8 +8,8 @@ import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
 import com.kkk.op.support.marker.NameGenerator;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -74,7 +74,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   // todo... 由子类自行实现查询操作防止缓存击穿 三种方式：1、分布式锁 2、顺序队列 3、信号量
   protected abstract Optional<T> onSelect(@NotNull ID id);
 
-  protected abstract List<T> onSelectByIds(@NotEmpty Set<ID> ids);
+  protected abstract Map<ID, T> onSelectByIds(@NotEmpty Set<ID> ids);
 
   // ===============================================================================================
 
@@ -102,13 +102,13 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public void cachePut(T t) {
-    this.getCache().put(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
+  public void cachePut(ID id, T t) {
+    this.getCache().put(this.generateCacheKey(id), t);
   }
 
   @Override
-  public boolean cachePutIfAbsent(T t) {
-    return this.getCache().putIfAbsent(this.generateCacheKey(Objects.requireNonNull(t).getId()), t);
+  public boolean cachePutIfAbsent(ID id, T t) {
+    return this.getCache().putIfAbsent(this.generateCacheKey(id), t);
   }
 
   @Override
@@ -161,15 +161,31 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
   }
 
   @Override
-  public List<T> list(@NotEmpty Set<ID> ids) {
-    if (this.isAutoCaching()) {
-      // 有缓存情况，是否有必要批量加载？
-      return ids.stream()
-          .map(this::cacheGet)
-          .filter(Optional::isPresent)
-          .map(Optional::get)
-          .collect(Collectors.toCollection(() -> new ArrayList<>(ids.size()))); // 指定初始容量避免扩容
+  public Map<ID, T> find(@NotEmpty Set<ID> ids) {
+    if (!this.isAutoCaching()) {
+      return this.onSelectByIds(ids);
     }
-    return this.onSelectByIds(ids);
+    var map = new HashMap<ID, T>(ids.size());
+    var needSearchIds =
+        ids.stream()
+            .filter(
+                id -> {
+                  var optional = this.cacheGetIfPresent(id);
+                  if (optional.isPresent()) {
+                    optional
+                        .map(ValueWrapper::get)
+                        .ifPresent(entity -> map.put(entity.getId(), entity));
+                    return false;
+                  }
+                  return true;
+                })
+            .collect(Collectors.toSet());
+    if (needSearchIds.isEmpty()) {
+      return map;
+    }
+    var searchBack = this.onSelectByIds(needSearchIds);
+    needSearchIds.forEach(id -> this.cachePut(id, searchBack.get(id)));
+    map.putAll(searchBack);
+    return map;
   }
 }

@@ -4,10 +4,12 @@ import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.Identifier;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -67,8 +69,8 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
     }
     super.tryLockThenConsume(
         aggregate, this.cacheDoubleRemoveWrap(this.isAutoCaching(), (t) -> this.onUpdate(t, diff)));
-    // 合并跟踪变更
-    this.getAggregateTrackingManager().merge(aggregate);
+    // 更新追踪
+    this.getAggregateTrackingManager().attach(aggregate);
   }
 
   @Override
@@ -100,16 +102,39 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   /** EntityRepository 的查询方法实现 */
   @Override
   public Optional<T> find(@NotNull ID id) {
+    // 先返回追踪，相当于可重复读。
+    var snapshot = this.getAggregateTrackingManager().find(id);
+    if (null != snapshot) {
+      return Optional.of(snapshot);
+    }
+    // 不存在追踪则查询
     var op = super.find(id);
-    // 添加跟踪
+    // 查询完毕添加跟踪
     op.ifPresent(this::attach);
     return op;
   }
 
   @Override
-  public List<T> list(@NotEmpty Set<ID> ids) {
-    var list = super.list(ids);
-    list.forEach(this::attach);
-    return list;
+  public Map<ID, T> find(@NotEmpty Set<ID> ids) {
+    var map = new HashMap<ID, T>(ids.size());
+    var needSearchIds =
+        ids.stream()
+            .filter(
+                id -> {
+                  var snapshot = this.getAggregateTrackingManager().find(id);
+                  if (null != snapshot) {
+                    map.put(id, snapshot);
+                    return false;
+                  }
+                  return true;
+                })
+            .collect(Collectors.toSet());
+    if (needSearchIds.isEmpty()) {
+      return map;
+    }
+    var searchBack = super.find(needSearchIds);
+    searchBack.values().forEach(this::attach);
+    map.putAll(searchBack);
+    return map;
   }
 }

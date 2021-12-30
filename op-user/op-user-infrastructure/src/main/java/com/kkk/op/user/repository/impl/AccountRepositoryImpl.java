@@ -7,12 +7,13 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -72,10 +73,12 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
   }
 
   @Override
-  protected List<Account> onSelectByIds(@NotEmpty Set<AccountId> accountIds) {
-    var ids =
-        accountIds.stream().mapToLong(AccountId::getValue).boxed().collect(Collectors.toSet());
-    // todo...
-    return null;
+  protected Map<AccountId, Account> onSelectByIds(@NotEmpty Set<AccountId> accountIds) {
+    return accountMapper
+        .selectByIds(
+            accountIds.stream().mapToLong(AccountId::getValue).boxed().collect(Collectors.toSet()))
+        .stream()
+        .map(accountConverter::fromData)
+        .collect(Collectors.toMap(Account::getId, Function.identity()));
   }
 }

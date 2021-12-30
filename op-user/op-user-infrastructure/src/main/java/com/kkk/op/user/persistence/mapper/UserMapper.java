@@ -1,6 +1,7 @@
 package com.kkk.op.user.persistence.mapper;
 
 import com.kkk.op.user.persistence.po.UserDO;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Delete;
@@ -24,11 +25,13 @@ public interface UserMapper {
 
   Optional<UserDO> selectById(Long id);
 
+  List<UserDO> selectByIds(Collection<Long> ids);
+
   @Select("SELECT * FROM user WHERE gender = #{gender}")
-  List<UserDO> selectListByGender(String gender);
+  List<UserDO> selectByGender(String gender);
 
   @Select("SELECT * FROM user")
-  List<UserDO> selectList();
+  List<UserDO> selectAll();
 
   @Select("SELECT * FROM user WHERE username = #{username}")
   Optional<UserDO> selectByUsername(String username);

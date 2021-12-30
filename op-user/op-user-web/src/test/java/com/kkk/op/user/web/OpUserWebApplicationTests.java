@@ -23,8 +23,10 @@ import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
+import com.kkk.op.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -78,6 +80,8 @@ class OpUserWebApplicationTests {
   @Autowired private CuratorFramework curatorClient;
 
   @Autowired private UserMapper userMapper;
+
+  @Autowired private UserRepository userRepository;
 
   @Autowired private AccountMapper accountMapper;
 
@@ -292,8 +296,29 @@ class OpUserWebApplicationTests {
 
   @Test
   @Transactional
+  void testRepository() {
+    var all = userMapper.selectAll();
+    var byUsername = userRepository.findByUsername(all.get(0).getUsername()).get();
+    System.out.println(kson.writeJson(byUsername));
+    userRepository.find(byUsername.getId());
+    byUsername.getAccounts().get(1).invalidate();
+    userRepository.save(byUsername);
+    var map =
+        userRepository.find(
+            Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)));
+    System.out.println(kson.writeJson(map));
+    userRepository.remove(byUsername);
+    System.out.println(kson.writeJson(userRepository.find(byUsername.getId())));
+    System.out.println(
+        kson.writeJson(
+            userRepository.find(
+                Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)))));
+  }
+
+  @Test
+  @Transactional
   void testMybatis() {
-    var userDOList = userMapper.selectList();
+    var userDOList = userMapper.selectAll();
     System.out.println(kson.writeJson(userDOList));
     var userDO = userMapper.selectById(userDOList.get(0).getId()).get();
     userDO.setGender(null);
@@ -301,18 +326,15 @@ class OpUserWebApplicationTests {
     userDO.setEmail(null);
     userMapper.updateById(userDO);
     System.out.println(kson.writeJson(userMapper.selectById(userDO.getId())));
-    var accountDOS = accountMapper.selectListByUserId(userDO.getId());
+    var accountDOS = accountMapper.selectByUserId(userDO.getId());
     var accountDO = accountDOS.get(0);
     accountDO.setState(null);
     accountMapper.updateById(accountDO);
     System.out.println(kson.writeJson(accountMapper.selectById(accountDO.getId())));
     var page =
         PageHelper.startPage(2, 1)
-            .doSelectPage(() -> userMapper.selectListByGender(userDO.getGender()));
+            .doSelectPage(() -> userMapper.selectByGender(userDO.getGender()));
     System.out.println(kson.writeJson(page));
-    var account = accountRepository.find(AccountId.from(userDOList.get(1).getId())).get();
-    System.out.println(kson.writeJson(account));
-    accountRepository.remove(account);
   }
 
   @Test

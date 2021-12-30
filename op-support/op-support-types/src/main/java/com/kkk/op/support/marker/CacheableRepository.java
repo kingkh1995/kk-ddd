@@ -5,6 +5,7 @@ import com.kkk.op.support.marker.Cache.ValueWrapper;
 import java.util.Optional;
 import java.util.function.Consumer;
 import javax.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 
 /**
  * 可缓存Repository marker（缓存null值）
@@ -23,9 +24,9 @@ public interface CacheableRepository<T extends Entity<ID>, ID extends Identifier
 
   Optional<T> cacheGet(@NotNull ID id);
 
-  void cachePut(@NotNull T t);
+  void cachePut(@NotNull ID id, @Nullable T t);
 
-  boolean cachePutIfAbsent(@NotNull T t);
+  boolean cachePutIfAbsent(@NotNull ID id, @Nullable T t);
 
   void cacheRemove(@NotNull ID id);
 

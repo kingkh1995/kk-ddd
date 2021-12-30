@@ -89,4 +89,12 @@ public class Account extends Entity<AccountId> {
     op.orElseThrow(() -> new BusinessException("不存在的id"));
     return op.get();
   }
+
+  public void invalidate() {
+    if (AccountState.from(AccountStateEnum.ACTIVE).equals(this.state)) {
+      this.state = AccountState.from(AccountStateEnum.TERMINATED);
+    } else {
+      throw new BusinessException("当前状态无法失效。");
+    }
+  }
 }

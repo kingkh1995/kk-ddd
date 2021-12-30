@@ -4,7 +4,6 @@ import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.model.dto.UserAuthcInfo;
 import java.util.Map;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -14,6 +13,8 @@ import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,10 +26,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class UserRealm extends AuthenticatingRealm implements InitializingBean {
 
-  private final AuthcService service;
+  @Autowired @Lazy // Shiro模块bean必然会被提前加载，要设置依赖业务bean延后加载，否则BeanPostProcessorChecker会提示信息。
+  private AuthcService service;
 
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
       throws AuthenticationException {
