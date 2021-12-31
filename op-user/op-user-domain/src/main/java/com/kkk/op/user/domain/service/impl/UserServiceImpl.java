@@ -4,7 +4,7 @@ import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.repository.UserRepository;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Map<UserId, User> find(@NotEmpty Set<UserId> userIds) {
+  public List<User> find(@NotEmpty Set<UserId> userIds) {
     return userRepository.find(userIds);
   }
 }

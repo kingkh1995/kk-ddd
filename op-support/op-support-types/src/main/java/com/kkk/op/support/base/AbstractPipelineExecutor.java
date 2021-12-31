@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
  * @author KaiKoo
  */
 public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C, K>>
-    extends ApplicationContextAwareBean {
+    extends ApplicationContextAwareSingleton {
   private SortedSet<H> handlers;
 
   @Override
-  public void afterPropertiesSet() {
+  public void afterSingletonsInstantiated() {
     if (this.handlers != null) {
       return;
     }

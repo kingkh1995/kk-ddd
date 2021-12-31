@@ -1,7 +1,10 @@
 package com.kkk.op.user.application.service;
 
 import com.kkk.op.support.model.dto.UserAuthcInfo;
+import com.kkk.op.support.model.dto.UserDTO;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * <br>
@@ -24,4 +27,8 @@ public interface UserAppService {
    * @param authcInfo
    */
   void savePassword(UserAuthcInfo authcInfo);
+
+  UserDTO queryUser(Long userId);
+
+  List<UserDTO> queryUsers(Set<Long> userIds);
 }

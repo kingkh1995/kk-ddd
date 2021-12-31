@@ -26,7 +26,7 @@ import org.springframework.core.annotation.Order;
  * @author KaiKoo
  */
 public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
-    extends ApplicationContextAwareBean {
+    extends ApplicationContextAwareSingleton {
 
   /**
    * 政策实现类收集方案 <br>
@@ -69,7 +69,7 @@ public abstract class AbstractStrategyManager<K, S extends Strategy<K>>
   }
 
   @Override
-  public void afterPropertiesSet() {
+  public void afterSingletonsInstantiated() {
     if (this.strategies != null) {
       return;
     }

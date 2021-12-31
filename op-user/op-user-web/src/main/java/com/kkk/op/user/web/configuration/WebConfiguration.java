@@ -1,5 +1,6 @@
 package com.kkk.op.user.web.configuration;
 
+import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.aspect.BaseControllerAspect;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.IPControlInterceptor.IPControlProperties;
@@ -15,7 +16,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -24,7 +24,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * @author KaiKoo
  */
-@Configuration
+@LiteConfiguration
 @EnableConfigurationProperties(IPControlProperties.class) // 加载IPControl配置
 public class WebConfiguration implements WebMvcConfigurer {
 
@@ -65,4 +65,5 @@ public class WebConfiguration implements WebMvcConfigurer {
         .buildValidatorFactory()
         .getValidator();
   }
+
 }

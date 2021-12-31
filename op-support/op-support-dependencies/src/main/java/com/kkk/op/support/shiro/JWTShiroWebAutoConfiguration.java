@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.spring.boot.autoconfigure.ShiroAnnotationProcessorAutoConfiguration;
 import org.apache.shiro.spring.boot.autoconfigure.ShiroAutoConfiguration;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebAutoConfiguration;
 import org.apache.shiro.spring.config.web.autoconfigure.ShiroWebMvcAutoConfiguration;
@@ -26,7 +27,9 @@ import org.springframework.context.annotation.Bean;
  */
 @AutoConfigureBefore(ShiroAutoConfiguration.class)
 @AutoConfigureAfter(ShiroWebMvcAutoConfiguration.class)
-@EnableAutoConfiguration(exclude = ShiroWebAutoConfiguration.class)
+// 排除掉ShiroAnnotationProcessorAutoConfiguration，因为定义了一个代理创建器，会导致多创建一个代理。
+@EnableAutoConfiguration(
+    exclude = {ShiroWebAutoConfiguration.class, ShiroAnnotationProcessorAutoConfiguration.class})
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableConfigurationProperties(JWTShiroProperties.class)
 @ConditionalOnProperty(name = "shiro.web.enabled", matchIfMissing = true)

@@ -4,6 +4,7 @@ import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.Identifier;
 import javax.validation.constraints.NotNull;
+import org.springframework.lang.Nullable;
 
 /**
  * 聚合根追踪更新manager接口 <br>
@@ -13,18 +14,19 @@ import javax.validation.constraints.NotNull;
  */
 public interface AggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier> {
 
-  /** 添加（或覆盖）一个 Aggregate 的追踪（在select、insert和update操作完成之后添加） */
-  void attach(@NotNull T aggregate);
+  /** 让一个 Aggregate 变为可追踪（在insert和select操作之后执行，如果已被追踪则返回追踪，相当于保证了可重复读） */
+  T attach(@NotNull T aggregate);
 
-  /** 解除一个 Aggregate 的追踪（在delete操作完成之后再去解除） */
+  /** 解除一个 Aggregate 的追踪（在delete操作完成之后执行） */
   void detach(@NotNull T aggregate);
+
+  /** 更新一个 Aggregate 的追踪（在update操作完成之后执行） */
+  void merge(@NotNull T aggregate);
 
   /** 获取 Aggregate 变更信息 */
   Diff detectChanges(@NotNull T aggregate);
 
-  /** 判断 Aggregate 的快照是否存在 */
-  boolean exist(@NotNull ID id);
-
   /** 获取一个 Aggregate 的快照 （安全副本） */
-  T find(@NotNull ID id);
+  @Nullable
+  T obtain(@NotNull ID id);
 }

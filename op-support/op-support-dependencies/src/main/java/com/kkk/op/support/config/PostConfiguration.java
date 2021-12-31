@@ -2,6 +2,7 @@ package com.kkk.op.support.config;
 
 import ch.qos.logback.classic.util.LogbackMDCAdapter;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.base.EntityLocker;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +10,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 
 /**
@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
  * @author KaiKoo
  */
 @Slf4j
-@Configuration
+@LiteConfiguration
 public class PostConfiguration implements ApplicationContextAware {
 
     @Override

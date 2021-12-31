@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
 
 /**
  * json格式类型处理器 <br>
- * json格式属性要求不能为List，为了方便后续升级。
+ * json格式属性要求必须定义为对象，为了方便后续升级。
  *
  * @author KaiKoo
  */

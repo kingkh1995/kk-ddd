@@ -12,7 +12,7 @@ import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.realm.AuthenticatingRealm;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class UserRealm extends AuthenticatingRealm implements InitializingBean {
+public class UserRealm extends AuthenticatingRealm implements SmartInitializingSingleton {
 
   @Autowired @Lazy // Shiro模块bean必然会被提前加载，要设置依赖业务bean延后加载，否则BeanPostProcessorChecker会提示信息。
   private AuthcService service;
@@ -53,7 +53,7 @@ public class UserRealm extends AuthenticatingRealm implements InitializingBean {
    * @see org.apache.shiro.authc.credential.PasswordMatcher 交由第三方服务验证匹配
    */
   @Override
-  public void afterPropertiesSet() {
+  public void afterSingletonsInstantiated() {
     // 设置域名
     super.setName("UserRealm");
     // 设置token类型，调用之前会先调用supports方法判断通过，才会调用doGetAuthenticationInfo方法

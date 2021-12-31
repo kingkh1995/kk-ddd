@@ -1,11 +1,16 @@
 package com.kkk.op.user.application.service.impl;
 
 import com.kkk.op.support.model.dto.UserAuthcInfo;
+import com.kkk.op.support.model.dto.UserDTO;
 import com.kkk.op.user.application.service.UserAppService;
 import com.kkk.op.user.assembler.UserDTOAssembler;
 import com.kkk.op.user.domain.queryService.UserQueryService;
 import com.kkk.op.user.domain.service.UserService;
+import com.kkk.op.user.domain.types.UserId;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,5 +39,17 @@ public class UserAppServiceImpl implements UserAppService {
   @Transactional
   public void savePassword(UserAuthcInfo authcInfo) {
     userDTOAssembler.fromAuthcInfo(authcInfo).savePassword(userService);
+  }
+
+  @Override
+  public UserDTO queryUser(Long userId) {
+    return userService.find(UserId.valueOf(userId, "userId")).map(userDTOAssembler::toDTO).get();
+  }
+
+  @Override
+  public List<UserDTO> queryUsers(Set<Long> userIds) {
+    return userDTOAssembler.toDTO(
+        userService.find(
+            userIds.stream().map(l -> UserId.valueOf(l, "userId")).collect(Collectors.toSet())));
   }
 }

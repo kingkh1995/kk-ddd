@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.DegradedService;
-import com.kkk.op.support.base.ApplicationContextAwareBean;
+import com.kkk.op.support.base.ApplicationContextAwareSingleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -32,12 +32,13 @@ import org.springframework.core.annotation.Order;
 @Slf4j
 @Order(Ordered.LOWEST_PRECEDENCE - 1) // 优先级高于@MockResource切面
 @Aspect
-public class DegradedServiceAspect extends ApplicationContextAwareBean {
+public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
 
   private Map<Class<?>, DegradedContext> map;
   private final Executor executor;
 
   public DegradedServiceAspect(int healthInterval) {
+    // 并没有创建线程池，而是通过内部类Delayer延迟提交任务到执行线程池。
     this.executor = CompletableFuture.delayedExecutor(healthInterval, TimeUnit.SECONDS);
   }
 
@@ -56,7 +57,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareBean {
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterSingletonsInstantiated() {
     if (map != null) {
       return;
     }
@@ -67,7 +68,11 @@ public class DegradedServiceAspect extends ApplicationContextAwareBean {
     for (var obj : objects) {
       // 被ioc管理的是spring代理对象，需要获取到被代理对象
       if (AopUtils.isAopProxy(obj)) {
-        init(AopProxyUtils.getSingletonTarget(obj));
+        try {
+          init(AopProxyUtils.getSingletonTarget(obj));
+        } catch (Exception e) {
+          log.warn("DegradedContext init error!", e);
+        }
       }
     }
   }
@@ -90,8 +95,8 @@ public class DegradedServiceAspect extends ApplicationContextAwareBean {
       var declaredMethods = clazz.getDeclaredMethods();
       context.callbackMethods = new HashMap<>(declaredMethods.length, 1.0f);
       for (var method : declaredMethods) {
-        // 针对public方法在回调工具类中查找对应的静态方法
-        if ((method.getModifiers() & Modifier.PUBLIC) == Modifier.PUBLIC) {
+        // 针对public方法在回调工具类中查找对应的静态方法）
+        if (Modifier.isPublic(method.getModifiers())) {
           try {
             var callbackClassDeclaredMethod =
                 callbackClass.getDeclaredMethod(method.getName(), method.getParameterTypes());

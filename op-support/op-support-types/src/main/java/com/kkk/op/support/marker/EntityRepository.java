@@ -1,7 +1,7 @@
 package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Entity;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.constraints.NotEmpty;
@@ -24,5 +24,5 @@ public interface EntityRepository<T extends Entity<ID>, ID extends Identifier> {
   Optional<T> find(@NotNull ID id);
 
   /** 通过 IDs 批量寻找 Entity */
-  Map<ID, T> find(@NotEmpty Set<ID> ids);
+  List<T> find(@NotEmpty Set<ID> ids);
 }

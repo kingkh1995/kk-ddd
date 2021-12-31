@@ -2,7 +2,7 @@ package com.kkk.op.support.bean;
 
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
-import com.kkk.op.support.changeTracking.AggregateSnapshotContext;
+import com.kkk.op.support.changeTracking.AggregateTrackingContext;
 import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.marker.Identifier;
 import java.util.HashMap;
@@ -12,7 +12,10 @@ import javax.validation.constraints.NotNull;
 import lombok.Builder;
 
 /**
- * 基于ThreadLocal的追踪更新Manager实现类 <br>
+ * 使用ThreadLocal防止多个线程公用一份快照 <br>
+ * 内存泄漏解决方案： <br>
+ * 1.首次调用getContext方法时将ThreadLocal记录到Recorder；<br>
+ * 2.在拦截器的afterCompletion方法中移除所有的ThreadLocal。<br>
  *
  * @author KaiKoo
  */
@@ -20,10 +23,11 @@ import lombok.Builder;
 public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier>
     extends AbstractAggregateTrackingManager<T, ID> {
 
+  private final ThreadLocal<AggregateTrackingContext<T, ID>> holder = new ThreadLocal<>();
+
   private final Snapshooter<T> snapshooter;
 
-  private ThreadLocalAggregateTrackingManager(Snapshooter<T> snapshooter) {
-    super(new ThreadLocalAggregateSnapshotContext<>());
+  private ThreadLocalAggregateTrackingManager(final Snapshooter<T> snapshooter) {
     this.snapshooter = Objects.requireNonNull(snapshooter);
   }
 
@@ -32,44 +36,47 @@ public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID ext
     return this.snapshooter.snapshoot(aggregate);
   }
 
-  /**
-   * Aggregate快照管理实现类 使用ThreadLocal防止多个线程公用一份快照 <br>
-   * 内存泄漏解决方案： <br>
-   * 1.putSnapshot 方法将 ThreadLocal 记录到 Recorder <br>
-   * 2.在拦截器的 afterCompletion 方法中移除所有的 ThreadLocal <br>
-   * <br>
-   *
-   * @author KaiKoo
-   */
-  protected static class ThreadLocalAggregateSnapshotContext<
-          T extends Aggregate<ID>, ID extends Identifier>
-      implements AggregateSnapshotContext<T, ID> {
+  @Override
+  protected AggregateTrackingContext<T, ID> getContext() {
+    var context = holder.get();
+    if (context == null) {
+      context = initContext();
+    }
+    return context;
+  }
 
-    // todo... 待定
-    private final ThreadLocal<Map<ID, T>> threadLocal = ThreadLocal.withInitial(HashMap::new);
+  private AggregateTrackingContext<T, ID> initContext() {
+    ThreadLocalRecorder.record(holder);
+    var context = new MapAggregateTrackingContext<T, ID>();
+    holder.set(context);
+    return context;
+  }
+
+  protected static class MapAggregateTrackingContext<T extends Aggregate<ID>, ID extends Identifier>
+      implements AggregateTrackingContext<T, ID> {
+
+    private final Map<ID, T> map = new HashMap<>();
 
     @Override
-    public boolean existSnapshot(@NotNull ID id) {
-      return this.threadLocal.get().containsKey(id);
+    public boolean contains(@NotNull ID id) {
+      return this.map.containsKey(id);
     }
 
     @Override
-    public T removeSnapshot(@NotNull ID id) {
-      return this.threadLocal.get().remove(id);
+    public T remove(@NotNull ID id) {
+      return this.map.remove(id);
     }
 
     @Override
-    public void putSnapshot(@NotNull T snapshot) {
-      if (snapshot.isIdentified()) {
-        this.threadLocal.get().put(snapshot.getId(), snapshot);
-        // 记录到 Recorder
-        ThreadLocalRecorder.recordTlasc(this.threadLocal);
+    public void put(@NotNull T t) {
+      if (t.isIdentified()) {
+        this.map.put(t.getId(), t);
       }
     }
 
     @Override
-    public T getSnapshot(@NotNull ID id) {
-      return this.threadLocal.get().get(id);
+    public T get(@NotNull ID id) {
+      return this.map.get(id);
     }
   }
 }

@@ -6,31 +6,39 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.NettyDelayer;
-import com.kkk.op.support.cache.RedisCache;
+import com.kkk.op.support.cache.EnhancedProxyCachingConfiguration;
+import com.kkk.op.support.cache.TwoStageCacheManager;
 import com.kkk.op.support.distributed.CuratorDistributedLockFactory;
-import com.kkk.op.support.marker.Cache;
 import com.kkk.op.support.marker.DistributedLockFactory;
+import java.util.concurrent.TimeUnit;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RedissonClient;
-import org.redisson.spring.cache.CacheConfig;
+import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * 基础层定义实现 <br>
  *
  * @author KaiKoo
  */
-@Configuration
+@LiteConfiguration
+@Import(EnhancedProxyCachingConfiguration.class)
 public class BeanConfiguration implements ApplicationContextAware {
 
   // 设置ApplicationContext构造完成后操作
@@ -73,14 +81,24 @@ public class BeanConfiguration implements ApplicationContextAware {
     return CuratorDistributedLockFactory.builder().client(curatorFramework).build();
   }
 
+  /**
+   * 定义CacheManager
+   *
+   * @see CachingConfigurerSupport
+   */
   @Bean
-  public Cache cache(RedissonClient redissonClient, JsonMapper jsonMapper) {
-    return RedisCache.builder()
-        .name("RedisCache")
-        .redissonClient(redissonClient)
-        .redissonCacheConfig(new CacheConfig(1000L * 60L * 30L, 1000L * 60L * 30L))
-        .objectMapper(jsonMapper)
-        .build();
+  public CacheManager cacheManager(RedissonClient redissonClient, JsonMapper jsonMapper) {
+    var codec = new JsonJacksonCodec(jsonMapper);
+    var rTopic = redissonClient.getTopic("TwoStageCacheTopic", codec);
+    // redisson缓存配置 ttl:expireAfterWrite maxIdleTime:expireAfterAccess
+    var redissonCacheManager =
+        new RedissonSpringCacheManager(
+            redissonClient, "classpath:config/redisson-cache.json", codec);
+    // 配置内存缓存时间少于redis缓存时间
+    var caffeineCacheManager = new CaffeineCacheManager();
+    caffeineCacheManager.setCaffeine(
+        Caffeine.newBuilder().expireAfterAccess(30L, TimeUnit.MINUTES).softValues());
+    return new TwoStageCacheManager(rTopic, redissonCacheManager, caffeineCacheManager);
   }
 
   @Bean

@@ -1,6 +1,6 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.base.ApplicationContextAwareBean;
+import com.kkk.op.support.base.ApplicationContextAwareSingleton;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class FsmEngineSupport<
         E extends FsmEvent, T, C extends FsmContext<E, T>, P extends FsmEventProcessor<E, T, C>>
-    extends ApplicationContextAwareBean implements FsmEngine<E, T> {
+    extends ApplicationContextAwareSingleton implements FsmEngine<E, T> {
 
   @Override
   public void sendEvent(E event) throws Exception {
@@ -80,7 +80,7 @@ public abstract class FsmEngineSupport<
   private static final String[] DEFAULT = new String[] {"#"};
 
   @Override
-  public void afterPropertiesSet() {
+  public void afterSingletonsInstantiated() {
     if (this.processorMap != null) {
       return;
     }

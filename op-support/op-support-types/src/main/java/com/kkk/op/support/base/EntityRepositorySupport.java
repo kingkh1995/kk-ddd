@@ -1,25 +1,14 @@
 package com.kkk.op.support.base;
 
-import com.kkk.op.support.annotation.AutoCaching;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.Cache.ValueWrapper;
-import com.kkk.op.support.marker.CacheableRepository;
 import com.kkk.op.support.marker.EntityRepository;
 import com.kkk.op.support.marker.Identifier;
-import com.kkk.op.support.marker.NameGenerator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,30 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends Identifier>
-    implements EntityRepository<T, ID>, CacheableRepository<T, ID> {
-
-  @Getter(AccessLevel.PROTECTED)
-  private final Class<T> tClass;
-
-  @Getter(AccessLevel.PROTECTED)
-  private final String artifact;
-
-  @Getter(AccessLevel.PROTECTED)
-  private final String tClassName;
-
-  @Getter private final boolean autoCaching;
-
-  @Setter(AccessLevel.PROTECTED)
-  private Cache cache;
-
-  public EntityRepositorySupport(Class<T> tClass) {
-    this.tClass = Objects.requireNonNull(tClass);
-    var split = this.tClass.getCanonicalName().split("\\.");
-    this.artifact = split[3];
-    this.tClassName = split[split.length - 1];
-    // 设置autoCaching
-    this.autoCaching = this.getClass().isAnnotationPresent(AutoCaching.class);
-  }
+    implements EntityRepository<T, ID> {
 
   // ===============================================================================================
 
@@ -71,50 +37,9 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   protected abstract void onDelete(@NotNull T entity);
 
-  // todo... 由子类自行实现查询操作防止缓存击穿 三种方式：1、分布式锁 2、顺序队列 3、信号量
   protected abstract Optional<T> onSelect(@NotNull ID id);
 
-  protected abstract Map<ID, T> onSelectByIds(@NotEmpty Set<ID> ids);
-
-  // ===============================================================================================
-
-  /** 以下是Cache相关方法 */
-  @Override
-  public Cache getCache() {
-    return Objects.requireNonNull(this.cache);
-  }
-
-  @Override
-  public String generateCacheKey(ID id) {
-    return NameGenerator.DEFAULT.generate(
-        this.artifact, this.tClassName, Objects.requireNonNull(id).identifier());
-  }
-
-  @Override
-  public Optional<ValueWrapper<T>> cacheGetIfPresent(ID id) {
-    return this.getCache().get(this.generateCacheKey(id), this.getTClass());
-  }
-
-  @Override
-  public Optional<T> cacheGet(ID id) {
-    // 加载时会获取锁，防止了缓存穿透，但是会有线程阻塞，如果需要fail-fast要自行实现。
-    return this.getCache().get(this.generateCacheKey(id), () -> this.onSelect(id).orElse(null));
-  }
-
-  @Override
-  public void cachePut(ID id, T t) {
-    this.getCache().put(this.generateCacheKey(id), t);
-  }
-
-  @Override
-  public boolean cachePutIfAbsent(ID id, T t) {
-    return this.getCache().putIfAbsent(this.generateCacheKey(id), t);
-  }
-
-  @Override
-  public void cacheRemove(ID id) {
-    this.getCache().evict(this.generateCacheKey(id));
-  }
+  protected abstract List<T> onSelectByIds(@NotEmpty Set<ID> ids);
 
   // ===============================================================================================
 
@@ -134,58 +59,29 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
     }
   }
 
-  protected void update0(@NotNull T entity) {
-    // update操作需要获取分布式锁
-    this.tryLockThenConsume(
-        entity, this.cacheDoubleRemoveWrap(this.isAutoCaching(), this::onUpdate));
-  }
-
   protected void insert0(@NotNull T entity) {
     // insert操作不需要获取分布式锁
-    this.cacheDoubleRemoveWrap(this.isAutoCaching(), this::onInsert).accept(entity);
+    this.onInsert(entity);
+  }
+
+  protected void update0(@NotNull T entity) {
+    // update操作需要获取分布式锁
+    this.tryLockThenConsume(entity, this::onUpdate);
   }
 
   @Override
   public void remove(@NotNull T entity) {
     // delete操作需要获取分布式锁
-    this.tryLockThenConsume(
-        entity, this.cacheDoubleRemoveWrap(this.isAutoCaching(), this::onDelete));
+    this.tryLockThenConsume(entity, this::onDelete);
   }
 
   @Override
   public Optional<T> find(@NotNull ID id) {
-    if (this.isAutoCaching()) {
-      return this.cacheGet(id);
-    }
     return this.onSelect(id);
   }
 
   @Override
-  public Map<ID, T> find(@NotEmpty Set<ID> ids) {
-    if (!this.isAutoCaching()) {
-      return this.onSelectByIds(ids);
-    }
-    var map = new HashMap<ID, T>(ids.size());
-    var needSearchIds =
-        ids.stream()
-            .filter(
-                id -> {
-                  var optional = this.cacheGetIfPresent(id);
-                  if (optional.isPresent()) {
-                    optional
-                        .map(ValueWrapper::get)
-                        .ifPresent(entity -> map.put(entity.getId(), entity));
-                    return false;
-                  }
-                  return true;
-                })
-            .collect(Collectors.toSet());
-    if (needSearchIds.isEmpty()) {
-      return map;
-    }
-    var searchBack = this.onSelectByIds(needSearchIds);
-    needSearchIds.forEach(id -> this.cachePut(id, searchBack.get(id)));
-    map.putAll(searchBack);
-    return map;
+  public List<T> find(@NotEmpty Set<ID> ids) {
+    return this.onSelectByIds(ids);
   }
 }

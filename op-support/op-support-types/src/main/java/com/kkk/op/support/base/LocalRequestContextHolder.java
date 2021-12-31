@@ -34,8 +34,7 @@ public final class LocalRequestContextHolder {
     set(requestContext, true);
   }
 
-  public static void set(
-      @Nullable LocalRequestContext requestContext, boolean inheritable) {
+  public static void set(@Nullable LocalRequestContext requestContext, boolean inheritable) {
     if (requestContext == null) {
       reset();
     } else {

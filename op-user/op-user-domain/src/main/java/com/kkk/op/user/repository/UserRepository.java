@@ -12,5 +12,6 @@ import java.util.Optional;
  */
 public interface UserRepository extends AggregateRepository<User, UserId> {
 
-  Optional<User> findByUsername(String username);
+  // todo... 参数替换成DP。
+  Optional<User> find(String username);
 }

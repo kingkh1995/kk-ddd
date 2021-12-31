@@ -7,8 +7,6 @@ import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.NettyDelayer;
 import com.kkk.op.support.enums.AccountStateEnum;
-import com.kkk.op.support.marker.Cache;
-import com.kkk.op.support.marker.Cache.ValueWrapper;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.model.dto.AccountDTO;
 import com.kkk.op.support.types.LongId;
@@ -22,6 +20,7 @@ import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
 import com.kkk.op.user.persistence.mapper.AccountMapper;
 import com.kkk.op.user.persistence.mapper.UserMapper;
+import com.kkk.op.user.persistence.po.AccountDO;
 import com.kkk.op.user.repository.AccountRepository;
 import com.kkk.op.user.repository.UserRepository;
 import java.math.BigDecimal;
@@ -35,7 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
-import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
@@ -51,6 +49,7 @@ import org.redisson.client.codec.StringCodec;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -65,11 +64,9 @@ class OpUserWebApplicationTests {
 
   @Autowired private Kson kson;
 
-  @Autowired private Validator validator;
+  @Autowired private CacheManager cacheManager;
 
   @Autowired private NettyDelayer delayer;
-
-  @Autowired private Cache cache;
 
   @Autowired private DistributedLockFactory distributedLockFactory;
 
@@ -88,6 +85,46 @@ class OpUserWebApplicationTests {
   @Autowired private AccountRepository accountRepository;
 
   @Autowired private AccountDTOAssembler accountDTOAssembler;
+
+  @Test
+  void testCache() {
+    var cache = cacheManager.getCache("kkk:test");
+    var key = "testKey";
+    cache.clear();
+    System.out.println(cache.get(key));
+    System.out.println(cache.get(key, () -> accountMapper.selectById(1L).get()));
+    System.out.println(cache.get(key, AccountDO.class));
+    cache.evict(key);
+    System.out.println(cache.get(key, AccountDO.class));
+    cache.put(key, null);
+    System.out.println(cache.get(key, () -> accountMapper.selectById(4L).get()));
+    System.out.println(cache.putIfAbsent(key, null));
+    System.out.println(cache.get(key, String.class));
+    cache.invalidate();
+  }
+
+  @Test
+  @Transactional
+  void testRepository() throws Exception {
+    var all = userMapper.selectAll();
+    var byUsername = userRepository.find(all.get(0).getUsername()).get();
+    System.out.println(kson.writeJson(byUsername));
+    userRepository.find(byUsername.getId());
+    byUsername.getAccounts().get(1).invalidate();
+    userRepository.save(byUsername);
+    var map =
+        userRepository.find(
+            Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)));
+    System.out.println(kson.writeJson(map));
+    userRepository.remove(byUsername);
+    System.out.println(kson.writeJson(userRepository.find(byUsername.getId())));
+    System.out.println(
+        kson.writeJson(
+            userRepository.find(
+                Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)))));
+    // 等待延时删除完成
+    Thread.sleep(2000);
+  }
 
   @Test
   void testDelayer() throws Exception {
@@ -119,7 +156,7 @@ class OpUserWebApplicationTests {
   @Test
   void testZookeeper() throws Exception {
     System.out.println(curatorClient.getNamespace());
-    String path = "/test/ZKTest";
+    String path = "/kkk/test";
     // 永久型事件监听，Watcher每次触发后都会被移除。
     var cacheBridge = CuratorCache.bridgeBuilder(curatorClient, path).build();
     // 添加监听器
@@ -206,11 +243,11 @@ class OpUserWebApplicationTests {
 
   @Test
   void testFlashSale() {
-    var tag = "{A00001}";
+    var tag = "{kkk:test:tag}";
     var kl = tag + "limit";
     var ku = tag + "user";
     var kc = tag + "context";
-    var id = tag + "U00001";
+    var id = tag + "testId";
     var script = new DefaultRedisScript<Long>();
     script.setScriptSource(new ResourceScriptSource(new ClassPathResource("lua/flash_sale.lua")));
     script.setResultType(Long.class);
@@ -241,9 +278,9 @@ class OpUserWebApplicationTests {
 
   @Test
   void testLock() throws Exception {
-    var name1 = distributedLockFactory.getLockNameGenerator().generate("test", "1");
-    var name2 = distributedLockFactory.getLockNameGenerator().generate("test", "2");
-    var name3 = distributedLockFactory.getLockNameGenerator().generate("test", "3");
+    var name1 = distributedLockFactory.getLockNameGenerator().generate("kkk", "1");
+    var name2 = distributedLockFactory.getLockNameGenerator().generate("kkk", "2");
+    var name3 = distributedLockFactory.getLockNameGenerator().generate("kkk", "3");
     var list = List.of(name1, name2, name3);
     var multiLock = distributedLockFactory.getMultiLock(list);
     log.info("multi lock '{}' return '{}'", list, multiLock.tryLock());
@@ -264,24 +301,6 @@ class OpUserWebApplicationTests {
   }
 
   @Test
-  void testCache() {
-    var key = "account:test";
-    cache.evict(key);
-    System.out.println(cache.getName());
-    cache.evict(key);
-    System.out.println(cache.putIfAbsent(key, null));
-    System.out.println(cache.get(key, Account.class));
-    cache.evict(key);
-    var account = accountRepository.find(AccountId.from(1L)).get();
-    cache.put(key, account);
-    System.out.println(cache.get(key, Account.class));
-    cache.evict(key);
-    System.out.println(cache.get(key, () -> accountRepository.find(AccountId.from(1L)).get()));
-    var op = cache.get(key, Account.class).map(ValueWrapper::get);
-    System.out.println(kson.writeJson(op));
-  }
-
-  @Test
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
     System.out.println(kson.writeJson(account));
@@ -292,27 +311,6 @@ class OpUserWebApplicationTests {
     var target = new AccountDTO();
     accountDTOAssembler.buildDTO(UserId.from(100L), account, target);
     System.out.println(target);
-  }
-
-  @Test
-  @Transactional
-  void testRepository() {
-    var all = userMapper.selectAll();
-    var byUsername = userRepository.findByUsername(all.get(0).getUsername()).get();
-    System.out.println(kson.writeJson(byUsername));
-    userRepository.find(byUsername.getId());
-    byUsername.getAccounts().get(1).invalidate();
-    userRepository.save(byUsername);
-    var map =
-        userRepository.find(
-            Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)));
-    System.out.println(kson.writeJson(map));
-    userRepository.remove(byUsername);
-    System.out.println(kson.writeJson(userRepository.find(byUsername.getId())));
-    System.out.println(
-        kson.writeJson(
-            userRepository.find(
-                Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)))));
   }
 
   @Test
@@ -384,36 +382,36 @@ class OpUserWebApplicationTests {
     final var o = new Object();
     itl.set(o);
     ttl.set(o);
-    MDC.put("test", "mdc");
+    MDC.put("kkk", "mdc");
     executor.execute(
         () -> {
           System.out.println(o == itl.get()); // false
-          System.out.println(MDC.get("test")); // null
+          System.out.println(MDC.get("kkk")); // null
           countDownLatch.countDown();
         });
     ttlExecutor.execute(
         () -> {
           System.out.println(o == itl.get()); // false
-          System.out.println(MDC.get("test")); // mdc
+          System.out.println(MDC.get("kkk")); // mdc
           countDownLatch.countDown();
         });
     countDownLatch.await();
-    System.out.println(MDC.get("test")); // mdc
-    MDC.remove("test");
+    System.out.println(MDC.get("kkk")); // mdc
+    MDC.remove("kkk");
     executor.execute(
         () -> {
           System.out.println((o == ttl.get())); // false
-          System.out.println(MDC.get("test")); // null
+          System.out.println(MDC.get("kkk")); // null
           countDownLatch.countDown();
         });
     ttlExecutor.execute(
         () -> {
           System.out.println((o == ttl.get())); // true
-          System.out.println(MDC.get("test")); // null
+          System.out.println(MDC.get("kkk")); // null
           countDownLatch.countDown();
         });
     countDownLatch.await();
-    System.out.println(MDC.get("test")); // null
+    System.out.println(MDC.get("kkk")); // null
   }
 
   private static void forRun(int time, IntConsumer consumer) {

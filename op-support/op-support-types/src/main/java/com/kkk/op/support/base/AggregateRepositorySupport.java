@@ -4,16 +4,15 @@ import com.kkk.op.support.changeTracking.AggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.Identifier;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Setter;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,36 +26,21 @@ import lombok.extern.slf4j.Slf4j;
 public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID extends Identifier>
     extends EntityRepositorySupport<T, ID> implements AggregateRepository<T, ID> {
 
-  @Setter(AccessLevel.PROTECTED)
-  private AggregateTrackingManager<T, ID> aggregateTrackingManager;
+  @Getter private final AggregateTrackingManager<T, ID> aggregateTrackingManager;
 
-  public AggregateRepositorySupport(Class<T> tClass) {
-    super(tClass);
-  }
-
-  public AggregateTrackingManager<T, ID> getAggregateTrackingManager() {
-    return Objects.requireNonNull(this.aggregateTrackingManager);
-  }
-
-  /**
-   * 让查询出来的对象能够被追踪。 <br>
-   * 如果自己实现了一个定制查询接口，要记得单独调用 attach。
-   */
-  @Override
-  public void attach(@NotNull T aggregate) {
-    this.getAggregateTrackingManager().attach(aggregate);
-  }
-
-  /**
-   * 停止追踪。 <br>
-   * 如果自己实现了一个定制移除接口，要记得单独调用 detach。
-   */
-  @Override
-  public void detach(@NotNull T aggregate) {
-    this.getAggregateTrackingManager().detach(aggregate);
+  public AggregateRepositorySupport(
+      final AggregateTrackingManager<T, ID> aggregateTrackingManager) {
+    this.aggregateTrackingManager = Objects.requireNonNull(aggregateTrackingManager);
   }
 
   /** EntityRepository 的保存方法实现重写 */
+  @Override
+  protected void insert0(@NotNull T aggregate) {
+    super.insert0(aggregate);
+    // 添加跟踪
+    this.getAggregateTrackingManager().attach(aggregate);
+  }
+
   @Override
   protected void update0(@NotNull T aggregate) {
     // 完全重写父类更新方法
@@ -67,17 +51,9 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
       log.info("None diff, return!");
       return;
     }
-    super.tryLockThenConsume(
-        aggregate, this.cacheDoubleRemoveWrap(this.isAutoCaching(), (t) -> this.onUpdate(t, diff)));
-    // 更新追踪
-    this.getAggregateTrackingManager().attach(aggregate);
-  }
-
-  @Override
-  protected void insert0(@NotNull T aggregate) {
-    super.insert0(aggregate);
-    // 添加跟踪
-    this.attach(aggregate);
+    super.tryLockThenConsume(aggregate, (t) -> this.onUpdate(t, diff));
+    // 合并追踪
+    this.getAggregateTrackingManager().merge(aggregate);
   }
 
   /**
@@ -96,45 +72,36 @@ public abstract class AggregateRepositorySupport<T extends Aggregate<ID>, ID ext
   public void remove(@NotNull T aggregate) {
     super.remove(aggregate);
     // 解除跟踪
-    this.detach(aggregate);
+    this.getAggregateTrackingManager().detach(aggregate);
   }
 
   /** EntityRepository 的查询方法实现 */
   @Override
   public Optional<T> find(@NotNull ID id) {
-    // 先返回追踪，相当于可重复读。
-    var snapshot = this.getAggregateTrackingManager().find(id);
-    if (null != snapshot) {
-      return Optional.of(snapshot);
-    }
-    // 不存在追踪则查询
-    var op = super.find(id);
-    // 查询完毕添加跟踪
-    op.ifPresent(this::attach);
-    return op;
+    // 先返回追踪，不存在追踪则查询，查询完毕添加追踪。
+    return Optional.ofNullable(this.getAggregateTrackingManager().obtain(id))
+        .or(() -> super.find(id).map(this.getAggregateTrackingManager()::attach));
   }
 
   @Override
-  public Map<ID, T> find(@NotEmpty Set<ID> ids) {
-    var map = new HashMap<ID, T>(ids.size());
-    var needSearchIds =
+  public List<T> find(@NotEmpty Set<ID> ids) {
+    var list = new ArrayList<T>(ids.size());
+    var ids2Lookup =
         ids.stream()
             .filter(
                 id -> {
-                  var snapshot = this.getAggregateTrackingManager().find(id);
-                  if (null != snapshot) {
-                    map.put(id, snapshot);
+                  var obtained = this.getAggregateTrackingManager().obtain(id);
+                  if (null != obtained) {
+                    list.add(obtained);
                     return false;
                   }
                   return true;
                 })
             .collect(Collectors.toSet());
-    if (needSearchIds.isEmpty()) {
-      return map;
+    if (ids2Lookup.isEmpty()) {
+      return list;
     }
-    var searchBack = super.find(needSearchIds);
-    searchBack.values().forEach(this::attach);
-    map.putAll(searchBack);
-    return map;
+    super.find(ids2Lookup).forEach(t -> list.add(this.getAggregateTrackingManager().attach(t)));
+    return list;
   }
 }

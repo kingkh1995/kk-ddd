@@ -1,6 +1,7 @@
 package com.kkk.op.user.web.authc;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.shiro.JWTShiroProperties;
 import com.kkk.op.support.shiro.JWTShiroWebAutoConfiguration;
 import com.kkk.op.support.shiro.JWTShiroWebFilterConfiguration;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Import;
  *
  * @author KaiKoo
  */
-@Configuration
+@LiteConfiguration
 @AutoConfigureBefore({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
 @Import({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
 public class AuthcConfiguration {

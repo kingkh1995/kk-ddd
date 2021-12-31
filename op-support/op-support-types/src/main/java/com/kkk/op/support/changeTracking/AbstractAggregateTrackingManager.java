@@ -4,8 +4,6 @@ import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.changeTracking.diff.DiffUtil;
 import com.kkk.op.support.marker.Identifier;
-import java.util.Objects;
-import javax.validation.constraints.NotNull;
 
 /**
  * 对外提供追踪变更的功能，内部定义好追踪管理的方式，快照的管理交由AggregateSnapshotContext去实现 <br>
@@ -18,41 +16,40 @@ public abstract class AbstractAggregateTrackingManager<
         T extends Aggregate<ID>, ID extends Identifier>
     implements AggregateTrackingManager<T, ID>, Snapshooter<T> {
 
-  private final AggregateSnapshotContext<T, ID> context;
-
-  public AbstractAggregateTrackingManager(AggregateSnapshotContext<T, ID> context) {
-    this.context = Objects.requireNonNull(context);
-  }
+  protected abstract AggregateTrackingContext<T, ID> getContext();
 
   @Override
-  public void attach(@NotNull T aggregate) {
-    if (aggregate.isIdentified()) {
-      // 生成一份快照并保存
-      this.context.putSnapshot(this.snapshoot(aggregate));
+  public T attach(T aggregate) {
+    // 存在则返回追踪
+    var obtained = this.obtain(aggregate.getId());
+    if (null != obtained) {
+      return obtained;
     }
+    // 不存在则使用merge
+    this.merge(aggregate);
+    return aggregate;
   }
 
   @Override
-  public void detach(@NotNull T aggregate) {
-    if (aggregate.isIdentified()) {
-      this.context.removeSnapshot(aggregate.getId());
-    }
+  public void detach(T aggregate) {
+    this.getContext().remove(aggregate.getId());
   }
 
   @Override
-  public Diff detectChanges(@NotNull T aggregate) {
-    // 生成快照进行对比，因为属性可能被Diff持有，有被修改的风险
-    return DiffUtil.diff(this.find(aggregate.getId()), aggregate);
+  public void merge(T aggregate) {
+    // 生成一份追踪快照并保存
+    this.getContext().put(this.snapshoot(aggregate));
   }
 
   @Override
-  public boolean exist(@NotNull ID id) {
-    return this.context.existSnapshot(id);
+  public Diff detectChanges(T aggregate) {
+    // 生成快照进行对比，因为属性可能被Diff持有，有被修改的风险。
+    return DiffUtil.diff(this.obtain(aggregate.getId()), aggregate);
   }
 
   @Override
-  public T find(@NotNull ID id) {
-    // 使用snapshoot方法将快照复制一份返回
-    return this.exist(id) ? this.snapshoot(this.context.getSnapshot(id)) : null;
+  public T obtain(ID id) {
+    // 使用snapshoot方法将追踪复制一份返回
+    return this.getContext().contains(id) ? this.snapshoot(this.getContext().get(id)) : null;
   }
 }

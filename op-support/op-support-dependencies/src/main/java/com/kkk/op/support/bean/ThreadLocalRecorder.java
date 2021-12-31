@@ -1,10 +1,7 @@
 package com.kkk.op.support.bean;
 
-import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.marker.Identifier;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,12 +23,6 @@ public final class ThreadLocalRecorder {
       ThreadLocal.withInitial(() -> Collections.newSetFromMap(new IdentityHashMap<>()));
 
   public static void record(ThreadLocal<?> threadLocal) {
-    recorder.get().add(threadLocal);
-  }
-
-  /** 记录Tlasc使用 定义为泛型方法 */
-  public static <ID extends Identifier, T extends Aggregate<ID>> void recordTlasc(
-      ThreadLocal<Map<ID, T>> threadLocal) {
     recorder.get().add(threadLocal);
   }
 

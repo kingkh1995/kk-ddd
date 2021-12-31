@@ -13,13 +13,14 @@ import javax.validation.constraints.NotBlank;
  */
 public abstract class Entity<ID extends Identifier> implements Identifiable<ID> {
 
+  /** 生成锁名 */
+  public abstract @NotBlank String generateLockName(NameGenerator lockNameGenerator);
+
   /** 验证该实体类参数是否合法 */
   public abstract void validate();
 
   /** 设置id */
   protected abstract void setId(ID id);
-
-  public abstract @NotBlank String generateLockName(NameGenerator lockNameGenerator);
 
   @Override
   public void fillInId(ID id) {
