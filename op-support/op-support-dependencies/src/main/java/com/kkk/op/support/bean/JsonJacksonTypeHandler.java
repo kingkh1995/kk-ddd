@@ -2,6 +2,7 @@ package com.kkk.op.support.bean;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -36,7 +37,10 @@ public class JsonJacksonTypeHandler extends BaseTypeHandler<Object> {
   public static ObjectMapper getObjectMapper() {
     if (null == OBJECT_MAPPER) {
       OBJECT_MAPPER =
-          JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+          JsonMapper.builder()
+              .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+              .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+              .build();
     }
     return OBJECT_MAPPER;
   }

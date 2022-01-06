@@ -4,7 +4,6 @@ import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.aspect.BaseControllerAspect;
 import com.kkk.op.support.bean.IPControlInterceptor;
 import com.kkk.op.support.bean.IPControlInterceptor.IPControlProperties;
-import com.kkk.op.support.bean.Kson;
 import com.kkk.op.support.bean.LocalRequestFilter;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import javax.validation.Validation;
@@ -51,8 +50,8 @@ public class WebConfiguration implements WebMvcConfigurer {
   }
 
   @Bean
-  public BaseControllerAspect baseControllerAspect(Kson kson) {
-    return new BaseControllerAspect(kson);
+  public BaseControllerAspect baseControllerAspect() {
+    return new BaseControllerAspect();
   }
 
   @Bean

@@ -1,7 +1,7 @@
 package com.kkk.op.user.repository.impl;
 
 import com.kkk.op.support.base.AggregateRepositorySupport;
-import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.base.Kson;
 import com.kkk.op.support.bean.ThreadLocalAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.exception.BusinessException;
@@ -54,7 +54,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   private final CacheManager cacheManager;
 
   public UserRepositoryImpl(
-      final Kson kson,
       final UserMapper userMapper,
       final AccountMapper accountMapper,
       final UserDataConverter userDataConverter,
@@ -63,7 +62,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     // 使用ThreadLocalAggregateTrackingManager
     super(
         ThreadLocalAggregateTrackingManager.<User, UserId>builder()
-            .snapshooter(user -> kson.convertValue(user, User.class))
+            .snapshooter(user -> Kson.convertValue(user, User.class))
             .build());
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;

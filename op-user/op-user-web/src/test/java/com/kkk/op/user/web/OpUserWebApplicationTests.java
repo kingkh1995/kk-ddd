@@ -3,8 +3,9 @@ package com.kkk.op.user.web;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.pagehelper.PageHelper;
-import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.base.Kson;
 import com.kkk.op.support.bean.NettyDelayer;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DistributedLockFactory;
@@ -62,15 +63,15 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("dev")
 class OpUserWebApplicationTests {
 
-  @Autowired private Kson kson;
+  @Autowired private StringRedisTemplate stringRedisTemplate;
+
+  @Autowired private JsonMapper jsonMapper;
 
   @Autowired private CacheManager cacheManager;
 
   @Autowired private NettyDelayer delayer;
 
   @Autowired private DistributedLockFactory distributedLockFactory;
-
-  @Autowired private StringRedisTemplate stringRedisTemplate;
 
   @Autowired private RedissonClient redissonClient;
 
@@ -87,6 +88,7 @@ class OpUserWebApplicationTests {
   @Autowired private AccountDTOAssembler accountDTOAssembler;
 
   @Test
+  @Transactional
   void testCache() {
     var cache = cacheManager.getCache("kkk:test");
     var key = "testKey";
@@ -99,8 +101,13 @@ class OpUserWebApplicationTests {
     cache.put(key, null);
     System.out.println(cache.get(key, () -> accountMapper.selectById(4L).get()));
     System.out.println(cache.putIfAbsent(key, null));
-    System.out.println(cache.get(key, String.class));
-    cache.invalidate();
+    try {
+      // always throw exception with transaction
+      System.out.println(cache.get(key, String.class));
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    cache.clear();
   }
 
   @Test
@@ -108,18 +115,18 @@ class OpUserWebApplicationTests {
   void testRepository() throws Exception {
     var all = userMapper.selectAll();
     var byUsername = userRepository.find(all.get(0).getUsername()).get();
-    System.out.println(kson.writeJson(byUsername));
+    System.out.println(Kson.writeJson(byUsername));
     userRepository.find(byUsername.getId());
     byUsername.getAccounts().get(1).invalidate();
     userRepository.save(byUsername);
     var map =
         userRepository.find(
             Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)));
-    System.out.println(kson.writeJson(map));
+    System.out.println(Kson.writeJson(map));
     userRepository.remove(byUsername);
-    System.out.println(kson.writeJson(userRepository.find(byUsername.getId())));
+    System.out.println(Kson.writeJson(userRepository.find(byUsername.getId())));
     System.out.println(
-        kson.writeJson(
+        Kson.writeJson(
             userRepository.find(
                 Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)))));
     // 等待延时删除完成
@@ -303,7 +310,7 @@ class OpUserWebApplicationTests {
   @Test
   void testMapstruct() {
     var account = accountRepository.find(AccountId.from(1L)).get();
-    System.out.println(kson.writeJson(account));
+    System.out.println(Kson.writeJson(account));
     var accountDTO = accountDTOAssembler.toDTO(account);
     System.out.println(accountDTO);
     System.out.println(accountDTOAssembler.fromDTO(accountDTO));
@@ -317,56 +324,56 @@ class OpUserWebApplicationTests {
   @Transactional
   void testMybatis() {
     var userDOList = userMapper.selectAll();
-    System.out.println(kson.writeJson(userDOList));
+    System.out.println(Kson.writeJson(userDOList));
     var userDO = userMapper.selectById(userDOList.get(0).getId()).get();
     userDO.setGender(null);
     userDO.setAge(null);
     userDO.setEmail(null);
     userMapper.updateById(userDO);
-    System.out.println(kson.writeJson(userMapper.selectById(userDO.getId())));
+    System.out.println(Kson.writeJson(userMapper.selectById(userDO.getId())));
     var accountDOS = accountMapper.selectByUserId(userDO.getId());
     var accountDO = accountDOS.get(0);
     accountDO.setState(null);
     accountMapper.updateById(accountDO);
-    System.out.println(kson.writeJson(accountMapper.selectById(accountDO.getId())));
+    System.out.println(Kson.writeJson(accountMapper.selectById(accountDO.getId())));
     var page =
         PageHelper.startPage(2, 1)
             .doSelectPage(() -> userMapper.selectByGender(userDO.getGender()));
-    System.out.println(kson.writeJson(page));
+    System.out.println(Kson.writeJson(page));
   }
 
   @Test
-  void testJacksonWithType() {
-    System.out.println(kson.writeJson(PageSize.DEFAULT));
+  void testJacKsonWithType() {
+    System.out.println(Kson.writeJson(PageSize.DEFAULT));
     LongId longId = LongId.from(123456789L);
-    System.out.println(kson.writeJson(longId));
+    System.out.println(Kson.writeJson(longId));
     AccountId accountId = AccountId.from(123456789L);
-    System.out.println(kson.writeJson(accountId));
-    System.out.println(kson.readJson(kson.writeJson(accountId), AccountId.class));
-    var id1 = kson.readJson("1234", new TypeReference<LongId>() {});
-    var id2 = kson.readJson("111", new TypeReference<AccountId>() {});
+    System.out.println(Kson.writeJson(accountId));
+    System.out.println(Kson.readJson(Kson.writeJson(accountId), AccountId.class));
+    var id1 = Kson.readJson("1234", new TypeReference<LongId>() {});
+    var id2 = Kson.readJson("111", new TypeReference<AccountId>() {});
     System.out.println(id1.getValue());
     System.out.println(id2.getValue());
-    System.out.println(kson.readJson(kson.writeJson("66666"), new TypeReference<AccountId>() {}));
+    System.out.println(Kson.readJson(Kson.writeJson("66666"), new TypeReference<AccountId>() {}));
     var accountState = AccountState.from(AccountStateEnum.INIT);
-    var json = kson.writeJson(accountState);
-    System.out.println(kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
-    var tJson = kson.writeJson(StampedTime.current());
+    var json = Kson.writeJson(accountState);
+    System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
+    var tJson = Kson.writeJson(StampedTime.current());
     System.out.println(tJson);
-    System.out.println(kson.readJson(tJson, StampedTime.class).toLocalDateTime());
+    System.out.println(Kson.readJson(tJson, StampedTime.class).toLocalDateTime());
     var account =
         Account.builder()
             .id(AccountId.from(10))
             .state(AccountState.from(AccountStateEnum.ACTIVE))
             .build();
-    var s = kson.writeJson(account);
+    var s = Kson.writeJson(account);
     System.out.println(s);
-    System.out.println(kson.readJson(s, Account.class));
-    System.out.println(kson.readJson(s, Account.class).getCreateTime());
-    var sTime = kson.writeJson(StampedTime.current());
+    System.out.println(Kson.readJson(s, Account.class));
+    System.out.println(Kson.readJson(s, Account.class).getCreateTime());
+    var sTime = Kson.writeJson(StampedTime.current());
     System.out.println(sTime);
-    System.out.println(kson.readJson(sTime, StampedTime.class));
-    System.out.println(kson.readJson(sTime, StampedTime.class).toLocalDateTime());
+    System.out.println(Kson.readJson(sTime, StampedTime.class));
+    System.out.println(Kson.readJson(sTime, StampedTime.class).toLocalDateTime());
     System.out.println(TenThousandYuan.from(new BigDecimal("110.6")).toPlainString());
   }
 

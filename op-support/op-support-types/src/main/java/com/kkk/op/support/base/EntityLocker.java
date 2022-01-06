@@ -3,6 +3,7 @@ package com.kkk.op.support.base;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.List;
+import java.util.Objects;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
@@ -17,7 +18,7 @@ public final class EntityLocker {
   private static DistributedLockFactory FACTORY;
 
   public static void setFactory(@NotNull DistributedLockFactory factory) {
-    FACTORY = factory;
+    FACTORY = Objects.requireNonNull(factory);
   }
 
   private EntityLocker() throws IllegalAccessException {

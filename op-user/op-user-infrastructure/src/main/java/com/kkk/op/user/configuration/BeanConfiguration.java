@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.aspect.DegradedServiceAspect;
-import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.bean.JsonJacksonCoder;
 import com.kkk.op.support.bean.NettyDelayer;
+import com.kkk.op.support.cache.CaffeineRedissonCompositeCacheManager;
 import com.kkk.op.support.cache.EnhancedProxyCachingConfiguration;
-import com.kkk.op.support.cache.TwoStageCacheManager;
 import com.kkk.op.support.distributed.CuratorDistributedLockFactory;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.concurrent.TimeUnit;
@@ -61,8 +61,10 @@ public class BeanConfiguration implements ApplicationContextAware {
         // 序列化时只按属性
         .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
         .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-        // 反序列化时忽略多余字段 反序列化默认使用无参构造器
+        // 反序列化时忽略多余字段不失败
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        // 序列化时空对象不失败
+        .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
         // 序列化时日期不转为时间戳
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         // BigDecimal按plain方式序列化
@@ -89,7 +91,6 @@ public class BeanConfiguration implements ApplicationContextAware {
   @Bean
   public CacheManager cacheManager(RedissonClient redissonClient, JsonMapper jsonMapper) {
     var codec = new JsonJacksonCodec(jsonMapper);
-    var rTopic = redissonClient.getTopic("TwoStageCacheTopic", codec);
     // redisson缓存配置 ttl:expireAfterWrite maxIdleTime:expireAfterAccess
     var redissonCacheManager =
         new RedissonSpringCacheManager(
@@ -98,12 +99,11 @@ public class BeanConfiguration implements ApplicationContextAware {
     var caffeineCacheManager = new CaffeineCacheManager();
     caffeineCacheManager.setCaffeine(
         Caffeine.newBuilder().expireAfterAccess(30L, TimeUnit.MINUTES).softValues());
-    return new TwoStageCacheManager(rTopic, redissonCacheManager, caffeineCacheManager);
-  }
-
-  @Bean
-  public Kson kson(JsonMapper jsonMapper) {
-    return new Kson(jsonMapper);
+    return new CaffeineRedissonCompositeCacheManager(
+        redissonCacheManager,
+        caffeineCacheManager,
+        redissonClient.getTopic("CaffeineRedissonCompositeCacheTopic", codec),
+        new JsonJacksonCoder(jsonMapper));
   }
 
   @Bean

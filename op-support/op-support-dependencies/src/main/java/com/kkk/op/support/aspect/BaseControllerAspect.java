@@ -1,12 +1,11 @@
 package com.kkk.op.support.aspect;
 
-import com.kkk.op.support.bean.Kson;
+import com.kkk.op.support.base.Kson;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,10 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE) // 设置级别最高
 @Aspect // 切面类需要添加 @Aspect 注解
-@RequiredArgsConstructor
 public class BaseControllerAspect extends AbstractMethodAspect {
-
-  private final Kson kson;
 
   @Override
   @Pointcut("@within(com.kkk.op.support.annotation.BaseController)") // 切面针对注解标识类的所有方法
@@ -43,14 +39,14 @@ public class BaseControllerAspect extends AbstractMethodAspect {
         "[{}.{}()] ~ [request = {}]",
         signature.getDeclaringTypeName(),
         signature.getName(),
-        this.kson.writeJson(getMethodParams(signature, point.getArgs())));
+        Kson.writeJson(getMethodParams(signature, point.getArgs())));
     return true;
   }
 
   @Override
   public void onSucceed(JoinPoint point, Object result) {
     // 后置增强，成功时打印响应信息
-    log.info("[response = {}]", this.kson.writeJson(result));
+    log.info("[response = {}]", Kson.writeJson(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {
