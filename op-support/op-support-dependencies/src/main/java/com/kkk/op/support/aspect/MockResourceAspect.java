@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.MockResource;
-import com.kkk.op.support.tool.ClassUtil;
+import com.kkk.op.support.util.ClassUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;

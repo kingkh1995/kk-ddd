@@ -1,4 +1,4 @@
-package com.kkk.op.user.persistence.po;
+package com.kkk.op.user.persistence;
 
 import java.io.Serializable;
 import lombok.Data;

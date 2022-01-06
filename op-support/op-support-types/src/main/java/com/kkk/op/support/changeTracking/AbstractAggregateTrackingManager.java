@@ -4,19 +4,22 @@ import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.changeTracking.diff.DiffUtil;
 import com.kkk.op.support.marker.Identifier;
+import javax.validation.constraints.NotNull;
 
 /**
  * 对外提供追踪变更的功能，内部定义好追踪管理的方式，快照的管理交由AggregateSnapshotContext去实现 <br>
  * 参考CacheManager设计，可以增加其他的接口实现来拓展功能 <br>
- * 参考TtlCopier，增加Snapshooter接口实现快照拍摄功能
  *
  * @author KaiKoo
  */
 public abstract class AbstractAggregateTrackingManager<
         T extends Aggregate<ID>, ID extends Identifier>
-    implements AggregateTrackingManager<T, ID>, Snapshooter<T> {
+    implements AggregateTrackingManager<T, ID> {
 
   protected abstract AggregateTrackingContext<T, ID> getContext();
+
+  /** 拍摄快照 */
+  protected abstract T snapshoot(@NotNull T t);
 
   @Override
   public T attach(T aggregate) {

@@ -12,7 +12,6 @@ import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.util.Assert;
 
 /**
  * 后置配置
@@ -34,7 +33,6 @@ public class PostConfiguration implements ApplicationContextAware {
     // 设置factory到EntityLocker
     private void setJsonMapper2Kson(ApplicationContext applicationContext){
         var jsonMapper = applicationContext.getBean(JsonMapper.class);
-        Assert.notNull(jsonMapper, "JsonMapper should exist!");
         log.info("Set '{}' to Kson.", jsonMapper.getClass().getCanonicalName());
         Kson.setMapper(jsonMapper);
     }
@@ -42,7 +40,6 @@ public class PostConfiguration implements ApplicationContextAware {
     // 设置factory到EntityLocker
     private void setFactory2EntityLocker(ApplicationContext applicationContext){
         var factory = applicationContext.getBean(DistributedLockFactory.class);
-        Assert.notNull(factory, "DistributedLockFactory should exist!");
         log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
         EntityLocker.setFactory(factory);
     }

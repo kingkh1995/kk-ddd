@@ -6,7 +6,7 @@ import com.kkk.op.user.converter.AccountConverter;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.UserId;
-import com.kkk.op.user.persistence.mapper.AccountMapper;
+import com.kkk.op.user.persistence.AccountMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Optional;

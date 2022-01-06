@@ -7,7 +7,7 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.AccountState;
 import com.kkk.op.user.domain.types.UserId;
-import com.kkk.op.user.persistence.po.AccountDO;
+import com.kkk.op.user.persistence.AccountDO;
 import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.function.Predicate;

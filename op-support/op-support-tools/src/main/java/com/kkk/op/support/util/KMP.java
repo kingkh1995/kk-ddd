@@ -1,4 +1,4 @@
-package com.kkk.op.support.tool;
+package com.kkk.op.support.util;
 
 import java.io.Reader;
 import java.util.Arrays;

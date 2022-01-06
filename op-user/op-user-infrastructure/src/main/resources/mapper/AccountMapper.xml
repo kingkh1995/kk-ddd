@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.kkk.op.user.persistence.mapper.AccountMapper">
+<mapper namespace="com.kkk.op.user.persistence.AccountMapper">
 
   <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
     INSERT INTO account
@@ -24,7 +24,7 @@
     id, user_id, state, version, create_time, update_time
   </sql>
 
-  <select id="selectById" resultType="com.kkk.op.user.persistence.po.AccountDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -32,7 +32,7 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectByIds" resultType="com.kkk.op.user.persistence.po.AccountDO">
+  <select id="selectByIds" resultType="com.kkk.op.user.persistence.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -43,7 +43,7 @@
     </foreach>
   </select>
 
-  <select id="selectByUserId" resultType="com.kkk.op.user.persistence.po.AccountDO">
+  <select id="selectByUserId" resultType="com.kkk.op.user.persistence.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -51,7 +51,7 @@
     WHERE user_id = #{userId}
   </select>
 
-  <select id="selectByUserIds" resultType="com.kkk.op.user.persistence.po.AccountDO">
+  <select id="selectByUserIds" resultType="com.kkk.op.user.persistence.AccountDO">
     SELECT
     <include refid="account_columns"/>
     FROM

@@ -62,7 +62,7 @@ public final class AccountState implements Type {
 
   @JsonCreator
   public static AccountState from(@NotNull AccountStateEnum accountStateEnum) {
-    return Cache.cache[Objects.requireNonNull(accountStateEnum).ordinal()];
+    return Cache.cache[accountStateEnum.ordinal()];
   }
 
   public static AccountState valueOf(String s, String fieldName) {

@@ -1,4 +1,4 @@
-package com.kkk.op.support.tool;
+package com.kkk.op.support.util;
 
 import java.lang.reflect.Array;
 import java.util.Collections;

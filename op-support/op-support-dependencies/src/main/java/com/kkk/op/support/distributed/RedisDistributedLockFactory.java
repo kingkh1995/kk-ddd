@@ -3,7 +3,7 @@ package com.kkk.op.support.distributed;
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import com.kkk.op.support.marker.NameGenerator;
-import com.kkk.op.support.tool.SleepHelper;
+import com.kkk.op.support.util.SleepHelper;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

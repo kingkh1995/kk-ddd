@@ -1,4 +1,4 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;

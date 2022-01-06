@@ -1,4 +1,4 @@
-package com.kkk.op.support.bean;
+package com.kkk.op.support.json;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,29 +25,29 @@ import org.springframework.util.Assert;
 @MappedJdbcTypes(JdbcType.VARCHAR)
 public class JsonJacksonTypeHandler extends BaseTypeHandler<Object> {
 
-  private static ObjectMapper OBJECT_MAPPER;
+  // 静态域懒加载使用lazy initialization holder class idiom模式，首次调用时静态内部类才会初始化。
+  private static class ObjectMapperHolder {
+    private static ObjectMapper OBJECT_MAPPER =
+        JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .build();
+  }
+
+  public static ObjectMapper getObjectMapper() {
+    return ObjectMapperHolder.OBJECT_MAPPER;
+  }
+
+  public static void setObjectMapper(ObjectMapper objectMapper) {
+    Assert.notNull(objectMapper, "ObjectMapper should not be null");
+    ObjectMapperHolder.OBJECT_MAPPER = objectMapper;
+  }
 
   private final Class<?> type;
 
   public JsonJacksonTypeHandler(Class<?> type) {
     Assert.notNull(type, "Type argument cannot be null");
     this.type = type;
-  }
-
-  public static ObjectMapper getObjectMapper() {
-    if (null == OBJECT_MAPPER) {
-      OBJECT_MAPPER =
-          JsonMapper.builder()
-              .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-              .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-              .build();
-    }
-    return OBJECT_MAPPER;
-  }
-
-  public static void setObjectMapper(ObjectMapper objectMapper) {
-    Assert.notNull(objectMapper, "ObjectMapper should not be null");
-    OBJECT_MAPPER = objectMapper;
   }
 
   @Override

@@ -2,19 +2,22 @@ package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
-import com.kkk.op.support.tool.SleepHelper;
+import com.kkk.op.support.util.SleepHelper;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.sql.DataSource;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -27,27 +30,43 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
  * @author KaiKoo
  */
 @Slf4j
-@Builder
+@Getter(AccessLevel.PRIVATE)
 public class JdbcDistributedLockFactory implements DistributedLockFactory {
 
-  @NonNull private final DataSourceTransactionManager transactionManager;
+  private final PlatformTransactionManager transactionManager;
 
-  @Default private final long spinInterval = 200L;
+  private final DataSource dataSource;
+
+  @Default private long spinInterval = 200L;
 
   @Default
-  private final String select4UpdateNowaitSql =
+  private String select4UpdateNowaitSql =
       "SELECT lock_name FROM distributed_lock WHERE lock_name = ? FOR UPDATE NOWAIT;";
 
-  @Default private final String insertSql = "INSERT INTO distributed_lock (lock_name) VALUES (?);";
+  @Default private String insertSql = "INSERT INTO distributed_lock (lock_name) VALUES (?);";
+
+  @Builder
+  public JdbcDistributedLockFactory(
+      @NonNull PlatformTransactionManager transactionManager,
+      long spinInterval,
+      String select4UpdateNowaitSql,
+      String insertSql) {
+    try {
+      this.dataSource =
+          (DataSource)
+              transactionManager.getClass().getMethod("getDataSource").invoke(transactionManager);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Can't get dataSource from transactionManager!", e);
+    }
+    this.transactionManager = transactionManager;
+    this.spinInterval = spinInterval;
+    this.select4UpdateNowaitSql = select4UpdateNowaitSql;
+    this.insertSql = insertSql;
+  }
 
   @Override
   public DistributedLock getLock(String name) {
-    return new Lock(
-        name,
-        this.transactionManager,
-        this.spinInterval,
-        this.select4UpdateNowaitSql,
-        this.insertSql);
+    return new Lock(name, this);
   }
 
   @Override
@@ -61,29 +80,22 @@ public class JdbcDistributedLockFactory implements DistributedLockFactory {
 
     private final String name;
 
-    private final DataSourceTransactionManager transactionManager;
-
-    private final long spinInterval;
-
-    private final String select4UpdateNowaitSql;
-
-    private final String insertSql;
+    private final JdbcDistributedLockFactory factory;
 
     private static final TransactionDefinition TD =
         new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_MANDATORY);
 
     private Connection getConnection() {
-      // 获取事务，要求必须存在事务
-      this.transactionManager.getTransaction(TD);
+      // 获取事务，要求必须存在事务。
+      this.factory.getTransactionManager().getTransaction(TD);
       // 获取当前连接，如果不存在会创建一个。
-      return DataSourceUtils.getConnection(
-          Objects.requireNonNull(this.transactionManager.getDataSource()));
+      return DataSourceUtils.getConnection(Objects.requireNonNull(this.factory.getDataSource()));
     }
 
     @Override
     public boolean tryLock(long waitSeconds) {
       var connection = getConnection();
-      // 执行select4update需要设置隔离级别为RC，因为RR级别下如果未匹配到数据会加上间隙锁，之后的插入操作会导致死锁，结果会是无法并发获取锁。
+      // 需要设置隔离级别为RC，因为RR级别下如果执行select4update未匹配到数据会加上间隙锁，会阻塞插入意向间隙锁，可能导致大量并发加锁操作阻塞。
       var isolation = setTransactionIsolation(connection, Isolation.READ_COMMITTED.value());
       // 需要将readOnly置为false
       var readOnly = setReadOnly(connection, false);
@@ -121,9 +133,9 @@ public class JdbcDistributedLockFactory implements DistributedLockFactory {
 
     private boolean tryLock0(Connection connection, long waitSeconds) {
       try {
-        var selectPS = connection.prepareStatement(this.select4UpdateNowaitSql);
+        var selectPS = connection.prepareStatement(this.factory.getSelect4UpdateNowaitSql());
         selectPS.setString(1, this.name);
-        var insertPS = connection.prepareStatement(this.insertSql);
+        var insertPS = connection.prepareStatement(this.factory.getInsertSql());
         insertPS.setString(1, this.name);
         return SleepHelper.tryGetThenSleep(
             () -> {
@@ -141,7 +153,7 @@ public class JdbcDistributedLockFactory implements DistributedLockFactory {
               }
             },
             TimeUnit.SECONDS.toMillis(waitSeconds),
-            this.spinInterval);
+            this.factory.getSpinInterval());
       } catch (Exception e) {
         log.error("JdbcDistributedLock lock error!", e);
         return false;

@@ -2,8 +2,8 @@ package com.kkk.op.user.web.configuration;
 
 import com.kkk.op.support.annotation.LiteConfiguration;
 import com.kkk.op.support.aspect.BaseControllerAspect;
-import com.kkk.op.support.bean.IPControlInterceptor;
-import com.kkk.op.support.bean.IPControlInterceptor.IPControlProperties;
+import com.kkk.op.support.bean.IpControlInterceptor;
+import com.kkk.op.support.bean.IpControlInterceptor.IPControlProperties;
 import com.kkk.op.support.bean.LocalRequestFilter;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import javax.validation.Validation;
@@ -34,7 +34,7 @@ public class WebConfiguration implements WebMvcConfigurer {
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     // 先添加的开始时先执行，结束时后执行
-    registry.addInterceptor(new IPControlInterceptor(ipControlProperties)).addPathPatterns("/**");
+    registry.addInterceptor(new IpControlInterceptor(ipControlProperties)).addPathPatterns("/**");
     registry.addInterceptor(new ThreadLocalRemoveInterceptor()).addPathPatterns("/**");
   }
 

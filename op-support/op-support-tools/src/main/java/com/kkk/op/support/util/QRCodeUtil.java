@@ -1,4 +1,4 @@
-package com.kkk.op.support.tool;
+package com.kkk.op.support.util;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;

@@ -3,18 +3,19 @@ package com.kkk.op.support.bean;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
 import com.kkk.op.support.changeTracking.AggregateTrackingContext;
-import com.kkk.op.support.changeTracking.Snapshooter;
 import com.kkk.op.support.marker.Identifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.UnaryOperator;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.Getter;
 
 /**
  * 使用ThreadLocal防止多个线程公用一份快照 <br>
  * 内存泄漏解决方案： <br>
- * 1.首次调用getContext方法时将ThreadLocal记录到Recorder；<br>
+ * 1.在初始化ThreadLocal时将其记录到Recorder；<br>
  * 2.在拦截器的afterCompletion方法中移除所有的ThreadLocal。<br>
  *
  * @author KaiKoo
@@ -23,33 +24,28 @@ import lombok.Builder;
 public class ThreadLocalAggregateTrackingManager<T extends Aggregate<ID>, ID extends Identifier>
     extends AbstractAggregateTrackingManager<T, ID> {
 
-  private final ThreadLocal<AggregateTrackingContext<T, ID>> holder = new ThreadLocal<>();
+  private final ThreadLocal<AggregateTrackingContext<T, ID>> holder =
+      ThreadLocal.withInitial(
+          () -> {
+            // Lambda表达式中的this指向外部实例，而匿名类中的this指向匿名类实例。
+            ThreadLocalRecorder.record(this.holder);
+            return new MapAggregateTrackingContext<>();
+          });
 
-  private final Snapshooter<T> snapshooter;
+  @Getter private final UnaryOperator<T> snapshooter;
 
-  private ThreadLocalAggregateTrackingManager(final Snapshooter<T> snapshooter) {
+  private ThreadLocalAggregateTrackingManager(final UnaryOperator<T> snapshooter) {
     this.snapshooter = Objects.requireNonNull(snapshooter);
   }
 
   @Override
   public T snapshoot(T aggregate) {
-    return this.snapshooter.snapshoot(aggregate);
+    return this.snapshooter.apply(aggregate);
   }
 
   @Override
   protected AggregateTrackingContext<T, ID> getContext() {
-    var context = holder.get();
-    if (context == null) {
-      context = initContext();
-    }
-    return context;
-  }
-
-  private AggregateTrackingContext<T, ID> initContext() {
-    ThreadLocalRecorder.record(holder);
-    var context = new MapAggregateTrackingContext<T, ID>();
-    holder.set(context);
-    return context;
+    return holder.get();
   }
 
   protected static class MapAggregateTrackingContext<T extends Aggregate<ID>, ID extends Identifier>

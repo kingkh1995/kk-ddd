@@ -1,9 +1,9 @@
-package com.kkk.op.support.tool;
+package com.kkk.op.support.util;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -26,12 +26,12 @@ public final class SleepHelper {
   }
 
   public static boolean tryGetThenSleep(
-      @NotNull Supplier<Boolean> supplier, long waitMills, long initialInterval) {
-    var deadLine = System.currentTimeMillis() + waitMills;
+      final @NotNull BooleanSupplier supplier, final long waitMills, final long initialInterval) {
+    var deadLine = System.nanoTime() + waitMills * 1_000_000L;
     for (var i = 0; true; i++) {
-      if (supplier.get()) {
+      if (supplier.getAsBoolean()) {
         return true;
-      } else if (System.currentTimeMillis() > deadLine) {
+      } else if (System.nanoTime() > deadLine) {
         return false;
       } else {
         try {

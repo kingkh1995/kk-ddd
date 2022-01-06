@@ -25,21 +25,21 @@ public class PageSize extends RangedLong {
   }
 
   /**
-   * 内部实现提供私有的 of 静态方法 （如果无特殊处理逻辑可以不提供）<br>
+   * 内部实现提供私有的静态方法 （如果无特殊处理逻辑可以不提供）<br>
    * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 from（可靠输入） 静态方法 <br>
    */
-  private static PageSize of(long value, String fieldName) {
+  private static PageSize from(long value, String fieldName) {
     return Objects.equals(DEFAULT.getValue(), value) ? DEFAULT : new PageSize(value, fieldName);
   }
 
   // 针对可靠输入的 from 方法
   @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
   public static PageSize from(long l) {
-    return of(l, "PageSize");
+    return from(l, "PageSize");
   }
 
   // 针对不可靠输入的 valueOf 方法
   public static PageSize valueOf(Long l, String fieldName) {
-    return of(parseLong(l, fieldName), fieldName);
+    return from(parseLong(l, fieldName), fieldName);
   }
 }

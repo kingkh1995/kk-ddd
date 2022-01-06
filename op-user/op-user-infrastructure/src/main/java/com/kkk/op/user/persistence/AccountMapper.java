@@ -1,6 +1,5 @@
-package com.kkk.op.user.persistence.mapper;
+package com.kkk.op.user.persistence;
 
-import com.kkk.op.user.persistence.po.AccountDO;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;

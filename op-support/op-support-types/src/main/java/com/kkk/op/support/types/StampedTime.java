@@ -27,7 +27,7 @@ public class StampedTime extends SpecificDateTime {
   }
 
   public static StampedTime from(@NotNull Instant instant) {
-    return new StampedTime(instant.atZone(ZoneId.systemDefault()), "StampedTime", null);
+    return from(instant.atZone(ZoneId.systemDefault()));
   }
 
   public static StampedTime current() {

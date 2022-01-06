@@ -1,6 +1,11 @@
 package com.kkk.op.support.cache;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
+import java.util.concurrent.ForkJoinPool;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cache.annotation.AnnotationCacheOperationSource;
 import org.springframework.cache.interceptor.BeanFactoryCacheOperationSourceAdvisor;
 import org.springframework.cache.interceptor.CacheInterceptor;
@@ -18,6 +23,9 @@ import org.springframework.core.Ordered;
  */
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE) // 标识为spring内部使用的bean
 public class EnhancedProxyCachingConfiguration {
+
+  public static final String EVENT_BUS_BEAN_BAME = "enhancedCacheEventBus";
+
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public BeanFactoryCacheOperationSourceAdvisor cacheAdvisor(
@@ -38,9 +46,18 @@ public class EnhancedProxyCachingConfiguration {
 
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public CacheInterceptor cacheInterceptor(CacheOperationSource cacheOperationSource) {
-    var interceptor = new EnhancedCacheInterceptor();
+  public CacheInterceptor cacheInterceptor(
+      CacheOperationSource cacheOperationSource,
+      @Qualifier(EVENT_BUS_BEAN_BAME) EventBus eventBus) {
+    var interceptor = new EnhancedCacheInterceptor(eventBus);
     interceptor.setCacheOperationSource(cacheOperationSource);
     return interceptor;
+  }
+
+  @Bean(EVENT_BUS_BEAN_BAME)
+  @ConditionalOnMissingBean(name = EVENT_BUS_BEAN_BAME)
+  public EventBus eventBus() {
+    // 事件异步通知，线程池默认ForkJoinPool。
+    return new AsyncEventBus(EVENT_BUS_BEAN_BAME, ForkJoinPool.commonPool());
   }
 }

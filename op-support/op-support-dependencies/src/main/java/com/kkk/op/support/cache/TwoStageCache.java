@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.cache.Cache;
 
 /**
- * 二级缓存 （local + global） <br>
+ * 使用复合方式实现二级缓存 （local + global） <br>
  *
  * @author KaiKoo
  */

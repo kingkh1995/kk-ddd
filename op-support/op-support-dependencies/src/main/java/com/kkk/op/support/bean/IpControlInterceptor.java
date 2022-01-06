@@ -16,25 +16,25 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * IP限流，使用 Guava Cache & RateLimiter
+ * IP限流，使用Guava RateLimiter。
  *
  * @author KaiKoo
  */
 @Slf4j
-public class IPControlInterceptor implements HandlerInterceptor {
+public class IpControlInterceptor implements HandlerInterceptor {
 
   /** 导入配置类Bean，实现动态刷新。 */
   private final IPControlProperties properties;
 
   private final LoadingCache<String, RateLimiter> cache;
 
-  public IPControlInterceptor(IPControlProperties properties) {
+  public IpControlInterceptor(IPControlProperties properties) {
     this.properties = properties;
     // 使用caffeine同步加载缓存
     this.cache =
         Caffeine.newBuilder()
-            // 30秒未访问则过期
-            .expireAfterAccess(1L, TimeUnit.SECONDS)
+            // 创建1分钟后过期
+            .expireAfterWrite(1L, TimeUnit.MINUTES)
             // 设置为软引用，在内存不足时回收缓存
             .softValues()
             // 需要设置一个合适的初始容量，因为扩容消耗很大
@@ -53,7 +53,7 @@ public class IPControlInterceptor implements HandlerInterceptor {
   /**
    * handler参数为HandlerMethod对象 <br>
    * postHandle相当于@afterReturning增强，只有未抛出异常才会调用；afterCompletion相当于@after增强，无论是否执行成功均会调用； <br>
-   * 均是在返回结果之前被调用，也无法修改有@ResponseBody注解的控制器的response，方法内调用getWriter也会报错； <br>
+   * 两者均是在返回结果之前被调用，故无法修改有@ResponseBody注解的控制器的response，且调用getWriter也会报错； <br>
    * 因为DispatcherServlet已经于postHandle方法之前将响应提交给HandlerAdapter了。
    */
   @Override

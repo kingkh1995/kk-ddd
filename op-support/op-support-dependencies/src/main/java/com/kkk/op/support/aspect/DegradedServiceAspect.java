@@ -47,7 +47,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
     Object target;
     Class<? extends Throwable>[] permittedThrowables;
     Method health;
-    Map<String, Method> callbackMethods = Collections.emptyMap();
+    Map<Method, Method> callbackMethods = Collections.emptyMap();
     /** 降级标记，使用原子类型，volatile只能保证每次取到的值都是最新值 */
     final AtomicBoolean degraded = new AtomicBoolean(false);
 
@@ -84,10 +84,9 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
     // 开始解析
     var degradedService = clazz.getDeclaredAnnotation(DegradedService.class);
     context.permittedThrowables = degradedService.permittedThrowables();
-    // 心跳方法
+    // 获取心跳方法，并执行一次心跳检测，以验证是否存在。
     context.health = clazz.getDeclaredMethod(degradedService.health());
     context.health.trySetAccessible();
-    // 执行一次心跳检测
     context.health.invoke(target);
     // 解析回调方法
     var callbackClass = degradedService.callbackClass();
@@ -95,13 +94,20 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
       var declaredMethods = clazz.getDeclaredMethods();
       context.callbackMethods = new HashMap<>(declaredMethods.length, 1.0f);
       for (var method : declaredMethods) {
-        // 针对public方法在回调工具类中查找对应的静态方法）
+        // 查找目标类所有public方法在回调工具类中对应的public static方法）
         if (Modifier.isPublic(method.getModifiers())) {
           try {
             var callbackClassDeclaredMethod =
                 callbackClass.getDeclaredMethod(method.getName(), method.getParameterTypes());
-            callbackClassDeclaredMethod.trySetAccessible();
-            context.callbackMethods.put(method.toString(), callbackClassDeclaredMethod);
+            if (!Modifier.isPublic(callbackClassDeclaredMethod.getModifiers())
+                || !Modifier.isStatic(callbackClassDeclaredMethod.getModifiers())) {
+              log.warn(
+                  "DegradedContext init callback method error, method '{}' should be [public static]!",
+                  callbackClassDeclaredMethod);
+              continue;
+            }
+            // public static方法不需要setAccessible
+            context.callbackMethods.put(method, callbackClassDeclaredMethod);
           } catch (Exception e) {
             // 不存在对应方法或反射失败，打印日志后继续
             log.warn("DegradedContext init callback method error!", e);
@@ -132,7 +138,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
   }
 
   private Object doDegrade(DegradedContext context, Method method, Object[] args) throws Throwable {
-    var callbackMethod = context.callbackMethods.get(method.toString());
+    var callbackMethod = context.callbackMethods.get(method);
     if (callbackMethod == null) {
       throw DegradedServiceException.INSTANCE;
     }

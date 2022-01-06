@@ -1,6 +1,6 @@
 package com.kkk.op.support.cache;
 
-import com.kkk.op.support.bean.JsonJacksonCoder;
+import com.kkk.op.support.json.JsonJacksonCoder;
 import java.util.concurrent.Callable;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;

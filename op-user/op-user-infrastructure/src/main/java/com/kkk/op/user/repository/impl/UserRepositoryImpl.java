@@ -11,13 +11,14 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.types.AccountId;
 import com.kkk.op.user.domain.types.UserId;
-import com.kkk.op.user.persistence.mapper.AccountMapper;
-import com.kkk.op.user.persistence.mapper.UserMapper;
-import com.kkk.op.user.persistence.po.AccountDO;
-import com.kkk.op.user.persistence.po.UserDO;
+import com.kkk.op.user.persistence.AccountDO;
+import com.kkk.op.user.persistence.AccountMapper;
+import com.kkk.op.user.persistence.UserDO;
+import com.kkk.op.user.persistence.UserMapper;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -147,7 +148,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   @Override
   protected List<User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
     // 查询缓存
-    var cache = this.cacheManager.getCache(CACHE_NAME);
+    var cache = Objects.requireNonNull(this.cacheManager.getCache(CACHE_NAME));
     var list = new ArrayList<User>(userIds.size());
     var ids2Lookup =
         userIds.stream()

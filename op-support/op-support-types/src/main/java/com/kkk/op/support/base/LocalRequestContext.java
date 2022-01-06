@@ -4,10 +4,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.Builder;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -19,36 +18,42 @@ import lombok.ToString;
  * @author KaiKoo
  */
 @ToString
-@Builder
+@Getter
 public class LocalRequestContext {
 
-  /**
-   * 日志链路追踪序号
-   *
-   * <p>todo... 日志打印自动添加traceId
-   */
-  @Getter @Default private final String traceId = UUID.randomUUID().toString();
+  /** 日志链路追踪序号 */
+  private final String traceId;
 
   /** 请求时间戳（请求处理过程中作为当前时间） */
-  @Default private final Instant timestamp = Instant.now();
+  private final Instant timestamp;
 
   /** 时区信息 */
-  @Getter @Default private final ZoneId zoneId = ZoneId.systemDefault();
-
-  /** 调用程序入口：(method)uri */
-  @Getter private final String entrance;
-
-  /** 请求应用来源 */
-  @Getter private final String source;
+  private final ZoneId zoneId;
 
   /** 请求序列号（用于幂等处理，未传则默认为traceId） */
   private final String requestSeq;
 
-  /** 操作人用户ID */
-  @Getter @Setter private Long operatorId;
+  /** 调用程序入口：(method)uri */
+  private final String entrance;
 
-  /** jwt claims */
-  @Getter @Setter private Map<String, Object> claims;
+  /** 请求应用来源 */
+  private final String source;
+
+  @Builder // 可注解在构造方法和静态方法上
+  public LocalRequestContext(
+      String traceId,
+      Instant timestamp,
+      ZoneId zoneId,
+      String requestSeq,
+      String entrance,
+      String source) {
+    this.traceId = Objects.requireNonNullElse(traceId, UUID.randomUUID().toString());
+    this.timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
+    this.zoneId = Objects.requireNonNullElse(zoneId, ZoneId.systemDefault());
+    this.requestSeq = Objects.requireNonNullElse(requestSeq, this.traceId);
+    this.entrance = Objects.requireNonNull(entrance);
+    this.source = Objects.requireNonNull(source);
+  }
 
   public ZonedDateTime getCommitTime() {
     return this.timestamp.atZone(this.zoneId);
@@ -58,7 +63,11 @@ public class LocalRequestContext {
     return System.currentTimeMillis() - this.timestamp.toEpochMilli();
   }
 
-  public String getRequestSeq() {
-    return Optional.ofNullable(this.requestSeq).orElse(this.traceId);
-  }
+  // 以下为登录信息，通过setter设置。
+
+  /** 操作人用户ID */
+  @Setter private Long operatorId;
+
+  /** jwt claims */
+  @Setter private Map<String, Object> claims;
 }

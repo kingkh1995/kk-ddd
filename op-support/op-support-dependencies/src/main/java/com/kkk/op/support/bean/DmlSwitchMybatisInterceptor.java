@@ -31,7 +31,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
         type = Executor.class,
         method = "update",
         args = {MappedStatement.class, Object.class}))
-public class DMLSwitchMybatisInterceptor implements Interceptor {
+public class DmlSwitchMybatisInterceptor implements Interceptor {
 
   @Value("${sql.dml-disable:false}")
   private boolean dmlDisable;
