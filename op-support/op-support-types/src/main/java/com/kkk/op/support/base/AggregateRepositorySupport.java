@@ -1,9 +1,9 @@
 package com.kkk.op.support.base;
 
-import com.kkk.op.support.changeTracking.AggregateTrackingManager;
-import com.kkk.op.support.changeTracking.diff.Diff;
 import com.kkk.op.support.marker.AggregateRepository;
 import com.kkk.op.support.marker.Identifier;
+import com.kkk.op.support.tracking.AggregateTrackingManager;
+import com.kkk.op.support.tracking.diff.Diff;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

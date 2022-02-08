@@ -47,7 +47,7 @@ public class JWTRealm extends AuthenticatingRealm {
     return new SimpleAuthenticationInfo(decodedJWT.getSubject(), null, getName());
   }
 
-  private DecodedJWT decode(String token, Instant commmitTime) throws AuthenticationException {
+  private DecodedJWT decode(String token, Instant commitTime) throws AuthenticationException {
     if (token == null || token.isBlank()) {
       throw new IncorrectCredentialsException();
     }
@@ -55,10 +55,12 @@ public class JWTRealm extends AuthenticatingRealm {
     try {
       decodedJWT = jwtVerifier.verify(token);
     } catch (JWTVerificationException e) {
+      log.warn("verify failed!");
       throw new IncorrectCredentialsException();
     }
     // 判断凭证是否过期
-    if (commmitTime.isAfter(decodedJWT.getExpiresAt().toInstant())) {
+    if (commitTime.isAfter(decodedJWT.getExpiresAt().toInstant())) {
+      log.warn("expired at {}!", decodedJWT.getExpiresAt().toInstant());
       throw new ExpiredCredentialsException();
     }
     return decodedJWT;

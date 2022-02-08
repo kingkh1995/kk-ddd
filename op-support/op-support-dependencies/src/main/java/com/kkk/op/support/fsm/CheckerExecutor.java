@@ -41,7 +41,7 @@ public class CheckerExecutor {
     // 需要使用findAny，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
     return stream
         .map(checker -> checker.check(context))
-        .filter(Predicate.not(CheckResult::successed))
+        .filter(Predicate.not(CheckResult::succeeded))
         .findAny()
         .orElse(CheckResult.succeed());
   }

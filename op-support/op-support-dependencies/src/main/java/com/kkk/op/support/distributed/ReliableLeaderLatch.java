@@ -17,11 +17,11 @@ public class ReliableLeaderLatch {
 
   private final CuratorFramework client;
 
-  private volatile LeaderLatch latch;
-
-  private final String path;
+  @Getter private final String path;
 
   @Getter private final String id;
+
+  private LeaderLatch latch;
 
   public ReliableLeaderLatch(CuratorFramework client, String path) {
     this(client, path, UUID.randomUUID().toString());

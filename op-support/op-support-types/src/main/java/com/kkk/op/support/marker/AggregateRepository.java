@@ -1,7 +1,7 @@
 package com.kkk.op.support.marker;
 
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.changeTracking.AggregateTrackingManager;
+import com.kkk.op.support.tracking.AggregateTrackingManager;
 
 /**
  * 聚合根类Repository

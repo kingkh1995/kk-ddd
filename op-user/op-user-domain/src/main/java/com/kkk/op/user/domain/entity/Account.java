@@ -2,15 +2,15 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Entity;
-import com.kkk.op.support.changeTracking.diff.DiffIgnore;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
 import com.kkk.op.support.marker.NameGenerator;
-import com.kkk.op.support.types.Version;
+import com.kkk.op.support.tracking.diff.DiffIgnore;
+import com.kkk.op.support.type.Version;
 import com.kkk.op.user.domain.service.AccountService;
-import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.domain.types.AccountState;
-import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.type.AccountId;
+import com.kkk.op.user.domain.type.AccountState;
+import com.kkk.op.user.domain.type.UserId;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
@@ -33,16 +33,17 @@ public class Account extends Entity<AccountId> {
   @Setter(AccessLevel.PROTECTED)
   private AccountId id;
 
+  // Entity中使用Instant对应DO中的Date类型
+  @DiffIgnore private Instant createTime;
+
+  @DiffIgnore private Instant updateTime;
+
   private UserId userId;
 
   private AccountState state;
 
   // 版本号、创建时间、更新时间不参数对比
   @DiffIgnore private Version version;
-
-  @DiffIgnore private Instant createTime;
-
-  @DiffIgnore private Instant updateTime;
 
   @Override
   public void validate() {

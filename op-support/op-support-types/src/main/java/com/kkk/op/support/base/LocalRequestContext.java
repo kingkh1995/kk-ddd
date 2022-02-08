@@ -51,8 +51,8 @@ public class LocalRequestContext {
     this.timestamp = Objects.requireNonNullElse(timestamp, Instant.now());
     this.zoneId = Objects.requireNonNullElse(zoneId, ZoneId.systemDefault());
     this.requestSeq = Objects.requireNonNullElse(requestSeq, this.traceId);
-    this.entrance = Objects.requireNonNull(entrance);
-    this.source = Objects.requireNonNull(source);
+    this.entrance = entrance;
+    this.source = source;
   }
 
   public ZonedDateTime getCommitTime() {

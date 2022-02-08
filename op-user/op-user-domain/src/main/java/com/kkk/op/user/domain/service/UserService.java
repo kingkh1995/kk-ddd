@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.service;
 
 import com.kkk.op.support.marker.EntityService;
 import com.kkk.op.user.domain.entity.User;
-import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.type.UserId;
 
 /**
  * <br>

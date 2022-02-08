@@ -2,11 +2,13 @@ package com.kkk.op.user.web.authc;
 
 import com.auth0.jwt.algorithms.Algorithm;
 import com.kkk.op.support.annotation.LiteConfiguration;
+import com.kkk.op.support.bean.Result;
 import com.kkk.op.support.shiro.JWTShiroProperties;
 import com.kkk.op.support.shiro.JWTShiroWebAutoConfiguration;
 import com.kkk.op.support.shiro.JWTShiroWebFilterConfiguration;
 import java.util.Collection;
 import java.util.Map;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -17,6 +19,10 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * <br>
@@ -26,7 +32,15 @@ import org.springframework.context.annotation.Import;
 @LiteConfiguration
 @AutoConfigureBefore({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
 @Import({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
+@RestControllerAdvice
 public class AuthcConfiguration {
+
+  // 登录认证异常
+  @ExceptionHandler(AuthenticationException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
+  public Result<?> handleAuthenticationException(AuthenticationException e) {
+    return Result.fail("Login failed!");
+  }
 
   /**
    * 定义过滤链，使用LinkedHashMap。 <br>

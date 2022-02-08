@@ -1,11 +1,11 @@
 package com.kkk.op.support.base;
 
-import com.kkk.op.support.types.LongId;
-import com.kkk.op.support.types.PageSize;
-import com.kkk.op.support.types.StampedTime;
-import com.kkk.op.support.types.Version;
-import java.sql.Timestamp;
+import com.kkk.op.support.type.LongId;
+import com.kkk.op.support.type.PageSize;
+import com.kkk.op.support.type.StampedTime;
+import com.kkk.op.support.type.Version;
 import java.time.Instant;
+import java.util.Date;
 import org.springframework.stereotype.Component;
 
 /**
@@ -48,19 +48,19 @@ public class CommonTypesMapper {
     return stampedTime.toInstant().toEpochMilli();
   }
 
-  public Instant map2Instant(Long l) {
-    return Instant.ofEpochMilli(l);
-  }
-
-  public Long mapFromInstant(Instant instant) {
+  public Long mapMillisFromInstant(Instant instant) {
     return instant.toEpochMilli();
   }
 
-  public Timestamp mapInstant2Timestamp(Instant instant) {
-    return Timestamp.from(instant);
+  public Instant mapMillis2Instant(Long l) {
+    return Instant.ofEpochMilli(l);
   }
 
-  public Instant mapTimestamp2Instant(Timestamp timestamp) {
-    return timestamp.toInstant();
+  public Date mapDateFromInstant(Instant instant) {
+    return Date.from(instant);
+  }
+
+  public Instant mapDate2Instant(Date date) {
+    return date.toInstant();
   }
 }

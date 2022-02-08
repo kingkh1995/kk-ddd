@@ -5,18 +5,18 @@
   <parent>
     <artifactId>op-root</artifactId>
     <groupId>com.kkk.op</groupId>
-    <version>2021.0.0</version>
+    <version>2022.0.0</version>
     <relativePath>../op-root/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.kkk.op.support</groupId>
   <artifactId>op-support</artifactId>
   <packaging>pom</packaging>
-  <version>2021.0.0</version>
+  <version>2022.0.0</version>
   <name>op-support-parent</name>
 
   <modules>
-    <module>op-support-enums</module>
+    <module>op-support-consts</module>
     <module>op-support-tools</module>
     <module>op-support-types</module>
     <module>op-support-models</module>

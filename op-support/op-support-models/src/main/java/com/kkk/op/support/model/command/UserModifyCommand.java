@@ -1,6 +1,6 @@
 package com.kkk.op.support.model.command;
 
-import com.kkk.op.support.model.groups.Update;
+import com.kkk.op.support.model.group.Update;
 import java.io.Serializable;
 import java.util.List;
 import javax.validation.Valid;

@@ -2,13 +2,13 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.marker.DataConverter;
-import com.kkk.op.support.types.Version;
+import com.kkk.op.support.type.Version;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.types.AccountId;
-import com.kkk.op.user.domain.types.AccountState;
-import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.type.AccountId;
+import com.kkk.op.user.domain.type.AccountState;
+import com.kkk.op.user.domain.type.UserId;
 import com.kkk.op.user.persistence.AccountDO;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -33,12 +33,8 @@ public enum AccountConverter implements DataConverter<Account, AccountDO> {
         .map(AccountStateEnum::name)
         .ifPresent(data::setState);
     Optional.ofNullable(account.getVersion()).map(Version::getValue).ifPresent(data::setVersion);
-    Optional.ofNullable(account.getCreateTime())
-        .map(Timestamp::from)
-        .ifPresent(data::setCreateTime);
-    Optional.ofNullable(account.getUpdateTime())
-        .map(Timestamp::from)
-        .ifPresent(data::setUpdateTime);
+    Optional.ofNullable(account.getCreateTime()).map(Date::from).ifPresent(data::setCreateTime);
+    Optional.ofNullable(account.getUpdateTime()).map(Date::from).ifPresent(data::setUpdateTime);
     return data;
   }
 
@@ -57,10 +53,10 @@ public enum AccountConverter implements DataConverter<Account, AccountDO> {
         .ifPresent(builder::state);
     Optional.ofNullable(accountDO.getVersion()).map(Version::from).ifPresent(builder::version);
     Optional.ofNullable(accountDO.getCreateTime())
-        .map(Timestamp::toInstant)
+        .map(Date::toInstant)
         .ifPresent(builder::createTime);
     Optional.ofNullable(accountDO.getUpdateTime())
-        .map(Timestamp::toInstant)
+        .map(Date::toInstant)
         .ifPresent(builder::updateTime);
     return builder.build();
   }

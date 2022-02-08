@@ -8,8 +8,8 @@ import com.kkk.op.support.bean.LocalRequestFilter;
 import com.kkk.op.support.bean.ThreadLocalRemoveInterceptor;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.HibernateValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -25,10 +25,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @LiteConfiguration
 @EnableConfigurationProperties(IPControlProperties.class) // 加载IPControl配置
+@RequiredArgsConstructor
 public class WebConfiguration implements WebMvcConfigurer {
 
   // 消息总线会在收到远程配置变更事件后触发环境重新加载刷新配置类属性。
-  @Autowired private IPControlProperties ipControlProperties;
+  private final IPControlProperties ipControlProperties;
 
   // 拦截器配置
   @Override

@@ -95,7 +95,6 @@ public class JWTWebSecurityManager extends SessionsSecurityManager implements We
     return getSubjectFactory().createSubject(context);
   }
 
-  @SuppressWarnings({"unchecked"})
   protected SubjectContext ensureSecurityManager(SubjectContext context) {
     if (context.resolveSecurityManager() != null) {
       log.trace("Context already contains a SecurityManager instance.  Returning.");

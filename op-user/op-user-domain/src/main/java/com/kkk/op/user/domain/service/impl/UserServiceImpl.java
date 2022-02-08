@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.service.impl;
 
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
-import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.type.UserId;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;

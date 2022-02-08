@@ -23,7 +23,7 @@ public class CacheEvictEventListener {
   private final NettyDelayer nettyDelayer;
 
   public CacheEvictEventListener(
-      @Qualifier(EnhancedProxyCachingConfiguration.EVENT_BUS_BEAN_BAME) EventBus eventBus,
+      @Qualifier(EnhancedProxyCachingConfiguration.EVENT_BUS_BEAN_NAME) EventBus eventBus,
       NettyDelayer nettyDelayer) {
     eventBus.register(this);
     this.nettyDelayer = nettyDelayer;

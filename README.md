@@ -2,8 +2,11 @@
 
 - 根项目：root
 - 组件支持：support
+- 任务中心：job-center
 - 用户服务：user
 - 促销服务：sales
+
+## [版本信息](/version_info.md)
 
 ## 服务架构
 
@@ -44,5 +47,3 @@
 ### ChangeTracking流程图
 
 ![](/files/change_tracking_flow.png)
-
-## [版本信息](/version_info.md)

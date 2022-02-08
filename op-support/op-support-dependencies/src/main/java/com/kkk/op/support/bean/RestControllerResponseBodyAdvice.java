@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -104,14 +103,6 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
   @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS) // 429
   public Result<?> handleIPControlBlockedException(IPControlBlockedException e) {
     return Result.fail("Too Many Requests");
-  }
-
-  // 登录认证异常
-  @ExceptionHandler(AuthenticationException.class)
-  @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
-  public Result<?> handleAuthenticationException(AuthenticationException e) {
-    log.error("AuthenticationException =>", e);
-    return Result.fail("Login failed!");
   }
 
   // degraded异常

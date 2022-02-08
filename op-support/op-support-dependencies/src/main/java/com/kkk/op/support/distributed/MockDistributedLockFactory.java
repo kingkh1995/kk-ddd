@@ -23,7 +23,7 @@ public class MockDistributedLockFactory implements DistributedLockFactory {
 
   @Override
   public DistributedLock getMultiLock(List<String> names) {
-    return new MockLock(names.toArray(new String[names.size()]));
+    return new MockLock(names.toArray(new String[0]));
   }
 
   private static final class MockLock implements DistributedLock {

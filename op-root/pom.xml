@@ -12,7 +12,7 @@
   <groupId>com.kkk.op</groupId>
   <artifactId>op-root</artifactId>
   <packaging>pom</packaging>
-  <version>2021.0.0</version>
+  <version>2022.0.0</version>
   <name>op-root</name>
   <description>KKK-OP-ROOT</description>
 
@@ -39,6 +39,7 @@
     <module>../op-support</module>
     <module>../op-user</module>
     <module>../op-sales</module>
+    <module>../op-job-center</module>
   </modules>
 
   <!-- mvn clean install -Dmaven.test.skip=true -->

@@ -3,7 +3,7 @@ package com.kkk.op.user.domain.service.impl;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountStrategyManager;
-import com.kkk.op.user.domain.types.AccountId;
+import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
 import java.util.List;
 import java.util.Optional;

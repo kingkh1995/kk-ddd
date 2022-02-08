@@ -69,11 +69,12 @@ public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C
 
   // 异步执行管道
   public CompletableFuture<Boolean> acceptAsync(C context) {
-    return CompletableFuture.supplyAsync(TtlWrappers.wrap(() -> acceptSync(context)));
+    return CompletableFuture.supplyAsync(TtlWrappers.wrapSupplier(() -> acceptSync(context)));
   }
 
   // 异步执行管道
   public CompletableFuture<Boolean> acceptAsync(C context, Executor executor) {
-    return CompletableFuture.supplyAsync(TtlWrappers.wrap(() -> acceptSync(context)), executor);
+    return CompletableFuture.supplyAsync(
+        TtlWrappers.wrapSupplier(() -> acceptSync(context)), executor);
   }
 }

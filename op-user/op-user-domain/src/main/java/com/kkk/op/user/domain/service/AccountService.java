@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.service;
 
 import com.kkk.op.support.marker.EntityService;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.types.AccountId;
+import com.kkk.op.user.domain.type.AccountId;
 import javax.validation.constraints.NotNull;
 
 /**

@@ -24,7 +24,7 @@ import org.springframework.core.Ordered;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE) // 标识为spring内部使用的bean
 public class EnhancedProxyCachingConfiguration {
 
-  public static final String EVENT_BUS_BEAN_BAME = "enhancedCacheEventBus";
+  public static final String EVENT_BUS_BEAN_NAME = "enhancedCacheEventBus";
 
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -48,16 +48,16 @@ public class EnhancedProxyCachingConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CacheInterceptor cacheInterceptor(
       CacheOperationSource cacheOperationSource,
-      @Qualifier(EVENT_BUS_BEAN_BAME) EventBus eventBus) {
+      @Qualifier(EVENT_BUS_BEAN_NAME) EventBus eventBus) {
     var interceptor = new EnhancedCacheInterceptor(eventBus);
     interceptor.setCacheOperationSource(cacheOperationSource);
     return interceptor;
   }
 
-  @Bean(EVENT_BUS_BEAN_BAME)
-  @ConditionalOnMissingBean(name = EVENT_BUS_BEAN_BAME)
+  @Bean(EVENT_BUS_BEAN_NAME)
+  @ConditionalOnMissingBean(name = EVENT_BUS_BEAN_NAME)
   public EventBus eventBus() {
     // 事件异步通知，线程池默认ForkJoinPool。
-    return new AsyncEventBus(EVENT_BUS_BEAN_BAME, ForkJoinPool.commonPool());
+    return new AsyncEventBus(EVENT_BUS_BEAN_NAME, ForkJoinPool.commonPool());
   }
 }

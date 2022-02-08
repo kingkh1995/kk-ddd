@@ -14,7 +14,7 @@ import org.apache.shiro.util.ByteSource;
 @EqualsAndHashCode(callSuper = true)
 public class UserAuthenticationInfo extends SimpleAuthenticationInfo {
 
-  @Getter private UserAuthcInfo userAuthcInfo;
+  @Getter private final UserAuthcInfo userAuthcInfo;
 
   public UserAuthenticationInfo(
       Object principal,

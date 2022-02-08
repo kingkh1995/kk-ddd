@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
 import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.user.domain.service.UserService;
-import com.kkk.op.user.domain.types.UserId;
+import com.kkk.op.user.domain.type.UserId;
 import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;

@@ -2,7 +2,7 @@ package com.kkk.op.user.converter;
 
 import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.user.domain.entity.Account;
-import com.kkk.op.user.domain.types.mapper.UserTypesMapper;
+import com.kkk.op.user.domain.mapper.UserTypesMapper;
 import com.kkk.op.user.persistence.AccountDO;
 import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;

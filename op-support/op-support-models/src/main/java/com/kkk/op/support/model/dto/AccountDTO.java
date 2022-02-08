@@ -14,6 +14,9 @@ public class AccountDTO implements Serializable {
 
   private Long id;
 
+  /** 日期类默认转换为毫秒时间戳 */
+  private Long createTimestamp;
+
   private Long userId;
 
   /**
@@ -22,7 +25,4 @@ public class AccountDTO implements Serializable {
    * @see AccountStateEnum
    */
   private String state;
-
-  /** 日期类默认转换为毫秒时间戳 */
-  private Long createTimestamp;
 }

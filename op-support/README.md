@@ -2,15 +2,20 @@
 
 > 基础组件支持项目
 
-### enums
+### consts
 
-> 可对外暴露的公共枚举类
+> 可对外暴露的常量类和枚举类
+
+- Constants类
+- Enum类
 
 ### tools
 
 > 静态工具类
 
-### types （domain模块引用，依赖support-enums）
+- Utils类
+
+### types （domain模块引用，依赖support-consts）
 
 > 可公用的DP
 
@@ -18,9 +23,9 @@
 
 - marker接口
 - 数据模型的基类
-- 业务异常类
+- Exception类
 
-### models （application模块引用，依赖support-enums）
+### models （application模块引用，依赖support-consts）
 
 > 对外暴露的数据模型
 

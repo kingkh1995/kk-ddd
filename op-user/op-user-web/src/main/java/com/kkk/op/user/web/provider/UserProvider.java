@@ -2,8 +2,8 @@ package com.kkk.op.user.web.provider;
 
 import com.kkk.op.support.model.command.UserModifyCommand;
 import com.kkk.op.support.model.dto.UserDTO;
-import com.kkk.op.support.model.groups.Create;
-import com.kkk.op.support.model.groups.Update;
+import com.kkk.op.support.model.group.Create;
+import com.kkk.op.support.model.group.Update;
 import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.Positive;

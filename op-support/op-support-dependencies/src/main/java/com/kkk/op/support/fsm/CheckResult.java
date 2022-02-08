@@ -7,10 +7,10 @@ import com.kkk.op.support.exception.BusinessException;
  *
  * @author KaiKoo
  */
-public record CheckResult(boolean successed, String message) {
+public record CheckResult(boolean succeeded, String message) {
 
   public static CheckResult succeed() {
-    return new CheckResult(true, "succeed");
+    return new CheckResult(true, "succeeded");
   }
 
   public static CheckResult fail(String message) {
@@ -18,7 +18,7 @@ public record CheckResult(boolean successed, String message) {
   }
 
   public void throwIfFail() {
-    if (!successed()) {
+    if (!succeeded()) {
       throw new BusinessException(this.message);
     }
   }

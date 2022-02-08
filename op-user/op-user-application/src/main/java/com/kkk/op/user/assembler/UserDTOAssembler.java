@@ -4,7 +4,7 @@ import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.support.model.dto.UserAuthcInfo;
 import com.kkk.op.support.model.dto.UserDTO;
 import com.kkk.op.user.domain.entity.User;
-import com.kkk.op.user.domain.types.mapper.UserTypesMapper;
+import com.kkk.op.user.domain.mapper.UserTypesMapper;
 import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;

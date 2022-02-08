@@ -1,9 +1,9 @@
 package com.kkk.op.support.bean;
 
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.changeTracking.AbstractAggregateTrackingManager;
-import com.kkk.op.support.changeTracking.AggregateTrackingContext;
 import com.kkk.op.support.marker.Identifier;
+import com.kkk.op.support.tracking.AbstractAggregateTrackingManager;
+import com.kkk.op.support.tracking.AggregateTrackingContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

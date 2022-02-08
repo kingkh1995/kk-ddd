@@ -4,6 +4,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Null;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <br>
@@ -11,6 +12,7 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
+@Accessors(chain = true)
 public class AuthcCommand implements Serializable {
 
   @NotBlank private String username;

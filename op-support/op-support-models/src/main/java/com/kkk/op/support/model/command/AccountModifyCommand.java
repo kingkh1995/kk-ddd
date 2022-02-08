@@ -1,7 +1,7 @@
 package com.kkk.op.support.model.command;
 
-import com.kkk.op.support.model.groups.Create;
-import com.kkk.op.support.model.groups.Update;
+import com.kkk.op.support.model.group.Create;
+import com.kkk.op.support.model.group.Update;
 import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * 将I不允许被修改但需要提供的参数（如ID）放在path上
+ * 将不允许被修改但需要提供的参数（如ID）放在path上
  *
  * @author KaiKoo
  */

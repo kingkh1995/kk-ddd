@@ -80,7 +80,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
       try {
         return getMutex().acquire(waitSeconds, TimeUnit.SECONDS);
       } catch (Exception e) {
-        log.error("CuratorDistributedLock lock errro!", e);
+        log.error("CuratorDistributedLock lock error!", e);
         return false;
       } finally {
         cleanIfNeed();
@@ -92,7 +92,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
       try {
         getMutex().release();
       } catch (Exception e) {
-        log.error("CuratorDistributedLock unlock errro!", e);
+        log.error("CuratorDistributedLock unlock error!", e);
       } finally {
         cleanIfNeed();
       }
@@ -117,7 +117,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
       try {
         return this.multiLock.acquire(waitSeconds, TimeUnit.SECONDS);
       } catch (Exception e) {
-        log.error("CuratorDistributedLock lock errro!", e);
+        log.error("CuratorDistributedLock lock error!", e);
         return false;
       } finally {
         cleanIfNeed();
@@ -129,7 +129,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
       try {
         this.multiLock.release();
       } catch (Exception e) {
-        log.error("CuratorDistributedLock unlock errro!", e);
+        log.error("CuratorDistributedLock unlock error!", e);
       } finally {
         cleanIfNeed();
       }
