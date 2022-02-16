@@ -39,7 +39,7 @@ public class AccountController {
   /** POST 新增资源 （不幂等且url不能被缓存） */
   @PostMapping("/{userId}/account")
   @ResponseStatus(HttpStatus.CREATED) // 201
-  public long create(
+  public Long create(
       @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
       @RequestBody @Validated(Create.class) AccountModifyCommand createCommand) {
     createCommand.setUserId(userId);
@@ -49,7 +49,7 @@ public class AccountController {
   /** PUT 全量更新资源 （幂等但url不能被缓存） */
   @PutMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
-  public boolean update(
+  public Boolean update(
       @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
       @PathVariable @Positive(message = "accountId必须为正整数！") Long accountId,
       @RequestBody @Validated(Update.class) AccountModifyCommand updateCommand) {
@@ -61,7 +61,7 @@ public class AccountController {
   /** Delete 删除资源 （幂等但url不能被缓存） */
   @DeleteMapping("/{userId}/account/{accountId}")
   @ResponseStatus(HttpStatus.ACCEPTED) // 202
-  public boolean delete(
+  public Boolean delete(
       @PathVariable @Positive(message = "userId必须为正整数！") Long userId,
       @PathVariable @Positive(message = "accountId必须为正整数！") Long accountId) {
     service.deleteAccount(userId, accountId);

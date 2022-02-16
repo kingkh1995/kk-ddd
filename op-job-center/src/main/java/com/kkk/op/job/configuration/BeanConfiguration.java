@@ -7,14 +7,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kkk.op.support.annotation.LiteConfiguration;
-import com.kkk.op.support.cache.EnhancedProxyCachingConfiguration;
+import com.kkk.op.support.aspect.BaseControllerAspect;
 import com.kkk.op.support.distributed.JdbcDistributedLockFactory;
 import com.kkk.op.support.marker.DistributedLockFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -23,12 +19,7 @@ import org.springframework.transaction.PlatformTransactionManager;
  * @author KaiKoo
  */
 @LiteConfiguration
-@Import(EnhancedProxyCachingConfiguration.class)
-public class BeanConfiguration implements ApplicationContextAware {
-
-  // 设置ApplicationContext构造完成后操作
-  @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {}
+public class BeanConfiguration {
 
   // 配置ObjectMapper，使用JsonMapper（面向json的ObjectMapper子类）
   @Bean
@@ -54,5 +45,10 @@ public class BeanConfiguration implements ApplicationContextAware {
   public DistributedLockFactory distributedLockFactory(
       PlatformTransactionManager transactionManager) {
     return JdbcDistributedLockFactory.builder().transactionManager(transactionManager).build();
+  }
+
+  @Bean
+  public BaseControllerAspect baseControllerAspect() {
+    return new BaseControllerAspect();
   }
 }

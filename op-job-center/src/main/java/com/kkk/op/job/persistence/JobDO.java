@@ -27,7 +27,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Entity // 标明为实体类
 @Table(
     name = "job",
-    indexes = @Index(name = "idx_state_biz_type", columnList = "state, biz_type")) // 指定表名和创建索引
+    indexes = @Index(name = "idx_state_topic", columnList = "state, topic")) // 指定表名和创建索引
 public class JobDO implements Serializable {
 
   @Id // 标明为主键
@@ -58,9 +58,9 @@ public class JobDO implements Serializable {
   @Column(name = "state", columnDefinition = "CHAR(1) NOT NULL")
   private JobStateEnum state;
 
-  /** 业务类型，用于调用对应的任务执行器。 */
-  @Column(name = "biz_type", length = 50, nullable = false, updatable = false)
-  private String bizType;
+  /** 任务消费的topic。 */
+  @Column(name = "topic", length = 50, nullable = false, updatable = false)
+  private String topic;
 
   /** 任务应执行时间 */
   @Column(name = "action_time", columnDefinition = "DATETIME(3) NOT NULL", updatable = false)

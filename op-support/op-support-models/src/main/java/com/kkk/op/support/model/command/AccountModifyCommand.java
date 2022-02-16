@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * @author KaiKoo
  */
 @Data
-@Accessors(chain = true)
+@Accessors(chain = true) // chain模式不适用于继承的场景
 public class AccountModifyCommand implements Serializable {
 
   @Null(message = "id必须为空！", groups = Create.class)

@@ -29,11 +29,11 @@ public interface UserProvider {
 
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
-  long createUser(@RequestBody @Validated(Create.class) UserModifyCommand createCommand);
+  Long createUser(@RequestBody @Validated(Create.class) UserModifyCommand createCommand);
 
   @PutMapping("/{userId}")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  long updateUser(
+  Long updateUser(
       @PathVariable @Positive(message = "userId必须为正数！") Long userId,
       @RequestBody @Validated(Update.class) UserModifyCommand updateCommand);
 

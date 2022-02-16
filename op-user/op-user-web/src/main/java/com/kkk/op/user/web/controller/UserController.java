@@ -23,13 +23,13 @@ public class UserController implements UserProvider {
   private final UserAppService userAppService;
 
   @Override
-  public long createUser(UserModifyCommand createCommand) {
-    return 0;
+  public Long createUser(UserModifyCommand createCommand) {
+    return 0L;
   }
 
   @Override
-  public long updateUser(Long userId, UserModifyCommand updateCommand) {
-    return 0;
+  public Long updateUser(Long userId, UserModifyCommand updateCommand) {
+    return 0L;
   }
 
   @Override

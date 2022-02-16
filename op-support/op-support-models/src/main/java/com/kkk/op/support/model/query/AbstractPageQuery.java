@@ -17,9 +17,4 @@ public abstract class AbstractPageQuery implements Serializable {
 
   protected Long current = 1L;
 
-  // 日期类默认为字符串，为格式化之后的值
-  private String createTimeStart;
-
-  // 日期类默认为字符串，为格式化之后的值
-  private String createTimeEnd;
 }
