@@ -11,7 +11,7 @@ elasticjob:
   jobs:
     # 定时调度作业，需要定义cron
     job:
-      elasticJobClass: com.kkk.op.job.bean.Job
+      elasticJobClass: com.kkk.op.job.component.Job
       cron: 0/1 * * * * ?
       shardingTotalCount: 8
       overwrite: true
@@ -19,7 +19,7 @@ elasticjob:
     # 一次性调度作业，不能定义cron，需要指定jobBootstrapBeanName
     deadJob:
       jobBootstrapBeanName: deadJobBootstrap
-      elasticJobClass: com.kkk.op.job.bean.DeadJob
+      elasticJobClass: com.kkk.op.job.component.DeadJob
       shardingTotalCount: 1
       overwrite: true
       disabled: false

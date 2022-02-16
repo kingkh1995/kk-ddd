@@ -54,6 +54,6 @@ public final class SleepHelper {
               }
               runnable.run();
             })
-        .whenCompleteAsync((unused, throwable) -> {});
+        .whenComplete((unused, throwable) -> {});
   }
 }

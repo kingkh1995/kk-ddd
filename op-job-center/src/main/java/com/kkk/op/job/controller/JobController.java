@@ -28,7 +28,7 @@ public class JobController {
 
   @Autowired private JobService jobService;
 
-  @Autowired(required = false) // todo... 自动注入不行，但是ApplicationContext可以获取到Bean。
+  @Autowired(required = false) // fixme... 自动注入不行，但是ApplicationContext可以获取到Bean。
   @Qualifier("deadJobBootstrap") // 一次性调度作业会自动创建一个OneOffJobBootstrap
   private OneOffJobBootstrap deadJobBootstrap;
 

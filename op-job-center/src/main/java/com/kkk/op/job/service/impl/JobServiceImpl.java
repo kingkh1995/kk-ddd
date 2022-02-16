@@ -1,6 +1,6 @@
 package com.kkk.op.job.service.impl;
 
-import com.kkk.op.job.bean.JobExecutor;
+import com.kkk.op.job.component.JobExecutor;
 import com.kkk.op.job.persistence.JobDAO;
 import com.kkk.op.job.persistence.JobDO;
 import com.kkk.op.job.service.JobService;
@@ -24,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
- * todo... 使用sharding-jdbc分表
- * <br>
+ * todo... 使用sharding-jdbc分表 <br>
  *
  * @author KaiKoo
  */
@@ -107,7 +106,7 @@ public class JobServiceImpl implements JobService {
   @Transactional
   @Override
   public void reverse(JobReverseEvent reverseEvent) {
-    if (jobDAO.updateStateById(JobStateEnum.P, reverseEvent.getId()) > 0) {
+    if (jobDAO.updateStateByIdAndState(JobStateEnum.P, reverseEvent.getId(), JobStateEnum.D) > 0) {
       stringRedisTemplate
           .opsForZSet()
           .add(
@@ -124,22 +123,24 @@ public class JobServiceImpl implements JobService {
         var jobDO = jobDAO.findById(Long.valueOf(s)).orElse(null);
         // 数据不存在或状态不为pending则直接从PrepareQueue删除（理论上不可能发生）
         if (Objects.isNull(jobDO) || !JobStateEnum.P.equals(jobDO.getState())) {
-          operations.delete(prepareQueueSlotKey, s);
+          operations.delete(prepareQueueSlotKey, key);
           log.warn("This shouldn't happen! job:'{}'.", Kson.writeJson(jobDO));
           return;
         }
         jobExecutor
             .execute(jobDO.getTopic(), jobDO.getContext())
             // whenComplete表示由异步执行线程自身执行回调，whenCompleteAsync则是重新获取一个线程（即异步）去执行回调。
-            .whenComplete(
+            .whenCompleteAsync(
                 (isSucceeded, throwable) -> {
                   // 开启一个新事务
                   var transaction = transactionManager.getTransaction(TD);
                   try {
                     if (Boolean.TRUE.equals(isSucceeded)) {
                       // 执行成功则更新任务状态为actioned并从PrepareQueue删除。
-                      if (jobDAO.updateStateById(JobStateEnum.A, jobDO.getId()) > 0) {
-                        operations.delete(prepareQueueSlotKey, s);
+                      if (jobDAO.updateStateByIdAndState(
+                              JobStateEnum.A, jobDO.getId(), JobStateEnum.P)
+                          > 0) {
+                        operations.delete(prepareQueueSlotKey, key);
                       }
                     } else {
                       // 失败或抛出异常则count++，如果达到上限则更新任务状态为dead并从PrepareQueue删除。
@@ -149,9 +150,11 @@ public class JobServiceImpl implements JobService {
                           isSucceeded,
                           throwable);
                       // 因为elasticjob会保证一个分片在一个时刻只会被一个线程执行，故不需要考虑并发操作问题。
-                      if (operations.increment(prepareQueueSlotKey, s, 1L) >= MAX_RETRY
-                          && jobDAO.updateStateById(JobStateEnum.D, jobDO.getId()) > 0) {
-                        operations.delete(prepareQueueSlotKey, s);
+                      if (operations.increment(prepareQueueSlotKey, key, 1L) >= MAX_RETRY
+                          && jobDAO.updateStateByIdAndState(
+                                  JobStateEnum.D, jobDO.getId(), JobStateEnum.P)
+                              > 0) {
+                        operations.delete(prepareQueueSlotKey, key);
                       }
                     }
                     // 为保证数据库和redis的原子性，redis操作成功才提交本次事务。

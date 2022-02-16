@@ -47,7 +47,7 @@ public class DmlSwitchMybatisInterceptor implements Interceptor {
     return invocation.proceed();
   }
 
-  // 拦截判断，一般不用重写。
+  // 拦截判断，一般不需要重写，默认判断拦截器的签名和被拦截对象的接口是否匹配，如果匹配则为拦截对象创建jdk动态代理对象。
   @Override
   public Object plugin(Object target) {
     return Plugin.wrap(target, this);
