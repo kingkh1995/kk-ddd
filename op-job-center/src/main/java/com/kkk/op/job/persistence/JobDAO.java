@@ -21,12 +21,10 @@ import org.springframework.data.repository.query.Param;
 public interface JobDAO extends JpaRepository<JobDO, Long>, JpaSpecificationExecutor<JobDO> {
 
   // 不设置nativeQuery则使用jpql，表名和字段直接使用实体类定义，且jpql不支持insert。
-  @Query(value = "update JobDO set state = :newState where id = :id and state = :oldState")
+  @Query(value = "update JobDO set state = :to where id = :id and state = :from")
   @Modifying(clearAutomatically = true) // 标明为dml语句，并设置更新完清空追踪（很重要）。
-  int updateStateByIdAndState(
-      @Param("newState") JobStateEnum newState,
-      @Param("id") Long id,
-      @Param("oldState") JobStateEnum oldState);
+  int transferStateById(
+      @Param("id") Long id, @Param("from") JobStateEnum from, @Param("to") JobStateEnum to);
 
   List<JobDO> findAllByState(JobStateEnum state);
 

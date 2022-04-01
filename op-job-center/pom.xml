@@ -91,6 +91,10 @@
       <artifactId>h2</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <artifactId>rocketmq-spring-boot-starter</artifactId>
+      <groupId>org.apache.rocketmq</groupId>
+    </dependency>
   </dependencies>
 
   <build>

@@ -43,8 +43,9 @@ public final class SleepHelper {
     }
   }
 
+  // not recommended
   public static void delay(@NotNull Runnable runnable, long delay, TimeUnit unit) {
-    // not recommended
+    // whenComplete表示由异步执行线程自身执行回调，whenCompleteAsync则是重新获取一个线程（即异步）去执行回调。
     CompletableFuture.runAsync(
             () -> {
               try {

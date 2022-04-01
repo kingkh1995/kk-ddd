@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.3</version>
+    <version>2.6.6</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.kkk.op</groupId>
@@ -18,20 +18,21 @@
 
   <properties>
     <java.version>17</java.version>
-    <spring-boot.version>2.6.3</spring-boot.version>
+    <spring-boot.version>2.6.6</spring-boot.version>
     <spring-cloud.version>2021.0.0</spring-cloud.version>
-    <guava.version>31.0.1-jre</guava.version>
-    <caffeine.version>3.0.5</caffeine.version>
+    <guava.version>31.1-jre</guava.version>
+    <caffeine.version>3.0.6</caffeine.version>
     <mybatis.version>3.5.9</mybatis.version>
     <pagehelper.version>1.4.1</pagehelper.version>
     <redisson.version>3.16.8</redisson.version>
-    <curator.version>5.2.0</curator.version>
+    <curator.version>5.2.1</curator.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
-    <ttl.version>2.12.4</ttl.version>
+    <ttl.version>2.12.6</ttl.version>
+    <rocketmq.version>2.2.1</rocketmq.version>
     <!--以下为接口层依赖-->
     <springfox.version>3.0.0</springfox.version>
-    <shiro.version>1.8.0</shiro.version>
-    <jwt.version>3.18.3</jwt.version>
+    <shiro.version>1.9.0</shiro.version>
+    <jwt.version>3.19.1</jwt.version>
     <elasticjob.version>3.0.1</elasticjob.version>
   </properties>
 
@@ -98,6 +99,11 @@
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
         <version>${mapstruct.version}</version>
+      </dependency>
+      <dependency>
+        <artifactId>rocketmq-spring-boot-starter</artifactId>
+        <groupId>org.apache.rocketmq</groupId>
+        <version>${rocketmq.version}</version>
       </dependency>
       <!--以下为接口层依赖-->
       <dependency>

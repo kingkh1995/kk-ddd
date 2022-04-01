@@ -32,8 +32,7 @@ class OpJobCenterApplicationTests {
     jobDO.setState(JobStateEnum.P);
     jobDAO.save(jobDO);
     System.out.println(Kson.writeJson(jobDAO.findByState(JobStateEnum.P, PageRequest.ofSize(10))));
-    System.out.println(
-        jobDAO.updateStateByIdAndState(JobStateEnum.D, jobDO.getId(), JobStateEnum.P));
+    System.out.println(jobDAO.transferStateById(jobDO.getId(), JobStateEnum.P, JobStateEnum.D));
     System.out.println(Kson.writeJson(jobDAO.findAllByState(JobStateEnum.P)));
     System.out.println(Kson.writeJson(jobDAO.findAll()));
   }
