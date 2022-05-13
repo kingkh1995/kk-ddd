@@ -6,7 +6,6 @@ import com.kkk.op.support.model.dto.UserDTO;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.mapper.UserTypesMapper;
 import java.util.List;
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,9 +28,6 @@ public interface UserDTOAssembler {
 
   @Mapping(target = "encryptedPassword", source = "password")
   UserAuthcInfo toAuthcInfo(User user);
-
-  @InheritInverseConfiguration(name = "toAuthcInfo")
-  User fromAuthcInfo(UserAuthcInfo authcInfo);
 
   UserDTO toDTO(User user);
 

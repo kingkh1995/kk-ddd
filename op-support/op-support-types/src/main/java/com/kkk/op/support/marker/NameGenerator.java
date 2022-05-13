@@ -18,6 +18,7 @@ public interface NameGenerator {
   NameGenerator DEFAULT = joiner("@", "", "");
 
   static NameGenerator joiner(String delimiter, String prefix, String suffix) {
+    // todo... StringJoiner
     return paths ->
         Arrays.stream(paths)
             .filter(Objects::nonNull)

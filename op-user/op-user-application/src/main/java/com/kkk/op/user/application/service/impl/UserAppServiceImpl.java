@@ -38,18 +38,21 @@ public class UserAppServiceImpl implements UserAppService {
   @Override
   @Transactional
   public void savePassword(UserAuthcInfo authcInfo) {
-    userDTOAssembler.fromAuthcInfo(authcInfo).savePassword(userService);
+    userQueryService
+        .find(UserId.valueOf(authcInfo.getId(), "id"))
+        .get()
+        .savePassword(userService, authcInfo.getEncryptedPassword());
   }
 
   @Override
   public UserDTO queryUser(Long userId) {
-    return userService.find(UserId.valueOf(userId, "userId")).map(userDTOAssembler::toDTO).get();
+    return userQueryService.find(UserId.valueOf(userId, "id")).map(userDTOAssembler::toDTO).get();
   }
 
   @Override
   public List<UserDTO> queryUsers(Set<Long> userIds) {
     return userDTOAssembler.toDTO(
-        userService.find(
-            userIds.stream().map(l -> UserId.valueOf(l, "userId")).collect(Collectors.toSet())));
+        userQueryService.find(
+            userIds.stream().map(l -> UserId.valueOf(l, "id")).collect(Collectors.toSet())));
   }
 }

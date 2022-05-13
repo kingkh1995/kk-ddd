@@ -16,6 +16,8 @@
 
 > 纯POJO模块，不依赖项目内其他模块，仅引用Types模块。
 
+> **基于CQRS架构，领域服务又可以拆分为CommandService（写操作）和QueryService（读操作）。**
+
 ### Application模块
 
 包含ApplicationService，不涉及任何业务逻辑，职责仅仅是组件编排，入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写操作，不返回结果）等Entity，出参为DTO。
@@ -43,7 +45,3 @@
 ### Repository体系类结构图
 
 ![](/files/repository_struct.png)
-
-### ChangeTracking流程图
-
-![](/files/change_tracking_flow.png)

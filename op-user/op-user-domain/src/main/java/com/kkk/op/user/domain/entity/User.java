@@ -15,7 +15,7 @@ import lombok.Setter;
 
 /**
  * 用户 <br>
- * todo...
+ * todo... 属性使用DP
  *
  * @author KaiKoo
  */
@@ -44,18 +44,32 @@ public class User extends Aggregate<UserId> {
   private List<Account> accounts;
 
   @Override
-  public void validate() {}
-
-  @Override
   public String generateLockName(NameGenerator lockNameGenerator) {
     return lockNameGenerator.generate(
         "user", "User", Objects.requireNonNull(this.getId()).identifier());
   }
 
-  public void savePassword(UserService userService) {
+  public void save(UserService userService) {
     // todo...
-    var old = userService.find(this.id).get();
-    old.password = this.password;
-    userService.save(old);
+    // handle
+    if (this.id == null) {
+      // 新增逻辑
+    } else {
+      // 更新逻辑
+      var old = userService.find(this.id).get();
+    }
+    // save
+    userService.save(this);
+  }
+
+  public void savePassword(UserService userService, String encryptedPassword) {
+    if (encryptedPassword == null) {
+      return;
+    }
+    // 逻辑校验
+    // 更新属性
+    this.password = encryptedPassword;
+    // 调用save方法保存
+    this.save(userService);
   }
 }

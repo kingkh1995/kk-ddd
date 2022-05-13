@@ -17,7 +17,9 @@ public class AuthcCommand implements Serializable {
 
   @NotBlank private String username;
 
+  /** 编码后密码 */
   @NotBlank private String encodedPassword;
 
+  /** 明文密码 */
   @Null private String plaintextPassword;
 }

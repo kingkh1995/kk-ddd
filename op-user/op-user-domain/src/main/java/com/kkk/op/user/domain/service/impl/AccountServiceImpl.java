@@ -5,10 +5,7 @@ import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountStrategyManager;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,11 +39,6 @@ public class AccountServiceImpl implements AccountService {
   @Override
   public Optional<Account> find(@NotNull AccountId id) {
     return accountRepository.find(id);
-  }
-
-  @Override
-  public List<Account> find(@NotEmpty Set<AccountId> accountIds) {
-    return accountRepository.find(accountIds);
   }
 
   @Override

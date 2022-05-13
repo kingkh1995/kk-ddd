@@ -4,10 +4,7 @@ import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.domain.type.UserId;
 import com.kkk.op.user.repository.UserRepository;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,10 +33,5 @@ public class UserServiceImpl implements UserService {
   @Override
   public Optional<User> find(@NotNull UserId userId) {
     return userRepository.find(userId);
-  }
-
-  @Override
-  public List<User> find(@NotEmpty Set<UserId> userIds) {
-    return userRepository.find(userIds);
   }
 }

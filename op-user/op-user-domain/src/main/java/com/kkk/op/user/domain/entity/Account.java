@@ -46,28 +46,17 @@ public class Account extends Entity<AccountId> {
   @DiffIgnore private Version version;
 
   @Override
-  public void validate() {
-    // userId不能为null
-    if (this.userId == null) {
-      throw new IllegalArgumentException("userId不能为空");
-    }
-  }
-
-  @Override
   public String generateLockName(NameGenerator lockNameGenerator) {
     return lockNameGenerator.generate(
         "user", "Account", Objects.requireNonNull(this.getId()).identifier());
   }
 
   public void remove(AccountService accountService) {
-    this.checkIdExist(accountService);
-    // todo... 业务逻辑 & 变更状态
+    // todo... 业务逻辑
     accountService.remove(this);
   }
 
   public void save(AccountService accountService) {
-    // validate
-    this.validate();
     // handle
     if (this.id == null) {
       // 新增逻辑
@@ -75,8 +64,8 @@ public class Account extends Entity<AccountId> {
       this.state = AccountState.from(AccountStateEnum.INIT);
     } else {
       // 更新逻辑
-      var oldAccount = this.checkIdExist(accountService);
-      if (!accountService.allowModify(oldAccount, this)) {
+      var old = accountService.find(this.id).get();
+      if (!accountService.allowModify(old, this)) {
         throw new BusinessException("不允许修改");
       }
     }
@@ -84,15 +73,9 @@ public class Account extends Entity<AccountId> {
     accountService.save(this);
   }
 
-  private Account checkIdExist(AccountService accountService) {
-    var op = accountService.find(this.id);
-    // 逻辑校验
-    op.orElseThrow(() -> new BusinessException("不存在的id"));
-    return op.get();
-  }
-
   public void invalidate() {
-    if (AccountState.from(AccountStateEnum.ACTIVE).equals(this.state)) {
+    // 领域都是合法的，可以忽略空指针问题。
+    if (AccountStateEnum.ACTIVE.equals(this.state.getValue())) {
       this.state = AccountState.from(AccountStateEnum.TERMINATED);
     } else {
       throw new BusinessException("当前状态无法失效。");

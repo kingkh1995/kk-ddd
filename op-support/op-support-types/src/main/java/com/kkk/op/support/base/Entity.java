@@ -6,8 +6,10 @@ import com.kkk.op.support.marker.NameGenerator;
 import javax.validation.constraints.NotBlank;
 
 /**
- * Entity：拥有唯一标识和业务行为，尽可能的由DP组成 <br>
- * 实体类 marker
+ * 实体类 marker <br>
+ * Entity：拥有唯一标识和业务行为，尽可能的由DP组成。 <br>
+ * 除去save场景可以创建Entity之外，Entity只能通过QueryService查询得到。<br>
+ * 即Entity在调用所有方法时（除了save）都应该是合法的，如果需要更新领域，则调用save方法或者发送领域事件（CQRS）。
  *
  * @author KaiKoo
  */
@@ -15,9 +17,6 @@ public abstract class Entity<ID extends Identifier> implements Identifiable<ID> 
 
   /** 生成锁名 */
   public abstract @NotBlank String generateLockName(NameGenerator lockNameGenerator);
-
-  /** 验证该实体类参数是否合法 */
-  public abstract void validate();
 
   /** 设置id */
   protected abstract void setId(ID id);

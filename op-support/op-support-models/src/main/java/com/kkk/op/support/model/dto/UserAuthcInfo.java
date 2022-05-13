@@ -17,5 +17,6 @@ public class UserAuthcInfo implements Serializable {
 
   private String username;
 
+  /** 加密后密码 */
   private String encryptedPassword;
 }

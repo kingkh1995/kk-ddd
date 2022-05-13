@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * <br>
+ * todo... 使用QueryService查找
  *
  * @author KaiKoo
  */
@@ -48,22 +49,19 @@ public class AccountAppServiceImpl implements AccountAppService {
             .build();
     // 行为发生
     account.save(accountService);
-    // todo... 触发事件
+    // todo... 发送事件
 
   }
 
   @Override
   public void deleteAccount(Long userId, Long accountId) {
-    // 转换对象
-    var account =
-        Account.builder()
-            .id(AccountId.valueOf(accountId, "id"))
-            .userId(UserId.valueOf(userId, "userId"))
-            .build();
+    var optional = accountService.find(AccountId.valueOf(accountId, "id"));
     // 行为发生
-
-    account.remove(accountService);
-    // todo... 触发事件
+    if (optional.isEmpty()) {
+      return;
+    }
+    optional.get().remove(accountService);
+    // todo... 发送事件
 
   }
 

@@ -29,8 +29,7 @@ public class AuthcController {
 
   @PostMapping("/login")
   public void login(@RequestBody @Validated AuthcCommand authcCommand) {
-    authcCommand.setPlaintextPassword(
-        new String(Base64.getDecoder().decode(authcCommand.getEncodedPassword())));
+    decodeCommand(authcCommand);
     SecurityUtils.getSubject()
         .login(
             new UsernamePasswordToken(
@@ -39,9 +38,14 @@ public class AuthcController {
 
   /** Patch 部分更新资源 （幂等但url不能被缓存） */
   @PatchMapping("/authc/password")
-  public void savePasswrod(@RequestBody @Validated AuthcCommand authcCommand) {
+  public void savePassword(@RequestBody @Validated AuthcCommand authcCommand) {
+    decodeCommand(authcCommand);
+    authcService.savePassword(authcCommand);
+  }
+
+  // 解码密码为明文，此处使用Base64编码。因为是由调用方解码，故代码应该在Controller中。
+  private void decodeCommand(AuthcCommand authcCommand) {
     authcCommand.setPlaintextPassword(
         new String(Base64.getDecoder().decode(authcCommand.getEncodedPassword())));
-    authcService.savePassword(authcCommand);
   }
 }
