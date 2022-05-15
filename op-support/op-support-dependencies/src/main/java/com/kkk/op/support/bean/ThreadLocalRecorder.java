@@ -18,7 +18,7 @@ public final class ThreadLocalRecorder {
     throw new IllegalAccessException();
   }
 
-  // 使用IdentityHashMap（直接使用==对比）再包装为Set
+  // 使用IdentityHashMap（键和值的比较使用==而不是equals方法）再包装为Set
   private static final ThreadLocal<Set<ThreadLocal<?>>> recorder =
       ThreadLocal.withInitial(() -> Collections.newSetFromMap(new IdentityHashMap<>()));
 

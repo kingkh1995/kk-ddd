@@ -9,7 +9,7 @@ import com.kkk.op.support.marker.Type;
  *
  * @author KaiKoo
  */
-public class RangedInt implements Type {
+public class RangedInt extends Number implements Type {
 
   private final int value;
 
@@ -17,27 +17,27 @@ public class RangedInt implements Type {
    * @param value 数值
    * @param fieldName 字段名称
    * @param min 最小值
-   * @param includeMin 是否包含最小值
+   * @param minInclusive 是否包含最小值
    * @param max 最大值
-   * @param includeMax 是否包含最大值
+   * @param maxInclusive 是否包含最大值
    */
   protected RangedInt(
       int value,
       String fieldName,
       Integer min,
-      Boolean includeMin,
+      Boolean minInclusive,
       Integer max,
-      Boolean includeMax) {
+      Boolean maxInclusive) {
     if (min != null) {
       var cmp = Integer.compare(value, min);
-      if ((includeMin && cmp < 0) || (!includeMin && cmp <= 0)) {
-        throw IllegalArgumentExceptions.forMinValue(fieldName, min, includeMin);
+      if ((minInclusive && cmp < 0) || (!minInclusive && cmp <= 0)) {
+        throw IllegalArgumentExceptions.forMinValue(fieldName, min, minInclusive);
       }
     }
     if (max != null) {
       var cmp = Integer.compare(value, max);
-      if ((includeMax && cmp > 0) || (!includeMax && cmp >= 0)) {
-        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, includeMax);
+      if ((maxInclusive && cmp > 0) || (!maxInclusive && cmp >= 0)) {
+        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, maxInclusive);
       }
     }
     this.value = value;
@@ -48,21 +48,38 @@ public class RangedInt implements Type {
     return this.value;
   }
 
-  protected static int parseInteger(Integer i, String fieldName) {
-    if (i == null) {
+  protected static int parseInt(Object o, String fieldName) {
+    if (o == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
+    } else if (o instanceof Integer i) {
+      return i;
+    } else if (o instanceof String s) {
+      try {
+        return Integer.parseInt(s);
+      } catch (NumberFormatException e) {
+        throw IllegalArgumentExceptions.forWrongPattern(fieldName);
+      }
     }
-    return i;
+    throw IllegalArgumentExceptions.forWrongClass(fieldName);
   }
 
-  protected static int parseInteger(String s, String fieldName) {
-    if (s == null || s.isEmpty()) {
-      throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }
-    try {
-      return Integer.parseInt(s);
-    } catch (NumberFormatException e) {
-      throw IllegalArgumentExceptions.forMustNumber(fieldName);
-    }
+  @Override
+  public int intValue() {
+    return this.value;
+  }
+
+  @Override
+  public long longValue() {
+    return this.value;
+  }
+
+  @Override
+  public float floatValue() {
+    return (float) this.value;
+  }
+
+  @Override
+  public double doubleValue() {
+    return this.value;
   }
 }

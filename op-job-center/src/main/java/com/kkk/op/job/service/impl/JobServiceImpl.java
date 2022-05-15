@@ -107,7 +107,7 @@ public class JobServiceImpl implements JobService {
     }
   }
 
-  // 因为elasticjob会保证一个分片在一个时刻只会被一个线程执行，故不需要考虑并发操作问题。
+  // 因为ElasticJob会保证一个分片在一个时刻只会被一个线程执行，故不需要考虑并发操作问题。
   private void action(Object key, String prepareQueueSlotKey) {
     try {
       var operations = stringRedisTemplate.opsForHash();
@@ -134,7 +134,7 @@ public class JobServiceImpl implements JobService {
             return false;
           });
     } catch (Exception e) {
-      // 兜底异常，防止中断循环。
+      // 兜底异常处理，防止中断循环。
       log.error("action failed! key:{}, prepareQueueSlotKey:{}.", key, prepareQueueSlotKey, e);
     }
   }

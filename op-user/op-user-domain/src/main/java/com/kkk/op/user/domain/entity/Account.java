@@ -61,7 +61,7 @@ public class Account extends Entity<AccountId> {
     if (this.id == null) {
       // 新增逻辑
       // 设置初始状态
-      this.state = AccountState.from(AccountStateEnum.INIT);
+      this.state = AccountState.of(AccountStateEnum.INIT);
     } else {
       // 更新逻辑
       var old = accountService.find(this.id).get();
@@ -76,7 +76,7 @@ public class Account extends Entity<AccountId> {
   public void invalidate() {
     // 领域都是合法的，可以忽略空指针问题。
     if (AccountStateEnum.ACTIVE.equals(this.state.getValue())) {
-      this.state = AccountState.from(AccountStateEnum.TERMINATED);
+      this.state = AccountState.of(AccountStateEnum.TERMINATED);
     } else {
       throw new BusinessException("当前状态无法失效。");
     }

@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public class TenThousandYuan extends SpecificDecimal {
+public class TenThousandYuan extends SpecificDecimal implements Comparable<TenThousandYuan> {
 
   private final BigDecimal valueBy10k; // 万元值缓存
 
@@ -24,13 +24,13 @@ public class TenThousandYuan extends SpecificDecimal {
 
   // 针对可靠输入的 from 方法
   @JsonCreator
-  public static TenThousandYuan from(@NotNull BigDecimal valueBy10k) {
+  public static TenThousandYuan of(@NotNull BigDecimal valueBy10k) {
     return new TenThousandYuan(valueBy10k, "TenThousandYuan");
   }
 
   // 针对不可靠输入的 valueOf 方法
-  public static TenThousandYuan valueOf(String s, String fieldName) {
-    return new TenThousandYuan(parseBigDecimal(s, fieldName), fieldName);
+  public static TenThousandYuan valueOf(Object o, String fieldName) {
+    return new TenThousandYuan(parseBigDecimal(o, fieldName), fieldName);
   }
 
   @JsonValue(false) // 声明覆盖父类注解，不然会报错重复定义
@@ -54,5 +54,10 @@ public class TenThousandYuan extends SpecificDecimal {
       this.formattedStringCache = DECIMAL_FORMAT.format(getValueBy10k()) + "（万元）";
     }
     return this.formattedStringCache;
+  }
+
+  @Override
+  public int compareTo(TenThousandYuan o) {
+    return this.getValueBy10k().compareTo(o.getValueBy10k());
   }
 }

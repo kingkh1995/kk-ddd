@@ -44,14 +44,14 @@ public enum AccountConverter implements DataConverter<Account, AccountDO> {
       return null;
     }
     var builder = Account.builder();
-    Optional.ofNullable(accountDO.getId()).map(AccountId::from).ifPresent(builder::id);
-    Optional.ofNullable(accountDO.getUserId()).map(UserId::from).ifPresent(builder::userId);
+    Optional.ofNullable(accountDO.getId()).map(AccountId::of).ifPresent(builder::id);
+    Optional.ofNullable(accountDO.getUserId()).map(UserId::of).ifPresent(builder::userId);
     Optional.ofNullable(accountDO.getState())
         .filter(Predicate.not(String::isBlank))
         .map(AccountStateEnum::valueOf)
-        .map(AccountState::from)
+        .map(AccountState::of)
         .ifPresent(builder::state);
-    Optional.ofNullable(accountDO.getVersion()).map(Version::from).ifPresent(builder::version);
+    Optional.ofNullable(accountDO.getVersion()).map(Version::of).ifPresent(builder::version);
     Optional.ofNullable(accountDO.getCreateTime())
         .map(Date::toInstant)
         .ifPresent(builder::createTime);

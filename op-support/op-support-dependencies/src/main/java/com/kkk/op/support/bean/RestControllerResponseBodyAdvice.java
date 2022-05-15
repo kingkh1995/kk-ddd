@@ -90,9 +90,9 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
     return Result.fail(e.getMessage());
   }
 
-  // Optional异常 fixme... NO_CONTENT
+  // Optional异常 fixme...
   @ExceptionHandler(NoSuchElementException.class)
-  @ResponseStatus(HttpStatus.OK) // NO_CONTENT
+  @ResponseStatus(HttpStatus.NO_CONTENT) // 204
   public Result<?> handleNoSuchElementException(NoSuchElementException e) {
     log.error("NoSuchElementException =>", e);
     return Result.fail("No Content");

@@ -3,7 +3,6 @@ package com.kkk.op.user.web;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.github.pagehelper.PageHelper;
 import com.kkk.op.support.base.Kson;
 import com.kkk.op.support.bean.NettyDelayer;
@@ -30,11 +29,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.IntConsumer;
-import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CuratorWatcher;
@@ -64,8 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 class OpUserWebApplicationTests {
 
   @Autowired private StringRedisTemplate stringRedisTemplate;
-
-  @Autowired private JsonMapper jsonMapper;
 
   @Autowired private CacheManager cacheManager;
 
@@ -120,15 +114,14 @@ class OpUserWebApplicationTests {
     byUsername.getAccounts().get(1).invalidate();
     userRepository.save(byUsername);
     var map =
-        userRepository.find(
-            Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)));
+        userRepository.find(Set.of(UserId.of(1L), UserId.of(2L), UserId.of(4L), UserId.of(6L)));
     System.out.println(Kson.writeJson(map));
     userRepository.remove(byUsername);
     System.out.println(Kson.writeJson(userRepository.find(byUsername.getId())));
     System.out.println(
         Kson.writeJson(
             userRepository.find(
-                Set.of(UserId.from(1L), UserId.from(2L), UserId.from(4L), UserId.from(6L)))));
+                Set.of(UserId.of(1L), UserId.of(2L), UserId.of(4L), UserId.of(6L)))));
     // 等待延时删除完成
     Thread.sleep(2000);
   }
@@ -309,14 +302,14 @@ class OpUserWebApplicationTests {
 
   @Test
   void testMapstruct() {
-    var account = accountRepository.find(AccountId.from(1L)).get();
+    var account = accountRepository.find(AccountId.of(1L)).get();
     System.out.println(Kson.writeJson(account));
     var accountDTO = accountDTOAssembler.toDTO(account);
     System.out.println(accountDTO);
     System.out.println(accountDTOAssembler.fromDTO(accountDTO));
     System.out.println(accountDTOAssembler.fromDTO(List.of(accountDTO)));
     var target = new AccountDTO();
-    accountDTOAssembler.buildDTO(UserId.from(100L), account, target);
+    accountDTOAssembler.buildDTO(UserId.of(100L), account, target);
     System.out.println(target);
   }
 
@@ -345,9 +338,9 @@ class OpUserWebApplicationTests {
   @Test
   void testJacKsonWithType() {
     System.out.println(Kson.writeJson(PageSize.DEFAULT));
-    LongId longId = LongId.from(123456789L);
+    LongId longId = LongId.of(123456789L);
     System.out.println(Kson.writeJson(longId));
-    AccountId accountId = AccountId.from(123456789L);
+    AccountId accountId = AccountId.of(123456789L);
     System.out.println(Kson.writeJson(accountId));
     System.out.println(Kson.readJson(Kson.writeJson(accountId), AccountId.class));
     var id1 = Kson.readJson("1234", new TypeReference<LongId>() {});
@@ -355,7 +348,7 @@ class OpUserWebApplicationTests {
     System.out.println(id1.getValue());
     System.out.println(id2.getValue());
     System.out.println(Kson.readJson(Kson.writeJson("66666"), new TypeReference<AccountId>() {}));
-    var accountState = AccountState.from(AccountStateEnum.INIT);
+    var accountState = AccountState.of(AccountStateEnum.INIT);
     var json = Kson.writeJson(accountState);
     System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
     var tJson = Kson.writeJson(StampedTime.current());
@@ -363,8 +356,8 @@ class OpUserWebApplicationTests {
     System.out.println(Kson.readJson(tJson, StampedTime.class).toLocalDateTime());
     var account =
         Account.builder()
-            .id(AccountId.from(10))
-            .state(AccountState.from(AccountStateEnum.ACTIVE))
+            .id(AccountId.of(10))
+            .state(AccountState.of(AccountStateEnum.ACTIVE))
             .build();
     var s = Kson.writeJson(account);
     System.out.println(s);
@@ -374,7 +367,7 @@ class OpUserWebApplicationTests {
     System.out.println(sTime);
     System.out.println(Kson.readJson(sTime, StampedTime.class));
     System.out.println(Kson.readJson(sTime, StampedTime.class).toLocalDateTime());
-    System.out.println(TenThousandYuan.from(new BigDecimal("110.6")).toPlainString());
+    System.out.println(TenThousandYuan.of(new BigDecimal("110.6")).toPlainString());
   }
 
   @Test
@@ -419,29 +412,5 @@ class OpUserWebApplicationTests {
         });
     countDownLatch.await();
     System.out.println(MDC.get("kkk")); // null
-  }
-
-  private static void forRun(int time, IntConsumer consumer) {
-    var cyclicBarrier = new CyclicBarrier(time);
-    var countDownLatch = new CountDownLatch(time);
-    IntStream.range(0, time)
-        .forEach(
-            i ->
-                new Thread(
-                        () -> {
-                          try {
-                            cyclicBarrier.await();
-                          } catch (Exception e) {
-                            e.printStackTrace();
-                          }
-                          consumer.accept(i);
-                          countDownLatch.countDown();
-                        })
-                    .start());
-    try {
-      countDownLatch.await();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
   }
 }

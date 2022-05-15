@@ -45,12 +45,12 @@ public enum AccountAssembler implements DTOAssembler<Account, AccountDTO> {
       return null;
     }
     var builder = Account.builder();
-    Optional.ofNullable(accountDTO.getId()).map(AccountId::from).ifPresent(builder::id);
-    Optional.ofNullable(accountDTO.getUserId()).map(UserId::from).ifPresent(builder::userId);
+    Optional.ofNullable(accountDTO.getId()).map(AccountId::of).ifPresent(builder::id);
+    Optional.ofNullable(accountDTO.getUserId()).map(UserId::of).ifPresent(builder::userId);
     Optional.ofNullable(accountDTO.getState())
         .filter(Predicate.not(String::isBlank))
         .map(AccountStateEnum::valueOf)
-        .map(AccountState::from)
+        .map(AccountState::of)
         .ifPresent(builder::state);
     return builder.build();
   }

@@ -17,16 +17,12 @@ public class LongId extends RangedLong implements Identifier {
   }
 
   @JsonCreator
-  public static LongId from(long l) {
+  public static LongId of(long l) {
     return new LongId(l, "LongId");
   }
 
-  public static LongId valueOf(Long l, String fieldName) {
-    return new LongId(parseLong(l, fieldName), fieldName);
-  }
-
-  public static LongId valueOf(String s, String fieldName) {
-    return new LongId(parseLong(s, fieldName), fieldName);
+  public static LongId valueOf(Object o, String fieldName) {
+    return new LongId(parseLong(o, fieldName), fieldName);
   }
 
   @Override

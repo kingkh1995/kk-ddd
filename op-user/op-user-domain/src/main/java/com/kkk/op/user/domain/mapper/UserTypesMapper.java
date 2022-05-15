@@ -38,7 +38,7 @@ public class UserTypesMapper {
   @Named("map2AccountId-new") // 存在多个相同的类型映射方法时进行标识
   public AccountId map2AccountIdNew(Long l) {
     log.info("this is map2AccountId-new!");
-    return AccountId.from(l);
+    return AccountId.of(l);
   }
 
   // 可以直接映射为枚举，会自动调用name()方法转为字符串

@@ -1,8 +1,6 @@
 package com.kkk.op.support.marker;
 
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -13,16 +11,11 @@ import java.util.stream.Collectors;
 @FunctionalInterface
 public interface NameGenerator {
 
-  String generate(String... paths);
+  String generate(CharSequence... paths);
 
   NameGenerator DEFAULT = joiner("@", "", "");
 
-  static NameGenerator joiner(String delimiter, String prefix, String suffix) {
-    // todo... StringJoiner
-    return paths ->
-        Arrays.stream(paths)
-            .filter(Objects::nonNull)
-            .filter(Predicate.not(String::isBlank))
-            .collect(Collectors.joining(delimiter, prefix, suffix));
+  static NameGenerator joiner(CharSequence delimiter, CharSequence prefix, CharSequence suffix) {
+    return paths -> Arrays.stream(paths).collect(Collectors.joining(delimiter, prefix, suffix));
   }
 }

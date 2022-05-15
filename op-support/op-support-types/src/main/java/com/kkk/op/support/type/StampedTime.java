@@ -14,24 +14,24 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public class StampedTime extends SpecificDateTime {
+public class StampedTime extends SpecificZonedDateTime implements Comparable<StampedTime> {
 
   protected StampedTime(@NotNull ZonedDateTime value, String fieldName, Instant current) {
     super(value, true, fieldName, current, false, true);
   }
 
-  // from方法不需要校验 now参数默认为null
+  // of方法不需要校验 now参数默认为null
   @JsonCreator
-  public static StampedTime from(@NotNull ZonedDateTime value) {
+  public static StampedTime of(@NotNull ZonedDateTime value) {
     return new StampedTime(value, "StampedTime", null);
   }
 
   public static StampedTime from(@NotNull Instant instant) {
-    return from(instant.atZone(ZoneId.systemDefault()));
+    return of(instant.atZone(ZoneId.systemDefault()));
   }
 
   public static StampedTime current() {
-    return from(ZonedDateTime.now());
+    return of(ZonedDateTime.now());
   }
 
   public static StampedTime valueOf(ZonedDateTime value, String fieldName, Instant current) {
@@ -46,5 +46,10 @@ public class StampedTime extends SpecificDateTime {
 
   public static StampedTime valueOf(ZonedDateTime value, String fieldName) {
     return valueOf(value, fieldName, Instant.now());
+  }
+
+  @Override
+  public int compareTo(StampedTime o) {
+    return this.toZonedDateTime().compareTo(o.toZonedDateTime());
   }
 }

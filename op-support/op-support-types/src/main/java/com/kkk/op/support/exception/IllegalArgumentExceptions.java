@@ -20,8 +20,8 @@ public final class IllegalArgumentExceptions {
     return new IllegalArgumentException(fieldName + "格式不正确");
   }
 
-  public static IllegalArgumentException forMustNumber(String fieldName) {
-    return new IllegalArgumentException(fieldName + "必须为数字");
+  public static IllegalArgumentException forWrongClass(String fieldName) {
+    return new IllegalArgumentException(fieldName + "类型不正确");
   }
 
   public static IllegalArgumentException forInvalidEnum(String fieldName) {
@@ -29,14 +29,14 @@ public final class IllegalArgumentExceptions {
   }
 
   public static IllegalArgumentException forMaxValue(
-      String fieldName, Number max, boolean included) {
-    var message = fieldName + "必须小于" + (included ? "等于" : "") + max;
+      String fieldName, Number max, boolean inclusive) {
+    var message = fieldName + "必须小于" + (inclusive ? "等于" : "") + max;
     return new IllegalArgumentException(message);
   }
 
   public static IllegalArgumentException forMinValue(
-      String fieldName, Number min, boolean included) {
-    var message = fieldName + "必须大于" + (included ? "等于" : "") + min;
+      String fieldName, Number min, boolean inclusive) {
+    var message = fieldName + "必须大于" + (inclusive ? "等于" : "") + min;
     return new IllegalArgumentException(message);
   }
 

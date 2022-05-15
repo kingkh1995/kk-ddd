@@ -36,7 +36,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
     var data = accountConverter.toData(entity);
     accountMapper.insert(data);
     // 填补id
-    entity.fillInId(AccountId.from(data.getId()));
+    entity.fillInId(AccountId.of(data.getId()));
   }
 
   @Override

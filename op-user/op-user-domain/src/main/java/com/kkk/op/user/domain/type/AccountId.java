@@ -17,15 +17,11 @@ public final class AccountId extends LongId {
   }
 
   @JsonCreator
-  public static AccountId from(long l) {
+  public static AccountId of(long l) {
     return new AccountId(l, "AccountId");
   }
 
-  public static AccountId valueOf(Long l, String fieldName) {
-    return new AccountId(parseLong(l, fieldName), fieldName);
-  }
-
-  public static AccountId valueOf(String s, String fieldName) {
-    return new AccountId(parseLong(s, fieldName), fieldName);
+  public static AccountId valueOf(Object o, String fieldName) {
+    return new AccountId(parseLong(o, fieldName), fieldName);
   }
 }

@@ -6,7 +6,6 @@ import com.kkk.op.support.marker.Type;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
@@ -19,19 +18,19 @@ import org.springframework.lang.Nullable;
  * @author KaiKoo
  */
 @EqualsAndHashCode
-public abstract class SpecificDateTime implements Type {
+public abstract class SpecificZonedDateTime implements Type {
 
   @JsonValue protected final ZonedDateTime value;
 
   protected final boolean obtainTime;
 
-  protected SpecificDateTime(
+  protected SpecificZonedDateTime(
       @NotNull ZonedDateTime value,
       boolean obtainTime,
       String fieldName,
       @Nullable Instant current, // 当前时间戳作为参数传入
       Boolean future,
-      Boolean includePresent) {
+      Boolean presentInclusive) {
     // current存在才对比（兼容读取值），且忽略毫秒值。
     if (current != null) {
       // 先对比日期 再对比时间
@@ -44,11 +43,11 @@ public abstract class SpecificDateTime implements Type {
             Integer.compare(
                 value.toLocalTime().toSecondOfDay(), zonedCurrent.toLocalTime().toSecondOfDay());
       }
-      if (!(includePresent && cmp == 0)) {
+      if (!(presentInclusive && cmp == 0)) {
         if (future && cmp < 1) {
-          throw IllegalArgumentExceptions.requireFuture(fieldName, includePresent, obtainTime);
+          throw IllegalArgumentExceptions.requireFuture(fieldName, presentInclusive, obtainTime);
         } else if (!future && cmp > -1) {
-          throw IllegalArgumentExceptions.requirePast(fieldName, includePresent, obtainTime);
+          throw IllegalArgumentExceptions.requirePast(fieldName, presentInclusive, obtainTime);
         }
       }
     }
@@ -56,8 +55,8 @@ public abstract class SpecificDateTime implements Type {
     this.obtainTime = obtainTime;
   }
 
-  public ZoneId getZone() {
-    return this.value.getZone();
+  public ZonedDateTime toZonedDateTime() {
+    return this.value;
   }
 
   public LocalDate toLocalDate() {

@@ -17,15 +17,11 @@ public final class UserId extends LongId {
   }
 
   @JsonCreator
-  public static UserId from(long l) {
+  public static UserId of(long l) {
     return new UserId(l, "UserId");
   }
 
-  public static UserId valueOf(Long l, String fieldName) {
-    return new UserId(parseLong(l, fieldName), fieldName);
-  }
-
-  public static UserId valueOf(String s, String fieldName) {
-    return new UserId(parseLong(s, fieldName), fieldName);
+  public static UserId valueOf(Object o, String fieldName) {
+    return new UserId(parseLong(o, fieldName), fieldName);
   }
 }

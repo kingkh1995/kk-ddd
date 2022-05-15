@@ -23,29 +23,29 @@ public abstract class SpecificDecimal extends Number implements Type {
    * @param value 数值
    * @param fieldName 字段名称
    * @param min 最小值 Nullable
-   * @param includeMin 是否包含最小值
+   * @param minInclusive 是否包含最小值
    * @param max 最大值 Nullable
-   * @param includeMax 是否包含最大值
+   * @param maxInclusive 是否包含最大值
    * @param scale 小数位
    */
   protected SpecificDecimal(
       @NotNull BigDecimal value,
       String fieldName,
       BigDecimal min,
-      Boolean includeMin,
+      Boolean minInclusive,
       BigDecimal max,
-      Boolean includeMax,
+      Boolean maxInclusive,
       Integer scale) {
     if (min != null) {
       var cmp = value.compareTo(min);
-      if ((includeMin && cmp < 0) || (!includeMin && cmp <= 0)) {
-        throw IllegalArgumentExceptions.forMinValue(fieldName, min, includeMin);
+      if ((minInclusive && cmp < 0) || (!minInclusive && cmp <= 0)) {
+        throw IllegalArgumentExceptions.forMinValue(fieldName, min, minInclusive);
       }
     }
     if (max != null) {
       var cmp = value.compareTo(max);
-      if ((includeMax && cmp > 0) || (!includeMax && cmp >= 0)) {
-        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, includeMax);
+      if ((maxInclusive && cmp > 0) || (!maxInclusive && cmp >= 0)) {
+        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, maxInclusive);
       }
     }
     if (scale != null) {
@@ -59,31 +59,25 @@ public abstract class SpecificDecimal extends Number implements Type {
     this.value = Objects.requireNonNull(value);
   }
 
-  protected static BigDecimal parseBigDecimal(Number n, String fieldName) {
-    if (n == null) {
+  protected static BigDecimal parseBigDecimal(Object o, String fieldName) {
+    if (o == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }
-    if (n instanceof BigDecimal v) {
+    } else if (o instanceof BigDecimal v) {
       return v;
-    } else if (n instanceof BigInteger v) {
+    } else if (o instanceof BigInteger v) {
       return new BigDecimal(v);
-    } else if (n instanceof Integer v) {
+    } else if (o instanceof Integer v) {
       return new BigDecimal(v);
-    } else if (n instanceof Long v) {
+    } else if (o instanceof Long v) {
       return new BigDecimal(v);
+    } else if (o instanceof Number || o instanceof String) {
+      try {
+        return new BigDecimal(o.toString());
+      } catch (NumberFormatException e) {
+        throw IllegalArgumentExceptions.forWrongPattern(fieldName);
+      }
     }
-    return new BigDecimal(n.toString());
-  }
-
-  protected static BigDecimal parseBigDecimal(String s, String fieldName) {
-    if (s == null || s.isEmpty()) {
-      throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }
-    try {
-      return new BigDecimal(s);
-    } catch (NumberFormatException e) {
-      throw IllegalArgumentExceptions.forMustNumber(fieldName);
-    }
+    throw IllegalArgumentExceptions.forWrongClass(fieldName);
   }
 
   @JsonValue

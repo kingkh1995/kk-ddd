@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
  *
  * @author KaiKoo
  */
-@EqualsAndHashCode
-public abstract class RangedLong implements Type {
+@EqualsAndHashCode(callSuper = true)
+public abstract class RangedLong extends Number implements Type {
 
   private final long value;
 
@@ -19,22 +19,27 @@ public abstract class RangedLong implements Type {
    * @param value 数值
    * @param fieldName 字段名称
    * @param min 最小值
-   * @param includeMin 是否包含最小值
+   * @param minInclusive 是否包含最小值
    * @param max 最大值
-   * @param includeMax 是否包含最大值
+   * @param maxInclusive 是否包含最大值
    */
   protected RangedLong(
-      long value, String fieldName, Long min, Boolean includeMin, Long max, Boolean includeMax) {
+      long value,
+      String fieldName,
+      Long min,
+      Boolean minInclusive,
+      Long max,
+      Boolean maxInclusive) {
     if (min != null) {
       var cmp = Long.compare(value, min);
-      if ((includeMin && cmp < 0) || (!includeMin && cmp <= 0)) {
-        throw IllegalArgumentExceptions.forMinValue(fieldName, min, includeMin);
+      if ((minInclusive && cmp < 0) || (!minInclusive && cmp <= 0)) {
+        throw IllegalArgumentExceptions.forMinValue(fieldName, min, minInclusive);
       }
     }
     if (max != null) {
       var cmp = Long.compare(value, max);
-      if ((includeMax && cmp > 0) || (!includeMax && cmp >= 0)) {
-        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, includeMax);
+      if ((maxInclusive && cmp > 0) || (!maxInclusive && cmp >= 0)) {
+        throw IllegalArgumentExceptions.forMaxValue(fieldName, max, maxInclusive);
       }
     }
     this.value = value;
@@ -47,21 +52,38 @@ public abstract class RangedLong implements Type {
     return this.value;
   }
 
-  protected static long parseLong(Long l, String fieldName) {
-    if (l == null) {
+  protected static long parseLong(Object o, String fieldName) {
+    if (o == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
+    } else if (o instanceof Long l) {
+      return l;
+    } else if (o instanceof String s) {
+      try {
+        return Long.parseLong(s);
+      } catch (NumberFormatException e) {
+        throw IllegalArgumentExceptions.forWrongPattern(fieldName);
+      }
     }
-    return l;
+    throw IllegalArgumentExceptions.forWrongClass(fieldName);
   }
 
-  protected static long parseLong(String s, String fieldName) {
-    if (s == null || s.isEmpty()) {
-      throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }
-    try {
-      return Long.parseLong(s);
-    } catch (NumberFormatException e) {
-      throw IllegalArgumentExceptions.forMustNumber(fieldName);
-    }
+  @Override
+  public int intValue() {
+    return (int) this.value;
+  }
+
+  @Override
+  public long longValue() {
+    return this.value;
+  }
+
+  @Override
+  public float floatValue() {
+    return (float) this.value;
+  }
+
+  @Override
+  public double doubleValue() {
+    return (double) this.value;
   }
 }
