@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
  */
 public final class SleepHelper {
 
-  public SleepHelper() throws IllegalAccessException {
+  private SleepHelper() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
 

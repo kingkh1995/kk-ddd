@@ -24,7 +24,7 @@
     id, user_id, state, version, create_time, update_time
   </sql>
 
-  <select id="selectById" resultType="com.kkk.op.user.persistence.AccountDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -32,7 +32,7 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectByIds" resultType="com.kkk.op.user.persistence.AccountDO">
+  <select id="selectByIds" resultType="com.kkk.op.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -43,7 +43,7 @@
     </foreach>
   </select>
 
-  <select id="selectByUserId" resultType="com.kkk.op.user.persistence.AccountDO">
+  <select id="selectByUserId" resultType="com.kkk.op.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM
@@ -51,7 +51,7 @@
     WHERE user_id = #{userId}
   </select>
 
-  <select id="selectByUserIds" resultType="com.kkk.op.user.persistence.AccountDO">
+  <select id="selectByUserIds" resultType="com.kkk.op.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM

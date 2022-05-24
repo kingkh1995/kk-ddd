@@ -1,8 +1,8 @@
 package com.kkk.op.job.service.impl;
 
+import com.kkk.op.job.domain.JobDAO;
+import com.kkk.op.job.domain.JobDO;
 import com.kkk.op.job.message.JobMessageSender;
-import com.kkk.op.job.persistence.JobDAO;
-import com.kkk.op.job.persistence.JobDO;
 import com.kkk.op.job.service.JobService;
 import com.kkk.op.support.enums.JobStateEnum;
 import com.kkk.op.support.model.command.JobAddCommand;
@@ -11,8 +11,10 @@ import com.kkk.op.support.model.event.JobReverseEvent;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -35,8 +37,7 @@ public class JobServiceImpl implements JobService {
   // 最大重试次数
   int MAX_RETRY = 16;
 
-  private static final RedisScript<List> TRANSFER_SCRIPT =
-      new DefaultRedisScript<>("""
+  private static final RedisScript<?> TRANSFER_SCRIPT = new DefaultRedisScript<>("""
           local max = tonumber(ARGV[1])
           local table = redis.call('ZRANGEBYSCORE', KEYS[1], 0, max)
           for i = 1, #table
@@ -44,8 +45,7 @@ public class JobServiceImpl implements JobService {
             redis.call('HSET', KEYS[2], table[i], 0)
             redis.call('ZREM', KEYS[1], table[i])
           end
-          return table
-          """, List.class);
+          """);
 
   private final JobDAO jobDAO;
 
@@ -53,7 +53,7 @@ public class JobServiceImpl implements JobService {
 
   private final JobMessageSender jobMessageSender;
 
-  @Transactional
+  @Transactional // redis操作失败时回滚数据库
   @Override
   public Boolean add(JobAddCommand addCommand) {
     // 落库
@@ -63,13 +63,25 @@ public class JobServiceImpl implements JobService {
     jobDO.setContext(addCommand.getContext());
     jobDO.setState(JobStateEnum.P);
     jobDAO.save(jobDO);
-    // push to StoreQueue(Zset)
+    return add2StoreQueue(jobDO.getId(), jobDO.getActionTime());
+  }
+
+  @Transactional // redis操作失败时回滚数据库
+  @Override
+  public void reverse(JobReverseEvent reverseEvent) {
+    if (jobDAO.transferStateById(reverseEvent.getId(), JobStateEnum.D, JobStateEnum.P) > 0) {
+      add2StoreQueue(reverseEvent.getId(), reverseEvent.getActionTime());
+    }
+  }
+
+  // add to StoreQueue(zset)
+  private Boolean add2StoreQueue(Long jobId, Date jobActionTime) {
     return stringRedisTemplate
         .opsForZSet()
         .add(
-            getStoreQueueSlotKey(jobDO.getId().intValue() & SLOT_MASK),
-            jobDO.getId().toString(),
-            (double) jobDO.getActionTime().getTime());
+            getStoreQueueSlotKey(jobId.intValue() & SLOT_MASK),
+            jobId.toString(),
+            (double) jobActionTime.getTime());
   }
 
   @Override
@@ -80,45 +92,38 @@ public class JobServiceImpl implements JobService {
     }
     var storeQueueSlotKey = getStoreQueueSlotKey(slot);
     var prepareQueueSlotKey = getPrepareQueueSlotKey(slot);
-    // compensate before transfer，get all from PrepareQueue(Hash)
-    stringRedisTemplate
-        .opsForHash()
-        .keys(getPrepareQueueSlotKey(slot))
-        .forEach(o -> action(o, prepareQueueSlotKey));
-    // transfer StoreQueue(Zset) to PrepareQueue(Hash)
-    stringRedisTemplate
-        .execute(
-            TRANSFER_SCRIPT,
-            List.of(storeQueueSlotKey, prepareQueueSlotKey),
-            String.valueOf(System.currentTimeMillis()))
-        .forEach(o -> action(o, prepareQueueSlotKey));
-  }
-
-  @Transactional
-  @Override
-  public void reverse(JobReverseEvent reverseEvent) {
-    if (jobDAO.transferStateById(reverseEvent.getId(), JobStateEnum.D, JobStateEnum.P) > 0) {
-      stringRedisTemplate
-          .opsForZSet()
-          .add(
-              getStoreQueueSlotKey(reverseEvent.getId().intValue() & SLOT_MASK),
-              reverseEvent.getId().toString(),
-              (double) reverseEvent.getActionTime());
-    }
+    var hashOperations = stringRedisTemplate.opsForHash();
+    // transfer StoreQueue(zset) to PrepareQueue(hash)
+    stringRedisTemplate.execute(
+        TRANSFER_SCRIPT,
+        List.of(storeQueueSlotKey, prepareQueueSlotKey),
+        String.valueOf(System.currentTimeMillis()));
+    // get all from PrepareQueue(hash) also compensate
+    var futures =
+        hashOperations.keys(prepareQueueSlotKey).stream()
+            .map(
+                o ->
+                    CompletableFuture.runAsync(
+                        () -> action(o, hashOperations, prepareQueueSlotKey)))
+            .toArray(CompletableFuture[]::new);
+    // waiting to finish
+    CompletableFuture.allOf(futures).join();
   }
 
   // 因为ElasticJob会保证一个分片在一个时刻只会被一个线程执行，故不需要考虑并发操作问题。
-  private void action(Object key, String prepareQueueSlotKey) {
+  private void action(
+      Object key,
+      HashOperations<String, Object, Object> hashOperations,
+      String prepareQueueSlotKey) {
     try {
-      var operations = stringRedisTemplate.opsForHash();
       var jobDO = jobDAO.findById(Long.valueOf((String) key)).orElse(null);
       // 数据不存在或状态不为pending则直接从PrepareQueue删除（理论上不可能发生）
       // 死信处理，因为发送消息失败不会执行任何操作，故在每轮开始前对上一轮的失败的消息进行处理。
       if (Objects.isNull(jobDO)
           || !JobStateEnum.P.equals(jobDO.getState())
-          || (operations.increment(prepareQueueSlotKey, key, 1L) > MAX_RETRY
+          || (hashOperations.increment(prepareQueueSlotKey, key, 1L) > MAX_RETRY
               && jobDAO.transferStateById(jobDO.getId(), JobStateEnum.P, JobStateEnum.D) > 0)) {
-        operations.delete(prepareQueueSlotKey, key);
+        hashOperations.delete(prepareQueueSlotKey, key);
         return;
       }
       // 发送任务消息，并设置本地执行任务。
@@ -128,7 +133,7 @@ public class JobServiceImpl implements JobService {
           () -> {
             // 消息发送成功则更新任务状态为actioned并从PrepareQueue删除。
             if (jobDAO.transferStateById(jobDO.getId(), JobStateEnum.P, JobStateEnum.A) > 0) {
-              operations.delete(prepareQueueSlotKey, key);
+              hashOperations.delete(prepareQueueSlotKey, key);
               return true;
             }
             return false;

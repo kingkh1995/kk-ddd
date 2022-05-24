@@ -11,11 +11,16 @@ import java.util.ServiceLoader;
  *
  * @author KaiKoo
  */
-public class CommonConstants {
+public class Constants {
 
-  private CommonConstants() throws IllegalAccessException {
+  private Constants() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
+
+  public static final BaseConstantsProvider BASE =
+      ServiceLoader.load(BaseConstantsProvider.class)
+          .findFirst()
+          .orElseGet(() -> new BaseConstantsProvider() {});
 
   public static final TypeConstantsProvider TYPE =
       ServiceLoader.load(TypeConstantsProvider.class)

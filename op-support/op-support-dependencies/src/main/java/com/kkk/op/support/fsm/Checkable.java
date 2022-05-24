@@ -1,5 +1,6 @@
 package com.kkk.op.support.fsm;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,6 +10,9 @@ import java.util.List;
  * @author KaiKoo
  */
 public interface Checkable<E extends FsmEvent, T, C extends FsmContext<E, T>> {
+
+  @SuppressWarnings("rawtypes")
+  Checkable EMPTY = new Checkable() {};
 
   /** 参数校验 */
   default List<Checker<E, T, C>> getParamChecker() {
@@ -21,7 +25,7 @@ public interface Checkable<E extends FsmEvent, T, C extends FsmContext<E, T>> {
   }
 
   /** 可异步执行的校验器 */
-  default List<Checker<E, T, C>> getAsyncChecker() {
+  default Collection<Checker<E, T, C>> getAsyncChecker() {
     return Collections.emptyList();
   }
 }

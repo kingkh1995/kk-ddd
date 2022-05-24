@@ -1,5 +1,6 @@
 package com.kkk.op.support.fsm;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ public class CheckerExecutor {
   /**
    * 执行校验器校验
    *
-   * @param checkers 校验器合集（已排序）
+   * @param checkers 校验器合集
    * @param context 被校验上下文信息
    * @param isParallel 是否并行执行
    * @param <E> 事件类型
@@ -24,20 +25,17 @@ public class CheckerExecutor {
    * @return
    */
   private static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult check0(
-      List<Checker<E, T, C>> checkers, C context, boolean isParallel) {
+      Collection<Checker<E, T, C>> checkers, C context, boolean isParallel) {
     // 空集合直接返回成功
     if (checkers == null || checkers.isEmpty()) {
       return CheckResult.succeed();
     }
-    // 只有一个直接处理
+    // 数量为1则直接执行
     if (checkers.size() == 1) {
-      return checkers.get(0).check(context);
+      return checkers.iterator().next().check(context);
     }
-    // 多个则批量处理，同步或异步（不使用线程池而是使用并行流）
-    var stream = checkers.stream();
-    if (isParallel) {
-      stream = checkers.parallelStream();
-    }
+    // 批量处理，同步或异步（不使用线程池而是使用并行流）
+    var stream = isParallel ? checkers.parallelStream() : checkers.stream();
     // 需要使用findAny，因为并行流findFirst无法断路，且串行流findAny相当于findFirst。
     return stream
         .map(checker -> checker.check(context))
@@ -46,13 +44,13 @@ public class CheckerExecutor {
         .orElse(CheckResult.succeed());
   }
 
-  public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult parallelCheck(
-      List<Checker<E, T, C>> checkers, C context) {
-    return check0(checkers, context, true);
-  }
-
   public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult serialCheck(
       List<Checker<E, T, C>> checkers, C context) {
     return check0(checkers, context, false);
+  }
+
+  public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult parallelCheck(
+      Collection<Checker<E, T, C>> checkers, C context) {
+    return check0(checkers, context, true);
   }
 }

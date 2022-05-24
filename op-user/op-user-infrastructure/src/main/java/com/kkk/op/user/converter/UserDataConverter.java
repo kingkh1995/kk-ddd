@@ -3,8 +3,8 @@ package com.kkk.op.user.converter;
 import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.mapper.UserTypesMapper;
-import com.kkk.op.user.persistence.AccountDO;
-import com.kkk.op.user.persistence.UserDO;
+import com.kkk.op.user.persistence.AccountPO;
+import com.kkk.op.user.persistence.UserPO;
 import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;
@@ -27,12 +27,12 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserDataConverter {
 
-  UserDO toData(User user);
+  UserPO toData(User user);
 
   @InheritInverseConfiguration(name = "toData")
-  @Mapping(target = "accounts", source = "accountDOList")
-  User fromData(UserDO userDO, List<AccountDO> accountDOList);
+  @Mapping(target = "accounts", source = "accountPOList")
+  User fromData(UserPO userPO, List<AccountPO> accountPOList);
 
   @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  List<UserDO> toData(List<User> userList);
+  List<UserPO> toData(List<User> userList);
 }

@@ -1,6 +1,7 @@
 package com.kkk.op.support.model.event;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.Data;
@@ -17,5 +18,5 @@ public class JobReverseEvent implements Serializable {
 
   @NotNull @Positive private Long id;
 
-  @NotNull @Positive private Long actionTime;
+  @NotNull @Positive private Date actionTime;
 }

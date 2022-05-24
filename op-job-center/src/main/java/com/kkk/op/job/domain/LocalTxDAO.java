@@ -1,4 +1,4 @@
-package com.kkk.op.job.persistence;
+package com.kkk.op.job.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

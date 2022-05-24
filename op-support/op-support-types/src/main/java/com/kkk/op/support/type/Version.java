@@ -1,7 +1,7 @@
 package com.kkk.op.support.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kkk.op.support.constant.CommonConstants;
+import com.kkk.op.support.constant.Constants;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -19,8 +19,7 @@ public final class Version extends RangedInt implements Comparable<Version> {
   private static class Cache {
 
     // spi拓展，支持修改缓存上限。
-    static final Version[] cache =
-        new Version[Math.max(128, CommonConstants.TYPE.getVersionCacheEnd())];
+    static final Version[] cache = new Version[Math.max(128, Constants.TYPE.getVersionCacheEnd())];
 
     static Version get(int i) {
       var v = Cache.cache[i];

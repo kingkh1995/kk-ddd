@@ -36,7 +36,7 @@
     id, name, username, gender, age, email
   </sql>
 
-  <select id="selectById" resultType="com.kkk.op.user.persistence.UserDO">
+  <select id="selectById" resultType="com.kkk.op.user.persistence.UserPO">
     SELECT
     <include refid="columns"/>
     FROM
@@ -44,7 +44,7 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectByIds" resultType="com.kkk.op.user.persistence.UserDO">
+  <select id="selectByIds" resultType="com.kkk.op.user.persistence.UserPO">
     SELECT
     <include refid="columns"/>
     FROM

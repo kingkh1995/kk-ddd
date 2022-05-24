@@ -57,8 +57,7 @@ public class RedissonDistributedLockFactory implements DistributedLockFactory {
         return this.lock.tryLock(waitSeconds, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
         log.error(
-            String.format(
-                "线程【%s】获取锁【%s】被中断！", Thread.currentThread().getName(), this.lock.getName()),
+            "线程【%s】获取锁【%s】被中断！".formatted(Thread.currentThread().getName(), this.lock.getName()),
             e);
         return false;
       }

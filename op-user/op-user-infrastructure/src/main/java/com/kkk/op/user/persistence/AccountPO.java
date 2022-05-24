@@ -6,13 +6,13 @@ import lombok.Data;
 
 /**
  * account：用户账户（收付款账户、虚拟账户等）<br>
- * PO类字段和字段类型要求与数据库完全一致 <br>
+ * PO类字段和字段类型要求与数据库完全一致，且应该是record。 <br>
  * 根据阿里巴巴Java开发手册，日期类型应该使用DATETIME和java.util.Date。
  *
  * @author KaiKoo
  */
 @Data
-public class AccountDO implements Serializable {
+public class AccountPO implements Serializable {
 
   private Long id;
 

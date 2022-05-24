@@ -15,23 +15,23 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface UserMapper {
 
-  int insert(UserDO userDO);
+  int insert(UserPO userPO);
 
-  int updateById(UserDO userDO);
+  int updateById(UserPO userPO);
 
   @Delete("DELETE FROM user WHERE id = #{id}")
   int deleteById(Long id);
 
-  Optional<UserDO> selectById(Long id);
+  Optional<UserPO> selectById(Long id);
 
-  List<UserDO> selectByIds(Collection<Long> ids);
+  List<UserPO> selectByIds(Collection<Long> ids);
 
   @Select("SELECT * FROM user WHERE gender = #{gender}")
-  List<UserDO> selectByGender(String gender);
+  List<UserPO> selectByGender(String gender);
 
   @Select("SELECT * FROM user")
-  List<UserDO> selectAll();
+  List<UserPO> selectAll();
 
   @Select("SELECT * FROM user WHERE username = #{username}")
-  Optional<UserDO> selectByUsername(String username);
+  Optional<UserPO> selectByUsername(String username);
 }

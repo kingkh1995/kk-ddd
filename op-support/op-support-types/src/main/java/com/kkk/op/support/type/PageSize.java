@@ -1,7 +1,7 @@
 package com.kkk.op.support.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kkk.op.support.constant.CommonConstants;
+import com.kkk.op.support.constant.Constants;
 import lombok.EqualsAndHashCode;
 
 /**
@@ -13,11 +13,10 @@ import lombok.EqualsAndHashCode;
 public class PageSize extends RangedLong {
 
   // 默认分页大小，并添加缓存
-  public static final PageSize DEFAULT =
-      new PageSize(CommonConstants.TYPE.getDefaultPageSize(), null);
+  public static final PageSize DEFAULT = new PageSize(Constants.TYPE.getDefaultPageSize(), null);
 
   private PageSize(long value, String fieldName) {
-    super(value, fieldName, 0L, false, CommonConstants.TYPE.getMaxPageSize(), true);
+    super(value, fieldName, 0L, false, Constants.TYPE.getMaxPageSize(), true);
   }
 
   /**

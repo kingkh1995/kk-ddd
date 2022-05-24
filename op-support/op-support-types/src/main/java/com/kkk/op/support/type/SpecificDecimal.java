@@ -66,10 +66,8 @@ public abstract class SpecificDecimal extends Number implements Type {
       return v;
     } else if (o instanceof BigInteger v) {
       return new BigDecimal(v);
-    } else if (o instanceof Integer v) {
-      return new BigDecimal(v);
-    } else if (o instanceof Long v) {
-      return new BigDecimal(v);
+    } else if (o instanceof Byte || o instanceof Short || o instanceof Integer || o instanceof Long) {
+      return BigDecimal.valueOf((long) o);
     } else if (o instanceof Number || o instanceof String) {
       try {
         return new BigDecimal(o.toString());

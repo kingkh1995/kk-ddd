@@ -1,5 +1,7 @@
 package com.kkk.op.support.base;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +23,18 @@ public class Kson {
     throw new IllegalAccessException();
   }
 
+  // 静态域懒加载使用lazy initialization holder class idiom模式，首次调用时静态内部类才会初始化。
+  private static class JsonMapperMapperHolder {
+    private static JsonMapper INSTANCE =
+        JsonMapper.builder()
+            .findAndAddModules()
+            .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+            .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .build();
+  }
+
   private static JsonMapper MAPPER;
 
   public static void setMapper(@NotNull JsonMapper jsonMapper) {
@@ -29,11 +43,7 @@ public class Kson {
 
   private static JsonMapper getMapper() {
     if (null == MAPPER) {
-      MAPPER =
-          JsonMapper.builder()
-              .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-              .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-              .build();
+      MAPPER = JsonMapperMapperHolder.INSTANCE;
     }
     return MAPPER;
   }

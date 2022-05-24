@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
 @MappedJdbcTypes(JdbcType.VARCHAR)
 public class JsonJacksonTypeHandler extends BaseTypeHandler<Object> {
 
-  // 静态域懒加载使用lazy initialization holder class idiom模式，首次调用时静态内部类才会初始化。
   private static class ObjectMapperHolder {
     private static ObjectMapper OBJECT_MAPPER =
         JsonMapper.builder()

@@ -15,9 +15,9 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper // 可以不加
 public interface AccountMapper {
 
-  int insert(AccountDO accountDO);
+  int insert(AccountPO accountPO);
 
-  int updateById(AccountDO accountDO);
+  int updateById(AccountPO accountPO);
 
   @Delete("DELETE FROM account WHERE id = #{id}")
   int deleteById(Long id);
@@ -26,11 +26,11 @@ public interface AccountMapper {
   int deleteByUserId(Long userId);
 
   // Mybatis支持封装为Optional
-  Optional<AccountDO> selectById(Long id);
+  Optional<AccountPO> selectById(Long id);
 
-  List<AccountDO> selectByIds(Collection<Long> ids);
+  List<AccountPO> selectByIds(Collection<Long> ids);
 
-  List<AccountDO> selectByUserId(Long userId);
+  List<AccountPO> selectByUserId(Long userId);
 
-  List<AccountDO> selectByUserIds(Collection<Long> userIds);
+  List<AccountPO> selectByUserIds(Collection<Long> userIds);
 }

@@ -1,7 +1,7 @@
 package com.kkk.op.job.message;
 
-import com.kkk.op.job.persistence.LocalTxDAO;
-import com.kkk.op.job.persistence.LocalTxDO;
+import com.kkk.op.job.domain.LocalTxDAO;
+import com.kkk.op.job.domain.LocalTxDO;
 import java.util.function.BooleanSupplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

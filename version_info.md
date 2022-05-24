@@ -1,4 +1,4 @@
-# Version Info
+# VERSION INFO
 
 ### 2021.0.0
 
@@ -10,9 +10,10 @@
 - 任务中心开发
 - 升级spring boot 3.0
 
-# TODO
+# todo list
 
-- gradle
-- 代码自动生成
-- op-sales项目DP设计
+- CQRS
+- 模块化
+- 模板代码生成
+- Gradle
 

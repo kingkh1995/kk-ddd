@@ -1,4 +1,4 @@
-package com.kkk.op.job.persistence;
+package com.kkk.op.job.domain;
 
 import com.kkk.op.support.enums.JobStateEnum;
 import java.io.Serializable;

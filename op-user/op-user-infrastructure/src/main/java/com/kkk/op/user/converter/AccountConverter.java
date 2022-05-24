@@ -7,7 +7,7 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.domain.type.AccountState;
 import com.kkk.op.user.domain.type.UserId;
-import com.kkk.op.user.persistence.AccountDO;
+import com.kkk.op.user.persistence.AccountPO;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -17,15 +17,15 @@ import java.util.function.Predicate;
  *
  * @author KaiKoo
  */
-public enum AccountConverter implements DataConverter<Account, AccountDO> {
+public enum AccountConverter implements DataConverter<Account, AccountPO> {
   INSTANCE;
 
   @Override
-  public AccountDO toData(Account account) {
+  public AccountPO toData(Account account) {
     if (account == null) {
       return null;
     }
-    var data = new AccountDO();
+    var data = new AccountPO();
     Optional.ofNullable(account.getId()).map(AccountId::getValue).ifPresent(data::setId);
     Optional.ofNullable(account.getUserId()).map(UserId::getValue).ifPresent(data::setUserId);
     Optional.ofNullable(account.getState())
@@ -39,23 +39,23 @@ public enum AccountConverter implements DataConverter<Account, AccountDO> {
   }
 
   @Override
-  public Account fromData(AccountDO accountDO) {
-    if (accountDO == null) {
+  public Account fromData(AccountPO accountPO) {
+    if (accountPO == null) {
       return null;
     }
     var builder = Account.builder();
-    Optional.ofNullable(accountDO.getId()).map(AccountId::of).ifPresent(builder::id);
-    Optional.ofNullable(accountDO.getUserId()).map(UserId::of).ifPresent(builder::userId);
-    Optional.ofNullable(accountDO.getState())
+    Optional.ofNullable(accountPO.getId()).map(AccountId::of).ifPresent(builder::id);
+    Optional.ofNullable(accountPO.getUserId()).map(UserId::of).ifPresent(builder::userId);
+    Optional.ofNullable(accountPO.getState())
         .filter(Predicate.not(String::isBlank))
         .map(AccountStateEnum::valueOf)
         .map(AccountState::of)
         .ifPresent(builder::state);
-    Optional.ofNullable(accountDO.getVersion()).map(Version::of).ifPresent(builder::version);
-    Optional.ofNullable(accountDO.getCreateTime())
+    Optional.ofNullable(accountPO.getVersion()).map(Version::of).ifPresent(builder::version);
+    Optional.ofNullable(accountPO.getCreateTime())
         .map(Date::toInstant)
         .ifPresent(builder::createTime);
-    Optional.ofNullable(accountDO.getUpdateTime())
+    Optional.ofNullable(accountPO.getUpdateTime())
         .map(Date::toInstant)
         .ifPresent(builder::updateTime);
     return builder.build();

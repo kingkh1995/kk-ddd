@@ -10,10 +10,16 @@ package com.kkk.op.support.fsm;
 public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends FsmContext<E, T>>
     implements FsmEventProcessor<E, T, C>, FsmEventProcessStep<E, T, C> {
 
-  private final Checkable<E, T, C> checkable;
+  /** 校验器合集，需要自定义校验器顺序。 */
+  protected final Checkable<E, T, C> checkable;
 
+  @SuppressWarnings("unchecked")
   public FsmEventProcessorSupport() {
-    this.checkable = registerCheckable();
+    this((Checkable<E, T, C>) Checkable.EMPTY);
+  }
+
+  public FsmEventProcessorSupport(Checkable<E, T, C> checkable) {
+    this.checkable = checkable;
   }
 
   @Override
@@ -39,13 +45,8 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
     this.prepare(context);
     // 第三步同步校验
     CheckerExecutor.serialCheck(checkable.getSyncChecker(), context).throwIfFail();
-    // 第四步异步校验
+    // 第四步异步校验（注意不要执行阻塞型任务因为使用的是并行流）
     CheckerExecutor.parallelCheck(checkable.getAsyncChecker(), context).throwIfFail();
-  }
-
-  /** 注解校验器合集，需要自定义校验器顺序。 */
-  protected Checkable<E, T, C> registerCheckable() {
-    return new Checkable<>() {};
   }
 
   protected abstract void prepare(C context);

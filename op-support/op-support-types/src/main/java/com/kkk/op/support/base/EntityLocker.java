@@ -4,6 +4,7 @@ import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
@@ -33,7 +34,7 @@ public final class EntityLocker {
     return FACTORY.getMultiLock(
         entities.stream()
             .map(entity -> entity.generateLockName(FACTORY.getLockNameGenerator()))
-            .toList());
+            .collect(Collectors.toList()));
   }
 
   public static boolean tryLockThenRun(@NotNull Entity<?> entity, @NotNull Runnable runnable) {

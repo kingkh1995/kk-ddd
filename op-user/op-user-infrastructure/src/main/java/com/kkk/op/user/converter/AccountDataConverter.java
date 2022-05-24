@@ -3,7 +3,7 @@ package com.kkk.op.user.converter;
 import com.kkk.op.support.base.CommonTypesMapper;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.mapper.UserTypesMapper;
-import com.kkk.op.user.persistence.AccountDO;
+import com.kkk.op.user.persistence.AccountPO;
 import java.util.List;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;
@@ -24,14 +24,14 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AccountDataConverter {
-  AccountDO toData(Account account);
+  AccountPO toData(Account account);
 
   @InheritInverseConfiguration(name = "toData")
-  Account fromData(AccountDO accountDO);
+  Account fromData(AccountPO accountPO);
 
   @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  List<AccountDO> toData(List<Account> accountList);
+  List<AccountPO> toData(List<Account> accountList);
 
   @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)
-  List<Account> fromData(List<AccountDO> accountDOList);
+  List<Account> fromData(List<AccountPO> accountPOList);
 }

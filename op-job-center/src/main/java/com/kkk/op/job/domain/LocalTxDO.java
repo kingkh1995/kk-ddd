@@ -1,4 +1,4 @@
-package com.kkk.op.job.persistence;
+package com.kkk.op.job.domain;
 
 import java.io.Serializable;
 import java.util.Date;

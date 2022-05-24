@@ -1,7 +1,7 @@
 package com.kkk.op.job;
 
-import com.kkk.op.job.persistence.JobDAO;
-import com.kkk.op.job.persistence.JobDO;
+import com.kkk.op.job.domain.JobDAO;
+import com.kkk.op.job.domain.JobDO;
 import com.kkk.op.support.base.Kson;
 import com.kkk.op.support.enums.JobStateEnum;
 import java.util.Date;

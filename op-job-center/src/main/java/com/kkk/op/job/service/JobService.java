@@ -21,16 +21,16 @@ public interface JobService {
   Boolean add(@Validated JobAddCommand addCommand);
 
   /**
-   * 执行作业调度
-   *
-   * @param actionEvent
-   */
-  void action(@Validated JobActionEvent actionEvent);
-
-  /**
-   * 死作业反转
+   * 死作业反转（todo...优化）
    *
    * @param reverseEvent
    */
   void reverse(@Validated JobReverseEvent reverseEvent);
+
+  /**
+   * 执行作业调度（有重复调度的可能）
+   *
+   * @param actionEvent
+   */
+  void action(@Validated JobActionEvent actionEvent);
 }

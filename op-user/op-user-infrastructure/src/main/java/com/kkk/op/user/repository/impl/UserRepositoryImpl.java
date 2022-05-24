@@ -11,10 +11,10 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.domain.type.UserId;
-import com.kkk.op.user.persistence.AccountDO;
 import com.kkk.op.user.persistence.AccountMapper;
-import com.kkk.op.user.persistence.UserDO;
+import com.kkk.op.user.persistence.AccountPO;
 import com.kkk.op.user.persistence.UserMapper;
+import com.kkk.op.user.persistence.UserPO;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,19 +78,19 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   @Override
   protected void onInsert(@NotNull User aggregate) {
     // 插入User
-    var userDO = userDataConverter.toData(aggregate);
-    userMapper.insert(userDO);
+    var userPO = userDataConverter.toData(aggregate);
+    userMapper.insert(userPO);
     // 填补id
-    aggregate.fillInId(UserId.of(userDO.getId()));
+    aggregate.fillInId(UserId.of(userPO.getId()));
     // 循环插入Accounts
     var accounts = aggregate.getAccounts();
     if (!CollectionUtils.isEmpty(accounts)) {
       accounts.forEach(
           account -> {
-            var accountDO = accountDataConverter.toData(account);
-            accountMapper.insert(accountDO);
+            var accountPO = accountDataConverter.toData(account);
+            accountMapper.insert(accountPO);
             // 填补id
-            account.fillInId(AccountId.of(accountDO.getId()));
+            account.fillInId(AccountId.of(accountPO.getId()));
           });
     }
   }
@@ -111,10 +111,10 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
               switch (accountDiff.getChangeType()) {
                   // 新增情况
                   case Added -> {
-                    var accountDO = accountDataConverter.toData(newValue);
-                    accountMapper.insert(accountDO);
+                    var accountPO = accountDataConverter.toData(newValue);
+                    accountMapper.insert(accountPO);
                     // 填补id
-                    newValue.fillInId(AccountId.of(accountDO.getId()));
+                    newValue.fillInId(AccountId.of(accountPO.getId()));
                   }
                   // 移除情况
                   case Removed -> accountMapper.deleteById(oldValue.getId().getValue());
@@ -141,8 +141,8 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     return userMapper
         .selectById(userId.getValue())
         .map(
-            userDO ->
-                userDataConverter.fromData(userDO, accountMapper.selectByUserId(userDO.getId())));
+            userPO ->
+                userDataConverter.fromData(userPO, accountMapper.selectByUserId(userPO.getId())));
   }
 
   @Override
@@ -167,12 +167,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     }
     // 查询并加载缓存
     var longs = ids2Lookup.stream().mapToLong(UserId::getValue).boxed().collect(Collectors.toSet());
-    var accountDOListMap =
+    var accountPOListMap =
         accountMapper.selectByUserIds(longs).stream()
-            .collect(Collectors.groupingBy(AccountDO::getUserId));
+            .collect(Collectors.groupingBy(AccountPO::getUserId));
     var userMap =
         userMapper.selectByIds(longs).stream()
-            .map(userDO -> userDataConverter.fromData(userDO, accountDOListMap.get(userDO.getId())))
+            .map(userPO -> userDataConverter.fromData(userPO, accountPOListMap.get(userPO.getId())))
             .collect(Collectors.toMap(User::getId, Function.identity()));
     ids2Lookup.forEach(
         userId -> {
@@ -211,8 +211,8 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   // ===============================================================================================
 
   /** 以下为自定义的方法 */
-  private User findThenBuild(@NotNull UserDO userDO) {
-    var user = userDataConverter.fromData(userDO, accountMapper.selectByUserId(userDO.getId()));
+  private User findThenBuild(@NotNull UserPO userPO) {
+    var user = userDataConverter.fromData(userPO, accountMapper.selectByUserId(userPO.getId()));
     // 添加追踪
     return this.getAggregateTrackingManager().attach(user);
   }

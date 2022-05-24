@@ -4,6 +4,7 @@ import com.kkk.op.support.aspect.DegradedServiceAspect.DegradedServiceException;
 import com.kkk.op.support.base.LocalRequestContextHolder;
 import com.kkk.op.support.bean.IpControlInterceptor.IPControlBlockedException;
 import com.kkk.op.support.exception.BusinessException;
+import com.kkk.op.support.exception.ExternalServerException;
 import java.time.DateTimeException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -82,12 +83,20 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
     return Result.fail(message);
   }
 
+  // 外部服务异常
+  @ExceptionHandler(ExternalServerException.class)
+  @ResponseStatus(HttpStatus.OK)
+  public Result<?> handleExternalServerException(ExternalServerException e) {
+    log.error("ExternalServerException =>", e);
+    return Result.fail("Try Later");
+  }
+
   // 业务异常
   @ExceptionHandler(BusinessException.class)
   @ResponseStatus(HttpStatus.OK)
   public Result<?> handleBusinessException(BusinessException e) {
     log.error("BusinessException =>", e);
-    return Result.fail(e.getMessage());
+    return Result.fail(e.getCode(), e.getMessage());
   }
 
   // Optional异常 fixme...

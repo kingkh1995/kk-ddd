@@ -18,8 +18,8 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.domain.type.AccountState;
 import com.kkk.op.user.domain.type.UserId;
-import com.kkk.op.user.persistence.AccountDO;
 import com.kkk.op.user.persistence.AccountMapper;
+import com.kkk.op.user.persistence.AccountPO;
 import com.kkk.op.user.persistence.UserMapper;
 import com.kkk.op.user.repository.AccountRepository;
 import com.kkk.op.user.repository.UserRepository;
@@ -89,9 +89,9 @@ class OpUserWebApplicationTests {
     cache.clear();
     System.out.println(cache.get(key));
     System.out.println(cache.get(key, () -> accountMapper.selectById(1L).get()));
-    System.out.println(cache.get(key, AccountDO.class));
+    System.out.println(cache.get(key, AccountPO.class));
     cache.evict(key);
-    System.out.println(cache.get(key, AccountDO.class));
+    System.out.println(cache.get(key, AccountPO.class));
     cache.put(key, null);
     System.out.println(cache.get(key, () -> accountMapper.selectById(4L).get()));
     System.out.println(cache.putIfAbsent(key, null));
@@ -316,22 +316,22 @@ class OpUserWebApplicationTests {
   @Test
   @Transactional
   void testMybatis() {
-    var userDOList = userMapper.selectAll();
-    System.out.println(Kson.writeJson(userDOList));
-    var userDO = userMapper.selectById(userDOList.get(0).getId()).get();
-    userDO.setGender(null);
-    userDO.setAge(null);
-    userDO.setEmail(null);
-    userMapper.updateById(userDO);
-    System.out.println(Kson.writeJson(userMapper.selectById(userDO.getId())));
-    var accountDOS = accountMapper.selectByUserId(userDO.getId());
-    var accountDO = accountDOS.get(0);
-    accountDO.setState(null);
-    accountMapper.updateById(accountDO);
-    System.out.println(Kson.writeJson(accountMapper.selectById(accountDO.getId())));
+    var userPOList = userMapper.selectAll();
+    System.out.println(Kson.writeJson(userPOList));
+    var userPO = userMapper.selectById(userPOList.get(0).getId()).get();
+    userPO.setGender(null);
+    userPO.setAge(null);
+    userPO.setEmail(null);
+    userMapper.updateById(userPO);
+    System.out.println(Kson.writeJson(userMapper.selectById(userPO.getId())));
+    var accountPOS = accountMapper.selectByUserId(userPO.getId());
+    var accountPO = accountPOS.get(0);
+    accountPO.setState(null);
+    accountMapper.updateById(accountPO);
+    System.out.println(Kson.writeJson(accountMapper.selectById(accountPO.getId())));
     var page =
         PageHelper.startPage(2, 1)
-            .doSelectPage(() -> userMapper.selectByGender(userDO.getGender()));
+            .doSelectPage(() -> userMapper.selectByGender(userPO.getGender()));
     System.out.println(Kson.writeJson(page));
   }
 

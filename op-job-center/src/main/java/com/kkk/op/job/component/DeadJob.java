@@ -1,7 +1,7 @@
 package com.kkk.op.job.component;
 
-import com.kkk.op.job.persistence.JobDAO;
-import com.kkk.op.job.persistence.JobDO;
+import com.kkk.op.job.domain.JobDAO;
+import com.kkk.op.job.domain.JobDO;
 import com.kkk.op.job.service.JobService;
 import com.kkk.op.support.enums.JobStateEnum;
 import com.kkk.op.support.model.event.JobReverseEvent;
@@ -39,8 +39,6 @@ public class DeadJob implements DataflowJob<JobDO> {
     data.forEach(
         jobDO ->
             jobService.reverse(
-                new JobReverseEvent()
-                    .setId(jobDO.getId())
-                    .setActionTime(jobDO.getActionTime().getTime())));
+                new JobReverseEvent().setId(jobDO.getId()).setActionTime(jobDO.getActionTime())));
   }
 }
