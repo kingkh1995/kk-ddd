@@ -37,11 +37,14 @@ public class UserAppServiceImpl implements UserAppService {
 
   @Override
   @Transactional
-  public void savePassword(UserAuthcInfo authcInfo) {
-    userQueryService
-        .find(UserId.valueOf(authcInfo.getId(), "id"))
-        .get()
-        .savePassword(userService, authcInfo.getEncryptedPassword());
+  public void changePassword(UserAuthcInfo authcInfo) {
+    // 使用QueryService查询领域对象
+    var user = userQueryService.find(UserId.valueOf(authcInfo.getId(), "id")).get();
+    // 执行修改密码操作
+    user.changePassword(authcInfo.getEncryptedPassword());
+    // 执行save操作
+    user.save(userService);
+    // 发送事件
   }
 
   @Override

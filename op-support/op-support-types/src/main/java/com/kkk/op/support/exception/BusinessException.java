@@ -16,7 +16,7 @@ public class BusinessException extends RuntimeException {
   }
 
   public BusinessException(String message) {
-    this(Constants.BASE.getDefaultFailCode(), message);
+    this(Constants.BASE.failCode(), message);
   }
 
   public BusinessException(String code, String message) {

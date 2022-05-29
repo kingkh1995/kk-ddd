@@ -1,6 +1,5 @@
-package com.kkk.op.support.base;
+package com.kkk.op.support.util.strategy;
 
-import com.kkk.op.support.marker.EStrategy;
 import java.lang.reflect.ParameterizedType;
 import java.util.EnumMap;
 import java.util.List;

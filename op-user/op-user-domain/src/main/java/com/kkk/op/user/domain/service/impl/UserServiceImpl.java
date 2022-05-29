@@ -2,9 +2,7 @@ package com.kkk.op.user.domain.service.impl;
 
 import com.kkk.op.user.domain.entity.User;
 import com.kkk.op.user.domain.service.UserService;
-import com.kkk.op.user.domain.type.UserId;
 import com.kkk.op.user.repository.UserRepository;
-import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,10 +26,5 @@ public class UserServiceImpl implements UserService {
   @Override
   public void remove(@NotNull User user) {
     userRepository.remove(user);
-  }
-
-  @Override
-  public Optional<User> find(@NotNull UserId userId) {
-    return userRepository.find(userId);
   }
 }

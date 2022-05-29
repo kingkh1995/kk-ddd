@@ -1,7 +1,7 @@
-package com.kkk.op.support.base;
+package com.kkk.op.support.util.strategy;
 
 import com.alibaba.ttl.TtlWrappers;
-import com.kkk.op.support.marker.PipelineHandler;
+import com.kkk.op.support.util.ApplicationContextAwareSingleton;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
@@ -47,7 +47,7 @@ public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C
 
   protected void handleBefore(C context) {}
 
-  protected void handleAfter(C context) {}
+  protected void handleAfter(long succeededCount, C context) {}
 
   protected SortedSet<H> getPipe() {
     return this.handlers;
@@ -56,23 +56,19 @@ public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C
   // 同步执行管道
   public boolean acceptSync(C context) {
     handleBefore(Objects.requireNonNull(context, "Context shouldn't be null!"));
-    var lastSuccess = true;
-    for (var handler : this.getPipe()) {
-      lastSuccess = handler.handle(context);
-      if (!lastSuccess) {
-        break;
-      }
-    }
-    handleAfter(context);
-    return lastSuccess;
+    var pipe = this.getPipe();
+    // 使用takewhile替代for循环
+    var succeededCount = pipe.stream().takeWhile(handler -> handler.handle(context)).count();
+    handleAfter(succeededCount, context);
+    return succeededCount == pipe.size();
   }
 
-  // 异步执行管道
+  // 异步执行管道，管道内部仍然是顺序执行。
   public CompletableFuture<Boolean> acceptAsync(C context) {
     return CompletableFuture.supplyAsync(TtlWrappers.wrapSupplier(() -> acceptSync(context)));
   }
 
-  // 异步执行管道
+  // 异步执行管道，管道内部仍然是顺序执行。
   public CompletableFuture<Boolean> acceptAsync(C context, Executor executor) {
     return CompletableFuture.supplyAsync(
         TtlWrappers.wrapSupplier(() -> acceptSync(context)), executor);

@@ -11,11 +11,12 @@
 
 ### tools
 
-> 静态工具类
+> 工具类、函数及可通用的类
 
 - Utils类
+- Function接口
 
-### types （domain模块引用，依赖support-consts）
+### types （domain模块引用，依赖support-consts、support-tools）
 
 > 可公用的DP
 
@@ -33,6 +34,6 @@
 - DTO类
 - VO类
 
-### dependencies （infrastructure模块引用，依赖support-types、support-tools）
+### dependencies （infrastructure模块引用，依赖support-types）
 
 > 供基础设施层使用的Bean

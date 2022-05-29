@@ -1,7 +1,7 @@
 package com.kkk.op.support.access;
 
 import com.kkk.op.support.annotation.MockResource;
-import com.kkk.op.support.base.AbstractStrategyManager;
+import com.kkk.op.support.util.strategy.AbstractStrategyManager;
 import java.util.EnumSet;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;

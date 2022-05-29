@@ -1,5 +1,6 @@
 package com.kkk.op.support.marker;
 
+import com.kkk.op.support.util.NameGenerator;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

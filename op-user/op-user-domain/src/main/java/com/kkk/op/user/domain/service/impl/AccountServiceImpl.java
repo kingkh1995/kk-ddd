@@ -3,9 +3,7 @@ package com.kkk.op.user.domain.service.impl;
 import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.strategy.AccountStrategyManager;
-import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.repository.AccountRepository;
-import java.util.Optional;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,12 +35,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Optional<Account> find(@NotNull AccountId id) {
-    return accountRepository.find(id);
-  }
-
-  @Override
-  public boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {
-    return accountStrategyManager.allowModify(oldAccount, newAccount);
+  public boolean allowModify(@NotNull Account account) {
+    return accountStrategyManager.allowModify(
+        accountRepository.find(account.getId()).get(), account);
   }
 }

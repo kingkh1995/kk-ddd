@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.enums.AccountStateEnum;
 import com.kkk.op.support.exception.BusinessException;
-import com.kkk.op.support.marker.NameGenerator;
 import com.kkk.op.support.tracking.diff.DiffIgnore;
 import com.kkk.op.support.type.Version;
+import com.kkk.op.support.util.NameGenerator;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.domain.type.AccountState;
@@ -64,8 +64,7 @@ public class Account extends Entity<AccountId> {
       this.state = AccountState.of(AccountStateEnum.INIT);
     } else {
       // 更新逻辑
-      var old = accountService.find(this.id).get();
-      if (!accountService.allowModify(old, this)) {
+      if (!accountService.allowModify(this)) {
         throw new BusinessException("不允许修改");
       }
     }

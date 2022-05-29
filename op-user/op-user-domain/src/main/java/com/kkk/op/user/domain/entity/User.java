@@ -2,7 +2,7 @@ package com.kkk.op.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kkk.op.support.base.Aggregate;
-import com.kkk.op.support.marker.NameGenerator;
+import com.kkk.op.support.util.NameGenerator;
 import com.kkk.op.user.domain.service.UserService;
 import com.kkk.op.user.domain.type.UserId;
 import java.util.List;
@@ -56,20 +56,17 @@ public class User extends Aggregate<UserId> {
       // 新增逻辑
     } else {
       // 更新逻辑
-      var old = userService.find(this.id).get();
     }
     // save
     userService.save(this);
   }
 
-  public void savePassword(UserService userService, String encryptedPassword) {
+  public void changePassword(String encryptedPassword) {
     if (encryptedPassword == null) {
       return;
     }
-    // 逻辑校验
+    // todo... 逻辑校验
     // 更新属性
     this.password = encryptedPassword;
-    // 调用save方法保存
-    this.save(userService);
   }
 }

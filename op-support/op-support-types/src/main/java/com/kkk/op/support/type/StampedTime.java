@@ -1,7 +1,7 @@
 package com.kkk.op.support.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kkk.op.support.exception.IllegalArgumentExceptions;
+import com.kkk.op.support.util.IllegalArgumentExceptions;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

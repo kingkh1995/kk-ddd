@@ -137,7 +137,7 @@ public class JdbcDistributedLockFactory implements DistributedLockFactory {
         selectPS.setString(1, this.name);
         var insertPS = connection.prepareStatement(this.factory.getInsertSql());
         insertPS.setString(1, this.name);
-        return SleepHelper.tryGetThenSleep(
+        return SleepHelper.execute(
             () -> {
               try {
                 if (selectPS.executeQuery().next()) {

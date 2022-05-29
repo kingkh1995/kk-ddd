@@ -22,11 +22,11 @@ public interface UserAppService {
   Optional<UserAuthcInfo> getAuthcInfo(String username);
 
   /**
-   * 保存密码
+   * 修改密码
    *
    * @param authcInfo
    */
-  void savePassword(UserAuthcInfo authcInfo);
+  void changePassword(UserAuthcInfo authcInfo);
 
   UserDTO queryUser(Long userId);
 

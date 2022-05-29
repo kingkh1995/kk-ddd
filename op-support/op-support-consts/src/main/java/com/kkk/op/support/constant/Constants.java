@@ -26,9 +26,4 @@ public class Constants {
       ServiceLoader.load(TypeConstantsProvider.class)
           .findFirst()
           .orElseGet(() -> new TypeConstantsProvider() {});
-
-  public static final DateConstantsProvider DATE =
-      ServiceLoader.load(DateConstantsProvider.class)
-          .findFirst()
-          .orElseGet(() -> new DateConstantsProvider() {});
 }

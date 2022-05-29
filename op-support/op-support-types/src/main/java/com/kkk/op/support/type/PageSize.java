@@ -13,10 +13,10 @@ import lombok.EqualsAndHashCode;
 public class PageSize extends RangedLong {
 
   // 默认分页大小，并添加缓存
-  public static final PageSize DEFAULT = new PageSize(Constants.TYPE.getDefaultPageSize(), null);
+  public static final PageSize DEFAULT = new PageSize(Constants.TYPE.defaultPageSize(), null);
 
   private PageSize(long value, String fieldName) {
-    super(value, fieldName, 0L, false, Constants.TYPE.getMaxPageSize(), true);
+    super(value, fieldName, 0L, false, Constants.TYPE.maximumPageSize(), true);
   }
 
   /**

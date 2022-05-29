@@ -31,7 +31,7 @@ public class RedisMultiLock implements DistributedLock {
 
   @Override
   public boolean tryLock(long waitSeconds) {
-    return SleepHelper.tryGetThenSleep(
+    return SleepHelper.execute(
         this::tryLock0, TimeUnit.SECONDS.toMillis(waitSeconds), this.factory.getSpinInterval());
   }
 

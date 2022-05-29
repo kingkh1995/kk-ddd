@@ -1,4 +1,4 @@
-package com.kkk.op.support.exception;
+package com.kkk.op.support.util;
 
 /**
  * 参数异常工具类 <br>

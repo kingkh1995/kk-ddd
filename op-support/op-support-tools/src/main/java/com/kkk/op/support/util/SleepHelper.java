@@ -25,11 +25,11 @@ public final class SleepHelper {
     return interval + (ThreadLocalRandom.current().nextLong(-interval, interval) >> 3);
   }
 
-  public static boolean tryGetThenSleep(
-      final @NotNull BooleanSupplier supplier, final long waitMills, final long initialInterval) {
+  public static boolean execute(
+      final @NotNull BooleanSupplier retry, final long waitMills, final long initialInterval) {
     var deadLine = System.nanoTime() + waitMills * 1_000_000L;
     for (var i = 0; true; i++) {
-      if (supplier.getAsBoolean()) {
+      if (retry.getAsBoolean()) {
         return true;
       } else if (System.nanoTime() > deadLine) {
         return false;
@@ -37,7 +37,7 @@ public final class SleepHelper {
         try {
           Thread.sleep(generateSleepMills(i, initialInterval, 2048L));
         } catch (InterruptedException e) {
-          e.printStackTrace();
+          return false;
         }
       }
     }

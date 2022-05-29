@@ -1,7 +1,7 @@
 package com.kkk.op.support.aspect;
 
 import com.kkk.op.support.annotation.DegradedService;
-import com.kkk.op.support.base.ApplicationContextAwareSingleton;
+import com.kkk.op.support.util.ApplicationContextAwareSingleton;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;

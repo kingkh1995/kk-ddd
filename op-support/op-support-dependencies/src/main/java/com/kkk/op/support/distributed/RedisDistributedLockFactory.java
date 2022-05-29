@@ -2,7 +2,7 @@ package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
-import com.kkk.op.support.marker.NameGenerator;
+import com.kkk.op.support.util.NameGenerator;
 import com.kkk.op.support.util.SleepHelper;
 import java.util.List;
 import java.util.Map;
@@ -199,7 +199,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
 
     @Override
     public boolean tryLock(long waitSeconds) {
-      return SleepHelper.tryGetThenSleep(
+      return SleepHelper.execute(
           this::tryLock0, TimeUnit.SECONDS.toMillis(waitSeconds), this.factory.spinInterval);
     }
 

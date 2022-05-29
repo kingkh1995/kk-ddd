@@ -16,8 +16,13 @@
 - redisson: 3.17.1
 - curator: 5.2.1
 - mapstruct: 1.4.2.Final
-- transmittable-thread-local: 2.12.6
 - rocketmq: 2.2.2
+
+#### 工具依赖（support-tools项目中定义）
+
+- transmittable-thread-local: 2.12.6
+- zxing: 3.5.0
+- easyexcel: 3.1.0
 
 #### 接口层依赖（web项目中定义）
 
@@ -25,7 +30,3 @@
 - shiro: 1.9.0
 - jwt: 3.19.2
 - elasticjob: 3.0.1 (***incompatible***)
-
-#### 工具包（support-tools项目中定义）
-
-- zxing: 3.5.0

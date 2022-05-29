@@ -1,21 +1,27 @@
 package com.kkk.op.support.constant;
 
+import java.time.format.DateTimeFormatter;
+
 /**
- * <br>
+ * base constants spi provider <br>
  *
  * @author KaiKoo
  */
 public interface BaseConstantsProvider {
 
-  default String getDefaultSucceedCode() {
+  default DateTimeFormatter dateTimeFormatter() {
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+  }
+
+  default String succeedCode() {
     return "0";
   }
 
-  default String getDefaultSucceedMessage() {
+  default String succeedMessage() {
     return "ok";
   }
 
-  default String getDefaultFailCode() {
+  default String failCode() {
     return "1";
   }
 }

@@ -2,7 +2,7 @@ package com.kkk.op.support.distributed;
 
 import com.kkk.op.support.marker.DistributedLock;
 import com.kkk.op.support.marker.DistributedLockFactory;
-import com.kkk.op.support.marker.NameGenerator;
+import com.kkk.op.support.util.NameGenerator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.Builder;

@@ -25,13 +25,12 @@ public class CheckerExecutor {
    * @return
    */
   private static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult check0(
-      Collection<Checker<E, T, C>> checkers, C context, boolean isParallel) {
-    // 空集合直接返回成功
+      Collection<? extends Checker<E, T, C>> checkers, C context, boolean isParallel) {
     if (checkers == null || checkers.isEmpty()) {
+      // 空集合直接返回成功
       return CheckResult.succeed();
-    }
-    // 数量为1则直接执行
-    if (checkers.size() == 1) {
+    } else if (checkers.size() == 1) {
+      // 数量为1则直接执行
       return checkers.iterator().next().check(context);
     }
     // 批量处理，同步或异步（不使用线程池而是使用并行流）
@@ -45,12 +44,12 @@ public class CheckerExecutor {
   }
 
   public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult serialCheck(
-      List<Checker<E, T, C>> checkers, C context) {
+      List<? extends Checker<E, T, C>> checkers, C context) {
     return check0(checkers, context, false);
   }
 
   public static <E extends FsmEvent, T, C extends FsmContext<E, T>> CheckResult parallelCheck(
-      Collection<Checker<E, T, C>> checkers, C context) {
+      Collection<? extends Checker<E, T, C>> checkers, C context) {
     return check0(checkers, context, true);
   }
 }

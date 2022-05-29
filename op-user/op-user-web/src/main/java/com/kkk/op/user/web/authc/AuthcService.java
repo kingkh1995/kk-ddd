@@ -1,8 +1,8 @@
 package com.kkk.op.user.web.authc;
 
-import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.model.command.AuthcCommand;
 import com.kkk.op.support.model.dto.UserAuthcInfo;
+import com.kkk.op.support.util.IllegalArgumentExceptions;
 import com.kkk.op.user.application.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class AuthcService {
         .orElse(null);
   }
 
-  public void savePassword(AuthcCommand command) {
+  public void changePassword(AuthcCommand command) {
     var plaintextPassword = command.getPlaintextPassword();
     if (plaintextPassword == null || plaintextPassword.isBlank()) {
       throw IllegalArgumentExceptions.forIsNull("[plaintext password]");
@@ -60,7 +60,7 @@ public class AuthcService {
       return;
     }
     authcInfo.setEncryptedPassword(newPassword);
-    service.savePassword(authcInfo);
+    service.changePassword(authcInfo);
   }
 
   private String encryptPassword(String plaintextPassword, ByteSource salt) {

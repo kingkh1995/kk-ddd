@@ -1,6 +1,6 @@
-package com.kkk.op.support.base;
+package com.kkk.op.support.util.strategy;
 
-import com.kkk.op.support.marker.Strategy;
+import com.kkk.op.support.util.ApplicationContextAwareSingleton;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;

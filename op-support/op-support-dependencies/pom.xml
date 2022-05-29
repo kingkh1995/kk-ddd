@@ -19,11 +19,6 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.kkk.op.support</groupId>
-      <artifactId>op-support-tools</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-aop</artifactId>
     </dependency>

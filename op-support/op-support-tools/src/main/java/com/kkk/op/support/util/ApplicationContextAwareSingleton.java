@@ -1,4 +1,4 @@
-package com.kkk.op.support.base;
+package com.kkk.op.support.util;
 
 import java.util.Objects;
 import org.springframework.beans.BeansException;

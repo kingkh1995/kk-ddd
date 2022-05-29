@@ -15,17 +15,17 @@ public interface Checkable<E extends FsmEvent, T, C extends FsmContext<E, T>> {
   Checkable EMPTY = new Checkable() {};
 
   /** 参数校验 */
-  default List<Checker<E, T, C>> getParamChecker() {
+  default List<? extends Checker<E, T, C>> getParamChecker() {
     return Collections.emptyList();
   }
 
   /** 需同步执行的状态校验器 */
-  default List<Checker<E, T, C>> getSyncChecker() {
+  default List<? extends Checker<E, T, C>> getSyncChecker() {
     return Collections.emptyList();
   }
 
   /** 可异步执行的校验器 */
-  default Collection<Checker<E, T, C>> getAsyncChecker() {
+  default Collection<? extends Checker<E, T, C>> getAsyncChecker() {
     return Collections.emptyList();
   }
 }

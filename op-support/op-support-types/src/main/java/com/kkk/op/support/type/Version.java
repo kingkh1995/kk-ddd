@@ -19,7 +19,8 @@ public final class Version extends RangedInt implements Comparable<Version> {
   private static class Cache {
 
     // spi拓展，支持修改缓存上限。
-    static final Version[] cache = new Version[Math.max(128, Constants.TYPE.getVersionCacheEnd())];
+    static final Version[] cache =
+        new Version[Math.max(100, 1 + Constants.TYPE.versionCacheHigh())];
 
     static Version get(int i) {
       var v = Cache.cache[i];

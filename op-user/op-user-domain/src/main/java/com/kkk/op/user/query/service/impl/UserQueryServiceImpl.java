@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author KaiKoo
  */
 @Slf4j
-@QueryService // 标记为query service
+@QueryService
 @RequiredArgsConstructor
 public class UserQueryServiceImpl implements UserQueryService {
 

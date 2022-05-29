@@ -7,15 +7,15 @@ import com.kkk.op.support.constant.TypeConstantsProvider;
  *
  * @author KaiKoo
  */
-public class BaseConstantsConfiguration implements TypeConstantsProvider {
+public class ConstantsConfiguration implements TypeConstantsProvider {
 
   @Override
-  public long getDefaultPageSize() {
+  public long defaultPageSize() {
     return 20L;
   }
 
   @Override
-  public long getMaxPageSize() {
+  public long maximumPageSize() {
     return 1000L;
   }
 }

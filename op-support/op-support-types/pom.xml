@@ -19,15 +19,15 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.kkk.op.support</groupId>
+      <artifactId>op-support-tools</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <scope>compile</scope>
       <optional>true</optional>
-    </dependency>
-    <!--ttl：InheritableThreadLocal增强-->
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>transmittable-thread-local</artifactId>
     </dependency>
   </dependencies>
 

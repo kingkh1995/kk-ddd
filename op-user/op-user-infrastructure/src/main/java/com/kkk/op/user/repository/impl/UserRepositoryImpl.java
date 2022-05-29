@@ -17,21 +17,22 @@ import com.kkk.op.user.persistence.UserMapper;
 import com.kkk.op.user.persistence.UserPO;
 import com.kkk.op.user.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Aggregate类Repository实现类
@@ -72,6 +73,27 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     this.cacheManager = cacheManager;
   }
 
+  private Cache getCache() {
+    return Objects.requireNonNull(this.cacheManager.getCache(CACHE_NAME));
+  }
+
+  // ===============================================================================================
+
+  /** 重写父类方法，添加缓存和事务注解。 */
+  @CacheEvict(cacheNames = CACHE_NAME, key = "#p0.id", beforeInvocation = true)
+  @Transactional
+  @Override
+  public void save(User user) {
+    super.save(user);
+  }
+
+  @CacheEvict(cacheNames = CACHE_NAME, key = "#p0.id", beforeInvocation = true)
+  @Transactional
+  @Override
+  public void remove(User user) {
+    super.remove(user);
+  }
+
   // ===============================================================================================
 
   /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
@@ -83,16 +105,17 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     // 填补id
     aggregate.fillInId(UserId.of(userPO.getId()));
     // 循环插入Accounts
-    var accounts = aggregate.getAccounts();
-    if (!CollectionUtils.isEmpty(accounts)) {
-      accounts.forEach(
-          account -> {
-            var accountPO = accountDataConverter.toData(account);
-            accountMapper.insert(accountPO);
-            // 填补id
-            account.fillInId(AccountId.of(accountPO.getId()));
-          });
-    }
+    Stream.ofNullable(aggregate.getAccounts())
+        .flatMap(Collection::stream)
+        .forEach(this::insertAccount);
+  }
+
+  private void insertAccount(Account account) {
+    var accountPO = accountDataConverter.toData(account);
+    // 插入
+    accountMapper.insert(accountPO);
+    // 填补id
+    account.fillInId(AccountId.of(accountPO.getId()));
   }
 
   @Override
@@ -136,19 +159,28 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     accountMapper.deleteByUserId(aggregate.getId().getValue());
   }
 
+  // ===============================================================================================
+
+  /** 以下实现查询方法，添加缓存逻辑 */
   @Override
   protected Optional<User> onSelect(@NotNull UserId userId) {
+    // 查询缓存，不存在则使用valueLoader加载缓存。
+    return Optional.ofNullable(getCache().get(userId, () -> this.selectById(userId)));
+  }
+
+  private User selectById(@NotNull UserId userId) {
     return userMapper
         .selectById(userId.getValue())
         .map(
             userPO ->
-                userDataConverter.fromData(userPO, accountMapper.selectByUserId(userPO.getId())));
+                userDataConverter.fromData(userPO, accountMapper.selectByUserId(userPO.getId())))
+        .orElse(null);
   }
 
   @Override
   protected List<User> onSelectByIds(@NotEmpty Set<UserId> userIds) {
     // 查询缓存
-    var cache = Objects.requireNonNull(this.cacheManager.getCache(CACHE_NAME));
+    var cache = getCache();
     var list = new ArrayList<User>(userIds.size());
     var ids2Lookup =
         userIds.stream()
@@ -183,29 +215,6 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
           }
         });
     return list;
-  }
-
-  // ===============================================================================================
-
-  /** 以下重写父类方法，添加缓存和事务注解。 */
-  @CacheEvict(cacheNames = CACHE_NAME, key = "#p0.id", beforeInvocation = true)
-  @Transactional
-  @Override
-  public void save(User user) {
-    super.save(user);
-  }
-
-  @CacheEvict(cacheNames = CACHE_NAME, key = "#p0.id", beforeInvocation = true)
-  @Transactional
-  @Override
-  public void remove(User user) {
-    super.remove(user);
-  }
-
-  @Cacheable(cacheNames = CACHE_NAME, sync = true)
-  @Override
-  public Optional<User> find(UserId userId) {
-    return super.find(userId);
   }
 
   // ===============================================================================================

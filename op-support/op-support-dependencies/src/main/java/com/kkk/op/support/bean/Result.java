@@ -16,11 +16,11 @@ import lombok.Getter;
 @Getter
 public class Result<T> implements Serializable {
 
-  private static final String SUCCEED_CODE = Constants.BASE.getDefaultSucceedCode();
+  private static final String SUCCEED_CODE = Constants.BASE.succeedCode();
 
-  private static final String SUCCEED_MESSAGE = Constants.BASE.getDefaultSucceedMessage();
+  private static final String SUCCEED_MESSAGE = Constants.BASE.succeedMessage();
 
-  private static final String FAIL_CODE = Constants.BASE.getDefaultFailCode();
+  private static final String FAIL_CODE = Constants.BASE.failCode();
 
   private final String code;
 

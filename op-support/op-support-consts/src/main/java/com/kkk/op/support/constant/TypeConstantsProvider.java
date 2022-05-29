@@ -7,15 +7,15 @@ package com.kkk.op.support.constant;
  */
 public interface TypeConstantsProvider {
 
-  default long getDefaultPageSize() {
+  default long defaultPageSize() {
     return 10L;
   }
 
-  default long getMaxPageSize() {
+  default long maximumPageSize() {
     return 500L;
   }
 
-  default int getVersionCacheEnd() {
-    return 128;
+  default int versionCacheHigh() {
+    return 99;
   }
 }

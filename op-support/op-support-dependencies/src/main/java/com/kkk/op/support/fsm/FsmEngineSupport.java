@@ -1,6 +1,6 @@
 package com.kkk.op.support.fsm;
 
-import com.kkk.op.support.base.ApplicationContextAwareSingleton;
+import com.kkk.op.support.util.ApplicationContextAwareSingleton;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

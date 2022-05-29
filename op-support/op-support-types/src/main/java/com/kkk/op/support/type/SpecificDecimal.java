@@ -1,8 +1,8 @@
 package com.kkk.op.support.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kkk.op.support.exception.IllegalArgumentExceptions;
 import com.kkk.op.support.marker.Type;
+import com.kkk.op.support.util.IllegalArgumentExceptions;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;

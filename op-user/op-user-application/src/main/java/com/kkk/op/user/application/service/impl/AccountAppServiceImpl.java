@@ -8,13 +8,13 @@ import com.kkk.op.user.domain.entity.Account;
 import com.kkk.op.user.domain.service.AccountService;
 import com.kkk.op.user.domain.type.AccountId;
 import com.kkk.op.user.domain.type.UserId;
+import com.kkk.op.user.query.service.AccountQueryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /**
  * <br>
- * todo... 使用QueryService查找
  *
  * @author KaiKoo
  */
@@ -26,6 +26,8 @@ public class AccountAppServiceImpl implements AccountAppService {
 
   private final AccountService accountService;
 
+  private final AccountQueryService accountQueryService;
+
   @Override
   public long createAccount(AccountModifyCommand createCommand) {
     // 转换对象
@@ -33,7 +35,7 @@ public class AccountAppServiceImpl implements AccountAppService {
         Account.builder().userId(UserId.valueOf(createCommand.getUserId(), "userId")).build();
     // 行为发生
     account.save(accountService);
-    // todo... 触发事件
+    // todo... 发送事件
 
     // 返回id
     return account.getId().getValue();
@@ -55,11 +57,13 @@ public class AccountAppServiceImpl implements AccountAppService {
 
   @Override
   public void deleteAccount(Long userId, Long accountId) {
-    var optional = accountService.find(AccountId.valueOf(accountId, "id"));
-    // 行为发生
+    // 查询领域
+    var optional = accountQueryService.find(AccountId.valueOf(accountId, "id"));
+    // 编排逻辑
     if (optional.isEmpty()) {
       return;
     }
+    // 行为发生
     optional.get().remove(accountService);
     // todo... 发送事件
 
@@ -68,7 +72,7 @@ public class AccountAppServiceImpl implements AccountAppService {
   @Override
   public AccountDTO queryAccount(Long userId, Long accountId) {
     // todo...
-    return accountService
+    return accountQueryService
         .find(AccountId.valueOf(accountId, "id"))
         .map(accountAssembler::toDTO)
         .get();

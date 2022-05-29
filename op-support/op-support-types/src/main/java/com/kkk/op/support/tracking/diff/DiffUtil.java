@@ -1,17 +1,15 @@
 package com.kkk.op.support.tracking.diff;
 
+import com.alibaba.ttl.threadpool.agent.internal.javassist.scopedpool.SoftValueHashMap;
 import com.kkk.op.support.base.Entity;
 import com.kkk.op.support.marker.Identifiable;
 import com.kkk.op.support.marker.Identifier;
-import java.lang.ref.SoftReference;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -27,22 +25,16 @@ public final class DiffUtil { // 工具类声明为 final
   }
 
   // 添加缓存，解析属性，过滤@DiffIgnore注解的属性
-  private static final Map<Class<?>, SoftReference<Field[]>> FIELD_CACHE =
-      new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Field[]> FIELD_CACHE = new SoftValueHashMap<>(); // ttl.util
 
   private static Field[] resolve(Class<?> clazz) {
-    return Optional.ofNullable(FIELD_CACHE.get(clazz))
-        .map(SoftReference::get)
-        .orElseGet(
-            () -> {
-              var fields =
-                  Arrays.stream(clazz.getDeclaredFields())
-                      .filter(field -> !field.isAnnotationPresent(DiffIgnore.class))
-                      .filter(Field::trySetAccessible) // 使用java模块化时如类未export会设置失败
-                      .toArray(Field[]::new);
-              FIELD_CACHE.put(clazz, new SoftReference<>(fields));
-              return fields;
-            });
+    return FIELD_CACHE.computeIfAbsent(
+        clazz,
+        k ->
+            Arrays.stream(k.getDeclaredFields())
+                .filter(field -> !field.isAnnotationPresent(DiffIgnore.class))
+                .filter(Field::trySetAccessible) // 使用java模块化时如类未export会失败
+                .toArray(Field[]::new));
   }
 
   /**

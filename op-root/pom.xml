@@ -27,9 +27,12 @@
     <redisson.version>3.17.1</redisson.version>
     <curator.version>5.2.1</curator.version>
     <mapstruct.version>1.4.2.Final</mapstruct.version>
-    <ttl.version>2.12.6</ttl.version>
     <rocketmq.version>2.2.1</rocketmq.version>
-    <!--以下为接口层依赖-->
+    <!--工具依赖-->
+    <ttl.version>2.12.6</ttl.version>
+    <zxing.version>3.5.0</zxing.version>
+    <easyexcel.version>3.1.0</easyexcel.version>
+    <!--接口层依赖-->
     <springfox.version>3.0.0</springfox.version>
     <shiro.version>1.9.0</shiro.version>
     <jwt.version>3.19.2</jwt.version>
@@ -54,11 +57,6 @@
         <version>${spring-cloud.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>transmittable-thread-local</artifactId>
-        <version>${ttl.version}</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
@@ -105,7 +103,23 @@
         <groupId>org.apache.rocketmq</groupId>
         <version>${rocketmq.version}</version>
       </dependency>
-      <!--以下为接口层依赖-->
+      <!--工具依赖-->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>transmittable-thread-local</artifactId>
+        <version>${ttl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>javase</artifactId>
+        <version>${zxing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>easyexcel</artifactId>
+        <version>${easyexcel.version}</version>
+      </dependency>
+      <!--接口层依赖-->
       <dependency>
         <groupId>io.springfox</groupId>
         <artifactId>springfox-boot-starter</artifactId>
