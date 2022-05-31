@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>ddd-root</artifactId>
+    <groupId>com.kk.ddd</groupId>
+    <version>2022.0.0</version>
+    <relativePath>../ddd-root/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.kk.ddd.support</groupId>
+  <artifactId>ddd-support</artifactId>
+  <packaging>pom</packaging>
+  <version>2022.0.0</version>
+  <name>ddd-support-parent</name>
+
+  <modules>
+    <module>ddd-support-consts</module>
+    <module>ddd-support-tools</module>
+    <module>ddd-support-types</module>
+    <module>ddd-support-models</module>
+    <module>ddd-support-dependencies</module>
+  </modules>
+
+  <dependencies>
+    <!-- 基础依赖 -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-devtools</artifactId>
+      <scope>runtime</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <scope>provided</scope> <!-- 只作用在编译和测试时，由JDK或者容器提供。 -->
+      <optional>true</optional> <!--optional是Maven依赖jar时的一个选项，表示该依赖是可选的，项目之间依赖不传递-->
+    </dependency>
+    <!--lombok-->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <!--validation注解-->
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+    </dependency>
+    <!--jackson-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

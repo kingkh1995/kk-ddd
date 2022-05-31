@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kk.ddd.user.persistence.AccountMapper">
+
+  <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+    INSERT INTO account
+      (user_id, state)
+    VALUES (#{userId}, #{state})
+  </insert>
+
+  <update id="updateById">
+    UPDATE account
+    <set>
+      <if test="state != null">
+        state = #{state},
+      </if>
+      version = #{version} + 1,
+    </set>
+    WHERE id = #{id} AND version = #{version}
+  </update>
+
+  <sql id="account_columns">
+    id, user_id, state, version, create_time, update_time
+  </sql>
+
+  <select id="selectById" resultType="com.kk.ddd.user.persistence.AccountPO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE id = #{id}
+  </select>
+
+  <select id="selectByIds" resultType="com.kk.ddd.user.persistence.AccountPO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="selectByUserId" resultType="com.kk.ddd.user.persistence.AccountPO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE user_id = #{userId}
+  </select>
+
+  <select id="selectByUserIds" resultType="com.kk.ddd.user.persistence.AccountPO">
+    SELECT
+    <include refid="account_columns"/>
+    FROM
+    account
+    WHERE user_id IN
+    <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+      #{userId}
+    </foreach>
+  </select>
+
+</mapper>

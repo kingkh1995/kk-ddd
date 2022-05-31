@@ -1,0 +1,40 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+elasticjob:
+  reg-center:
+    server-lists: localhost:2188
+    namespace: dev/ddd/job/elasticjob
+  tracing:
+    type: RDB
+  jobs:
+    # 定时调度作业，需要定义cron
+    job:
+      elasticJobClass: com.kk.ddd.job.component.Job
+      cron: 0/1 * * * * ?
+      shardingTotalCount: 8
+      overwrite: true
+      disabled: false
+    # 一次性调度作业，不能定义cron，需要指定jobBootstrapBeanName
+    deadJob:
+      jobBootstrapBeanName: deadJobBootstrap
+      elasticJobClass: com.kk.ddd.job.component.DeadJob
+      shardingTotalCount: 1
+      overwrite: true
+      disabled: false
+      props:
+        # 开启流式处理
+        streaming:
+          process: true
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+elasticjob:
+  reg-center:
+    server-lists: zookeeper:2181
+    namespace: test/ddd/job/elasticjob
+  tracing:
+    type: RDB
