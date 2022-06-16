@@ -1,8 +1,9 @@
 package com.kk.ddd.support.model.command;
 
+import com.kk.ddd.support.model.group.Inner;
+import com.kk.ddd.support.model.group.Outer;
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Null;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,11 +16,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AuthcCommand implements Serializable {
 
-  @NotBlank private String username;
+  @NotBlank(message = "登录账号不能为空！")
+  private String username;
 
   /** 编码后密码 */
-  @NotBlank private String encodedPassword;
+  @NotBlank(message = "编码密码不能为空！", groups = Outer.class)
+  private String encodedPassword;
 
   /** 明文密码 */
-  @Null private String plaintextPassword;
+  @NotBlank(message = "明文密码不能为空！", groups = Inner.class)
+  private transient String plaintextPassword;
 }

@@ -1,7 +1,6 @@
 package com.kk.ddd.job.domain;
 
-import java.io.Serializable;
-import java.util.Date;
+import com.kk.ddd.support.bean.BasePersistable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -9,7 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Data;
-import lombok.experimental.Accessors;
+import lombok.EqualsAndHashCode;
 import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
 
 /**
@@ -18,29 +17,16 @@ import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
  * @author KaiKoo
  */
 @Data
-@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "local_tx")
-public class LocalTxDO implements Serializable {
+public class LocalTxDO extends BasePersistable<String> {
 
-  @Id private String txId;
+  @Id
+  @Column(name = "id", columnDefinition = "CHAR(36) NOT NULL") // UUID
+  private String id;
 
   @Enumerated(EnumType.ORDINAL)
   @Column(name = "state", columnDefinition = "TINYINT(4) UNSIGNED NOT NULL")
   private RocketMQLocalTransactionState state;
-
-  @Column(
-      name = "create_time",
-      columnDefinition = "DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP",
-      insertable = false,
-      updatable = false)
-  private Date createTime;
-
-  @Column(
-      name = "update_time",
-      columnDefinition =
-          "DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
-      insertable = false,
-      updatable = false)
-  private Date updateTime;
 }

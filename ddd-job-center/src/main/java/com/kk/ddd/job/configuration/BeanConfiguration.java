@@ -6,12 +6,14 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.kk.ddd.job.message.JobRocketMQLocalTransactionListener;
 import com.kk.ddd.support.annotation.LiteConfiguration;
 import com.kk.ddd.support.aspect.BaseControllerAspect;
 import com.kk.ddd.support.distributed.JdbcDistributedLockFactory;
 import com.kk.ddd.support.marker.DistributedLockFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * 基础层定义实现 <br>
@@ -45,6 +47,15 @@ public class BeanConfiguration {
   public DistributedLockFactory distributedLockFactory(
       PlatformTransactionManager transactionManager) {
     return JdbcDistributedLockFactory.builder().transactionManager(transactionManager).build();
+  }
+
+  @Bean(JobRocketMQLocalTransactionListener.TT_BEAN_NAME)
+  public TransactionTemplate jobRocketMQLocalTransactionTemplate(
+      PlatformTransactionManager transactionManager) {
+    var transactionTemplate = new TransactionTemplate(transactionManager);
+    transactionTemplate.setPropagationBehavior(JobRocketMQLocalTransactionListener.PROPAGATION);
+    transactionTemplate.setReadOnly(false);
+    return transactionTemplate;
   }
 
   @Bean

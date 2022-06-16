@@ -1,5 +1,5 @@
 {
   "user:User": {
-    "maxIdleTime": 3600000
+    "maxIdleTime": 30000
   }
 }

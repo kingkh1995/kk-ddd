@@ -13,10 +13,12 @@
   <artifactId>ddd-sales</artifactId>
   <packaging>pom</packaging>
   <version>2022.0.0</version>
+  <name>ddd-sales-parent</name>
+
   <modules>
     <module>ddd-sales-domain</module>
+    <module>ddd-sales-web</module>
   </modules>
-  <name>ddd-sales-parent</name>
 
   <dependencies>
     <!--基础依赖-->

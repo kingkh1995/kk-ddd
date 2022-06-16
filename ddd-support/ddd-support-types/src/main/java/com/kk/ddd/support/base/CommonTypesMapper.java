@@ -1,8 +1,8 @@
 package com.kk.ddd.support.base;
 
+import com.kk.ddd.support.type.InstantStamp;
 import com.kk.ddd.support.type.LongId;
 import com.kk.ddd.support.type.PageSize;
-import com.kk.ddd.support.type.StampedTime;
 import com.kk.ddd.support.type.Version;
 import java.time.Instant;
 import java.util.Date;
@@ -40,12 +40,12 @@ public class CommonTypesMapper {
     return Version.valueOf(i, "版本号");
   }
 
-  public StampedTime map2StampedTime(Long l) {
-    return StampedTime.from(Instant.ofEpochMilli(l));
+  public InstantStamp map2InstantStamp(Long l) {
+    return InstantStamp.from(Instant.ofEpochMilli(l));
   }
 
-  public Long mapFromStampedTime(StampedTime stampedTime) {
-    return stampedTime.toInstant().toEpochMilli();
+  public Long mapFromInstantStamp(InstantStamp instantStamp) {
+    return instantStamp.toInstant().toEpochMilli();
   }
 
   public Long mapMillisFromInstant(Instant instant) {

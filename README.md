@@ -14,9 +14,9 @@
 
 核心业务逻辑的集中地，包含有状态的Entity、领域服务DomainService、以及Infrastructure模块的接口类。
 
-> **基于CQRS架构，领域服务模型又可以拆分为CommandService（写操作）和QueryService（读操作）。**
-
 > 纯POJO模块，不依赖项目内其他模块，仅引用types模块。
+
+> **基于CQRS架构，将领域服务模型拆分为CommandService（写操作）和QueryService（读操作）。**
 
 ### application模块
 

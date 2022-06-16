@@ -2,11 +2,10 @@ package com.kk.ddd.user.web.authc;
 
 import com.kk.ddd.support.annotation.BaseController;
 import com.kk.ddd.support.model.command.AuthcCommand;
+import com.kk.ddd.support.model.group.Outer;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * <br>
+ * 认证控制器 <br>
  *
  * @author KaiKoo
  */
@@ -25,22 +24,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public class AuthcController {
 
-  private final AuthcService authcService;
+  private final AuthcManager authcManager;
 
   @PostMapping("/login")
-  public void login(@RequestBody @Validated AuthcCommand authcCommand) {
+  public void login(@RequestBody @Validated(Outer.class) AuthcCommand authcCommand) {
     decodeCommand(authcCommand);
-    SecurityUtils.getSubject()
-        .login(
-            new UsernamePasswordToken(
-                authcCommand.getUsername(), authcCommand.getPlaintextPassword()));
+    authcManager.login(authcCommand);
   }
 
   /** Patch 部分更新资源 （幂等但url不能被缓存） */
   @PatchMapping("/authc/password")
-  public void changePassword(@RequestBody @Validated AuthcCommand authcCommand) {
+  public void changePassword(@RequestBody @Validated(Outer.class) AuthcCommand authcCommand) {
     decodeCommand(authcCommand);
-    authcService.changePassword(authcCommand);
+    authcManager.changePassword(authcCommand);
   }
 
   // 解码密码为明文，此处使用Base64编码。因为是由调用方解码，故代码应该在Controller中。

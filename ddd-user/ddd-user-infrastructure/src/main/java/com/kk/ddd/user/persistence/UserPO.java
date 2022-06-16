@@ -1,6 +1,7 @@
 package com.kk.ddd.user.persistence;
 
 import java.io.Serializable;
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -24,4 +25,6 @@ public class UserPO implements Serializable {
   private Byte age;
 
   private String email;
+
+  private List<AccountPO> accounts; // OneToMany
 }

@@ -21,7 +21,7 @@ import org.springframework.core.Ordered;
  * @see org.springframework.cache.annotation.CachingConfigurationSelector @EnableCaching实现
  * @author KaiKoo
  */
-@Role(BeanDefinition.ROLE_INFRASTRUCTURE) // 标识为spring内部使用的bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE) // 标识为完全后台模式，不需要被代理。
 public class EnhancedProxyCachingConfiguration {
 
   public static final String EVENT_BUS_BEAN_NAME = "enhancedCacheEventBus";

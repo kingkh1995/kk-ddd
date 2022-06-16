@@ -2,6 +2,7 @@ package com.kk.ddd.user.web.authc;
 
 import com.kk.ddd.support.base.LocalRequestContextHolder;
 import com.kk.ddd.support.model.dto.UserAuthcInfo;
+import com.kk.ddd.support.model.query.AuthcQuery;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,21 +29,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserRealm extends AuthenticatingRealm implements SmartInitializingSingleton {
 
-  private AuthcService authcService;
+  private AuthcManager authcManager;
 
   @Autowired // 使用setter注入，优点是可以被继承重写，灵活性高，缺点是属性无法定义为final。
   @Lazy // Shiro相关bean会被提前加载，所以依赖的其他bean要设置为延后加载，否则BeanPostProcessorChecker会提示信息。
-  public void setAuthcService(AuthcService authcService) {
-    this.authcService = authcService;
+  public void setAuthcManager(AuthcManager authcManager) {
+    this.authcManager = authcManager;
   }
 
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
       throws AuthenticationException {
-    var userAuthenticationInfo =
-        authcService.getAuthenticationInfo((UsernamePasswordToken) token, getName());
-    Optional.ofNullable(userAuthenticationInfo).orElseThrow(UnknownAccountException::new);
-    save2LocalRequestContext(userAuthenticationInfo.getUserAuthcInfo());
-    return userAuthenticationInfo;
+    if (token instanceof UsernamePasswordToken usernamePasswordToken) {
+      var authcQuery =
+          new AuthcQuery().setUsername(usernamePasswordToken.getUsername()).setRealmName(getName());
+      var userAuthenticationInfo = authcManager.getAuthenticationInfo(authcQuery);
+      Optional.ofNullable(userAuthenticationInfo).orElseThrow(UnknownAccountException::new);
+      save2LocalRequestContext(userAuthenticationInfo.getUserAuthcInfo());
+      return userAuthenticationInfo;
+    }
+    return null;
   }
 
   private void save2LocalRequestContext(UserAuthcInfo userAuthcInfo) {
@@ -64,9 +69,9 @@ public class UserRealm extends AuthenticatingRealm implements SmartInitializingS
     // 设置token类型，调用之前会先调用supports方法判断通过，才会调用doGetAuthenticationInfo方法
     super.setAuthenticationTokenClass(UsernamePasswordToken.class);
     // 设置加密匹配器
-    var hashedCredentialsMatcher = new HashedCredentialsMatcher(AuthcService.HASH_ALGORITHM_NAME);
-    hashedCredentialsMatcher.setHashIterations(AuthcService.HASH_INTERATIONS);
-    hashedCredentialsMatcher.setStoredCredentialsHexEncoded(AuthcService.HEX_ENCODED_STORED);
+    var hashedCredentialsMatcher = new HashedCredentialsMatcher(AuthcManager.HASH_ALGORITHM_NAME);
+    hashedCredentialsMatcher.setHashIterations(AuthcManager.HASH_ITERATIONS);
+    hashedCredentialsMatcher.setStoredCredentialsHexEncoded(AuthcManager.HEX_ENCODED_STORED);
     super.setCredentialsMatcher(hashedCredentialsMatcher);
   }
 }

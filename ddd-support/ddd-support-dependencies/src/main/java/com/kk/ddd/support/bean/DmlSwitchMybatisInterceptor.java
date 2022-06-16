@@ -39,10 +39,10 @@ public class DmlSwitchMybatisInterceptor implements Interceptor {
   @Override
   public Object intercept(Invocation invocation) throws Throwable {
     if (dmlDisable) {
-      // getBoundsql方法需要传入parameter，不过此处传入null，只获取解析后的sql即可。
+      // BoundSql只负责保存sql和parameter，只获取预编译之后的sql的话parameter传null即可。
       log.debug(
           "Preparing: {}", ((MappedStatement) invocation.getArgs()[0]).getBoundSql(null).getSql());
-      throw new PersistenceException("系统更新中，暂时无法使用！");
+      throw new PersistenceException("System is updating, please try later!");
     }
     return invocation.proceed();
   }

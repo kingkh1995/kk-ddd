@@ -10,10 +10,10 @@
 - 任务中心开发
 - 升级spring boot 3.0
 
-# todo list
+# Todo List
 
 - CQRS
-- 模块化
+- Java模块化
 - 模板代码生成
 - Gradle
 

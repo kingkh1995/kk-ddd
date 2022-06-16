@@ -14,42 +14,42 @@ import lombok.EqualsAndHashCode;
  * @author KaiKoo
  */
 @EqualsAndHashCode(callSuper = true)
-public class StampedTime extends SpecificZonedDateTime implements Comparable<StampedTime> {
+public class InstantStamp extends SpecificZonedDateTime implements Comparable<InstantStamp> {
 
-  protected StampedTime(@NotNull ZonedDateTime value, String fieldName, Instant current) {
+  protected InstantStamp(@NotNull ZonedDateTime value, String fieldName, Instant current) {
     super(value, true, fieldName, current, false, true);
   }
 
   // of方法不需要校验 now参数默认为null
   @JsonCreator
-  public static StampedTime of(@NotNull ZonedDateTime value) {
-    return new StampedTime(value, "StampedTime", null);
+  public static InstantStamp of(@NotNull ZonedDateTime value) {
+    return new InstantStamp(value, "InstantStamp", null);
   }
 
-  public static StampedTime from(@NotNull Instant instant) {
+  public static InstantStamp from(@NotNull Instant instant) {
     return of(instant.atZone(ZoneId.systemDefault()));
   }
 
-  public static StampedTime current() {
+  public static InstantStamp current() {
     return of(ZonedDateTime.now());
   }
 
-  public static StampedTime valueOf(ZonedDateTime value, String fieldName, Instant current) {
+  public static InstantStamp valueOf(ZonedDateTime value, String fieldName, Instant current) {
     if (value == null) {
       throw IllegalArgumentExceptions.forIsNull(fieldName);
     }
     if (current == null) {
       throw IllegalArgumentExceptions.forIsNull("current");
     }
-    return new StampedTime(value, fieldName, current);
+    return new InstantStamp(value, fieldName, current);
   }
 
-  public static StampedTime valueOf(ZonedDateTime value, String fieldName) {
+  public static InstantStamp valueOf(ZonedDateTime value, String fieldName) {
     return valueOf(value, fieldName, Instant.now());
   }
 
   @Override
-  public int compareTo(StampedTime o) {
+  public int compareTo(InstantStamp o) {
     return this.toZonedDateTime().compareTo(o.toZonedDateTime());
   }
 }

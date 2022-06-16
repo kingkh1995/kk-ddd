@@ -32,11 +32,18 @@
     WHERE id = #{id}
   </update>
 
+  <!--一对多使用嵌套查询才支持分页-->
+  <resultMap id="fullResultMap" type="com.kk.ddd.user.persistence.UserPO" autoMapping="true">
+    <id column="id" property="id"/>
+    <collection property="accounts" column="id"
+      select="com.kk.ddd.user.persistence.AccountMapper.selectByUserId"/>
+  </resultMap>
+
   <sql id="columns">
     id, name, username, gender, age, email
   </sql>
 
-  <select id="selectById" resultType="com.kk.ddd.user.persistence.UserPO">
+  <select id="selectById" resultMap="fullResultMap">
     SELECT
     <include refid="columns"/>
     FROM
@@ -44,7 +51,7 @@
     WHERE id = #{id}
   </select>
 
-  <select id="selectByIds" resultType="com.kk.ddd.user.persistence.UserPO">
+  <select id="selectByIds" resultMap="fullResultMap">
     SELECT
     <include refid="columns"/>
     FROM

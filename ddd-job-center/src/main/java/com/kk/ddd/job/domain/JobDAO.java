@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JpaRepository：对继承父接口中方法的返回值进行了适配，注意getById在hibernate实现中为懒加载，需要开启事务才能正常执行；<br>
@@ -20,9 +21,10 @@ import org.springframework.data.repository.query.Param;
  */
 public interface JobDAO extends JpaRepository<JobDO, Long>, JpaSpecificationExecutor<JobDO> {
 
-  // 不设置nativeQuery则使用jpql，表名和字段直接使用实体类定义，且jpql不支持insert。
+  // nativeQuery为false则使用jpql，表名和字段直接使用实体类定义，且jpql不支持insert。
   @Query(value = "update JobDO set state = :to where id = :id and state = :from")
   @Modifying(clearAutomatically = true) // 标明为dml语句，并设置更新完清空追踪（很重要）。
+  @Transactional
   int transferStateById(
       @Param("id") Long id, @Param("from") JobStateEnum from, @Param("to") JobStateEnum to);
 

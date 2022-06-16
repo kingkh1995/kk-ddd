@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web.provider;
+package com.kk.ddd.support.model.provider;
 
 import com.kk.ddd.support.model.command.UserModifyCommand;
 import com.kk.ddd.support.model.dto.UserDTO;

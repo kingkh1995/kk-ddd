@@ -9,9 +9,9 @@ import com.kk.ddd.support.bean.NettyDelayer;
 import com.kk.ddd.support.enums.AccountStateEnum;
 import com.kk.ddd.support.marker.DistributedLockFactory;
 import com.kk.ddd.support.model.dto.AccountDTO;
+import com.kk.ddd.support.type.InstantStamp;
 import com.kk.ddd.support.type.LongId;
 import com.kk.ddd.support.type.PageSize;
-import com.kk.ddd.support.type.StampedTime;
 import com.kk.ddd.support.type.TenThousandYuan;
 import com.kk.ddd.user.assembler.AccountDTOAssembler;
 import com.kk.ddd.user.domain.entity.Account;
@@ -351,9 +351,9 @@ class UserWebApplicationTests {
     var accountState = AccountState.of(AccountStateEnum.INIT);
     var json = Kson.writeJson(accountState);
     System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
-    var tJson = Kson.writeJson(StampedTime.current());
+    var tJson = Kson.writeJson(InstantStamp.current());
     System.out.println(tJson);
-    System.out.println(Kson.readJson(tJson, StampedTime.class).toLocalDateTime());
+    System.out.println(Kson.readJson(tJson, InstantStamp.class).toLocalDateTime());
     var account =
         Account.builder()
             .id(AccountId.of(10))
@@ -363,10 +363,10 @@ class UserWebApplicationTests {
     System.out.println(s);
     System.out.println(Kson.readJson(s, Account.class));
     System.out.println(Kson.readJson(s, Account.class).getCreateTime());
-    var sTime = Kson.writeJson(StampedTime.current());
+    var sTime = Kson.writeJson(InstantStamp.current());
     System.out.println(sTime);
-    System.out.println(Kson.readJson(sTime, StampedTime.class));
-    System.out.println(Kson.readJson(sTime, StampedTime.class).toLocalDateTime());
+    System.out.println(Kson.readJson(sTime, InstantStamp.class));
+    System.out.println(Kson.readJson(sTime, InstantStamp.class).toLocalDateTime());
     System.out.println(TenThousandYuan.of(new BigDecimal("110.6")).toPlainString());
   }
 
