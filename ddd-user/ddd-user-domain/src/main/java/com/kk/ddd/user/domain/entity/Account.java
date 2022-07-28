@@ -1,10 +1,10 @@
 package com.kk.ddd.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.kk.ddd.support.base.Entity;
+import com.kk.ddd.support.core.Entity;
+import com.kk.ddd.support.diff.DiffIgnore;
 import com.kk.ddd.support.enums.AccountStateEnum;
 import com.kk.ddd.support.exception.BusinessException;
-import com.kk.ddd.support.tracking.diff.DiffIgnore;
 import com.kk.ddd.support.type.Version;
 import com.kk.ddd.support.util.NameGenerator;
 import com.kk.ddd.user.domain.service.AccountService;

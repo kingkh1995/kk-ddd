@@ -1,7 +1,7 @@
 package com.kk.ddd.user.converter;
 
+import com.kk.ddd.support.core.DataConverter;
 import com.kk.ddd.support.enums.AccountStateEnum;
-import com.kk.ddd.support.marker.DataConverter;
 import com.kk.ddd.support.type.Version;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;

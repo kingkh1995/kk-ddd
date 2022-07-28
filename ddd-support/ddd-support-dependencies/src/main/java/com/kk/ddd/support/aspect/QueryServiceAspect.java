@@ -27,7 +27,7 @@ public class QueryServiceAspect extends AbstractMethodAspect {
   private final AccessConditionChecker checker;
 
   @Override
-  @Pointcut("@within(com.kk.ddd.support.annotation.QueryService)")
+  @Pointcut("target(com.kk.ddd.support.core.QueryService)") // 拦截所有QueryService的实现类
   protected void pointcut() {}
 
   @Override

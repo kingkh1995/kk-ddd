@@ -1,7 +1,5 @@
 package com.kk.ddd.support.distributed;
 
-import com.kk.ddd.support.marker.DistributedLock;
-import com.kk.ddd.support.marker.DistributedLockFactory;
 import com.kk.ddd.support.util.NameGenerator;
 import java.util.HashMap;
 import java.util.List;

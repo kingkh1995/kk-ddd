@@ -1,7 +1,7 @@
 package com.kk.ddd.user.assembler;
 
-import com.kk.ddd.support.base.CommonTypesMapper;
 import com.kk.ddd.support.model.dto.AccountDTO;
+import com.kk.ddd.support.type.CommonTypesMapper;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.mapper.UserTypesMapper;
 import com.kk.ddd.user.domain.type.UserId;

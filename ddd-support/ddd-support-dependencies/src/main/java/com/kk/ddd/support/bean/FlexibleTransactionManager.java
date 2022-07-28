@@ -7,8 +7,8 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * 柔性事务<br>
- * TCC模式，存在锁定态，适用于一致性要求高的短事务，失败策略适合回滚，因为锁定态为不可用状态，持续时间不宜过长。
+ * 柔性事务 <br>
+ * TCC模式，存在锁定态，适用于一致性要求高的短事务，失败策略适合回滚，因为锁定态为不可用状态，持续时间不宜过长。 <br>
  * Saga模式，适用于一致性要求低的长事务，失败策略适合重试，流程及开发简单，但要求业务上能容忍长时间的软状态。 <br>
  *
  * @author KaiKoo

@@ -22,12 +22,11 @@ public class KMP {
     if (length == 1) {
       return;
     }
-    for (int k, j = 1; j < length; j++) {
-      aux[j] = 0;
-      k = aux[j - 1];
+    for (int k, i = 1; i < length; ++i) {
+      k = aux[i - 1];
       while (k != -1) {
-        if (arr[j - 1] == arr[k]) {
-          aux[j] = k + 1;
+        if (arr[i - 1] == arr[k]) {
+          aux[i] = k + 1;
           break;
         } else {
           k = aux[k];

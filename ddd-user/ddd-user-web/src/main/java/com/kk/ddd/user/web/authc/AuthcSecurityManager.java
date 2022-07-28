@@ -2,7 +2,7 @@ package com.kk.ddd.user.web.authc;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.kk.ddd.support.base.LocalRequestContextHolder;
+import com.kk.ddd.support.bean.LocalRequestContextHolder;
 import com.kk.ddd.support.shiro.JWTShiroProperties;
 import com.kk.ddd.support.shiro.JWTWebSecurityManager;
 import java.time.temporal.ChronoUnit;

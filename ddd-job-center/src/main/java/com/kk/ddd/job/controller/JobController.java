@@ -41,7 +41,7 @@ public class JobController {
   }
 
   @PostMapping("/job")
-  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseStatus(HttpStatus.CREATED) // fixme... 改为消费消息的方式落库
   public Boolean add(@RequestBody @Validated JobAddCommand jobAddCommand) {
     return jobService.add(jobAddCommand);
   }

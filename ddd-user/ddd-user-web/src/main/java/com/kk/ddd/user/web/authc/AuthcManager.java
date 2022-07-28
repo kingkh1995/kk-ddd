@@ -27,6 +27,8 @@ import org.springframework.validation.annotation.Validated;
 @Component
 @RequiredArgsConstructor
 public class AuthcManager {
+
+  // MD5为哈希算法，即信息摘要，会产生一个固定128位的散列值。
   public static final String HASH_ALGORITHM_NAME = Md5Hash.ALGORITHM_NAME;
 
   public static final int HASH_ITERATIONS = 3;

@@ -1,6 +1,6 @@
 package com.kk.ddd.support.aspect;
 
-import com.kk.ddd.support.base.Kson;
+import com.kk.ddd.support.bean.Kson;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

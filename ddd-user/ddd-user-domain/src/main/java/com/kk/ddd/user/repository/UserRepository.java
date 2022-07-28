@@ -1,6 +1,6 @@
 package com.kk.ddd.user.repository;
 
-import com.kk.ddd.support.marker.AggregateRepository;
+import com.kk.ddd.support.core.AggregateRepository;
 import com.kk.ddd.user.domain.entity.User;
 import com.kk.ddd.user.domain.type.UserId;
 import java.util.Optional;

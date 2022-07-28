@@ -18,6 +18,7 @@ public class LambdaHelper {
 
   private static final Map<Class<? extends SFunction<?, ?>>, SoftReference<SerializedLambda>>
       CACHE = new ConcurrentHashMap<>();
+
   /**
    * 对象序列化的相关方法： <br>
    * writeReplace：在将对象序列化之前，如果对象的类或父类中存在writeReplace方法，则使用writeReplace的返回值作为真实被序列化的对象，在writeObject之前执行；

@@ -2,8 +2,8 @@ package com.kk.ddd.user.domain.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kk.ddd.support.core.Type;
 import com.kk.ddd.support.enums.AccountStateEnum;
-import com.kk.ddd.support.marker.Type;
 import com.kk.ddd.support.util.IllegalArgumentExceptions;
 import java.util.Arrays;
 import javax.validation.constraints.NotNull;

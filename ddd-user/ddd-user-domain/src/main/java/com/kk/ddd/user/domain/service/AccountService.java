@@ -1,6 +1,6 @@
 package com.kk.ddd.user.domain.service;
 
-import com.kk.ddd.support.marker.EntityService;
+import com.kk.ddd.support.core.EntityService;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;
 import javax.validation.constraints.NotNull;

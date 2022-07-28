@@ -1,8 +1,8 @@
 package com.kk.ddd.user.assembler;
 
-import com.kk.ddd.support.base.CommonTypesMapper;
 import com.kk.ddd.support.model.dto.UserAuthcInfo;
 import com.kk.ddd.support.model.dto.UserDTO;
+import com.kk.ddd.support.type.CommonTypesMapper;
 import com.kk.ddd.user.domain.entity.User;
 import com.kk.ddd.user.domain.mapper.UserTypesMapper;
 import java.util.List;

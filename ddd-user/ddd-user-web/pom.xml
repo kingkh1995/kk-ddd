@@ -49,7 +49,7 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope> <!--不作用在编译时，只作用在运行和测试时-->
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>mysql</groupId>

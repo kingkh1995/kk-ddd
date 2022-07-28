@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.domain.Persistable;
 
 /**
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Persistable;
  * @author KaiKoo
  */
 @MappedSuperclass
+@EqualsAndHashCode
 public abstract class BasePersistable<PK extends Serializable> implements Persistable<PK> {
 
   @Column(
@@ -34,16 +36,8 @@ public abstract class BasePersistable<PK extends Serializable> implements Persis
     return createTime;
   }
 
-  public void setCreateTime(Date createTime) {
-    this.createTime = createTime;
-  }
-
   public Date getUpdateTime() {
     return updateTime;
-  }
-
-  public void setUpdateTime(Date updateTime) {
-    this.updateTime = updateTime;
   }
 
   @Transient

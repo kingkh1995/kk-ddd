@@ -27,6 +27,6 @@
 #### 接口层依赖（web项目中定义）
 
 - springfox: 3.0.0 (***incompatible***)
-- shiro: 1.9.0
+- shiro: 1.9.1
 - jwt: 4.0.0
 - elasticjob: 3.0.1 (***incompatible***)

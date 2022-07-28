@@ -34,7 +34,7 @@
     <easyexcel.version>3.1.1</easyexcel.version>
     <!--接口层依赖-->
     <springfox.version>3.0.0</springfox.version>
-    <shiro.version>1.9.0</shiro.version>
+    <shiro.version>1.9.1</shiro.version>
     <jwt.version>4.0.0</jwt.version>
     <elasticjob.version>3.0.1</elasticjob.version>
   </properties>
@@ -99,8 +99,8 @@
         <version>${mapstruct.version}</version>
       </dependency>
       <dependency>
-        <artifactId>rocketmq-spring-boot-starter</artifactId>
         <groupId>org.apache.rocketmq</groupId>
+        <artifactId>rocketmq-spring-boot-starter</artifactId>
         <version>${rocketmq.version}</version>
       </dependency>
       <!--工具依赖-->

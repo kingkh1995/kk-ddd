@@ -1,7 +1,7 @@
 package com.kk.ddd.user.repository.impl;
 
-import com.kk.ddd.support.base.EntityRepositorySupport;
 import com.kk.ddd.support.exception.BusinessException;
+import com.kk.ddd.support.repository.EntityRepositorySupport;
 import com.kk.ddd.user.converter.AccountConverter;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;

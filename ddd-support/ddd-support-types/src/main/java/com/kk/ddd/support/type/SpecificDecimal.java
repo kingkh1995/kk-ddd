@@ -1,7 +1,7 @@
 package com.kk.ddd.support.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kk.ddd.support.marker.Type;
+import com.kk.ddd.support.core.Type;
 import com.kk.ddd.support.util.IllegalArgumentExceptions;
 import java.math.BigDecimal;
 import java.math.BigInteger;

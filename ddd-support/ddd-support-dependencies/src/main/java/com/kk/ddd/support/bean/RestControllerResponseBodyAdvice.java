@@ -1,7 +1,6 @@
 package com.kk.ddd.support.bean;
 
 import com.kk.ddd.support.aspect.DegradedServiceAspect.DegradedServiceException;
-import com.kk.ddd.support.base.LocalRequestContextHolder;
 import com.kk.ddd.support.bean.IpControlInterceptor.IPControlBlockedException;
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.exception.ExternalServerException;

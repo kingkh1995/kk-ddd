@@ -1,7 +1,5 @@
 package com.kk.ddd.support.bean;
 
-import com.kk.ddd.support.base.LocalRequestContext;
-import com.kk.ddd.support.base.LocalRequestContextHolder;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Optional;

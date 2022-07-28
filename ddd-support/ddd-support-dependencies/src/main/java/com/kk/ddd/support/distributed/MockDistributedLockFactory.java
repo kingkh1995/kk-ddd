@@ -1,7 +1,5 @@
 package com.kk.ddd.support.distributed;
 
-import com.kk.ddd.support.marker.DistributedLock;
-import com.kk.ddd.support.marker.DistributedLockFactory;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Builder;

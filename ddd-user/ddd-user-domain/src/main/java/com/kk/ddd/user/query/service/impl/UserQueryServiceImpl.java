@@ -1,6 +1,5 @@
 package com.kk.ddd.user.query.service.impl;
 
-import com.kk.ddd.support.annotation.QueryService;
 import com.kk.ddd.user.domain.entity.User;
 import com.kk.ddd.user.domain.type.UserId;
 import com.kk.ddd.user.query.service.UserQueryService;
@@ -12,6 +11,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * <br>
@@ -19,7 +20,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author KaiKoo
  */
 @Slf4j
-@QueryService
+@Validated
+@Service
 @RequiredArgsConstructor
 public class UserQueryServiceImpl implements UserQueryService {
 

@@ -1,7 +1,7 @@
 package com.kk.ddd.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.kk.ddd.support.base.Aggregate;
+import com.kk.ddd.support.core.Aggregate;
 import com.kk.ddd.support.util.NameGenerator;
 import com.kk.ddd.user.domain.service.UserService;
 import com.kk.ddd.user.domain.type.UserId;

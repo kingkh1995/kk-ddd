@@ -1,7 +1,7 @@
 package com.kk.ddd.support.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kk.ddd.support.marker.Identifier;
+import com.kk.ddd.support.core.Identifier;
 import lombok.EqualsAndHashCode;
 
 /**

@@ -2,7 +2,7 @@ package com.kk.ddd.user.listener;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.kk.ddd.support.base.Kson;
+import com.kk.ddd.support.bean.Kson;
 import com.kk.ddd.support.bean.NettyDelayer;
 import com.kk.ddd.support.cache.CacheEvictEvent;
 import com.kk.ddd.support.cache.EnhancedProxyCachingConfiguration;

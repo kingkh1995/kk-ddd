@@ -1,7 +1,7 @@
 package com.kk.ddd.user.assembler;
 
+import com.kk.ddd.support.core.DTOAssembler;
 import com.kk.ddd.support.enums.AccountStateEnum;
-import com.kk.ddd.support.marker.DTOAssembler;
 import com.kk.ddd.support.model.dto.AccountDTO;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;

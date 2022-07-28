@@ -2,7 +2,7 @@ package com.kk.ddd.job;
 
 import com.kk.ddd.job.domain.JobDAO;
 import com.kk.ddd.job.domain.JobDO;
-import com.kk.ddd.support.base.Kson;
+import com.kk.ddd.support.bean.Kson;
 import com.kk.ddd.support.enums.JobStateEnum;
 import java.util.Date;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.OneOffJobBootstrap;

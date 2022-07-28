@@ -2,7 +2,7 @@ package com.kk.ddd.support.access.plugin;
 
 import com.kk.ddd.support.access.AccessConditionCheckException;
 import com.kk.ddd.support.access.AccessConditionCheckPlugin;
-import com.kk.ddd.support.base.LocalRequestContextHolder;
+import com.kk.ddd.support.bean.LocalRequestContextHolder;
 import java.util.Objects;
 
 /**

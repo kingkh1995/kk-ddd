@@ -1,6 +1,6 @@
 package com.kk.ddd.user.web.authc;
 
-import com.kk.ddd.support.base.LocalRequestContextHolder;
+import com.kk.ddd.support.bean.LocalRequestContextHolder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;

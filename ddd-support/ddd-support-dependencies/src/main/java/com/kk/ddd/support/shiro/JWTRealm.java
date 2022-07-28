@@ -3,7 +3,7 @@ package com.kk.ddd.support.shiro;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.kk.ddd.support.base.LocalRequestContextHolder;
+import com.kk.ddd.support.bean.LocalRequestContextHolder;
 import java.time.Instant;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
