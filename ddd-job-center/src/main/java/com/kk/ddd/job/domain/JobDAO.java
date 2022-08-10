@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface JobDAO extends JpaRepository<JobDO, Long>, JpaSpecificationExecutor<JobDO> {
 
-  // nativeQuery为false则使用jpql，表名和字段直接使用实体类定义，且jpql不支持insert。
-  @Query(value = "update JobDO set state = :to where id = :id and state = :from")
+  // nativeQuery默认为false，表示使用jpql（不支持insert），表名和字段直接使用实体类定义，支持位置绑定和参数名绑定。
+  @Query(value = "update JobDO set state = ?3 where id = :id and state = :from")
   @Modifying(clearAutomatically = true) // 标明为dml语句，并设置更新完清空追踪（很重要）。
   @Transactional
   int transferStateById(

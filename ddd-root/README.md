@@ -16,6 +16,7 @@
 - redisson: 3.17.4
 - curator: 5.2.1
 - mapstruct: 1.5.2.Final
+- kafka: 2.8.0 (***outdated***)
 - rocketmq: 2.2.2
 
 #### 工具依赖（support-tools项目中定义）

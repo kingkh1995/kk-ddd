@@ -27,6 +27,7 @@
     <redisson.version>3.17.4</redisson.version>
     <curator.version>5.2.1</curator.version>
     <mapstruct.version>1.5.2.Final</mapstruct.version>
+    <kafka.version>2.8.0</kafka.version>
     <rocketmq.version>2.2.2</rocketmq.version>
     <!--工具依赖-->
     <ttl.version>2.13.0</ttl.version>
@@ -99,6 +100,17 @@
         <version>${mapstruct.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka</artifactId>
+        <version>${kafka.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka-test</artifactId>
+        <version>${kafka.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.apache.rocketmq</groupId>
         <artifactId>rocketmq-spring-boot-starter</artifactId>
         <version>${rocketmq.version}</version>
@@ -143,21 +155,31 @@
     </dependencies>
   </dependencyManagement>
 
-  <!--配置aliyun仓库-->
   <repositories>
     <repository>
-      <id>maven-ali</id>
-      <url>http://maven.aliyun.com/nexus/content/groups/public//</url>
+      <id>aliyun</id>
+      <url>https://maven.aliyun.com/repository/public</url>
       <releases>
         <enabled>true</enabled>
       </releases>
       <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>aliyun-plugin</id>
+      <url>https://maven.aliyun.com/repository/public</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <build>
     <!--配置maven插件-->

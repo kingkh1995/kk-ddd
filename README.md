@@ -2,9 +2,11 @@
 
 - 根项目：root
 - 组件支持：support
+- 服务网关：gateway
 - 任务中心：job-center
 - 用户服务：user
 - 促销服务：sales
+- 健康码服务：heath-code
 
 ## [版本信息](/version_info.md)
 

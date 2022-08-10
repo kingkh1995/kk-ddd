@@ -5,9 +5,9 @@ import com.kk.ddd.support.model.dto.AccountDTO;
 import java.util.List;
 
 /**
- * todo... 查询方法拆分到 queryService<br>
  * ApplicationService供接口层调用，接口层理论对Domain层应该是无感知的 <br>
- * 入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写，无返回结果）出参为DTO
+ * 入参为Query（查询操作），Command（写操作，返回执行结果），Event（已发生事件响应，通常是写，无返回结果）出参为DTO <br>
+ * todo... 为ApplicationService添加全局事务管理切面 <br>
  *
  * @author KaiKoo
  */

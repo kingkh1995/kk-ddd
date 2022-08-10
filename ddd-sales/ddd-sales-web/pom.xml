@@ -14,6 +14,11 @@
 
   <dependencies>
     <!-- 内部依赖 -->
+    <dependency>
+      <groupId>com.kk.ddd.support</groupId>
+      <artifactId>ddd-support-dependencies</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- 组件依赖 -->
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -31,6 +36,19 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
