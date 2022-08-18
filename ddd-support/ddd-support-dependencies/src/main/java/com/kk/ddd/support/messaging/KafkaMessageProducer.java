@@ -25,7 +25,7 @@ public class KafkaMessageProducer extends AbstractMessageProducer{
     }
 
     @Override
-    protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) {
+    protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) throws MessagingException {
         kafkaTemplate.send(
                 MessageBuilder.withPayload(message.getPayload())
                         .copyHeaders(message.getHeaders())
@@ -36,7 +36,7 @@ public class KafkaMessageProducer extends AbstractMessageProducer{
     }
 
     @Override
-    public void send(String topic, String hashKey, Message<?> message) throws MessagingException {
+    public void send(String topic, String hashKey, Message<?> message) {
         doSendAsync(topic, hashKey, message);
     }
 

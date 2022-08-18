@@ -36,14 +36,6 @@ public class CommonTypesMapper {
     return Version.valueOf(i, "版本号");
   }
 
-  public InstantStamp map2InstantStamp(Long l) {
-    return InstantStamp.from(Instant.ofEpochMilli(l));
-  }
-
-  public Long mapFromInstantStamp(InstantStamp instantStamp) {
-    return instantStamp.toInstant().toEpochMilli();
-  }
-
   public Long mapMillisFromInstant(Instant instant) {
     return instant.toEpochMilli();
   }

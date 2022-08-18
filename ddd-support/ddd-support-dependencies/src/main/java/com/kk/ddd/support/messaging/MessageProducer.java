@@ -1,5 +1,7 @@
 package com.kk.ddd.support.messaging;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -16,7 +18,7 @@ import org.springframework.messaging.MessagingException;
  */
 public interface MessageProducer {
 
-    default void send(String topic, Message<?> message) throws MessagingException {
+    default void send(String topic, Message<?> message) {
         send(topic, null, message);
     }
 
@@ -26,12 +28,11 @@ public interface MessageProducer {
      * @param topic 话题
      * @param hashKey 哈希键-用于分区
      * @param message 消息
-     * @throws MessagingException 非特殊情况下不应该抛出异常
      */
-    void send(@NotBlank String topic, String hashKey, @NotNull Message<?> message) throws MessagingException;
+    void send(@NotBlank String topic, String hashKey, @NotNull Message<?> message);
 
     default void sendAtLeastOnce(@NotBlank String topic, @NotNull Message<?> message) throws MessagingException {
-        sendAtLeastOnce(topic, null, message);
+        sendAtLeastOnce(topic, null, Collections.singletonList(message));
     }
 
     /**
@@ -43,7 +44,7 @@ public interface MessageProducer {
      * @param messages 消息列表
      * @throws MessagingException 本地事务提交成功后就不应该抛出异常
      */
-    void sendAtLeastOnce(@NotBlank String topic, String hashKey, @Size(min = 1) Message<?>... messages) throws MessagingException;
+    void sendAtLeastOnce(@NotBlank String topic, String hashKey, @Size(min = 1) List<Message<?>> messages) throws MessagingException;
 
     /**
      * 可靠事务消息，首先发送半消息，收到响应后执行监听器，在监听器中执行本地事务。

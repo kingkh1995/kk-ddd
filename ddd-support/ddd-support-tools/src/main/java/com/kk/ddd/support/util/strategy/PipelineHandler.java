@@ -5,7 +5,9 @@ package com.kk.ddd.support.util.strategy;
  *
  * @author KaiKoo
  */
-public interface PipelineHandler<C, K> extends Strategy<K> {
+public interface PipelineHandler<C> {
+
+  int order();
 
   boolean handle(C context);
 }

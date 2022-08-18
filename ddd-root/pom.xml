@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.1</version>
+    <version>2.7.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.kk.ddd</groupId>
@@ -24,13 +24,15 @@
     <caffeine.version>3.1.1</caffeine.version>
     <mybatis.version>3.5.10</mybatis.version>
     <pagehelper.version>1.4.3</pagehelper.version>
-    <redisson.version>3.17.4</redisson.version>
-    <curator.version>5.2.1</curator.version>
+    <redisson.version>3.17.5</redisson.version>
+    <curator.version>5.3.0</curator.version>
     <mapstruct.version>1.5.2.Final</mapstruct.version>
     <kafka.version>2.8.0</kafka.version>
     <rocketmq.version>2.2.2</rocketmq.version>
+    <grpc.version>1.49.0</grpc.version>
     <!--工具依赖-->
-    <ttl.version>2.13.0</ttl.version>
+    <ttl.version>2.13.2</ttl.version>
+    <jctools.versiont>3.3.0</jctools.versiont>
     <zxing.version>3.5.0</zxing.version>
     <easyexcel.version>3.1.1</easyexcel.version>
     <!--接口层依赖-->
@@ -115,11 +117,32 @@
         <artifactId>rocketmq-spring-boot-starter</artifactId>
         <version>${rocketmq.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-netty-shaded</artifactId>
+        <version>${grpc.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-protobuf</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-stub</artifactId>
+        <version>${grpc.version}</version>
+      </dependency>
       <!--工具依赖-->
       <dependency>
         <groupId>com.alibaba</groupId>
         <artifactId>transmittable-thread-local</artifactId>
         <version>${ttl.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jctools</groupId>
+        <artifactId>jctools-core</artifactId>
+        <version>${jctools.versiont}</version>
       </dependency>
       <dependency>
         <groupId>com.google.zxing</groupId>

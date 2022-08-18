@@ -25,7 +25,7 @@ public class RocketMQMessageProducer extends AbstractMessageProducer{
     }
 
     @Override
-    protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) {
+    protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) throws MessagingException {
         rocketMQTemplate.asyncSendOrderly(topic, message, hashKey, new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
@@ -41,7 +41,7 @@ public class RocketMQMessageProducer extends AbstractMessageProducer{
     }
 
     @Override
-    public void send(String topic, String hashKey, Message<?> message) throws MessagingException {
+    public void send(String topic, String hashKey, Message<?> message) {
         rocketMQTemplate.sendOneWayOrderly(topic, message, hashKey);
     }
 

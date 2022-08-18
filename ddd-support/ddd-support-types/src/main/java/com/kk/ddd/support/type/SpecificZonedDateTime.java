@@ -6,6 +6,7 @@ import com.kk.ddd.support.util.IllegalArgumentExceptions;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
@@ -31,18 +32,9 @@ public abstract class SpecificZonedDateTime implements Type {
       @Nullable Instant current, // 当前时间戳作为参数传入
       Boolean future,
       Boolean presentInclusive) {
-    // current存在才对比（兼容读取值），且忽略毫秒值。
+    // current存在才对比（兼容读取值），且只对比到秒。
     if (current != null) {
-      // 先对比日期 再对比时间
-      var zonedCurrent = current.atZone(value.getZone());
-      var cmp = value.toLocalDate().compareTo(zonedCurrent.toLocalDate());
-      // 包含时间并且日期相等 则继续对比时间
-      if (obtainTime && cmp == 0) {
-        // 对比时只对比到秒
-        cmp =
-            Integer.compare(
-                value.toLocalTime().toSecondOfDay(), zonedCurrent.toLocalTime().toSecondOfDay());
-      }
+      var cmp = Long.compare(value.toEpochSecond(), current.getEpochSecond());
       if (!(presentInclusive && cmp == 0)) {
         if (future && cmp < 1) {
           throw IllegalArgumentExceptions.requireFuture(fieldName, presentInclusive, obtainTime);
@@ -59,18 +51,22 @@ public abstract class SpecificZonedDateTime implements Type {
     return this.value;
   }
 
+  public ZoneId getZone() {
+    return toZonedDateTime().getZone();
+  }
+
   public LocalDate toLocalDate() {
-    return this.value.toLocalDate();
+    return toZonedDateTime().toLocalDate();
   }
 
   public LocalDateTime toLocalDateTime() {
     if (!this.obtainTime) {
       throw new UnsupportedOperationException();
     }
-    return this.value.toLocalDateTime();
+    return toZonedDateTime().toLocalDateTime();
   }
 
   public Instant toInstant() {
-    return this.value.toInstant();
+    return toZonedDateTime().toInstant();
   }
 }

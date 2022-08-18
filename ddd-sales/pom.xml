@@ -17,6 +17,8 @@
 
   <modules>
     <module>ddd-sales-domain</module>
+    <module>ddd-sales-application</module>
+    <module>ddd-sales-infrastructure</module>
     <module>ddd-sales-web</module>
   </modules>
 

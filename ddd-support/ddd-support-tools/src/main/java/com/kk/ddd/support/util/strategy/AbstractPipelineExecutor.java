@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * @author KaiKoo
  */
-public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C, K>>
+public abstract class AbstractPipelineExecutor<C, H extends PipelineHandler<C>>
     extends ApplicationContextAwareSingleton {
   private SortedSet<H> handlers;
 
@@ -36,14 +36,11 @@ public abstract class AbstractPipelineExecutor<C, K, H extends PipelineHandler<C
                     Collectors.toCollection(
                         () ->
                             new TreeSet<>(
-                                Comparator.comparing(
-                                    PipelineHandler::getIdentifier, this.getKComparator()))),
+                                Comparator.comparing(PipelineHandler::order))),
                     Collections::unmodifiableSortedSet));
   }
 
   protected abstract Class<H> getHClass();
-
-  protected abstract Comparator<K> getKComparator();
 
   protected void handleBefore(C context) {}
 

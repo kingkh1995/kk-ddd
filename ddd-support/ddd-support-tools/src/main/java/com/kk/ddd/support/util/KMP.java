@@ -7,7 +7,7 @@ import java.util.Arrays;
  *
  * @author KaiKoo
  */
-public class KMP {
+public final class KMP {
 
   // 模式字符串
   private final char[] arr;

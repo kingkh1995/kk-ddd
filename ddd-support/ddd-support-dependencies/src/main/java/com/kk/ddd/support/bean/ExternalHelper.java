@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.exception.ExternalServerException;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import javax.validation.constraints.NotNull;
 
@@ -19,16 +18,16 @@ public class ExternalHelper {
     throw new IllegalAccessException();
   }
 
-  public static <T> T unwrapResult(@NotNull Result<T> result) throws BusinessException {
+  private static <T> T unwrapResult(@NotNull Result<T> result) throws BusinessException {
     if (result.isSucceeded()) {
       return result.getData();
     }
     throw new BusinessException(result.getCode(), result.getMessage());
   }
 
-  public static <T> T unwrapResultSupplier(@NotNull Supplier<Result<T>> supplier) {
+  public static <T> T unwrap(@NotNull Supplier<Result<T>> resultSupplier) {
     try {
-      return unwrapResult(supplier.get());
+      return unwrapResult(resultSupplier.get());
     } catch (BusinessException e) {
       throw e;
     } catch (Throwable e) {
@@ -36,38 +35,10 @@ public class ExternalHelper {
     }
   }
 
-  /**
-   * unwrap json
-   *
-   * @param json json字符串
-   * @param codeFinder code查找函数
-   * @param codePredicate 通过code判断是否执行成功
-   * @param dataFinder data查找函数
-   * @return data
-   * @param <T> data类型
-   * @throws BusinessException 如果执行失败则抛出
-   */
-  public static <T> T unwrapJson(
-      String json,
-      Function<JsonNode, String> codeFinder,
-      Predicate<String> codePredicate,
-      Function<JsonNode, T> dataFinder)
-      throws BusinessException {
-    var jsonNode = Kson.readJson(json);
-    var code = codeFinder.apply(jsonNode);
-    if (codePredicate.test(code)) {
-      return dataFinder.apply(jsonNode);
-    }
-    throw new BusinessException(code, json);
-  }
-
-  public static <T> T unwrapJsonSupplier(
-      Supplier<String> supplier,
-      Function<JsonNode, String> codeFinder,
-      Predicate<String> codePredicate,
-      Function<JsonNode, T> dataFinder) {
+  public static <T> T unwrap(@NotNull Supplier<String> jsonSupplier,
+          @NotNull Function<JsonNode, Result<T>> toResultFunction) {
     try {
-      return unwrapJson(supplier.get(), codeFinder, codePredicate, dataFinder);
+      return unwrapResult(toResultFunction.apply(Kson.readJson(jsonSupplier.get())));
     } catch (BusinessException e) {
       throw e;
     } catch (Throwable e) {

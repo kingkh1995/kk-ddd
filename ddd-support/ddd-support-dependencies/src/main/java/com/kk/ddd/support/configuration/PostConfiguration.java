@@ -32,16 +32,24 @@ public class PostConfiguration implements ApplicationContextAware {
 
     // 设置factory到EntityLocker
     private void setJsonMapper2Kson(ApplicationContext applicationContext){
-        var jsonMapper = applicationContext.getBean(JsonMapper.class);
-        log.info("Set '{}' to Kson.", jsonMapper.getClass().getCanonicalName());
-        Kson.setMapper(jsonMapper);
+        try {
+            var jsonMapper = applicationContext.getBean(JsonMapper.class);
+            log.info("Set '{}' to Kson.", jsonMapper.getClass().getCanonicalName());
+            Kson.setMapper(jsonMapper);
+        } catch (BeansException e) {
+            log.error("Set JsonMapper to Kson error!", e);
+        }
     }
 
     // 设置factory到EntityLocker
     private void setFactory2EntityLocker(ApplicationContext applicationContext){
-        var factory = applicationContext.getBean(DistributedLockFactory.class);
-        log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
-        EntityLocker.setFactory(factory);
+        try {
+            var factory = applicationContext.getBean(DistributedLockFactory.class);
+            log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
+            EntityLocker.setFactory(factory);
+        } catch (BeansException e) {
+            log.error("Set DistributedLockFactory to EntityLocker error!", e);
+        }
     }
 
     // 处理MDCAdapter，内部实现为ThreadLocal

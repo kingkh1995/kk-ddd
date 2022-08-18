@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "com.kk.ddd.support.model.proto";
+option java_multiple_files = true;
+option optimize_for = CODE_SIZE;
+
+message StockOperateRequest {
+  string order_no = 1;
+  StockOperateEnum operate_type = 2;
+  optional int32 count = 3; // ROLLBACK场景不需要传
+}
+
+enum StockOperateEnum {
+  DEDUCT = 0; // 库存扣减
+  RELEASE = 1; // 库存释放
+  ROLLBACK = 2; // 异常回滚
+}
+
+message StockOperateReply {
+  int32 code = 1;
+  string message = 2;
+}
+
+service StockProvider {
+  rpc Operate (StockOperateRequest) returns (StockOperateReply) {}
+}

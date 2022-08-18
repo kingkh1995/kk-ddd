@@ -1,6 +1,7 @@
 package com.kk.ddd.support.messaging;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.validation.constraints.Size;
@@ -26,9 +27,11 @@ public abstract class AbstractMessageProducer implements MessageProducer{
     private final MessageRecorder messageRecorder;
 
     @Override
-    public void sendAtLeastOnce(String topic, String hashKey, @Size(min = 1) Message<?>... messages)
+    public void sendAtLeastOnce(String topic, String hashKey, @Size(min = 1) List<Message<?>> messages)
             throws MessagingException {
-        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+        if (Objects.isNull(messages) || messages.isEmpty()) {
+            throw new IllegalArgumentException("messages can't be empty!");
+        } else if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             // 表示事务同步器是否激活，事务创建时会执行initSynchronization方法，激活事务同步器。
             throw new IllegalStateException("Transaction synchronization is not active!");
         } else if (!TransactionSynchronizationManager.isActualTransactionActive()) {
@@ -44,7 +47,7 @@ public abstract class AbstractMessageProducer implements MessageProducer{
                         () -> this.doSendAtLeastOnceOrderly(this.getMessageRecorder().record(topic, hashKey, messages))));
     }
 
-    protected void doSendAtLeastOnceOrderly(List<MessageModel> messageModels) {
+    protected void doSendAtLeastOnceOrderly(List<MessageModel> messageModels) throws MessagingException {
         // 顺序发送，前置消息发送完成后再发送后置消息。
         messageModels.stream()
                 .map(this::doSendAsync)
@@ -72,11 +75,11 @@ public abstract class AbstractMessageProducer implements MessageProducer{
         log.error("send orderly failed! messageModelIds: {}.", messageModelIds, throwable);
     }
 
-    protected MessageModel doSendAsync(MessageModel messageModel){
+    protected MessageModel doSendAsync(MessageModel messageModel) throws MessagingException {
         messageModel.setFuture(doSendAsync(messageModel.getTopic(), messageModel.getHashKey(), messageModel.getMessage()));
         return messageModel;
     }
 
 
-    abstract protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message);
+    abstract protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message)  throws MessagingException;
 }

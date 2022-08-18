@@ -34,7 +34,7 @@
 
 ### web（或interface）模块
 
-对外接口层，也属于基础设施层的一部分，web项目，包含Controller、Provider、Scheduler、MessageListener等，不涉及任何业务相关的代码，职责是服务提供、协议转化、统一鉴权、会话管理、服务限流、异常处理、日志记录等。
+对外接口层，也属于基础设施层的一部分，web项目，包含Controller、Provider、Consumer、Job等，不涉及任何业务相关的代码，职责是服务提供、协议转化、统一鉴权、会话管理、服务限流、异常处理、日志记录等。
 
 > 直接引用application模块作为服务提供，infrastructure模块通过依赖注入作为服务实现，对domain模块应该是不可知的。
 

@@ -14,7 +14,7 @@ import org.springframework.messaging.converter.MessageConverter;
  */
 public interface MessageRecorder {
 
-    List<MessageModel> record(String topic, String hashKey, Message<?>... messages);
+    List<MessageModel> record(String topic, String hashKey, List<Message<?>> messages);
 
     void succeed(Long modelId);
 

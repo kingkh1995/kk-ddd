@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public class LambdaHelper {
+public final class LambdaHelper {
   private LambdaHelper() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
