@@ -9,7 +9,7 @@ import lombok.Data;
  * @author KaiKoo
  */
 @Data
-public class UserAuthcInfo implements Serializable {
+public class UserAuthInfo implements Serializable {
 
   private Long id;
 

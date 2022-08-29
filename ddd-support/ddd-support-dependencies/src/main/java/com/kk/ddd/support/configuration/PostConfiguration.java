@@ -4,7 +4,7 @@ import ch.qos.logback.classic.util.LogbackMDCAdapter;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kk.ddd.support.annotation.LiteConfiguration;
-import com.kk.ddd.support.bean.EntityLocker;
+import com.kk.ddd.support.bean.DistributedLockHelper;
 import com.kk.ddd.support.bean.Kson;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class PostConfiguration implements ApplicationContextAware {
         try {
             var factory = applicationContext.getBean(DistributedLockFactory.class);
             log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
-            EntityLocker.setFactory(factory);
+            DistributedLockHelper.setFactory(factory);
         } catch (BeansException e) {
             log.error("Set DistributedLockFactory to EntityLocker error!", e);
         }

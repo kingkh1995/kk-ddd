@@ -10,9 +10,9 @@ import com.kk.ddd.support.distributed.DistributedLockFactory;
 import com.kk.ddd.support.enums.AccountStateEnum;
 import com.kk.ddd.support.model.dto.AccountDTO;
 import com.kk.ddd.support.type.LongId;
+import com.kk.ddd.support.type.MillionYuan;
 import com.kk.ddd.support.type.PageSize;
-import com.kk.ddd.support.type.TenThousandYuan;
-import com.kk.ddd.user.assembler.AccountDTOAssembler;
+import com.kk.ddd.user.application.assembler.AccountDTOAssembler;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.AccountState;
@@ -349,7 +349,7 @@ class UserWebApplicationTests {
     System.out.println(Kson.readJson(Kson.writeJson("66666"), new TypeReference<AccountId>() {}));
     var accountState = AccountState.of(AccountStateEnum.INIT);
     var json = Kson.writeJson(accountState);
-    System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).getValue());
+    System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).toEnum());
     var account =
         Account.builder()
             .id(AccountId.of(10))
@@ -359,7 +359,7 @@ class UserWebApplicationTests {
     System.out.println(s);
     System.out.println(Kson.readJson(s, Account.class));
     System.out.println(Kson.readJson(s, Account.class).getCreateTime());
-    System.out.println(TenThousandYuan.of(new BigDecimal("110.6")).toPlainString());
+    System.out.println(MillionYuan.of(new BigDecimal("110.6")).toFormattedString());
   }
 
   @Test

@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
@@ -62,7 +62,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
         new InterProcessMultiLock(names.stream().map(this::getMutex).collect(Collectors.toList())));
   }
 
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static class Lock implements DistributedLock {
 
     private final CuratorDistributedLockFactory factory;
@@ -101,7 +101,7 @@ public class CuratorDistributedLockFactory implements DistributedLockFactory {
     }
   }
 
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static class MultiLock implements DistributedLock {
 
     private final CuratorDistributedLockFactory factory;

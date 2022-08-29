@@ -52,13 +52,13 @@ public final class IllegalArgumentExceptions {
     return new IllegalArgumentException(message.toString());
   }
 
-  public static IllegalArgumentException requireFuture(
+  public static IllegalArgumentException requireAfter(
       String fieldName, boolean includePresent, boolean obtainTime) {
     var message = fieldName + (includePresent ? "不能早于" : "必须晚于") + (obtainTime ? "当前时间" : "今天");
     return new IllegalArgumentException(message);
   }
 
-  public static IllegalArgumentException requirePast(
+  public static IllegalArgumentException requireBefore(
       String fieldName, boolean includePresent, boolean obtainTime) {
     var message = fieldName + (includePresent ? "不能晚于" : "必须早于") + (obtainTime ? "当前时间" : "今天");
     return new IllegalArgumentException(message);

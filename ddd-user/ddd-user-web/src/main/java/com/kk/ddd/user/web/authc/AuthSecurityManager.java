@@ -23,13 +23,13 @@ import org.apache.shiro.web.util.WebUtils;
  * @author KaiKoo
  */
 @Slf4j
-public class AuthcSecurityManager extends JWTWebSecurityManager {
+public class AuthSecurityManager extends JWTWebSecurityManager {
 
   private final Algorithm algorithm;
 
   private final JWTShiroProperties jwtProperties;
 
-  public AuthcSecurityManager(
+  public AuthSecurityManager(
       Collection<Realm> realms, Algorithm algorithm, JWTShiroProperties jwtProperties) {
     super(realms);
     this.algorithm = algorithm;

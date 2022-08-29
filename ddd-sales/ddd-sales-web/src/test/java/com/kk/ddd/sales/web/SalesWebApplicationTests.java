@@ -10,11 +10,10 @@ import java.util.concurrent.ForkJoinPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 
 @Slf4j
-@EmbeddedKafka(count = 5)
+//@EmbeddedKafka(count = 5)
 @SpringBootTest
 @ActiveProfiles("dev")
 class SalesWebApplicationTests {
@@ -28,7 +27,7 @@ class SalesWebApplicationTests {
     StockProviderGrpc.newStub(channel)
             .operate(StockOperateRequest.newBuilder()
                     .setOperateType(StockOperateEnum.DEDUCT)
-                    .setOrderNo("Async")
+                    .setOrderNo("Stream")
                     .setCount(1)
                     .build(), new StreamObserver<>() {
               @Override
@@ -50,7 +49,7 @@ class SalesWebApplicationTests {
       var future = StockProviderGrpc.newFutureStub(channel)
               .operate(StockOperateRequest.newBuilder()
                       .setOperateType(StockOperateEnum.DEDUCT)
-                      .setOrderNo("Async")
+                      .setOrderNo("Future")
                       .setCount(1)
                       .build());
       future.addListener(() -> {

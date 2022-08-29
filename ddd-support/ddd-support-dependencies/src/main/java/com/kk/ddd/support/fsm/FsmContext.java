@@ -5,15 +5,16 @@ package com.kk.ddd.support.fsm;
  *
  * @author KaiKoo
  */
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@AllArgsConstructor
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public abstract class FsmContext<E extends FsmEvent, T> {
 
-  @Getter private E event;
+  @Getter private final E event;
 
-  @Getter private T entity;
+  @Getter private final T entity;
 
   public abstract String getState();
 

@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class AuthcCommand implements Serializable {
+public class AuthCommand implements Serializable {
 
   @NotBlank(message = "登录账号不能为空！")
   private String username;

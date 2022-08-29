@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kk.ddd.support.core.Type;
 import com.kk.ddd.support.enums.AccountStateEnum;
-import com.kk.ddd.support.util.IllegalArgumentExceptions;
+import com.kk.ddd.support.util.ParseUtils;
 import java.util.Arrays;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 枚举值也封装为DP <br>
@@ -17,25 +18,18 @@ import lombok.Getter;
  * @author KaiKoo
  */
 @EqualsAndHashCode
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AccountState implements Type {
 
-  @Getter @JsonValue private final AccountStateEnum value;
-
-  private AccountState(@NotNull AccountStateEnum value) {
-    this.value = value;
-  }
+  @JsonValue private final AccountStateEnum value;
 
   /** 缓存内部类 */
   private static class Cache {
 
-    static final AccountState[] cache;
+    static final AccountState[] cache = Arrays.stream(AccountStateEnum.values())
+            .map(AccountState::new)
+              .toArray(AccountState[]::new);
 
-    static {
-      cache =
-          Arrays.stream(AccountStateEnum.values())
-              .map(AccountState::new)
-              .toArray(AccountState[]::new); // 传入IntFunction 参数为数组大小
-    }
   }
 
   @JsonCreator
@@ -44,18 +38,10 @@ public final class AccountState implements Type {
   }
 
   public static AccountState valueOf(Object o, String fieldName) {
-    if (o == null) {
-      throw IllegalArgumentExceptions.forIsNull(fieldName);
-    }else if (o instanceof AccountStateEnum accountStateEnum) {
-      return of(accountStateEnum);
-    } else if (o instanceof String s) {
-      try {
-        // 如果不存在对应枚举，valueOf方法不会返回 null，而是抛出异常
-        return of(AccountStateEnum.valueOf(s));
-      } catch (IllegalArgumentException e) {
-        throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
-      }
-    }
-    throw IllegalArgumentExceptions.forWrongClass(fieldName);
+    return of(ParseUtils.parseEnum(AccountStateEnum.class, o, fieldName));
+  }
+
+  public AccountStateEnum toEnum() {
+    return this.value;
   }
 }

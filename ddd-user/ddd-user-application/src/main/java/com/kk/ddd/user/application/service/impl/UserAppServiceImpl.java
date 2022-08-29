@@ -1,9 +1,9 @@
 package com.kk.ddd.user.application.service.impl;
 
-import com.kk.ddd.support.model.dto.UserAuthcInfo;
+import com.kk.ddd.support.model.dto.UserAuthInfo;
 import com.kk.ddd.support.model.dto.UserDTO;
+import com.kk.ddd.user.application.assembler.UserDTOAssembler;
 import com.kk.ddd.user.application.service.UserAppService;
-import com.kk.ddd.user.assembler.UserDTOAssembler;
 import com.kk.ddd.user.domain.service.UserService;
 import com.kk.ddd.user.domain.type.UserId;
 import com.kk.ddd.user.query.service.UserQueryService;
@@ -31,13 +31,13 @@ public class UserAppServiceImpl implements UserAppService {
   private final UserDTOAssembler userDTOAssembler;
 
   @Override
-  public Optional<UserAuthcInfo> getAuthcInfo(String username) {
+  public Optional<UserAuthInfo> getAuthcInfo(String username) {
     return userQueryService.findByUsername(username).map(userDTOAssembler::toAuthcInfo);
   }
 
   @Override
   @Transactional
-  public void changePassword(UserAuthcInfo authcInfo) {
+  public void changePassword(UserAuthInfo authcInfo) {
     // 使用QueryService查询领域对象
     var user = userQueryService.find(UserId.valueOf(authcInfo.getId(), "id")).get();
     // 执行修改密码操作

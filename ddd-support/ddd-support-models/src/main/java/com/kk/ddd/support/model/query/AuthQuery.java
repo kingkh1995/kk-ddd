@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-public class AuthcQuery implements Serializable {
+public class AuthQuery implements Serializable {
 
   @NotBlank private String username;
 

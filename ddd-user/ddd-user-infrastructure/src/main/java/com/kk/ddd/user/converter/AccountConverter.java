@@ -29,7 +29,7 @@ public enum AccountConverter implements DataConverter<Account, AccountPO> {
     Optional.ofNullable(account.getId()).map(AccountId::getValue).ifPresent(data::setId);
     Optional.ofNullable(account.getUserId()).map(UserId::getValue).ifPresent(data::setUserId);
     Optional.ofNullable(account.getState())
-        .map(AccountState::getValue)
+        .map(AccountState::toEnum)
         .map(AccountStateEnum::name)
         .ifPresent(data::setState);
     Optional.ofNullable(account.getVersion()).map(Version::getValue).ifPresent(data::setVersion);

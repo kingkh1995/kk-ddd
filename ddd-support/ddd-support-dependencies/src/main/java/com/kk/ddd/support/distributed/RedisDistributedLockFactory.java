@@ -11,10 +11,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -188,7 +188,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     log.info("Currently holding {} bones.", BOWL.size());
   }
 
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static class Lock implements DistributedLock {
 
     private final String name;

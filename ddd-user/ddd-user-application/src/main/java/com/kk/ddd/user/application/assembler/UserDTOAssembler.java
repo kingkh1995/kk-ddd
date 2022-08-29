@@ -1,6 +1,6 @@
-package com.kk.ddd.user.assembler;
+package com.kk.ddd.user.application.assembler;
 
-import com.kk.ddd.support.model.dto.UserAuthcInfo;
+import com.kk.ddd.support.model.dto.UserAuthInfo;
 import com.kk.ddd.support.model.dto.UserDTO;
 import com.kk.ddd.support.type.CommonTypesMapper;
 import com.kk.ddd.user.domain.entity.User;
@@ -27,7 +27,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface UserDTOAssembler {
 
   @Mapping(target = "encryptedPassword", source = "password")
-  UserAuthcInfo toAuthcInfo(User user);
+  UserAuthInfo toAuthcInfo(User user);
 
   UserDTO toDTO(User user);
 

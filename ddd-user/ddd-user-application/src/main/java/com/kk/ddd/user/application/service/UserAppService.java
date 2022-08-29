@@ -1,6 +1,6 @@
 package com.kk.ddd.user.application.service;
 
-import com.kk.ddd.support.model.dto.UserAuthcInfo;
+import com.kk.ddd.support.model.dto.UserAuthInfo;
 import com.kk.ddd.support.model.dto.UserDTO;
 import java.util.List;
 import java.util.Optional;
@@ -19,14 +19,14 @@ public interface UserAppService {
    * @param username
    * @return
    */
-  Optional<UserAuthcInfo> getAuthcInfo(String username);
+  Optional<UserAuthInfo> getAuthcInfo(String username);
 
   /**
    * 修改密码
    *
    * @param authcInfo
    */
-  void changePassword(UserAuthcInfo authcInfo);
+  void changePassword(UserAuthInfo authcInfo);
 
   UserDTO queryUser(Long userId);
 

@@ -1,9 +1,9 @@
 package com.kk.ddd.user.web.authc;
 
-import com.kk.ddd.support.model.command.AuthcCommand;
-import com.kk.ddd.support.model.dto.UserAuthcInfo;
+import com.kk.ddd.support.model.command.AuthCommand;
+import com.kk.ddd.support.model.dto.UserAuthInfo;
 import com.kk.ddd.support.model.group.Inner;
-import com.kk.ddd.support.model.query.AuthcQuery;
+import com.kk.ddd.support.model.query.AuthQuery;
 import com.kk.ddd.user.application.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @Component
 @RequiredArgsConstructor
-public class AuthcManager {
+public class AuthManager {
 
   // MD5为哈希算法，即信息摘要，会产生一个固定128位的散列值。
   public static final String HASH_ALGORITHM_NAME = Md5Hash.ALGORITHM_NAME;
@@ -43,7 +43,7 @@ public class AuthcManager {
    * @param query
    * @return
    */
-  public UserAuthenticationInfo getAuthenticationInfo(@Validated AuthcQuery query) {
+  public UserAuthenticationInfo getAuthenticationInfo(@Validated AuthQuery query) {
     return service
         .getAuthcInfo(query.getUsername())
         .map(
@@ -62,7 +62,7 @@ public class AuthcManager {
    *
    * @param command
    */
-  public void login(@Validated(Inner.class) AuthcCommand command) {
+  public void login(@Validated(Inner.class) AuthCommand command) {
     SecurityUtils.getSubject()
         .login(new UsernamePasswordToken(command.getUsername(), command.getPlaintextPassword()));
   }
@@ -73,7 +73,7 @@ public class AuthcManager {
    *
    * @param command
    */
-  public void changePassword(@Validated(Inner.class) AuthcCommand command) {
+  public void changePassword(@Validated(Inner.class) AuthCommand command) {
     var authcInfo = service.getAuthcInfo(command.getUsername()).get();
     var newPassword = encryptPassword(command.getPlaintextPassword(), getSalt(authcInfo));
     // 做到幂等，与原密码相同直接return
@@ -94,7 +94,7 @@ public class AuthcManager {
     }
   }
 
-  private ByteSource getSalt(UserAuthcInfo authcInfo) {
+  private ByteSource getSalt(UserAuthInfo authcInfo) {
     return new SimpleByteSource(String.valueOf(authcInfo.getId()));
   }
 }

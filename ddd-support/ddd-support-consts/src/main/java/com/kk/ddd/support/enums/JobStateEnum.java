@@ -1,7 +1,7 @@
 package com.kk.ddd.support.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * <br>
@@ -9,7 +9,7 @@ import lombok.Getter;
  * @author KaiKoo
  */
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum JobStateEnum {
   P("pending"),
   A("actioned"),

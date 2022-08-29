@@ -6,7 +6,6 @@ import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc.StockProviderImplBase;
 import io.grpc.stub.StreamObserver;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -36,7 +35,7 @@ public class StockProviderImpl extends StockProviderImplBase {
 
     private StockOperateReply deduct(StockOperateRequest request) {
         try {
-            if (stockManager.deduct(request.getOrderNo(), request.getCount()).get(100, TimeUnit.MILLISECONDS)) {
+            if (stockManager.deduct(request.getOrderNo(), request.getCount()).get()) {
                 return StockOperateReply.newBuilder().setCode(0).setMessage("Deduct Succeeded").build();
             }
             // todo... send rollback message

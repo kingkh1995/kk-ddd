@@ -1,4 +1,4 @@
-package com.kk.ddd.user.assembler;
+package com.kk.ddd.user.application.assembler;
 
 import com.kk.ddd.support.model.dto.AccountDTO;
 import com.kk.ddd.support.type.CommonTypesMapper;

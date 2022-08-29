@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @AutoConfigureBefore({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
 @Import({JWTShiroWebAutoConfiguration.class, JWTShiroWebFilterConfiguration.class})
 @RestControllerAdvice
-public class AuthcConfiguration {
+public class AuthConfiguration {
 
   // 登录认证异常
   @ExceptionHandler(AuthenticationException.class)
@@ -61,7 +61,7 @@ public class AuthcConfiguration {
   @Bean
   public SessionsSecurityManager securityManager(
       Collection<Realm> realms, Algorithm algorithm, JWTShiroProperties jwtProperties) {
-    return new AuthcSecurityManager(realms, algorithm, jwtProperties);
+    return new AuthSecurityManager(realms, algorithm, jwtProperties);
   }
 
   @Bean

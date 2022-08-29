@@ -80,4 +80,9 @@ public class Account extends Entity<AccountId> {
       throw new BusinessException("当前状态无法失效。");
     }
   }
+
+  public Account validate() {
+    // todo... 校验逻辑
+    return this;
+  }
 }

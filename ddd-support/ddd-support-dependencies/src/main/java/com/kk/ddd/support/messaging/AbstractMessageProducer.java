@@ -3,7 +3,6 @@ package com.kk.ddd.support.messaging;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import javax.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -61,8 +60,7 @@ public abstract class AbstractMessageProducer implements MessageProducer{
                 .get()
                 .getFuture()
                 .whenComplete((o, throwable) -> {
-                    var messageModelIds = messageModels.stream().map(MessageModel::getId)
-                            .collect(Collectors.toList());
+                    var messageModelIds = messageModels.stream().map(MessageModel::getId).toList();
                     if (throwable != null){
                         doAfterSendFailed(messageModelIds, throwable);
                     } else {

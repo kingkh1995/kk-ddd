@@ -2,7 +2,7 @@ package com.kk.ddd.support.cache;
 
 import com.kk.ddd.support.cache.TwoStageCacheManager.TwoStageCacheEvictMessage;
 import java.util.concurrent.Callable;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 
 /**
@@ -10,7 +10,7 @@ import org.springframework.cache.Cache;
  *
  * @author KaiKoo
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TwoStageCache implements Cache {
 
   private final TwoStageCacheManager cacheManager;

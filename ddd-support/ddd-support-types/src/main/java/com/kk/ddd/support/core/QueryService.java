@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  * CQRS架构中领域服务之查询服务 <br>
+ * todo... 属于查询层，与应用层同一级。
  *
  * @author KaiKoo
  */

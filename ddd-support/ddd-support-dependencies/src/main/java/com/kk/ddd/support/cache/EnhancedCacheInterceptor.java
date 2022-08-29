@@ -1,7 +1,7 @@
 package com.kk.ddd.support.cache;
 
 import com.google.common.eventbus.EventBus;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.cache.interceptor.CacheInterceptor;
 
@@ -10,7 +10,7 @@ import org.springframework.cache.interceptor.CacheInterceptor;
  *
  * @author KaiKoo
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EnhancedCacheInterceptor extends CacheInterceptor {
 
   private final EventBus eventBus;

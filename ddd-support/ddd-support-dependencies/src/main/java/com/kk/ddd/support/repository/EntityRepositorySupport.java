@@ -1,6 +1,6 @@
 package com.kk.ddd.support.repository;
 
-import com.kk.ddd.support.bean.EntityLocker;
+import com.kk.ddd.support.bean.DistributedLockHelper;
 import com.kk.ddd.support.core.Entity;
 import com.kk.ddd.support.core.EntityRepository;
 import com.kk.ddd.support.core.Identifier;
@@ -47,7 +47,7 @@ public abstract class EntityRepositorySupport<T extends Entity<ID>, ID extends I
 
   // 定义一个tryRun方法，使用函数式接口，使实现可以随意替换
   protected void tryLockThenConsume(@NotNull T entity, @NotNull Consumer<? super T> consumer) {
-    if (!EntityLocker.tryLockThenRun(entity, () -> consumer.accept(entity))) {
+    if (!DistributedLockHelper.tryLockThenRun(entity, () -> consumer.accept(entity))) {
       throw new BusinessException("尝试的人太多了，请稍后再试！");
     }
   }

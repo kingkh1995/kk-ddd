@@ -1,7 +1,7 @@
 package com.kk.ddd.user.web.authc;
 
 import com.kk.ddd.support.annotation.BaseController;
-import com.kk.ddd.support.model.command.AuthcCommand;
+import com.kk.ddd.support.model.command.AuthCommand;
 import com.kk.ddd.support.model.group.Outer;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
@@ -22,26 +22,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @BaseController
 @RequestMapping
-public class AuthcController {
+public class AuthController {
 
-  private final AuthcManager authcManager;
+  private final AuthManager authManager;
 
   @PostMapping("/login")
-  public void login(@RequestBody @Validated(Outer.class) AuthcCommand authcCommand) {
-    decodeCommand(authcCommand);
-    authcManager.login(authcCommand);
+  public void login(@RequestBody @Validated(Outer.class) AuthCommand authCommand) {
+    decodeCommand(authCommand);
+    authManager.login(authCommand);
   }
 
   /** Patch 部分更新资源 （幂等但url不能被缓存） */
   @PatchMapping("/authc/password")
-  public void changePassword(@RequestBody @Validated(Outer.class) AuthcCommand authcCommand) {
-    decodeCommand(authcCommand);
-    authcManager.changePassword(authcCommand);
+  public void changePassword(@RequestBody @Validated(Outer.class) AuthCommand authCommand) {
+    decodeCommand(authCommand);
+    authManager.changePassword(authCommand);
   }
 
   // 解码密码为明文，此处使用Base64编码。因为是由调用方解码，故代码应该在Controller中。
-  private void decodeCommand(AuthcCommand authcCommand) {
-    authcCommand.setPlaintextPassword(
-        new String(Base64.getDecoder().decode(authcCommand.getEncodedPassword())));
+  private void decodeCommand(AuthCommand authCommand) {
+    authCommand.setPlaintextPassword(
+        new String(Base64.getDecoder().decode(authCommand.getEncodedPassword())));
   }
 }

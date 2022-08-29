@@ -8,11 +8,11 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -73,7 +73,7 @@ public class JdbcDistributedLockFactory implements DistributedLockFactory {
     return null;
   }
 
-  @AllArgsConstructor
+  @RequiredArgsConstructor
   private static class Lock implements DistributedLock {
 
     private final String name;

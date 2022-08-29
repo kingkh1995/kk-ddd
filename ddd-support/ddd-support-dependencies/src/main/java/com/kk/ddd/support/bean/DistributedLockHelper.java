@@ -5,17 +5,17 @@ import com.kk.ddd.support.distributed.DistributedLock;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
 /**
  * 分布式锁工具类 <br>
+ * todo... LockStrategy
  *
  * @author KaiKoo
  */
-public final class EntityLocker {
+public final class DistributedLockHelper {
 
   private static DistributedLockFactory FACTORY;
 
@@ -23,7 +23,7 @@ public final class EntityLocker {
     FACTORY = Objects.requireNonNull(factory);
   }
 
-  private EntityLocker() throws IllegalAccessException {
+  private DistributedLockHelper() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
 
@@ -35,7 +35,7 @@ public final class EntityLocker {
     return FACTORY.getMultiLock(
         entities.stream()
             .map(entity -> entity.generateLockName(FACTORY.getLockNameGenerator()))
-            .collect(Collectors.toList()));
+            .toList());
   }
 
   public static boolean tryLockThenRun(@NotNull Entity<?> entity, @NotNull Runnable runnable) {

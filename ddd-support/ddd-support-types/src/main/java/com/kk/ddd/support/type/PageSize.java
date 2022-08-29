@@ -1,40 +1,52 @@
 package com.kk.ddd.support.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.kk.ddd.support.constant.Constants;
+import com.kk.ddd.support.core.Type;
+import com.kk.ddd.support.util.ParseUtils;
+import com.kk.ddd.support.util.ValidateUtils;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 分页大小，通过spi方式提供拓展点，可修改默认分页大小和最大分页大小。 <br>
  *
  * @author KaiKoo
  */
-@EqualsAndHashCode(callSuper = true)
-public class PageSize extends RangedLong {
+@EqualsAndHashCode
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public class PageSize implements Type, Comparable<PageSize> {
+
+  @Getter @JsonValue
+  private final long value;
 
   // 默认分页大小，并添加缓存
-  public static final PageSize DEFAULT = new PageSize(Constants.TYPE.defaultPageSize(), null);
+  public static final PageSize DEFAULT = new PageSize(Constants.TYPE.defaultPageSize());
 
-  private PageSize(long value, String fieldName) {
-    super(value, fieldName, 0L, false, Constants.TYPE.maximumPageSize(), true);
-  }
 
-  /**
-   * 内部实现提供私有的静态方法 （如果无特殊处理逻辑可以不提供）<br>
-   * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 of（可靠输入） 静态方法 <br>
-   */
   private static PageSize of(long value, String fieldName) {
-    return DEFAULT.getValue() == value ? DEFAULT : new PageSize(value, fieldName);
+    ValidateUtils.minValue(value, 0, false, fieldName);
+    ValidateUtils.maxValue(value, Constants.TYPE.maximumPageSize(), true, fieldName);
+    if (DEFAULT.getValue() == value) {
+      return DEFAULT;
+    }
+    return new PageSize(value);
   }
 
-  // 针对可靠输入的 of 方法
-  @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
+  @JsonCreator
   public static PageSize of(long l) {
     return of(l, "PageSize");
   }
 
-  // 针对不可靠输入的 valueOf 方法
   public static PageSize valueOf(Object o, String fieldName) {
-    return of(parseLong(o, fieldName), fieldName);
+    return of(ParseUtils.parseLong(o, fieldName), fieldName);
+  }
+
+  @Override
+  public int compareTo(PageSize o) {
+    return Long.compare(this.getValue(), o.getValue());
   }
 }

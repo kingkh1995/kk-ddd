@@ -8,6 +8,7 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.jctools.queues.MpscUnboundedArrayQueue;
@@ -51,7 +52,7 @@ public class StockManager implements InitializingBean {
         this.stockDAO = stockDAO;
     }
 
-    public CompletableFuture<Boolean> deduct(String orderNo, int count) {
+    public Future<Boolean> deduct(String orderNo, int count) {
         var future = new CompletableFuture<Boolean>();
         if (!queue.offer(new StockOperateBO(orderNo, count, future))) {
             return CompletableFuture.completedFuture(false);
