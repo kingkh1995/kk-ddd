@@ -4,32 +4,29 @@
 <mapper namespace="com.kk.ddd.user.persistence.UserMapper">
 
   <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
-    INSERT INTO user
-      (name, username, password, gender, age, email)
-    VALUES (#{name}, #{username}, #{password}, #{gender}, #{age}, #{email})
+    INSERT INTO `user` (`state`, `name`, `phone`, `email`)
+    VALUES (#{state}, #{name}, #{phone}, #{email})
   </insert>
 
   <update id="updateById">
     UPDATE
-    user
+    `user`
     <set>
+      <if test="state != null">
+        `state` = #{state},
+      </if>
       <if test="name != null">
-        name = #{name},
+        `name` = #{name},
       </if>
-      <if test="password != null">
-        password = #{password},
-      </if>
-      <if test="gender != null">
-        gender = #{gender},
-      </if>
-      <if test="age != null">
-        age = #{age},
+      <if test="phone != null">
+        `phone` = #{phone},
       </if>
       <if test="email != null">
-        email = #{email},
+        `email` = #{email},
       </if>
+      `version` = #{version} + 1,
     </set>
-    WHERE id = #{id}
+    WHERE `id` = #{id} AND `version` = #{version} AND `deleted` = 0
   </update>
 
   <!--一对多使用嵌套查询才支持分页-->
@@ -40,26 +37,27 @@
   </resultMap>
 
   <sql id="columns">
-    id, name, username, gender, age, email
+    `id`, `state`, `name`, `phone`, `email`, `create_time`, `update_time`, `version`
   </sql>
 
   <select id="selectById" resultMap="fullResultMap">
     SELECT
     <include refid="columns"/>
     FROM
-    user
-    WHERE id = #{id}
+    `user`
+    WHERE `id` = #{id} AND `deleted` = 0
   </select>
 
   <select id="selectByIds" resultMap="fullResultMap">
     SELECT
     <include refid="columns"/>
     FROM
-    user
-    WHERE id IN
+    `user`
+    WHERE `id` IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">
       #{id}
     </foreach>
+    AND `deleted` = 0
   </select>
 
 </mapper>

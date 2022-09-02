@@ -7,37 +7,33 @@ import com.kk.ddd.support.util.ParseUtils;
 import com.kk.ddd.support.util.ValidateUtils;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 人民币万元（只允许带两位小数即精确到百元位） <br>
+ * 人民币万元（精确到百元位即只允许带两位小数） <br>
  *
  * @author KaiKoo
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MillionYuan implements Type, Comparable<MillionYuan> {
+public final class MillionYuan implements Type, Comparable<MillionYuan> {
 
-  @Getter
-  @JsonValue private final BigDecimal value;
+  @Getter @JsonValue private final BigDecimal value;
 
-  private static MillionYuan of(@NotNull BigDecimal value, String fieldName) {
+  private static MillionYuan of(final BigDecimal value, final String fieldName) {
     ValidateUtils.scaleAbove(value, 2, fieldName);
     return new MillionYuan(value);
   }
 
-  // 针对可靠输入的 from 方法
   @JsonCreator
-  public static MillionYuan of(@NotNull BigDecimal value) {
-    return of(value, "TenThousandYuan");
+  public static MillionYuan of(final BigDecimal value) {
+    return of(value, "MillionYuan");
   }
 
-  // 针对不可靠输入的 valueOf 方法
-  public static MillionYuan valueOf(Object o, String fieldName) {
+  public static MillionYuan valueOf(final Object o, final String fieldName) {
     return of(ParseUtils.parseBigDecimal(o, fieldName), fieldName);
   }
 
@@ -53,13 +49,13 @@ public class MillionYuan implements Type, Comparable<MillionYuan> {
 
   /** 格式化表示 */
 
-  private static final DecimalFormat FORMAT = new DecimalFormat("#,###.00");
+  private static final DecimalFormat FORMAT = new DecimalFormat("#,###.00（万元）");
 
   protected transient volatile String formattedStringCache;
 
   public String toFormattedString() {
     if (this.formattedStringCache == null) {
-      this.formattedStringCache = FORMAT.format(this.getValue()) + "（万元）";
+      this.formattedStringCache = FORMAT.format(this.getValue());
     }
     return this.formattedStringCache;
   }

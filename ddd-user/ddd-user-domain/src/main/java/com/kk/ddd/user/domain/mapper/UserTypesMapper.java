@@ -1,9 +1,13 @@
 package com.kk.ddd.user.domain.mapper;
 
-import com.kk.ddd.support.enums.AccountStateEnum;
+import com.kk.ddd.support.enums.AccountTypeEnum;
+import com.kk.ddd.support.enums.UserStateEnum;
 import com.kk.ddd.user.domain.type.AccountId;
-import com.kk.ddd.user.domain.type.AccountState;
+import com.kk.ddd.user.domain.type.AccountType;
+import com.kk.ddd.user.domain.type.AuthStrength;
 import com.kk.ddd.user.domain.type.UserId;
+import com.kk.ddd.user.domain.type.UserState;
+import com.kk.ddd.user.domain.type.Username;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
@@ -19,34 +23,60 @@ import org.springframework.stereotype.Component;
 public class UserTypesMapper {
 
   /** 自定义类型转换方法 */
-  public Long mapFromUserId(UserId userId) {
+
+  public Long mapFromUserId(final UserId userId) {
     return userId.getValue();
   }
 
-  public UserId map2UserId(Long l) {
-    return UserId.valueOf(l, "用户ID");
+  public UserId map2UserId(final Long l) {
+    return UserId.valueOf(l, "账户ID");
   }
 
-  public Long mapFromAccountId(AccountId accountId) {
+  public String mapFromUsername(final Username username) {
+    return username.getValue();
+  }
+
+  public Username map2Username(final String s) {
+    return Username.valueOf(s, "用户名");
+  }
+
+  // 枚举可以映射为字符串，会自动调用name()方法。
+  public UserStateEnum mapFromUserState(final UserState userState) {
+    return userState.toEnum();
+  }
+
+  public UserState map2UserState(final String s) {
+    return UserState.valueOf(s, "用户状态");
+  }
+
+  public Long mapFromAccountId(final AccountId accountId) {
     return accountId.getValue();
   }
 
-  public AccountId map2AccountId(Long l) {
+  public AccountId map2AccountId(final Long l) {
     return AccountId.valueOf(l, "账户ID");
   }
 
   @Named("map2AccountId-new") // 存在多个相同的类型映射方法时进行标识
-  public AccountId map2AccountIdNew(Long l) {
+  public AccountId map2AccountIdNew(final Long l) {
     log.info("this is map2AccountId-new!");
     return AccountId.of(l);
   }
 
-  // 可以直接映射为枚举，会自动调用name()方法转为字符串
-  public AccountStateEnum mapFromAccountState(AccountState accountState) {
-    return accountState.getValue();
+  public AccountTypeEnum mapFromAccountType(final AccountType accountType) {
+    return accountType.toEnum();
   }
 
-  public AccountState map2AccountState(String s) {
-    return AccountState.valueOf(s, "账户状态");
+  public AccountType map2AccountType(final String s) {
+    return AccountType.valueOf(s, "账户类型");
   }
+
+  public Integer mapFromAuthStrength(final AuthStrength authStrength) {
+    return authStrength.getValue();
+  }
+
+  public AuthStrength map2AuthStrength(Integer i) {
+    return AuthStrength.valueOf(i, "验证强度");
+  }
+
 }

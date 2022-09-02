@@ -19,14 +19,14 @@ public interface UserAppService {
    * @param username
    * @return
    */
-  Optional<UserAuthInfo> getAuthcInfo(String username);
+  Optional<UserAuthInfo> getAuthInfo(String username);
 
   /**
    * 修改密码
    *
-   * @param authcInfo
+   * @param authInfo
    */
-  void changePassword(UserAuthInfo authcInfo);
+  void changePassword(UserAuthInfo authInfo);
 
   UserDTO queryUser(Long userId);
 

@@ -1,6 +1,6 @@
 package com.kk.ddd.user.domain.strategy;
 
-import com.kk.ddd.support.enums.AccountStateEnum;
+import com.kk.ddd.support.enums.AccountTypeEnum;
 import com.kk.ddd.support.util.strategy.EStrategy;
 import com.kk.ddd.user.domain.entity.Account;
 import javax.validation.constraints.NotNull;
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public interface AccountStrategy extends EStrategy<AccountStateEnum> {
+public interface AccountStrategy extends EStrategy<AccountTypeEnum> {
 
   /** 判断是否可以更新 */
   default boolean allowModify(@NotNull Account oldAccount, @NotNull Account newAccount) {

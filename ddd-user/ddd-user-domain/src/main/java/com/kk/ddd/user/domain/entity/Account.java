@@ -3,13 +3,12 @@ package com.kk.ddd.user.domain.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.kk.ddd.support.core.Entity;
 import com.kk.ddd.support.diff.DiffIgnore;
-import com.kk.ddd.support.enums.AccountStateEnum;
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.type.Version;
 import com.kk.ddd.support.util.NameGenerator;
 import com.kk.ddd.user.domain.service.AccountService;
 import com.kk.ddd.user.domain.type.AccountId;
-import com.kk.ddd.user.domain.type.AccountState;
+import com.kk.ddd.user.domain.type.AccountType;
 import com.kk.ddd.user.domain.type.UserId;
 import java.time.Instant;
 import java.util.Objects;
@@ -20,29 +19,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 用户账户
+ * 用户绑定账户
  *
  * @author KaiKoo
  */
 @JsonDeserialize(builder = Account.AccountBuilder.class) // 设置反序列化使用Builder
+@Builder
 @EqualsAndHashCode(callSuper = true)
 @Getter
-@Builder
 public class Account extends Entity<AccountId> {
 
   @Setter(AccessLevel.PROTECTED)
   private AccountId id;
-
-  // Entity中使用Instant对应DO中的Date类型
-  @DiffIgnore private Instant createTime;
-
-  @DiffIgnore private Instant updateTime;
-
   private UserId userId;
-
-  private AccountState state;
-
-  // 版本号、创建时间、更新时间不参数对比
+  private AccountType type;
+  private String principal;
+  private Instant unbindTime;
+  @DiffIgnore private Instant createTime;
+  @DiffIgnore private Instant updateTime;
   @DiffIgnore private Version version;
 
   @Override
@@ -60,8 +54,6 @@ public class Account extends Entity<AccountId> {
     // handle
     if (this.id == null) {
       // 新增逻辑
-      // 设置初始状态
-      this.state = AccountState.of(AccountStateEnum.INIT);
     } else {
       // 更新逻辑
       if (!accountService.allowModify(this)) {
@@ -72,13 +64,12 @@ public class Account extends Entity<AccountId> {
     accountService.save(this);
   }
 
-  public void invalidate() {
-    // 领域都是合法的，可以忽略空指针问题。
-    if (AccountStateEnum.ACTIVE.equals(this.state.getValue())) {
-      this.state = AccountState.of(AccountStateEnum.TERMINATED);
-    } else {
-      throw new BusinessException("当前状态无法失效。");
+  public Account unbind() {
+    if (Objects.nonNull(this.unbindTime)) {
+      throw new BusinessException("已经解绑！");
     }
+    this.unbindTime = Instant.now();
+    return this;
   }
 
   public Account validate() {

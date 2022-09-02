@@ -1,4 +1,4 @@
-package com.kk.ddd.support.exception;
+package com.kk.ddd.support.json;
 
 /**
  * jackson异常 <br>

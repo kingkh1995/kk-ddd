@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.springframework.data.domain.Persistable;
 
 /**
@@ -13,8 +14,9 @@ import org.springframework.data.domain.Persistable;
  *
  * @author KaiKoo
  */
-@MappedSuperclass
+@Getter
 @EqualsAndHashCode
+@MappedSuperclass
 public abstract class BasePersistable<PK extends Serializable> implements Persistable<PK> {
 
   @Column(
@@ -32,13 +34,10 @@ public abstract class BasePersistable<PK extends Serializable> implements Persis
       updatable = false)
   private Date updateTime;
 
-  public Date getCreateTime() {
-    return createTime;
-  }
-
-  public Date getUpdateTime() {
-    return updateTime;
-  }
+  @Column(name = "version",
+          columnDefinition = "INT(11) UNSIGNED NOT NULL DEFAULT 0",
+          insertable = false)
+  private int version;
 
   @Transient
   @Override

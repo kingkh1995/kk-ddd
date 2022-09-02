@@ -2,6 +2,7 @@ package com.kk.ddd.user.application.factory;
 
 import com.kk.ddd.support.model.command.AccountModifyCommand;
 import com.kk.ddd.user.domain.entity.Account;
+import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.UserId;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,11 @@ import org.springframework.stereotype.Component;
 public class AccountFactory {
 
     public Account create(AccountModifyCommand command) {
-        return Account.builder().userId(UserId.valueOf(command.getUserId(), "userId")).build().validate();
+        return Account.builder()
+                .id(AccountId.valueOf(command.getId(), "accountId"))
+                .userId(UserId.valueOf(command.getUserId(), "userId"))
+                .build()
+                .validate();
     }
 
 }

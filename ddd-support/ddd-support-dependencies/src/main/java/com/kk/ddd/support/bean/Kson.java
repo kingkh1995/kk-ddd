@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.kk.ddd.support.exception.JacksonException;
+import com.kk.ddd.support.json.JacksonException;
 import java.util.Objects;
 import javax.validation.constraints.NotNull;
 

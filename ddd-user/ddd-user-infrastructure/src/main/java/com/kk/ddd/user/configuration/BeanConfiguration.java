@@ -73,9 +73,6 @@ public class BeanConfiguration implements ApplicationContextAware {
   }
 
   @Bean
-  /*public DistributedLockFactory distributedLockFactory(StringRedisTemplate stringRedisTemplate) {
-    return RedisDistributedLockFactory.builder().redisTemplate(stringRedisTemplate).build();
-  }*/
   /*public DistributedLockFactory distributedLockFactory(RedissonClient redissonClient) {
     return RedissonDistributedLockFactory.builder().client(redissonClient).build();
   }*/

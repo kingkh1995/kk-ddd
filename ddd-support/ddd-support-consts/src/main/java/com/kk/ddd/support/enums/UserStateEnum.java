@@ -1,6 +1,6 @@
 package com.kk.ddd.support.enums;
 
-public enum AccountStateEnum {
+public enum UserStateEnum {
   INIT,
   ACTIVE,
   FROZEN,

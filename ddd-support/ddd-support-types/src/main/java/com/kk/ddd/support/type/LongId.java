@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class LongId implements Identifier, Comparable<LongId> {
+public final class LongId implements Identifier, Comparable<LongId> {
 
   private final long value;
 
@@ -24,19 +24,19 @@ public class LongId implements Identifier, Comparable<LongId> {
    * 内部实现提供私有的静态方法供其他方法使用，仅该私有静态方法能调用构造方法。 <br>
    * 不对外提供构造函数，只提供 valueOf（不可靠输入） 和 of（可靠输入） 静态方法。 <br>
    */
-  private static LongId of(long value, String fieldName) {
+  private static LongId of(final long value, final String fieldName) {
     ValidateUtils.minValue(value, 0, false, fieldName);
     return new LongId(value);
   }
 
   // 针对可靠输入的 of 方法
   @JsonCreator // 自定义Jackson反序列化，可以用于构造方法和静态工厂方法，使用@JsonProperty注释字段
-  public static LongId of(long l) {
+  public static LongId of(final long l) {
     return of(l, "LongId");
   }
 
   // 针对不可靠输入的 valueOf 方法
-  public static LongId valueOf(Object o, String fieldName) {
+  public static LongId valueOf(final Object o, final String fieldName) {
     return of(ParseUtils.parseLong(o,fieldName), fieldName);
   }
 

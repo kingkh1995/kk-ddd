@@ -16,7 +16,7 @@
 - redisson: 3.17.5
 - curator: 5.3.0
 - mapstruct: 1.5.2.Final
-- kafka: 2.8.1 (***outdated***)
+- kafka: 2.9.0
 - rocketmq: 2.2.2
 - grpc: 1.49.0
 

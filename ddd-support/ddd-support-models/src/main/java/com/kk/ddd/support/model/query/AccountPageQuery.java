@@ -1,15 +1,17 @@
 package com.kk.ddd.support.model.query;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 
 /**
  * <br>
  *
  * @author KaiKoo
  */
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(callSuper = true)
+@Accessors(chain = true)
 public class AccountPageQuery extends AbstractPageQuery {
 
   private Long id;

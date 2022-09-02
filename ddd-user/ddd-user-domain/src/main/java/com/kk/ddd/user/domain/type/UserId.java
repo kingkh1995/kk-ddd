@@ -1,27 +1,50 @@
 package com.kk.ddd.user.domain.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.kk.ddd.support.type.LongId;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.kk.ddd.support.core.Identifier;
+import com.kk.ddd.support.util.ParseUtils;
+import com.kk.ddd.support.util.ValidateUtils;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * <br>
+ *
+ * <br/>
  *
  * @author KaiKoo
  */
-@EqualsAndHashCode(callSuper = true)
-public final class UserId extends LongId {
+@EqualsAndHashCode
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+public final class UserId implements Identifier, Comparable<UserId> {
 
-  private UserId(long value, String fieldName) {
-    super(value, fieldName);
-  }
+    @Getter
+    @JsonValue
+    private final long value;
 
-  @JsonCreator
-  public static UserId of(long l) {
-    return new UserId(l, "UserId");
-  }
+    private static UserId of(final long value, final String fieldName) {
+        ValidateUtils.minValue(value, 0, false, fieldName);
+        return new UserId(value);
+    }
 
-  public static UserId valueOf(Object o, String fieldName) {
-    return new UserId(parseLong(o, fieldName), fieldName);
-  }
+    @JsonCreator
+    public static UserId of(final long l) {
+        return of(l, "UserId");
+    }
+
+    public static UserId valueOf(final Object o, final String fieldName) {
+        return of(ParseUtils.parseLong(o, fieldName), fieldName);
+    }
+
+    @Override
+    public String identifier() {
+        return String.valueOf(this.getValue());
+    }
+
+    @Override
+    public int compareTo(UserId o) {
+        return Long.compare(this.getValue(), o.getValue());
+    }
 }

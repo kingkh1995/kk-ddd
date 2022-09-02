@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web.authc;
+package com.kk.ddd.user.web.auth;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

@@ -5,9 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * account：用户账户（收付款账户、虚拟账户等）<br>
- * PO类字段和字段类型要求与数据库完全一致，且应该是record。 <br>
- * 根据阿里巴巴Java开发手册，日期类型应该使用DATETIME和java.util.Date。
+ * account <br>
  *
  * @author KaiKoo
  */
@@ -16,15 +14,31 @@ public class AccountPO implements Serializable {
 
   private Long id;
 
+  /**
+   * 用户ID <br/>
+   * 聚合根主键
+   */
+  private Long userId;
+
+  /**
+   * 账户类型 <br/>
+   * @see com.kk.ddd.support.enums.AccountTypeEnum
+   */
+  private String type;
+
+  /**
+   * 账户标识（账号）
+   */
+  private String principal;
+
+  /**
+   * 解绑时间
+   */
+  private Date unbindTime;
+
   private Date createTime;
 
   private Date updateTime;
 
-  private Long userId;
-
-  /** state用来标识可迁移的状态（如state machine），status用来表示不可迁移的状态（如Http status code） */
-  private String state;
-
-  // 乐观锁版本号
   private Integer version;
 }

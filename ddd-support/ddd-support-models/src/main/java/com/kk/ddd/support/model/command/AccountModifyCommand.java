@@ -11,12 +11,12 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * 将不允许被修改但需要提供的参数（如ID）放在path上
+ *
  *
  * @author KaiKoo
  */
 @Data
-@Accessors(chain = true) // chain模式不适用于继承的场景
+@Accessors(chain = true)
 public class AccountModifyCommand implements Serializable {
 
   @Null(message = "id必须为空！", groups = Create.class)

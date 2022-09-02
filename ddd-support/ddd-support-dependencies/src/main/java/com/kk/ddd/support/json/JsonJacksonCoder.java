@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.kk.ddd.support.exception.JacksonException;
 import java.util.Objects;
 import javax.xml.datatype.XMLGregorianCalendar;
 

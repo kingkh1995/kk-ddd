@@ -21,17 +21,17 @@ public final class AccountId implements Identifier, Comparable<AccountId> {
 
   @Getter @JsonValue private final long value;
 
-  private static AccountId of(long value, String fieldName) {
+  private static AccountId of(final long value, final String fieldName) {
     ValidateUtils.minValue(value, 0, false, fieldName);
     return new AccountId(value);
   }
 
   @JsonCreator
-  public static AccountId of(long l) {
+  public static AccountId of(final long l) {
     return of(l, "AccountId");
   }
 
-  public static AccountId valueOf(Object o, String fieldName) {
+  public static AccountId valueOf(final Object o, final String fieldName) {
     return of(ParseUtils.parseLong(o, fieldName), fieldName);
   }
 

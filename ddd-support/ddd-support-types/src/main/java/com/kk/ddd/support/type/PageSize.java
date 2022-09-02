@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class PageSize implements Type, Comparable<PageSize> {
+public final class PageSize implements Type, Comparable<PageSize> {
 
   @Getter @JsonValue
   private final long value;
@@ -26,8 +26,7 @@ public class PageSize implements Type, Comparable<PageSize> {
   // 默认分页大小，并添加缓存
   public static final PageSize DEFAULT = new PageSize(Constants.TYPE.defaultPageSize());
 
-
-  private static PageSize of(long value, String fieldName) {
+  private static PageSize of(final long value, final String fieldName) {
     ValidateUtils.minValue(value, 0, false, fieldName);
     ValidateUtils.maxValue(value, Constants.TYPE.maximumPageSize(), true, fieldName);
     if (DEFAULT.getValue() == value) {
@@ -37,11 +36,11 @@ public class PageSize implements Type, Comparable<PageSize> {
   }
 
   @JsonCreator
-  public static PageSize of(long l) {
+  public static PageSize of(final long l) {
     return of(l, "PageSize");
   }
 
-  public static PageSize valueOf(Object o, String fieldName) {
+  public static PageSize valueOf(final Object o, final String fieldName) {
     return of(ParseUtils.parseLong(o, fieldName), fieldName);
   }
 

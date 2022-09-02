@@ -4,40 +4,39 @@
 <mapper namespace="com.kk.ddd.user.persistence.AccountMapper">
 
   <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
-    INSERT INTO account
-      (user_id, state)
-    VALUES (#{userId}, #{state})
+    INSERT INTO `account` (`user_id`, `type`, `principal`)
+    VALUES (#{userId}, #{type}, #{principal})
   </insert>
 
   <update id="updateById">
-    UPDATE account
+    UPDATE `account`
     <set>
-      <if test="state != null">
-        state = #{state},
+      <if test="unbindTime != null">
+        `unbind_time` = #{unbindTime},
       </if>
-      version = #{version} + 1,
+      `version` = #{version} + 1,
     </set>
-    WHERE id = #{id} AND version = #{version}
+    WHERE `id` = #{id} AND `version` = #{version}
   </update>
 
   <sql id="account_columns">
-    id, user_id, state, version, create_time, update_time
+    `id`, `user_id`, `type`, `principal`, `unbind_time`, `create_time`, `update_time`, `version`
   </sql>
 
   <select id="selectById" resultType="com.kk.ddd.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM
-    account
-    WHERE id = #{id}
+    `account`
+    WHERE `id` = #{id}
   </select>
 
   <select id="selectByIds" resultType="com.kk.ddd.user.persistence.AccountPO">
     SELECT
     <include refid="account_columns"/>
     FROM
-    account
-    WHERE id IN
+    `account`
+    WHERE `id` IN
     <foreach collection="ids" item="id" open="(" separator="," close=")">
       #{id}
     </foreach>
@@ -47,8 +46,8 @@
     SELECT
     <include refid="account_columns"/>
     FROM
-    account
-    WHERE user_id = #{userId}
+    `account`
+    WHERE `user_id` = #{userId}
   </select>
 
   <select id="selectByUserIds" resultType="com.kk.ddd.user.persistence.AccountPO">
@@ -56,7 +55,7 @@
     <include refid="account_columns"/>
     FROM
     account
-    WHERE user_id IN
+    WHERE `user_id` IN
     <foreach collection="userIds" item="userId" open="(" separator="," close=")">
       #{userId}
     </foreach>

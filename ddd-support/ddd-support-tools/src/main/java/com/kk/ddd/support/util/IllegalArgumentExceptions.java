@@ -16,6 +16,10 @@ public final class IllegalArgumentExceptions {
     return new IllegalArgumentException(fieldName + "不能为空");
   }
 
+  public static IllegalArgumentException forIsBlank(String fieldName) {
+    return new IllegalArgumentException(fieldName + "不能为空字符串");
+  }
+
   public static IllegalArgumentException forWrongPattern(String fieldName) {
     return new IllegalArgumentException(fieldName + "格式不正确");
   }
@@ -37,6 +41,12 @@ public final class IllegalArgumentExceptions {
   public static IllegalArgumentException forMinValue(
       String fieldName, Number min, boolean inclusive) {
     var message = fieldName + "必须大于" + (inclusive ? "等于" : "") + min;
+    return new IllegalArgumentException(message);
+  }
+
+  public static IllegalArgumentException forMaxLength(
+          String fieldName, Number max, boolean inclusive) {
+    var message = fieldName + "的长度必须小于" + (inclusive ? "等于" : "") + max;
     return new IllegalArgumentException(message);
   }
 

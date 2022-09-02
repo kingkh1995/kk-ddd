@@ -1,7 +1,7 @@
 package com.kk.ddd.support.exception;
 
 /**
- * 外部服务提供者异常 <br>
+ * 外部服务异常 <br>
  *
  * @author KaiKoo
  */

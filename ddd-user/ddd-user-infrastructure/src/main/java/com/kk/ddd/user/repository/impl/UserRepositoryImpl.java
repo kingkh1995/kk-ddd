@@ -11,6 +11,7 @@ import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.entity.User;
 import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.UserId;
+import com.kk.ddd.user.domain.type.Username;
 import com.kk.ddd.user.persistence.AccountMapper;
 import com.kk.ddd.user.persistence.AccountPO;
 import com.kk.ddd.user.persistence.UserMapper;
@@ -96,13 +97,12 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
 
   // ===============================================================================================
 
-  /** 插入操作后一定要填补Id，让aggregateTrackingManager能取到Id值 */
   @Override
   protected void onInsert(@NotNull User aggregate) {
     // 插入User
     var userPO = userDataConverter.toData(aggregate);
     userMapper.insert(userPO);
-    // 填补id
+    // todo... 生成分布式ID
     aggregate.fillInId(UserId.of(userPO.getId()));
     // 循环插入Accounts
     Stream.ofNullable(aggregate.getAccounts())
@@ -114,7 +114,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     var accountPO = accountDataConverter.toData(account);
     // 插入
     accountMapper.insert(accountPO);
-    // 填补id
+    // todo... 生成分布式ID
     account.fillInId(AccountId.of(accountPO.getId()));
   }
 
@@ -140,7 +140,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
                     newValue.fillInId(AccountId.of(accountPO.getId()));
                   }
                   // 移除情况
-                  case Removed -> accountMapper.deleteById(oldValue.getId().getValue());
+                  case Removed -> accountMapper.deleteById(accountDataConverter.toData(oldValue));
                   // 更新情况
                   case Modified -> {
                     if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
@@ -153,10 +153,8 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
 
   @Override
   protected void onDelete(@NotNull User aggregate) {
-    // 删除User
-    userMapper.deleteById(aggregate.getId().getValue());
-    // 删除Accounts
-    accountMapper.deleteByUserId(aggregate.getId().getValue());
+    // 只删除User
+    userMapper.logicalDeleteById(userDataConverter.toData(aggregate));
   }
 
   // ===============================================================================================
@@ -227,7 +225,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
   }
 
   @Override
-  public Optional<User> find(String username) {
-    return userMapper.selectByUsername(username).map(this::findThenBuild);
+  public Optional<User> find(Username name) {
+    return userMapper.selectByName(name.getValue()).map(this::findThenBuild);
   }
 }

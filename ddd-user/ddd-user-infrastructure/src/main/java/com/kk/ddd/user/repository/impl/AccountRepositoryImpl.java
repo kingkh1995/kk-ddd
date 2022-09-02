@@ -2,7 +2,7 @@ package com.kk.ddd.user.repository.impl;
 
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.repository.EntityRepositorySupport;
-import com.kk.ddd.user.converter.AccountConverter;
+import com.kk.ddd.user.converter.AccountDataConverter;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.UserId;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 public class AccountRepositoryImpl extends EntityRepositorySupport<Account, AccountId>
     implements AccountRepository {
 
-  private final AccountConverter accountConverter = AccountConverter.INSTANCE;
+  private final AccountDataConverter accountConverter;
 
   private final AccountMapper accountMapper;
 
@@ -48,8 +48,7 @@ public class AccountRepositoryImpl extends EntityRepositorySupport<Account, Acco
 
   @Override
   protected void onDelete(@NotNull Account entity) {
-    // todo... 逻辑删除 LD（logic delete） & 乐观锁 OCC （optimistic concurrency control）
-    accountMapper.deleteById(entity.getId().getValue());
+    accountMapper.deleteById(accountConverter.toData(entity));
   }
 
   @Override

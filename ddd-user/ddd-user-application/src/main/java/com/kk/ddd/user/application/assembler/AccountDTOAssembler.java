@@ -49,6 +49,7 @@ public interface AccountDTOAssembler {
    * - NullValueCheckStrategy：参数空检查策略，最好设置为ALWAYS
    */
   @Mapping(target = "createTimestamp", source = "createTime")
+  @Mapping(target = "updateTimestamp", source = "updateTime")
   AccountDTO toDTO(Account account);
 
   @InheritInverseConfiguration(name = "toDTO") // 注解在反向映射方法上，会自动继承大部分配置

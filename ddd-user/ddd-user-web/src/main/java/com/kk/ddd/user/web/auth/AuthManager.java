@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web.authc;
+package com.kk.ddd.user.web.auth;
 
 import com.kk.ddd.support.model.command.AuthCommand;
 import com.kk.ddd.support.model.dto.UserAuthInfo;
@@ -45,7 +45,7 @@ public class AuthManager {
    */
   public UserAuthenticationInfo getAuthenticationInfo(@Validated AuthQuery query) {
     return service
-        .getAuthcInfo(query.getUsername())
+        .getAuthInfo(query.getUsername())
         .map(
             authcInfo ->
                 new UserAuthenticationInfo(
@@ -74,7 +74,7 @@ public class AuthManager {
    * @param command
    */
   public void changePassword(@Validated(Inner.class) AuthCommand command) {
-    var authcInfo = service.getAuthcInfo(command.getUsername()).get();
+    var authcInfo = service.getAuthInfo(command.getUsername()).get();
     var newPassword = encryptPassword(command.getPlaintextPassword(), getSalt(authcInfo));
     // 做到幂等，与原密码相同直接return
     if (newPassword.equals(authcInfo.getEncryptedPassword())) {

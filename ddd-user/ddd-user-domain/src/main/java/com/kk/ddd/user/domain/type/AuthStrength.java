@@ -12,22 +12,23 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
+ * 验证强度
  * <br/>
  *
  * @author KaiKoo
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class AuthStrength implements Type, Comparable<AuthStrength> {
+public final class AuthStrength implements Type, Comparable<AuthStrength> {
 
-    @Getter
-    @JsonValue private final int value;
+    @Getter @JsonValue private final int value;
 
     private static final int BOUND = 10;
 
     private static class Cache {
-        static final AuthStrength[] cache = IntStream.range(0, BOUND).mapToObj(AuthStrength::new).toArray(AuthStrength[]::new);
+        static final AuthStrength[] cache = IntStream.range(0, BOUND)
+                .mapToObj(AuthStrength::new)
+                .toArray(AuthStrength[]::new);
 
     }
 
@@ -35,18 +36,18 @@ public class AuthStrength implements Type, Comparable<AuthStrength> {
 
     public static final AuthStrength MAX = Cache.cache[BOUND - 1];
 
-    private static AuthStrength of(int value, String fieldName) {
+    private static AuthStrength of(final int value, final String fieldName) {
         ValidateUtils.minValue(value, 0, true, fieldName);
         ValidateUtils.maxValue(value, BOUND, false, fieldName);
         return Cache.cache[value];
     }
 
     @JsonCreator
-    public static AuthStrength of(int i) {
+    public static AuthStrength of(final int i) {
         return of(i, "AuthStrength");
     }
 
-    public static AuthStrength valueOf(Object o, String fieldName) {
+    public static AuthStrength valueOf(final Object o, final String fieldName) {
         return of(ParseUtils.parseInt(o, fieldName), fieldName);
     }
 
@@ -56,14 +57,14 @@ public class AuthStrength implements Type, Comparable<AuthStrength> {
     }
 
     public AuthStrength growUp() {
-        if (MAX.equals(this)) {
+        if (this.getValue() == MAX.getValue()) {
             throw new IllegalStateException("already max!");
         }
         return of(this.getValue() + 1);
     }
 
     public AuthStrength growDown() {
-        if (MIN.equals(this)) {
+        if (this.getValue() == MIN.getValue()) {
             throw new IllegalStateException("already min!");
         }
         return of(this.getValue() - 1);

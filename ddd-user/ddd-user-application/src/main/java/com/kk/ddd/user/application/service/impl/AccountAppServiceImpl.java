@@ -2,13 +2,12 @@ package com.kk.ddd.user.application.service.impl;
 
 import com.kk.ddd.support.model.command.AccountModifyCommand;
 import com.kk.ddd.support.model.dto.AccountDTO;
-import com.kk.ddd.user.application.assembler.AccountAssembler;
+import com.kk.ddd.user.application.assembler.AccountDTOAssembler;
 import com.kk.ddd.user.application.factory.AccountFactory;
 import com.kk.ddd.user.application.service.AccountAppService;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.UserId;
-import com.kk.ddd.user.query.service.AccountQueryService;
 import com.kk.ddd.user.repository.AccountRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +22,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountAppServiceImpl implements AccountAppService {
 
-  private final AccountAssembler accountAssembler = AccountAssembler.INSTANCE;
+  private final AccountDTOAssembler accountAssembler;
 
   private final AccountRepository accountRepository;
-
-  private final AccountQueryService accountQueryService;
 
   private final AccountFactory accountFactory;
 
@@ -60,7 +57,7 @@ public class AccountAppServiceImpl implements AccountAppService {
   @Override
   public void deleteAccount(Long userId, Long accountId) {
     // 查询领域
-    var optional = accountQueryService.find(AccountId.valueOf(accountId, "id"));
+    var optional = accountRepository.find(AccountId.valueOf(accountId, "id"));
     // 编排逻辑
     if (optional.isEmpty()) {
       return;
@@ -74,7 +71,7 @@ public class AccountAppServiceImpl implements AccountAppService {
   @Override
   public AccountDTO queryAccount(Long userId, Long accountId) {
     // todo...
-    return accountQueryService
+    return accountRepository
         .find(AccountId.valueOf(accountId, "id"))
         .map(accountAssembler::toDTO)
         .get();

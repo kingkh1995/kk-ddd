@@ -18,8 +18,8 @@ public final class ParseUtils {
     public static int parseInt(Object o, String fieldName) {
         if (o == null) {
             throw IllegalArgumentExceptions.forIsNull(fieldName);
-        } else if (o instanceof Integer i) {
-            return i;
+        } else if (o instanceof Byte || o instanceof Short || o instanceof Integer) {
+            return (int) o;
         } else if (o instanceof String s) {
             try {
                 return Integer.parseInt(s);
@@ -33,8 +33,8 @@ public final class ParseUtils {
     public static long parseLong(Object o, String fieldName) {
         if (o == null) {
             throw IllegalArgumentExceptions.forIsNull(fieldName);
-        } else if (o instanceof Long l) {
-            return l;
+        } else if (o instanceof Byte || o instanceof Short || o instanceof Integer || o instanceof Long) {
+            return (long) o;
         } else if (o instanceof String s) {
             try {
                 return Long.parseLong(s);
@@ -75,7 +75,7 @@ public final class ParseUtils {
                 throw IllegalArgumentExceptions.forInvalidEnum(fieldName);
             }
         } else if (enumClass.isInstance(o)) {
-            return (E) o;
+            return (E) o; //todo...
         }
         throw IllegalArgumentExceptions.forWrongClass(fieldName);
     }

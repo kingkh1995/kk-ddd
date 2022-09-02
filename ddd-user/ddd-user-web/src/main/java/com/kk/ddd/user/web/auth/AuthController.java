@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web.authc;
+package com.kk.ddd.user.web.auth;
 
 import com.kk.ddd.support.annotation.BaseController;
 import com.kk.ddd.support.model.command.AuthCommand;

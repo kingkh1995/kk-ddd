@@ -7,7 +7,8 @@ import com.github.pagehelper.PageHelper;
 import com.kk.ddd.support.bean.Kson;
 import com.kk.ddd.support.bean.NettyDelayer;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
-import com.kk.ddd.support.enums.AccountStateEnum;
+import com.kk.ddd.support.enums.AccountTypeEnum;
+import com.kk.ddd.support.enums.UserStateEnum;
 import com.kk.ddd.support.model.dto.AccountDTO;
 import com.kk.ddd.support.type.LongId;
 import com.kk.ddd.support.type.MillionYuan;
@@ -15,8 +16,11 @@ import com.kk.ddd.support.type.PageSize;
 import com.kk.ddd.user.application.assembler.AccountDTOAssembler;
 import com.kk.ddd.user.domain.entity.Account;
 import com.kk.ddd.user.domain.type.AccountId;
-import com.kk.ddd.user.domain.type.AccountState;
+import com.kk.ddd.user.domain.type.AccountType;
+import com.kk.ddd.user.domain.type.Hash;
 import com.kk.ddd.user.domain.type.UserId;
+import com.kk.ddd.user.domain.type.UserState;
+import com.kk.ddd.user.domain.type.Username;
 import com.kk.ddd.user.persistence.AccountMapper;
 import com.kk.ddd.user.persistence.AccountPO;
 import com.kk.ddd.user.persistence.UserMapper;
@@ -107,20 +111,17 @@ class UserWebApplicationTests {
   @Transactional
   void testRepository() throws Exception {
     var all = userMapper.selectAll();
-    var byUsername = userRepository.find(all.get(0).getUsername()).get();
+    var byUsername = userRepository.find(Username.of(all.get(0).getName())).get();
     System.out.println(Kson.writeJson(byUsername));
     userRepository.find(byUsername.getId());
-    byUsername.getAccounts().get(1).invalidate();
+    byUsername.getAccounts().get(3).unbind();
     userRepository.save(byUsername);
-    var map =
-        userRepository.find(Set.of(UserId.of(1L), UserId.of(2L), UserId.of(4L), UserId.of(6L)));
+    var userIdSet = Set.of(UserId.of(1L), UserId.of(2L), UserId.of(3L));
+    var map = userRepository.find(userIdSet);
     System.out.println(Kson.writeJson(map));
     userRepository.remove(byUsername);
     System.out.println(Kson.writeJson(userRepository.find(byUsername.getId())));
-    System.out.println(
-        Kson.writeJson(
-            userRepository.find(
-                Set.of(UserId.of(1L), UserId.of(2L), UserId.of(4L), UserId.of(6L)))));
+    System.out.println(Kson.writeJson(userRepository.find(userIdSet)));
     // 等待延时删除完成
     Thread.sleep(2000);
   }
@@ -318,19 +319,18 @@ class UserWebApplicationTests {
     var userPOList = userMapper.selectAll();
     System.out.println(Kson.writeJson(userPOList));
     var userPO = userMapper.selectById(userPOList.get(0).getId()).get();
-    userPO.setGender(null);
-    userPO.setAge(null);
+    userPO.setPhone(null);
     userPO.setEmail(null);
     userMapper.updateById(userPO);
     System.out.println(Kson.writeJson(userMapper.selectById(userPO.getId())));
     var accountPOS = accountMapper.selectByUserId(userPO.getId());
     var accountPO = accountPOS.get(0);
-    accountPO.setState(null);
+    accountPO.setType(null);
     accountMapper.updateById(accountPO);
     System.out.println(Kson.writeJson(accountMapper.selectById(accountPO.getId())));
     var page =
         PageHelper.startPage(2, 1)
-            .doSelectPage(() -> userMapper.selectByGender(userPO.getGender()));
+            .doSelectPage(() -> accountMapper.selectByUserId(userPO.getId()));
     System.out.println(Kson.writeJson(page));
   }
 
@@ -347,19 +347,22 @@ class UserWebApplicationTests {
     System.out.println(id1.getValue());
     System.out.println(id2.getValue());
     System.out.println(Kson.readJson(Kson.writeJson("66666"), new TypeReference<AccountId>() {}));
-    var accountState = AccountState.of(AccountStateEnum.INIT);
+    var accountState = UserState.of(UserStateEnum.INIT);
     var json = Kson.writeJson(accountState);
-    System.out.println(Kson.readJson(json, new TypeReference<AccountState>() {}).toEnum());
+    System.out.println(Kson.readJson(json, new TypeReference<UserState>() {}).toEnum());
     var account =
         Account.builder()
             .id(AccountId.of(10))
-            .state(AccountState.of(AccountStateEnum.ACTIVE))
+            .type(AccountType.of(AccountTypeEnum.USERNAME))
             .build();
     var s = Kson.writeJson(account);
     System.out.println(s);
     System.out.println(Kson.readJson(s, Account.class));
     System.out.println(Kson.readJson(s, Account.class).getCreateTime());
     System.out.println(MillionYuan.of(new BigDecimal("110.6")).toFormattedString());
+    var hashJson = Kson.writeJson(Hash.valueOf("MD5", "123456", 3, "Hash"));
+    System.out.println(hashJson);
+    System.out.println(Kson.readJson(hashJson));
   }
 
   @Test

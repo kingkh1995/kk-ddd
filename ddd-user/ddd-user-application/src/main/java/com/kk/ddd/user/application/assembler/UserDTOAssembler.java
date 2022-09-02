@@ -26,9 +26,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserDTOAssembler {
 
-  @Mapping(target = "encryptedPassword", source = "password")
-  UserAuthInfo toAuthcInfo(User user);
+  UserAuthInfo toAuthInfo(User user);
 
+  @Mapping(target = "createTimestamp", source = "createTime")
+  @Mapping(target = "updateTimestamp", source = "updateTime")
   UserDTO toDTO(User user);
 
   @IterableMapping(nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT)

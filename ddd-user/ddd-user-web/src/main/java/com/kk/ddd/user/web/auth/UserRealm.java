@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web.authc;
+package com.kk.ddd.user.web.auth;
 
 import com.kk.ddd.support.bean.LocalRequestContextHolder;
 import com.kk.ddd.support.model.dto.UserAuthInfo;
@@ -53,8 +53,7 @@ public class UserRealm extends AuthenticatingRealm implements SmartInitializingS
   private void save2LocalRequestContext(UserAuthInfo userAuthInfo) {
     var requestContext = LocalRequestContextHolder.get();
     requestContext.setOperatorId(userAuthInfo.getId());
-    requestContext.setClaims(
-        Map.of("username", userAuthInfo.getUsername(), "name", userAuthInfo.getName()));
+    requestContext.setClaims(Map.of("name", userAuthInfo.getName()));
     log.info("requestContext => {}", requestContext);
   }
 

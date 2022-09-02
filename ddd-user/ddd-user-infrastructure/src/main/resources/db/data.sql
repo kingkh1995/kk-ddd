@@ -1,19 +1,21 @@
 DELETE
-FROM account;
+FROM `user`;
 
-INSERT INTO account (user_id, state, create_time, update_time)
-VALUES (1, 'INIT', '2002-02-02 02:02:02.123', '2002-02-02 02:02:02.123'),
-       (1, 'ACTIVE', '2011-11-11 11:11:11.111', '2011-11-11 11:11:11.111');
-
-INSERT INTO account (user_id, state)
-VALUES (2, 'FROZEN'),
-       (2, 'TERMINATED');
+INSERT INTO `user` (`state`, `name`, `phone`, `email`)
+VALUES ('INIT', 'kai', '11012345678', 'kai@kk.com');
 
 DELETE
-FROM user;
+FROM `user_base`;
 
-INSERT INTO user (name, username, password, gender, age, email)
-VALUES ('凯', 'kai', 'h8VrydWeFu3v+SHKyHeRSQ==', 'MALE', 35, 'kai@kk.com'),
-       ('依', 'yi', '6Xv1dL/gm63tBNdBYM/ZgQ==', 'FEMALE', 32, 'yi@kk.com'),
-       ('元', 'yuan', '3xb9TLoGR+fi+y9mnXsUpQ==', 'MALE', 6, 'yuan@kk.com'),
-       ('汝', 'ru', 'uwmhQe0KmIPnBKNi32FlKw==', 'FEMALE', 0, 'ru@kk.com');
+INSERT INTO `user_base` (`id`, `gender`, `birthday`, `profile_path`)
+VALUES (1, 0, '1995-05-10', 'http://kk.com/profile/123456');
+
+DELETE
+FROM `account`;
+
+INSERT INTO `account` (`user_id`, `type`, `principal`, `unbind_time`)
+VALUES (1, 'USERNAME', 'kai', NULL),
+       (1, 'PHONE', '11000000000', '2002-02-02 02:02:02.123'),
+       (1, 'PHONE', '11012345678', NULL),
+       (1, 'EMAIL', 'kai@kk.com', NULL),
+       (1, 'QQ', '123456', NULL);
