@@ -1,5 +1,6 @@
 package com.kk.ddd.sales.web;
 
+import com.kk.ddd.sales.persistence.StockDAO;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
@@ -9,14 +10,17 @@ import io.grpc.stub.StreamObserver;
 import java.util.concurrent.ForkJoinPool;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @Slf4j
-//@EmbeddedKafka(count = 5)
 @SpringBootTest
 @ActiveProfiles("dev")
 class SalesWebApplicationTests {
+
+    @Autowired
+    private StockDAO stockDAO;
 
   @Test
   void grpcClientTest() {
@@ -72,5 +76,11 @@ class SalesWebApplicationTests {
       } catch (InterruptedException e) {
           throw new RuntimeException(e);
       }
+      channel.shutdown();
   }
+
+    @Test
+    void stockTest() {
+      System.out.println(stockDAO.deductStock(100));
+    }
 }

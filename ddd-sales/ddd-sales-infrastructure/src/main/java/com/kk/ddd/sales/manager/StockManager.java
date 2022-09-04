@@ -2,23 +2,25 @@ package com.kk.ddd.sales.manager;
 
 import com.kk.ddd.sales.bo.StockOperateBO;
 import com.kk.ddd.sales.persistence.StockDAO;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.jctools.queues.MpscUnboundedArrayQueue;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * 回滚时由请求端发送MQ
@@ -28,43 +30,48 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
  */
 @Slf4j
 @Service
-public class StockManager implements InitializingBean {
+public class StockManager implements InitializingBean, DisposableBean {
 
+    private int batchSize;
+    private int maxWaitMillis;
+    private TransactionTemplate transactionTemplate;
+    private StockDAO stockDAO;
     private Queue<StockOperateBO> queue;
-
     private ExecutorService executorService;
+    private Thread worker;
 
-    private final int batchSize;
-
-    private final int maxWaitMillis;
-
-    private final PlatformTransactionManager transactionManager;
-
-    private final StockDAO stockDAO;
-
-    public StockManager(@Value("${stock.operate.batch-size:10}") int batchSize,
-            @Value("${stock.operate.max-wait-millis:10}") int maxWaitMillis,
-            @Autowired PlatformTransactionManager transactionManager,
-            @Autowired StockDAO stockDAO) {
+    @Autowired
+    public void setBatchSize(@Value("${stock.operate.batch-size:10}") int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    @Autowired
+    public void setMaxWaitMillis(@Value("${stock.operate.max-wait-millis:20}") int maxWaitMillis) {
         this.maxWaitMillis = maxWaitMillis;
-        this.transactionManager = transactionManager;
+    }
+
+    @Autowired
+    public void setTransactionTemplate(PlatformTransactionManager transactionManager,
+            @Value("${stock.operate.transaction-timeout:5}") int transactionTimeout) {
+        var transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.setName("StockManager-TransactionTemplate");
+        transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        transactionTemplate.setReadOnly(false);
+        transactionTemplate.setTimeout(transactionTimeout);
+        this.transactionTemplate = transactionTemplate;
+    }
+
+    @Autowired
+    public void setStockDAO(StockDAO stockDAO) {
         this.stockDAO = stockDAO;
     }
 
     public Future<Boolean> deduct(String orderNo, int count) {
         var future = new CompletableFuture<Boolean>();
         if (!queue.offer(new StockOperateBO(orderNo, count, future))) {
-            return CompletableFuture.completedFuture(false);
+            future.complete(false);
         }
         return future;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        queue = new MpscUnboundedArrayQueue<>(1024);
-        executorService = ForkJoinPool.commonPool();
-        new Thread(new Worker(), "StockOperateThread").start();
     }
 
     private class Worker implements Runnable {
@@ -77,21 +84,10 @@ public class StockManager implements InitializingBean {
                     waitSomeTime();
                     continue;
                 }
-                var arr = new StockOperateBO[batchSize];
-                for (var i = 0; i < arr.length; ++i) {
-                    var poll = queue.poll();
-                    if (Objects.isNull(poll)) {
-                        break;
-                    }
-                    arr[i] = poll;
-                }
-                executorService.submit(() -> {
-                    mergeDeduct(arr);
-                });
+                execute(drain());
             }
             log.warn("Stock operate thread stopped!");
         }
-
     }
 
     private void waitSomeTime() {
@@ -100,90 +96,124 @@ public class StockManager implements InitializingBean {
         var sleepTimeMs = ((time / duration + 1) * duration + 999_999L - time) / 1_000_000L; // always positive
         try {
             Thread.sleep(sleepTimeMs);
-        } catch (InterruptedException ignored) {
-            // ignore
+        } catch (InterruptedException e) {
+            // interrupt to stop
+            Thread.currentThread().interrupt();
         }
     }
 
-    private static final TransactionDefinition TD;
+    private static final Predicate<StockOperateBO> UNCANCELLED = bo -> !bo.future().isCancelled();
 
-    static {
-        var definition = new DefaultTransactionDefinition(
-                TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        definition.setTimeout(1);
-        definition.setReadOnly(false);
-        TD = definition;
+    private List<StockOperateBO> drain() {
+        // poll直到为空或元素个数达到限制并过滤掉已取消
+        return Stream.generate(() -> queue.poll())
+                .takeWhile(Objects::nonNull)
+                .filter(UNCANCELLED)
+                .limit(batchSize)
+                .toList();
     }
 
-    private void mergeDeduct(StockOperateBO[] bos) {
-        var num = 0;
-        var sum = 0;
-        for (StockOperateBO bo : bos) {
-            if (Objects.isNull(bo)) {
-                break;
-            }
-            ++num;
-            sum += bo.count();
-        }
-        if (num == 0) {
+    private void execute(List<StockOperateBO> bos) {
+        if (bos.isEmpty()) {
             return;
         }
-        try {
-            // 开启事务
-            var status = transactionManager.getTransaction(TD);
+        executorService.submit(() -> {
+            // filter cancelled again
+            var filtered = bos.stream().filter(UNCANCELLED).toList();
+            if (filtered.isEmpty()) {
+                return;
+            }
             try {
-                // 先合并扣除
-                if (stockDAO.deductStock(sum) == 0) {
-                    // 合并扣除失败则循环单独扣除
-                    Arrays.stream(bos).limit(num).forEach(bo -> bo.future().complete(singleDeduct(bo)));
+                // merge deduct first
+                if (mergeDeduct(filtered)) {
                     return;
                 }
-                // 合并扣除成功，批量保存扣除日志。
-                var OrderNos = Arrays.stream(bos).limit(num).map(StockOperateBO::orderNo)
-                        .collect(Collectors.toList());
-                if (stockDAO.insertStockOperateLog(OrderNos) < num) {
-                    throw new RuntimeException("deduct failed because of insert log failed!");
-                }
-                // 提交事务
-                transactionManager.commit(status);
-                // 设置Future结果为成功
-                Arrays.stream(bos).limit(num).forEach(bo -> bo.future().complete(true));
-                log.info("stock deduct succeeded, bos:{}.", Arrays.toString(bos));
-            } catch (Exception e) {
-                log.error("merge deduct failed, bos:{}.", Arrays.toString(bos), e);
-                // 回滚事务
-                transactionManager.rollback(status);
-                // 设置Future结果为失败
-                Arrays.stream(bos).limit(num).forEach(bo -> bo.future().complete(false));
+                // merge deduct failed then single deduct each
+                filtered.forEach(this::singleDeduct);
+            } catch (Throwable e) {
+                // when reach here means get transaction failed
+                log.error("stock operate execute failed.", e);
             }
-        } catch (Exception e) {
-            log.error("can't get transaction!", e);
+        });
+    }
+
+    private boolean mergeDeduct(List<StockOperateBO> bos) {
+        var sum = bos.stream().mapToInt(StockOperateBO::count).sum();
+        var succeeded = Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            // deduct stock first
+            if (stockDAO.deductStock(sum) == 0) {
+                log.info("merge deduct failed because of update stock failed!");
+                return false;
+            }
+            // deduct stock succeeded then save logs
+            var OrderNos = bos.stream().map(StockOperateBO::orderNo).toList();
+            if (stockDAO.insertStockOperateLog(OrderNos) < bos.size()) {
+                // save logs failed throw to rollback
+                log.info("merge deduct failed because of insert logs failed!");
+                return false;
+            }
+            // all succeeded
+            log.info("merge deduct succeeded, bos:{}.", bos);
+            return true;
+        }));
+        // if succeeded complete future
+        if (succeeded) {
+            bos.forEach(bo -> complete(bo, true));
+        }
+        return succeeded;
+    }
+
+    private void singleDeduct(StockOperateBO bo) {
+        var succeeded = Boolean.TRUE.equals(transactionTemplate.execute(status -> {
+            if (stockDAO.deductStock(bo.count()) == 0) {
+                log.info("single deduct failed because of update stock failed!");
+                return false;
+            } else if (stockDAO.insertStockOperateLog(bo.orderNo()) == 0) {
+                log.info("single deduct failed because of insert log failed!");
+                return false;
+            }
+            log.info("single deduct succeeded, bo:{}.", bo);
+            return true;
+        }));
+        complete(bo, succeeded);
+    }
+
+    private void complete(StockOperateBO bo, boolean result) {
+        if (!bo.future().complete(result)) {
+            log.info("compete failed, result: {}, orderNo: {}.", result, bo.orderNo());
+            // todo... 发送告警消息
         }
     }
 
-    private boolean singleDeduct(StockOperateBO bo) {
-        try {
-            // 开启事务
-            var status = transactionManager.getTransaction(TD);
-            try {
-                // 扣除库存，保存扣除日志。
-                if (stockDAO.deductStock(bo.count()) == 0) {
-                    throw new RuntimeException("deduct failed because of update stock failed!");
-                } else if (stockDAO.insertStockOperateLog(bo.orderNo()) == 0) {
-                    throw new RuntimeException("deduct failed because of insert log failed!");
-                }
-                // 提交事务
-                transactionManager.commit(status);
-                log.info("stock deduct succeeded, bo:{}.", bo);
-                return true;
-            } catch (Exception e) {
-                log.error("single deduct failed, bo:{}.", bo, e);
-                transactionManager.rollback(status); // 回滚事务
-                return false;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (this.worker != null) {
+            return;
+        }
+        queue = new MpscUnboundedArrayQueue<>(1024);
+        executorService = ForkJoinPool.commonPool();
+        startWorker();
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        stopWorker();
+    }
+
+    private void startWorker() {
+        synchronized (this) {
+            stopWorker();
+            this.worker = new Thread(new Worker(), "StockOperateThread");
+            this.worker.start();
+        }
+    }
+
+    private void stopWorker() {
+        synchronized (this) {
+            if (this.worker == null) {
+                return;
             }
-        } catch (Exception e) {
-            log.error("can't get transaction!", e);
-            return false;
+            this.worker.interrupt();
         }
     }
 

@@ -33,16 +33,16 @@ public class UserRealm extends AuthenticatingRealm implements SmartInitializingS
 
   @Autowired // 使用setter注入，优点是可以被继承重写，灵活性高，缺点是属性无法定义为final。
   @Lazy // Shiro相关bean会被提前加载，所以依赖的其他bean要设置为延后加载，否则BeanPostProcessorChecker会提示信息。
-  public void setAuthcManager(AuthManager authManager) {
+  public void setAuthManager(AuthManager authManager) {
     this.authManager = authManager;
   }
 
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
       throws AuthenticationException {
     if (token instanceof UsernamePasswordToken usernamePasswordToken) {
-      var authcQuery =
+      var authQuery =
           new AuthQuery().setUsername(usernamePasswordToken.getUsername()).setRealmName(getName());
-      var userAuthenticationInfo = authManager.getAuthenticationInfo(authcQuery);
+      var userAuthenticationInfo = authManager.getAuthenticationInfo(authQuery);
       Optional.ofNullable(userAuthenticationInfo).orElseThrow(UnknownAccountException::new);
       save2LocalRequestContext(userAuthenticationInfo.getUserAuthInfo());
       return userAuthenticationInfo;

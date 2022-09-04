@@ -37,7 +37,7 @@ public class PostConfiguration implements ApplicationContextAware {
             log.info("Set '{}' to Kson.", jsonMapper.getClass().getCanonicalName());
             Kson.setMapper(jsonMapper);
         } catch (BeansException e) {
-            log.error("Set JsonMapper to Kson error!", e);
+            log.error("Set JsonMapper to Kson error!");
         }
     }
 
@@ -48,7 +48,7 @@ public class PostConfiguration implements ApplicationContextAware {
             log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
             DistributedLockHelper.setFactory(factory);
         } catch (BeansException e) {
-            log.error("Set DistributedLockFactory to EntityLocker error!", e);
+            log.error("Set DistributedLockFactory to EntityLocker error!");
         }
     }
 

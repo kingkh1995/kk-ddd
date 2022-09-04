@@ -30,11 +30,6 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-messaging</artifactId>
     </dependency>
-    <!--guava-->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
     <!--netty common-->
     <dependency>
       <groupId>io.netty</groupId>
@@ -46,6 +41,12 @@
       <artifactId>caffeine</artifactId>
     </dependency>
     <!--可选依赖，optional设置为true不传递依赖-->
+    <!--guava-->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-jdbc</artifactId>

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author KaiKoo
  */
+@Repository
 public interface JobDAO extends JpaRepository<JobDO, Long>, JpaSpecificationExecutor<JobDO> {
 
   // nativeQuery默认为false，表示使用jpql（不支持insert），表名和字段直接使用实体类定义，支持位置绑定和参数名绑定。

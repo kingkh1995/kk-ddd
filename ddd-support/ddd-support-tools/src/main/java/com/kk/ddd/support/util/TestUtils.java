@@ -1,4 +1,4 @@
-package com.kk.ddd.user.web;
+package com.kk.ddd.support.util;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;

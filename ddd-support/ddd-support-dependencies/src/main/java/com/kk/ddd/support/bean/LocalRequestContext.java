@@ -69,5 +69,5 @@ public class LocalRequestContext {
   @Setter private Long operatorId;
 
   /** jwt claims */
-  @Setter private Map<String, Object> claims;
+  @Setter private Map<String, String> claims;
 }

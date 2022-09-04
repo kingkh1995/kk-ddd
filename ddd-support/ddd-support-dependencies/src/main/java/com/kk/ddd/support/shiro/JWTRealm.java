@@ -70,8 +70,7 @@ public class JWTRealm extends AuthenticatingRealm {
     var requestContext = LocalRequestContextHolder.get();
     requestContext.setOperatorId(Long.valueOf(decodedJWT.getKeyId()));
     var claims = decodedJWT.getClaims();
-    requestContext.setClaims(
-        Map.of("username", decodedJWT.getSubject(), "name", claims.get("name").asString()));
+    requestContext.setClaims(Map.of("username", decodedJWT.getSubject()));
     log.info("requestContext => {}", requestContext);
   }
 }

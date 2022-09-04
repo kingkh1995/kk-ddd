@@ -1,14 +1,15 @@
 package com.kk.ddd.user.web.auth;
 
 import com.kk.ddd.support.model.command.AuthCommand;
+import com.kk.ddd.support.model.command.PasswordModifyCommand;
 import com.kk.ddd.support.model.dto.UserAuthInfo;
 import com.kk.ddd.support.model.group.Inner;
 import com.kk.ddd.support.model.query.AuthQuery;
+import com.kk.ddd.support.shiro.SimpleAuthenticationToken;
 import com.kk.ddd.user.application.service.UserAppService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.util.ByteSource;
@@ -18,7 +19,7 @@ import org.springframework.validation.annotation.Validated;
 
 /**
  * 核心认证服务 <br>
- * 加密方式：md5算法、加盐（用户ID）计算3次、使用Base64编码
+ * 属于基础设施service，故可直接使用基础设施层mapper。
  *
  * @author KaiKoo
  */
@@ -47,13 +48,13 @@ public class AuthManager {
     return service
         .getAuthInfo(query.getUsername())
         .map(
-            authcInfo ->
+            authInfo ->
                 new UserAuthenticationInfo(
                     query.getRealmName(),
-                    authcInfo.getEncryptedPassword(),
-                    getSalt(authcInfo),
+                    authInfo.getEncryptedPassword(),
+                    getSalt(authInfo),
                     query.getRealmName(),
-                    authcInfo))
+                    authInfo))
         .orElse(null);
   }
 
@@ -62,9 +63,10 @@ public class AuthManager {
    *
    * @param command
    */
-  public void login(@Validated(Inner.class) AuthCommand command) {
+  public void login(@Validated AuthCommand command) {
+    // todo... 针对不同的auth_type创建不同类型的token
     SecurityUtils.getSubject()
-        .login(new UsernamePasswordToken(command.getUsername(), command.getPlaintextPassword()));
+        .login(new SimpleAuthenticationToken(command.getPrincipal(), command.getCredential()));
   }
 
   /**
@@ -73,16 +75,16 @@ public class AuthManager {
    *
    * @param command
    */
-  public void changePassword(@Validated(Inner.class) AuthCommand command) {
-    var authcInfo = service.getAuthInfo(command.getUsername()).get();
-    var newPassword = encryptPassword(command.getPlaintextPassword(), getSalt(authcInfo));
+  public void changePassword(@Validated(Inner.class) PasswordModifyCommand command) {
+    var authInfo = service.getAuthInfo(command.getUsername()).get();
+    var newPassword = encryptPassword(command.getPlaintextPassword(), getSalt(authInfo));
     // 做到幂等，与原密码相同直接return
-    if (newPassword.equals(authcInfo.getEncryptedPassword())) {
+    if (newPassword.equals(authInfo.getEncryptedPassword())) {
       log.info("New password is equal to the old, return!");
       return;
     }
-    authcInfo.setEncryptedPassword(newPassword);
-    service.changePassword(authcInfo);
+    authInfo.setEncryptedPassword(newPassword);
+    service.changePassword(authInfo);
   }
 
   private String encryptPassword(String plaintextPassword, ByteSource salt) {
@@ -94,7 +96,7 @@ public class AuthManager {
     }
   }
 
-  private ByteSource getSalt(UserAuthInfo authcInfo) {
-    return new SimpleByteSource(String.valueOf(authcInfo.getId()));
+  private ByteSource getSalt(UserAuthInfo authInfo) {
+    return new SimpleByteSource(String.valueOf(authInfo.getId()));
   }
 }

@@ -26,18 +26,19 @@ public class RocketMQMessageProducer extends AbstractMessageProducer{
 
     @Override
     protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) throws MessagingException {
+        var completableFuture = new CompletableFuture<>();
         rocketMQTemplate.asyncSendOrderly(topic, message, hashKey, new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
-
+                completableFuture.complete(sendResult);
             }
 
             @Override
             public void onException(Throwable e) {
-
+                completableFuture.completeExceptionally(e);
             }
         });
-        return null; // fixme... 参考kafka
+        return completableFuture;
     }
 
     @Override

@@ -32,8 +32,7 @@ public class AdminRealm extends SimpleAccountRealm {
     Optional.ofNullable(account).orElseThrow(UnknownAccountException::new);
     var requestContext = LocalRequestContextHolder.get();
     requestContext.setOperatorId(0L);
-    requestContext.setClaims(
-        Map.of("username", account.getPrincipals().getPrimaryPrincipal(), "name", "管理员"));
+    requestContext.setClaims(Map.of("username", (String) account.getPrincipals().getPrimaryPrincipal()));
     log.info("requestContext => {}", requestContext);
     return account;
   }
