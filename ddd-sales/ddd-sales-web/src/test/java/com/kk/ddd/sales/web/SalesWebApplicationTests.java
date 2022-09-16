@@ -1,6 +1,5 @@
 package com.kk.ddd.sales.web;
 
-import com.kk.ddd.sales.persistence.StockDAO;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
@@ -13,14 +12,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("dev")
 class SalesWebApplicationTests {
-
-    @Autowired
-    private StockDAO stockDAO;
 
   @Test
   void grpcClientTest() {
@@ -79,8 +82,44 @@ class SalesWebApplicationTests {
       channel.shutdown();
   }
 
+  @Autowired
+  private PlatformTransactionManager platformTransactionManager;
+
     @Test
-    void stockTest() {
-      System.out.println(stockDAO.deductStock(100));
+    @Transactional
+    void transactionTest() {
+        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    System.out.println("rollback1");
+                }
+            }
+        });
+        var transaction = platformTransactionManager.getTransaction(
+                new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED));
+        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+                    System.out.println("rollback2");
+                }
+            }
+        });
+        platformTransactionManager.commit(transaction);
+        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+        try {
+            platformTransactionManager.commit(transaction);
+        } catch (TransactionException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

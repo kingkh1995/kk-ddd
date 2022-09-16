@@ -1,7 +1,6 @@
 package com.kk.ddd.support.messaging;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import lombok.Data;
 import org.springframework.messaging.Message;
@@ -18,8 +17,8 @@ public class MessageModel implements Serializable {
     private Long formerId;
     private String topic;
     private String hashKey;
-    private Date createTime;
-    private Date sendTime;
+    private Long createTime;
+    private Long sendTime;
     private String header;
     private String payload;
     private transient Message<?> message;

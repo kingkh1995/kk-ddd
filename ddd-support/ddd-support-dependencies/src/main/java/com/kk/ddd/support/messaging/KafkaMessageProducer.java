@@ -19,9 +19,9 @@ public class KafkaMessageProducer extends AbstractMessageProducer{
 
     private final KafkaOperations2<String, Object> kafkaOperations;
 
-    public KafkaMessageProducer(MessageRecorder messageRecorder,
+    public KafkaMessageProducer(MessageStorage messageStorage,
             KafkaTemplate<String, Object> kafkaTemplate) {
-        super(messageRecorder);
+        super(messageStorage);
         this.kafkaOperations = kafkaTemplate.usingCompletableFuture();
     }
 

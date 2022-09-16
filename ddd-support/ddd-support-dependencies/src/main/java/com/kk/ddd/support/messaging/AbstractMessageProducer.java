@@ -3,6 +3,8 @@ package com.kk.ddd.support.messaging;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
 import javax.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,7 +25,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public abstract class AbstractMessageProducer implements MessageProducer{
 
     @Getter(AccessLevel.PROTECTED)
-    private final MessageRecorder messageRecorder;
+    private final MessageStorage messageStorage;
 
     @Override
     public void sendAtLeastOnce(String topic, String hashKey, @Size(min = 1) List<Message<?>> messages)
@@ -40,37 +42,37 @@ public abstract class AbstractMessageProducer implements MessageProducer{
             // 表示当前事务是只读
             throw new IllegalStateException("Current transaction is read-only!");
         }
-        // 先持久化，再注册事务同步器，事务提交后异步发送消息。
+        // 先持久化
+        List<MessageModel> messageModels = this.getMessageStorage().save(topic, hashKey, messages);
+        // 再注册事务同步器，在事务提交后异步发送消息。
         TransactionSynchronizationManager.registerSynchronization(
                 new AfterCommitTransactionSynchronizationAdaptor(
-                        () -> this.doSendAtLeastOnceOrderly(this.getMessageRecorder().record(topic, hashKey, messages))));
+                        () -> this.doSendAtLeastOnceOrderly(messageModels)));
     }
 
     protected void doSendAtLeastOnceOrderly(List<MessageModel> messageModels) throws MessagingException {
+        if (messageModels == null || messageModels.isEmpty()) {
+            return;
+        }
         // 顺序发送，前置消息发送完成后再发送后置消息。
         messageModels.stream()
                 .map(this::doSendAsync)
                 .reduce((left, right) -> {
                     right.setFuture(left.getFuture().thenComposeAsync(o -> {
-                        this.messageRecorder.succeed(left.getId());
+                        this.messageStorage.complete(left.getId());
                         return right.getFuture();
-                    }, this.messageRecorder.callbackExecutor()));
+                    }, this.callbackExecutor()));
                     return right;
                 })
                 .get()
                 .getFuture()
                 .whenComplete((o, throwable) -> {
-                    var messageModelIds = messageModels.stream().map(MessageModel::getId).toList();
-                    if (throwable != null){
-                        doAfterSendFailed(messageModelIds, throwable);
+                    if (throwable == null){
+                        doAfterSendSucceeded(messageModels);
                     } else {
-                        log.info("send orderly succeeded! messageModelIds: {}.", messageModelIds);
+                        doAfterSendFailed(messageModels, throwable);
                     }
                 });
-    }
-
-    protected void doAfterSendFailed(List<Long> messageModelIds, Throwable throwable) {
-        log.error("send orderly failed! messageModelIds: {}.", messageModelIds, throwable);
     }
 
     protected MessageModel doSendAsync(MessageModel messageModel) throws MessagingException {
@@ -78,6 +80,23 @@ public abstract class AbstractMessageProducer implements MessageProducer{
         return messageModel;
     }
 
+    protected void doAfterSendSucceeded(List<MessageModel> messageModels) {
+        var messageModelIds = messageModels.stream().map(MessageModel::getId).toList();
+        log.info("send orderly succeeded! messageModelIds: {}.", messageModelIds);
+    }
+
+    protected void doAfterSendFailed(List<MessageModel> messageModels, Throwable throwable) {
+        var failedModelIds = messageModels.stream()
+                .filter(messageModel -> messageModel.getFuture().isCompletedExceptionally())
+                .map(MessageModel::getId)
+                .toList();
+        log.error("send orderly failed! failedModelIds: {}.", failedModelIds, throwable);
+    }
+
+
+    protected ExecutorService callbackExecutor() {
+        return ForkJoinPool.commonPool();
+    }
 
     abstract protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message)  throws MessagingException;
 }
