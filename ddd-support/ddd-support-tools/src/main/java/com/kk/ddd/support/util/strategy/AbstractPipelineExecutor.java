@@ -34,9 +34,7 @@ public abstract class AbstractPipelineExecutor<C, H extends PipelineHandler<C>>
             .collect(
                 Collectors.collectingAndThen(
                     Collectors.toCollection(
-                        () ->
-                            new TreeSet<>(
-                                Comparator.comparing(PipelineHandler::order))),
+                        () -> new TreeSet<>(Comparator.comparing(PipelineHandler::order))),
                     Collections::unmodifiableSortedSet));
   }
 

@@ -21,14 +21,14 @@ import org.springframework.stereotype.Component;
 @Component // 加上注解才能被ApplicationContext获取到
 public class MockUsernameAccountStrategy implements AccountStrategy {
 
-    @Override
-    public AccountTypeEnum getIdentifier() {
-        return AccountTypeEnum.USERNAME;
-    }
+  @Override
+  public AccountTypeEnum getIdentifier() {
+    return AccountTypeEnum.USERNAME;
+  }
 
-    @Override
-    public boolean allowModify(Account oldAccount, Account newAccount) {
-        log.info("This is mock, return ture!");
-        return true;
-    }
+  @Override
+  public boolean allowModify(Account oldAccount, Account newAccount) {
+    log.info("This is mock, return ture!");
+    return true;
+  }
 }

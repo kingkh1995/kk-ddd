@@ -11,8 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
@@ -20,32 +19,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AccountType implements Type, Comparable<AccountType> {
 
-    @JsonValue private final AccountTypeEnum value;
+  @JsonValue private final AccountTypeEnum value;
 
-    /** 缓存内部类 */
-    private static class Cache {
+  /** 缓存内部类 */
+  private static class Cache {
 
-        static final AccountType[] cache = Arrays.stream(AccountTypeEnum.values())
-                .map(AccountType::new)
-                .toArray(AccountType[]::new);
+    static final AccountType[] cache =
+        Arrays.stream(AccountTypeEnum.values()).map(AccountType::new).toArray(AccountType[]::new);
+  }
 
-    }
+  @JsonCreator
+  public static AccountType of(final AccountTypeEnum accountTypeEnum) {
+    return Cache.cache[accountTypeEnum.ordinal()];
+  }
 
-    @JsonCreator
-    public static AccountType of(final AccountTypeEnum accountTypeEnum) {
-        return Cache.cache[accountTypeEnum.ordinal()];
-    }
+  public static AccountType valueOf(final Object o, final String fieldName) {
+    return of(ParseUtils.parseEnum(AccountTypeEnum.class, o, fieldName));
+  }
 
-    public static AccountType valueOf(final Object o, final String fieldName) {
-        return of(ParseUtils.parseEnum(AccountTypeEnum.class, o, fieldName));
-    }
+  @Override
+  public int compareTo(AccountType o) {
+    return this.value.compareTo(o.value);
+  }
 
-    @Override
-    public int compareTo(AccountType o) {
-        return this.value.compareTo(o.value);
-    }
-
-    public AccountTypeEnum toEnum() {
-        return this.value;
-    }
+  public AccountTypeEnum toEnum() {
+    return this.value;
+  }
 }

@@ -20,7 +20,7 @@ import org.springframework.transaction.support.TransactionTemplate;
  * @author KaiKoo
  */
 @Slf4j
-@RocketMQTransactionListener //todo... 设置监听的rocketMQTemplateBeanName和执行监听任务的线程池属性
+@RocketMQTransactionListener // todo... 设置监听的rocketMQTemplateBeanName和执行监听任务的线程池属性
 public class JobRocketMQLocalTransactionListener implements RocketMQLocalTransactionListener {
 
   private TransactionTemplate transactionTemplate;
@@ -42,7 +42,7 @@ public class JobRocketMQLocalTransactionListener implements RocketMQLocalTransac
   // 为了支持回查本地事务的执行状态，需要在本地事务中一并将执行状态记录到数据表中。
 
   /**
-   * 为了支持回查本地事务的执行状态，需要在本地事务中一并将执行状态记录到数据表中。 <br/>
+   * 为了支持回查本地事务的执行状态，需要在本地事务中一并将执行状态记录到数据表中。 <br>
    * fixme... Hibernate不支持savepoint
    */
   @Override

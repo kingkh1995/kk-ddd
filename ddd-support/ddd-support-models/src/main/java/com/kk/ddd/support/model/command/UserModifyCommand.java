@@ -11,13 +11,13 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * 将不允许被修改但需要提供的参数（如ID）放在path上 <br/>
+ * 将不允许被修改但需要提供的参数（如ID）放在path上 <br>
  * todo... 待完善
  *
  * @author KaiKoo
  */
 @Data
-@Accessors(chain = true)  // chain模式不适用于继承的场景
+@Accessors(chain = true) // chain模式不适用于继承的场景
 public class UserModifyCommand implements Serializable {
 
   // 声明注解校验集合内对象

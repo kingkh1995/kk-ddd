@@ -36,7 +36,8 @@ public class AuthController {
 
   /** Patch 部分更新资源 （幂等但url不能被缓存） */
   @PatchMapping("/auth/password")
-  public void changePassword(@RequestBody @Validated(Outer.class) PasswordModifyCommand passwordModifyCommand) {
+  public void changePassword(
+      @RequestBody @Validated(Outer.class) PasswordModifyCommand passwordModifyCommand) {
     passwordModifyCommand.setPlaintextPassword(decode(passwordModifyCommand.getEncodedPassword()));
     authManager.changePassword(passwordModifyCommand);
   }

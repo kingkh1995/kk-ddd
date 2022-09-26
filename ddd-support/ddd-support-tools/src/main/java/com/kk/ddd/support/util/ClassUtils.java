@@ -26,7 +26,7 @@ public final class ClassUtils {
     // 基本数据类型（如：int.class）
     if (clazz.isPrimitive()) {
       // 使用switch表达式
-      return switch (clazz.getName()){
+      return switch (clazz.getName()) {
         case "void" -> null;
         case "boolean" -> false;
         case "char" -> '\0';

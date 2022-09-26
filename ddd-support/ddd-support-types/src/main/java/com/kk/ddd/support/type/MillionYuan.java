@@ -48,7 +48,6 @@ public final class MillionYuan implements Type, Comparable<MillionYuan> {
   }
 
   /** 格式化表示 */
-
   private static final DecimalFormat FORMAT = new DecimalFormat("#,###.00（万元）");
 
   protected transient volatile String formattedStringCache;

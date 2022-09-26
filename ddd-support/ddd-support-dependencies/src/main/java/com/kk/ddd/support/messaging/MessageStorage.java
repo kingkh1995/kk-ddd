@@ -9,45 +9,51 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.Message;
 
 /**
- * @see RDBStorageSQLMapper
- * <br/>
- *
+ * @see RDBStorageSQLMapper <br>
  * @author KaiKoo
  */
 @RequiredArgsConstructor
 public final class MessageStorage implements InitializingBean {
 
-    private final MessageStorageSQLMapper messageStorageSQLMapper;
+  private final MessageStorageSQLMapper messageStorageSQLMapper;
 
-    public MessageStorage(final JdbcTemplate jdbcTemplate) throws SQLException, ReflectiveOperationException {
-        this.messageStorageSQLMapper = new MessageStorageSQLMapper(jdbcTemplate);
-    }
+  public MessageStorage(final JdbcTemplate jdbcTemplate)
+      throws SQLException, ReflectiveOperationException {
+    this.messageStorageSQLMapper = new MessageStorageSQLMapper(jdbcTemplate);
+  }
 
-    public List<MessageModel> save(String topic, String hashKey, List<Message<?>> messages) {
-        var models = messages.stream().map(message -> {
-            var model = new MessageModel();
-            model.setMessage(message);
-            model.setTopic(topic);
-            model.setHashKey(hashKey);
-            model.setCreateTime(message.getHeaders().getTimestamp());
-            model.setHeader(Kson.writeJson(message.getHeaders()));
-            model.setPayload(Kson.writeJson(message.getPayload()));
-            return model;
-        }).toList();
-        models.stream().reduce((former, cur) -> {
-            messageStorageSQLMapper.insert(former);
-            cur.setFormerId(former.getId());
-            return cur;
-        }).ifPresent(messageStorageSQLMapper::insert);
-        return models;
-    }
+  public List<MessageModel> save(String topic, String hashKey, List<Message<?>> messages) {
+    var models =
+        messages.stream()
+            .map(
+                message -> {
+                  var model = new MessageModel();
+                  model.setMessage(message);
+                  model.setTopic(topic);
+                  model.setHashKey(hashKey);
+                  model.setCreateTime(message.getHeaders().getTimestamp());
+                  model.setHeader(Kson.writeJson(message.getHeaders()));
+                  model.setPayload(Kson.writeJson(message.getPayload()));
+                  return model;
+                })
+            .toList();
+    models.stream()
+        .reduce(
+            (former, cur) -> {
+              messageStorageSQLMapper.insert(former);
+              cur.setFormerId(former.getId());
+              return cur;
+            })
+        .ifPresent(messageStorageSQLMapper::insert);
+    return models;
+  }
 
-    public void complete(Long modelId) {
-        messageStorageSQLMapper.updateForComplete(modelId);
-    }
+  public void complete(Long modelId) {
+    messageStorageSQLMapper.updateForComplete(modelId);
+  }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.messageStorageSQLMapper.createTableIfNotExisted();
-    }
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    this.messageStorageSQLMapper.createTableIfNotExisted();
+  }
 }

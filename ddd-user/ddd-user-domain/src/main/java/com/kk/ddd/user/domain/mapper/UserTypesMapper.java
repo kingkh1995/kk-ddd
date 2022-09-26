@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 public class UserTypesMapper {
 
   /** 自定义类型转换方法 */
-
   public Long mapFromUserId(final UserId userId) {
     return userId.getValue();
   }
@@ -78,5 +77,4 @@ public class UserTypesMapper {
   public AuthStrength map2AuthStrength(Integer i) {
     return AuthStrength.valueOf(i, "验证强度");
   }
-
 }

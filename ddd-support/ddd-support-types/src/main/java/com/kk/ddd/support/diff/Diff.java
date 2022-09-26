@@ -13,7 +13,7 @@ import lombok.Getter;
  *
  * @author KaiKoo
  */
-public abstract sealed class Diff permits EntityDiff, CollectionDiff, NoneDiff{
+public abstract sealed class Diff permits EntityDiff, CollectionDiff, NoneDiff {
 
   @Getter private final Object oldValue;
 

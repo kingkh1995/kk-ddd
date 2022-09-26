@@ -34,9 +34,10 @@ public abstract class BasePersistable<PK extends Serializable> implements Persis
       updatable = false)
   private Date updateTime;
 
-  @Column(name = "version",
-          columnDefinition = "INT(11) UNSIGNED NOT NULL DEFAULT 0",
-          insertable = false)
+  @Column(
+      name = "version",
+      columnDefinition = "INT(11) UNSIGNED NOT NULL DEFAULT 0",
+      insertable = false)
   private int version;
 
   @Transient

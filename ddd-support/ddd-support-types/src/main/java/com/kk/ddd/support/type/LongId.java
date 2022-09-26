@@ -37,7 +37,7 @@ public final class LongId implements Identifier, Comparable<LongId> {
 
   // 针对不可靠输入的 valueOf 方法
   public static LongId valueOf(final Object o, final String fieldName) {
-    return of(ParseUtils.parseLong(o,fieldName), fieldName);
+    return of(ParseUtils.parseLong(o, fieldName), fieldName);
   }
 
   @Override

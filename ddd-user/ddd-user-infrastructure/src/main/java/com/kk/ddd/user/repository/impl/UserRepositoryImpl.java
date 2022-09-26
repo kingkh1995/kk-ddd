@@ -133,20 +133,20 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
               var newValue = (Account) accountDiff.getNewValue();
               switch (accountDiff.getChangeType()) {
                   // 新增情况
-                  case Added -> {
-                    var accountPO = accountDataConverter.toData(newValue);
-                    accountMapper.insert(accountPO);
-                    // 填补id
-                    newValue.fillInId(AccountId.of(accountPO.getId()));
-                  }
+                case Added -> {
+                  var accountPO = accountDataConverter.toData(newValue);
+                  accountMapper.insert(accountPO);
+                  // 填补id
+                  newValue.fillInId(AccountId.of(accountPO.getId()));
+                }
                   // 移除情况
-                  case Removed -> accountMapper.deleteById(accountDataConverter.toData(oldValue));
+                case Removed -> accountMapper.deleteById(accountDataConverter.toData(oldValue));
                   // 更新情况
-                  case Modified -> {
-                    if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
-                      throw new BusinessException("Update failed by OCC!");
-                    }
+                case Modified -> {
+                  if (accountMapper.updateById(accountDataConverter.toData(newValue)) < 1) {
+                    throw new BusinessException("Update failed by OCC!");
                   }
+                }
               }
             });
   }

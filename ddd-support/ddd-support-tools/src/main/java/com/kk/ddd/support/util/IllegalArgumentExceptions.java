@@ -45,7 +45,7 @@ public final class IllegalArgumentExceptions {
   }
 
   public static IllegalArgumentException forMaxLength(
-          String fieldName, Number max, boolean inclusive) {
+      String fieldName, Number max, boolean inclusive) {
     var message = fieldName + "的长度必须小于" + (inclusive ? "等于" : "") + max;
     return new IllegalArgumentException(message);
   }

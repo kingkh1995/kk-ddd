@@ -112,13 +112,16 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     }
   }
 
-  private static final RedisScript<Boolean> WATCH_SCRIPT = new DefaultRedisScript<>("""
+  private static final RedisScript<Boolean> WATCH_SCRIPT =
+      new DefaultRedisScript<>(
+          """
           if redis.call('GET', KEYS[1]) == ARGV[1] then
               return redis.call('SET', KEYS[1], ARGV[1], 'PX', ARGV[2])
           else
               return false
           end
-          """, Boolean.class);
+          """,
+          Boolean.class);
 
   public void watch(String name, String seq) {
     var bone = new Bone(name, seq);
@@ -201,7 +204,9 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
           this::tryLock0, TimeUnit.SECONDS.toMillis(waitSeconds), this.factory.spinInterval);
     }
 
-    private static final RedisScript<Long> LOCK_SCRIPT = new DefaultRedisScript<>("""
+    private static final RedisScript<Long> LOCK_SCRIPT =
+        new DefaultRedisScript<>(
+            """
             local seq = redis.call('GET', KEYS[1])
             local ckey = KEYS[1] .. ARGV[1]
             -- 键不存在时需要使用false判断
@@ -216,7 +221,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
             else
                 return 0
             end
-            """, Long.class);
+            """,
+            Long.class);
 
     private boolean tryLock0() {
       var seq = getSeq();
@@ -238,7 +244,9 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
       }
     }
 
-    private static final RedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
+    private static final RedisScript<Long> UNLOCK_SCRIPT =
+        new DefaultRedisScript<>(
+            """
           if redis.call('GET', KEYS[1]) == ARGV[1] then
               local ckey = KEYS[1] .. ARGV[1]
               local count = redis.call('DECR', ckey)
@@ -251,7 +259,8 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
           else
               return -1
           end
-          """, Long.class);
+          """,
+            Long.class);
 
     @Override
     public void unlock() {

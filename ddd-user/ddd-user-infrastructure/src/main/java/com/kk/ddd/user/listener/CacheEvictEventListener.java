@@ -31,8 +31,11 @@ public class CacheEvictEventListener {
 
   @Subscribe
   public void onCacheEvictEvent(CacheEvictEvent event) {
-    log.info("receive event, cache:[{}], key:[{}], postTime:[{}].",
-            event.getCache().getName(), Kson.writeJson(event.getKey()), event.getPostTime());
+    log.info(
+        "receive event, cache:[{}], key:[{}], postTime:[{}].",
+        event.getCache().getName(),
+        Kson.writeJson(event.getKey()),
+        event.getPostTime());
     // 延迟一秒执行，从事件发生时间开始。
     var delayNanos = 1_000_000_000L + event.getPostTime() - System.nanoTime();
     if (event.getKey() == null) {

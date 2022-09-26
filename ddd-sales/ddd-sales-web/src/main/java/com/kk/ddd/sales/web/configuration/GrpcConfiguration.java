@@ -10,33 +10,35 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
 @LiteConfiguration
 public class GrpcConfiguration extends ApplicationContextAwareSingleton implements DisposableBean {
 
-    @Value("${grpc.port:18888}")
-    private int port;
+  @Value("${grpc.port:18888}")
+  private int port;
 
-    private Server server;
+  private Server server;
 
-    @Override
-    public void afterSingletonsInstantiated() {
-        ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
-        this.getApplicationContext().getBeansOfType(BindableService.class).values().forEach(serverBuilder::addService);
-        server = serverBuilder.build();
-        try {
-            server.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  @Override
+  public void afterSingletonsInstantiated() {
+    ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
+    this.getApplicationContext()
+        .getBeansOfType(BindableService.class)
+        .values()
+        .forEach(serverBuilder::addService);
+    server = serverBuilder.build();
+    try {
+      server.start();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Override
-    public void destroy() throws Exception {
-        server.shutdown();
-    }
+  @Override
+  public void destroy() throws Exception {
+    server.shutdown();
+  }
 }

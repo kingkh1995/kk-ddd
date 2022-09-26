@@ -25,10 +25,8 @@ public final class UserState implements Type, Comparable<UserState> {
   /** 缓存内部类 */
   private static class Cache {
 
-    static final UserState[] cache = Arrays.stream(UserStateEnum.values())
-            .map(UserState::new)
-            .toArray(UserState[]::new);
-
+    static final UserState[] cache =
+        Arrays.stream(UserStateEnum.values()).map(UserState::new).toArray(UserState[]::new);
   }
 
   @JsonCreator

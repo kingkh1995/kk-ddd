@@ -31,12 +31,19 @@ public class Account extends Entity<AccountId> {
 
   @Setter(AccessLevel.PROTECTED)
   private AccountId id;
+
   private UserId userId;
+
   private AccountType type;
+
   private String principal;
+
   private Instant unbindTime;
+
   @DiffIgnore private Instant createTime;
+
   @DiffIgnore private Instant updateTime;
+
   @DiffIgnore private Version version;
 
   @Override

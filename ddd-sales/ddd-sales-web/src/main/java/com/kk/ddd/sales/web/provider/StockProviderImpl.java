@@ -11,8 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * grpc server
- * <br/>
+ * grpc server <br>
  *
  * @author KaiKoo
  */
@@ -21,28 +20,29 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StockProviderImpl extends StockProviderImplBase {
 
-    private final StockManager stockManager;
+  private final StockManager stockManager;
 
-    @Override
-    public void operate(StockOperateRequest request,
-            StreamObserver<StockOperateReply> responseObserver) {
-        switch (request.getOperateType()) {
-            case DEDUCT -> responseObserver.onNext(deduct(request));
-            default -> responseObserver.onNext(StockOperateReply.newBuilder().setCode(999).setMessage("Type Not Allowed").build());
-        }
-        responseObserver.onCompleted();
+  @Override
+  public void operate(
+      StockOperateRequest request, StreamObserver<StockOperateReply> responseObserver) {
+    switch (request.getOperateType()) {
+      case DEDUCT -> responseObserver.onNext(deduct(request));
+      default -> responseObserver.onNext(
+          StockOperateReply.newBuilder().setCode(999).setMessage("Type Not Allowed").build());
     }
+    responseObserver.onCompleted();
+  }
 
-    private StockOperateReply deduct(StockOperateRequest request) {
-        try {
-            if (stockManager.deduct(request.getOrderNo(), request.getCount()).get()) {
-                return StockOperateReply.newBuilder().setCode(0).setMessage("Deduct Succeeded").build();
-            }
-            // todo... send rollback message
-            throw new RuntimeException("deduct return false!");
-        } catch (Exception e) {
-            log.error("deduct failed, request:{}.", Kson.writeJson(request), e);
-            return StockOperateReply.newBuilder().setCode(99).setMessage("Deduct Failed").build();
-        }
+  private StockOperateReply deduct(StockOperateRequest request) {
+    try {
+      if (stockManager.deduct(request.getOrderNo(), request.getCount()).get()) {
+        return StockOperateReply.newBuilder().setCode(0).setMessage("Deduct Succeeded").build();
+      }
+      // todo... send rollback message
+      throw new RuntimeException("deduct return false!");
+    } catch (Exception e) {
+      log.error("deduct failed, request:{}.", Kson.writeJson(request), e);
+      return StockOperateReply.newBuilder().setCode(99).setMessage("Deduct Failed").build();
     }
+  }
 }

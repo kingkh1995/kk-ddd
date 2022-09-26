@@ -329,8 +329,7 @@ class UserWebApplicationTests {
     accountMapper.updateById(accountPO);
     System.out.println(Kson.writeJson(accountMapper.selectById(accountPO.getId())));
     var page =
-        PageHelper.startPage(2, 1)
-            .doSelectPage(() -> accountMapper.selectByUserId(userPO.getId()));
+        PageHelper.startPage(2, 1).doSelectPage(() -> accountMapper.selectByUserId(userPO.getId()));
     System.out.println(Kson.writeJson(page));
   }
 

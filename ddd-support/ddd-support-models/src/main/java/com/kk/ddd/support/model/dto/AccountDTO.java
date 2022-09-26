@@ -12,14 +12,21 @@ import lombok.Data;
 public class AccountDTO implements Serializable {
 
   private Long id;
+
   private Long userId;
+
   /**
    * @see com.kk.ddd.support.enums.AccountTypeEnum
    */
   private String type;
+
   private String principal;
+
   private Long unbindTimestamp;
+
   private Long createTimestamp;
+
   private Long updateTimestamp;
+
   private Integer version;
 }

@@ -10,32 +10,29 @@ import com.kk.ddd.support.annotation.LiteConfiguration;
 import org.springframework.context.annotation.Bean;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
 @LiteConfiguration
 public class WebConfiguration {
 
-    @Bean
-    public JsonMapper jsonMapper() {
-        return JsonMapper.builder()
-                // 自动注册模块（jdk8Time类：JavaTimeModule）
-                .findAndAddModules()
-                // 序列化时只按属性
-                .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
-                .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-                // 反序列化时忽略多余字段不失败
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                // 序列化时空对象不失败
-                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-                // 序列化时日期不转为时间戳
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                // BigDecimal按plain方式序列化
-                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
-                .build();
-    }
-
+  @Bean
+  public JsonMapper jsonMapper() {
+    return JsonMapper.builder()
+        // 自动注册模块（jdk8Time类：JavaTimeModule）
+        .findAndAddModules()
+        // 序列化时只按属性
+        .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+        .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+        // 反序列化时忽略多余字段不失败
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        // 序列化时空对象不失败
+        .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+        // 序列化时日期不转为时间戳
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        // BigDecimal按plain方式序列化
+        .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+        .build();
+  }
 }
-

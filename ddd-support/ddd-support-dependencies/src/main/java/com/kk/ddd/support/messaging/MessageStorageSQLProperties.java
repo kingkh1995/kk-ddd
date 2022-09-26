@@ -1,22 +1,22 @@
 package com.kk.ddd.support.messaging;
 
 /**
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
 public interface MessageStorageSQLProperties {
 
-//    String createTableForMessageLog();
-//
-//    String createIndexForStateIndex();
-//
-    String insertForMessageLog();
-//
-//    String updateForMessageLogForComplete();
-//
-//    String updateForMessageLogForFailure();
-//
-//    String batchSelectForMessageLog();
+  //    String createTableForMessageLog();
+  //
+  //    String createIndexForStateIndex();
+  //
+  String insertForMessageLog();
+  //
+  //    String updateForMessageLogForComplete();
+  //
+  //    String updateForMessageLogForFailure();
+  //
+  //    String batchSelectForMessageLog();
 
 }

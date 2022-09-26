@@ -6,21 +6,20 @@ import lombok.Data;
 import org.springframework.messaging.Message;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
 @Data
 public class MessageModel implements Serializable {
-    private Long id;
-    private Long formerId;
-    private String topic;
-    private String hashKey;
-    private Long createTime;
-    private Long sendTime;
-    private String header;
-    private String payload;
-    private transient Message<?> message;
-    private transient CompletableFuture<?> future;
+  private Long id;
+  private Long formerId;
+  private String topic;
+  private String hashKey;
+  private Long createTime;
+  private Long sendTime;
+  private String header;
+  private String payload;
+  private transient Message<?> message;
+  private transient CompletableFuture<?> future;
 }

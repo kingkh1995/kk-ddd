@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
- * ResponseBody的请求要修改返回值只能通过ResponseBodyAdvice   <br>
- * 泛型需要指定，且会出现转换异常，注意返回值为String默认按视图解析。    <br>
+ * ResponseBody的请求要修改返回值只能通过ResponseBodyAdvice <br>
+ * 泛型需要指定，且会出现转换异常，注意返回值为String默认按视图解析。 <br>
  * 1、将所有响应包装为Result； 2、为所有响应添加额外信息（包括失败）。
  *
  * @author KaiKoo
@@ -151,7 +151,7 @@ public class RestControllerResponseBodyAdvice implements ResponseBodyAdvice<Obje
       return body;
     }
     Result<?> result;
-    if (body instanceof Result<?> r){
+    if (body instanceof Result<?> r) {
       result = r;
     } else {
       result = Result.succeed(body);

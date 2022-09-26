@@ -35,7 +35,9 @@ public class RedisMultiLock implements DistributedLock {
   }
 
   // lua脚本返回数组需要使用List类型接收，元素如果是整数则默认是Long类型
-  private static final RedisScript<List> LOCK_SCRIPT = new DefaultRedisScript<>("""
+  private static final RedisScript<List> LOCK_SCRIPT =
+      new DefaultRedisScript<>(
+          """
           local list = {}
           local seq = ARGV[1]
           -- 遍历判断是否能获取锁
@@ -66,7 +68,8 @@ public class RedisMultiLock implements DistributedLock {
           end
           -- 返回所有锁的状态
           return list
-          """, List.class);
+          """,
+          List.class);
 
   private boolean tryLock0() {
     var seq = RedisDistributedLockFactory.getSeq();
@@ -82,14 +85,16 @@ public class RedisMultiLock implements DistributedLock {
     // 判断是否需要开启watch
     for (var i = 0; i < result.size(); i++) {
       // 当前元素为1表示初次获取锁成功
-      if(result.get(i) instanceof Long l && l == 1){
+      if (result.get(i) instanceof Long l && l == 1) {
         this.factory.watch(this.names.get(i), seq);
       }
     }
     return true;
   }
 
-  private static final RedisScript<List> UNLOCK_SCRIPT = new DefaultRedisScript<>("""
+  private static final RedisScript<List> UNLOCK_SCRIPT =
+      new DefaultRedisScript<>(
+          """
           local list = {}
           local seq = ARGV[1]
           for i = 1, #KEYS
@@ -108,7 +113,8 @@ public class RedisMultiLock implements DistributedLock {
               end
           end
           return list
-          """, List.class);
+          """,
+          List.class);
 
   @Override
   public void unlock() {
@@ -119,7 +125,7 @@ public class RedisMultiLock implements DistributedLock {
     if (result != null) {
       for (var i = 0; i < result.size(); i++) {
         // 当前元素为0表示锁被完全释放
-        if(result.get(i) instanceof Long l && l == 0){
+        if (result.get(i) instanceof Long l && l == 0) {
           this.factory.cancelWatching(this.names.get(i), seq);
         }
       }

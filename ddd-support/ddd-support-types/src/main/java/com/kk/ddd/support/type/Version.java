@@ -31,9 +31,9 @@ public final class Version implements Type, Comparable<Version> {
 
     // spi拓展，支持修改缓存上限。
     private static final Version[] cache =
-            IntStream.rangeClosed(0, Math.max(99, Constants.TYPE.versionCacheHigh()))
-                    .mapToObj(Version::new)
-                    .toArray(Version[]::new);
+        IntStream.rangeClosed(0, Math.max(99, Constants.TYPE.versionCacheHigh()))
+            .mapToObj(Version::new)
+            .toArray(Version[]::new);
   }
 
   private static Version of(final int value, final String fieldName) {

@@ -10,8 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
@@ -19,28 +18,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Username implements Comparable<Username> {
 
-    @Getter @JsonValue private final String value;
+  @Getter @JsonValue private final String value;
 
-    // 只允许小写字母和下划线，长度为2-20
-    public static final Pattern PATTERN = Pattern.compile("[a-z_]{2,20}");
+  // 只允许小写字母和下划线，长度为2-20
+  public static final Pattern PATTERN = Pattern.compile("[a-z_]{2,20}");
 
-    private static Username of(final String value, final String filedName) {
-        ValidateUtils.matches(value, PATTERN, filedName);
-        return new Username(value);
-    }
+  private static Username of(final String value, final String filedName) {
+    ValidateUtils.matches(value, PATTERN, filedName);
+    return new Username(value);
+  }
 
-    @JsonCreator
-    public static Username of(final String value) {
-        return of(value, "Username");
-    }
+  @JsonCreator
+  public static Username of(final String value) {
+    return of(value, "Username");
+  }
 
-    public static Username valueOf(final String value, final String filedName) {
-        ValidateUtils.nonNull(value, filedName);
-        return of(value, filedName);
-    }
+  public static Username valueOf(final String value, final String filedName) {
+    ValidateUtils.nonNull(value, filedName);
+    return of(value, filedName);
+  }
 
-    @Override
-    public int compareTo(Username o) {
-        return this.value.compareTo(o.value);
-    }
+  @Override
+  public int compareTo(Username o) {
+    return this.value.compareTo(o.value);
+  }
 }

@@ -1,15 +1,14 @@
 package com.kk.ddd.support.enums;
 
 /**
- * 账户类型
- * <br/>
+ * 账户类型 <br>
  *
  * @author KaiKoo
  */
 public enum AccountTypeEnum {
-    USERNAME,
-    EMAIL,
-    PHONE,
-    WECHAT,
-    QQ
+  USERNAME,
+  EMAIL,
+  PHONE,
+  WECHAT,
+  QQ
 }

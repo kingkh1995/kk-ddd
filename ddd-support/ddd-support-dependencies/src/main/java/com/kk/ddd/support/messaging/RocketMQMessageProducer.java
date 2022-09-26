@@ -9,46 +9,49 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessagingException;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
-public class RocketMQMessageProducer extends AbstractMessageProducer{
+public class RocketMQMessageProducer extends AbstractMessageProducer {
 
-    private final RocketMQTemplate rocketMQTemplate;
+  private final RocketMQTemplate rocketMQTemplate;
 
-    public RocketMQMessageProducer(MessageStorage messageStorage,
-            RocketMQTemplate rocketMQTemplate) {
-        super(messageStorage);
-        this.rocketMQTemplate = rocketMQTemplate;
-    }
+  public RocketMQMessageProducer(MessageStorage messageStorage, RocketMQTemplate rocketMQTemplate) {
+    super(messageStorage);
+    this.rocketMQTemplate = rocketMQTemplate;
+  }
 
-    @Override
-    protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message) throws MessagingException {
-        var completableFuture = new CompletableFuture<>();
-        rocketMQTemplate.asyncSendOrderly(topic, message, hashKey, new SendCallback() {
-            @Override
-            public void onSuccess(SendResult sendResult) {
-                completableFuture.complete(sendResult);
-            }
+  @Override
+  protected CompletableFuture<?> doSendAsync(String topic, String hashKey, Message<?> message)
+      throws MessagingException {
+    var completableFuture = new CompletableFuture<>();
+    rocketMQTemplate.asyncSendOrderly(
+        topic,
+        message,
+        hashKey,
+        new SendCallback() {
+          @Override
+          public void onSuccess(SendResult sendResult) {
+            completableFuture.complete(sendResult);
+          }
 
-            @Override
-            public void onException(Throwable e) {
-                completableFuture.completeExceptionally(e);
-            }
+          @Override
+          public void onException(Throwable e) {
+            completableFuture.completeExceptionally(e);
+          }
         });
-        return completableFuture;
-    }
+    return completableFuture;
+  }
 
-    @Override
-    public void send(String topic, String hashKey, Message<?> message) {
-        rocketMQTemplate.sendOneWayOrderly(topic, message, hashKey);
-    }
+  @Override
+  public void send(String topic, String hashKey, Message<?> message) {
+    rocketMQTemplate.sendOneWayOrderly(topic, message, hashKey);
+  }
 
-    @Override
-    public boolean sendInTransaction(String topic, Message<?> message, BooleanSupplier localAction)
-            throws MessagingException {
-        return false;
-    }
+  @Override
+  public boolean sendInTransaction(String topic, Message<?> message, BooleanSupplier localAction)
+      throws MessagingException {
+    return false;
+  }
 }

@@ -8,8 +8,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
@@ -17,14 +16,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PasswordModifyCommand implements Serializable {
 
-    @NotBlank(message = "登录账号不能为空！")
-    private String username;
+  @NotBlank(message = "登录账号不能为空！")
+  private String username;
 
-    /** 编码后密码 */
-    @NotBlank(message = "编码密码不能为空！", groups = Outer.class)
-    private String encodedPassword;
+  /** 编码后密码 */
+  @NotBlank(message = "编码密码不能为空！", groups = Outer.class)
+  private String encodedPassword;
 
-    /** 明文密码 */
-    @NotBlank(message = "明文密码不能为空！", groups = Inner.class)
-    private transient String plaintextPassword;
+  /** 明文密码 */
+  @NotBlank(message = "明文密码不能为空！", groups = Inner.class)
+  private transient String plaintextPassword;
 }

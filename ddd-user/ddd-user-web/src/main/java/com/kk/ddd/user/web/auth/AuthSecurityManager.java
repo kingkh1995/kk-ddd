@@ -49,11 +49,12 @@ public class AuthSecurityManager extends JWTWebSecurityManager {
   private String createToken(AuthenticationInfo info) {
     var requestContext = LocalRequestContextHolder.get();
     var now = requestContext.getCommitTime().toInstant();
-    var builder = JWT.create()
+    var builder =
+        JWT.create()
             .withIssuer(jwtProperties.getIssuer())
             .withIssuedAt(Date.from(now))
             .withExpiresAt(
-                    Date.from(now.plus(jwtProperties.getExpiredAfterMinutes(), ChronoUnit.MINUTES)))
+                Date.from(now.plus(jwtProperties.getExpiredAfterMinutes(), ChronoUnit.MINUTES)))
             .withKeyId(String.valueOf(requestContext.getOperatorId()))
             .withSubject((String) info.getPrincipals().getPrimaryPrincipal());
     requestContext.getClaims().forEach(builder::withClaim);

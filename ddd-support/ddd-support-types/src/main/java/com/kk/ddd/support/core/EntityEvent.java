@@ -5,8 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * 领域事件
- * <br/>
+ * 领域事件 <br>
  * todo... 待设计
  *
  * @author KaiKoo
@@ -15,6 +14,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class EntityEvent<T extends Entity<ID>, ID extends Identifier> {
-    String type;
-    T entity;
+  String type;
+  T entity;
 }

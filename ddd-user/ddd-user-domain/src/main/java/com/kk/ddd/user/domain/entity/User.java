@@ -37,41 +37,38 @@ public final class User extends Aggregate<UserId> {
   // from user
   @Setter(AccessLevel.PROTECTED)
   private UserId id;
+
   private UserState state;
+
   private Username name;
+
   private String phone;
+
   private String email;
+
   @DiffIgnore private Instant createTime; // Entity中使用Instant对应PO中的Date类型
+
   @DiffIgnore private Instant updateTime;
+
   @DiffIgnore private Version version;
 
   // from user_base
 
-  /**
-   * 性别
-   */
+  /** 性别 */
   private String gender;
 
-  /**
-   * 生日
-   */
+  /** 生日 */
   private LocalDate birthday;
 
-  /**
-   * 头像
-   */
+  /** 头像 */
   private String profile;
 
   // from user_security
 
-  /**
-   * 加密后密码
-   */
+  /** 加密后密码 */
   private String encryptedPassword;
 
-  /**
-   * 哈希算法
-   */
+  /** 哈希算法 */
   private Hash hash;
 
   /** 用户绑定账户，from account。 */
@@ -112,6 +109,6 @@ public final class User extends Aggregate<UserId> {
     }
     // todo... 逻辑校验
     // 更新属性
-//    this.password = encryptedPassword;
+    //    this.password = encryptedPassword;
   }
 }

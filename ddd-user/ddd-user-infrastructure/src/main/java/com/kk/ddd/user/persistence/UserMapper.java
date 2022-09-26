@@ -20,7 +20,8 @@ public interface UserMapper {
 
   int updateById(UserPO userPO);
 
-  @Update("UPDATE `user` SET `deleted` = 1 WHERE `id` = #{id} AND `version` = ${version} AND `deleted` = 0")
+  @Update(
+      "UPDATE `user` SET `deleted` = 1 WHERE `id` = #{id} AND `version` = ${version} AND `deleted` = 0")
   int logicalDeleteById(UserPO userPO);
 
   // Mybatis支持封装为Optional

@@ -13,8 +13,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
@@ -26,10 +25,9 @@ import org.hibernate.annotations.DynamicUpdate;
 @Table(name = "stock")
 public class StockPO extends BasePersistable<Long> {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column
-    private Integer inventory;
-
+  @Column private Integer inventory;
 }

@@ -30,9 +30,7 @@ public class UserAppServiceImpl implements UserAppService {
 
   @Override
   public Optional<UserAuthInfo> getAuthInfo(String username) {
-    return userRepository
-            .find(Username.valueOf(username, "用户名"))
-            .map(userDTOAssembler::toAuthInfo);
+    return userRepository.find(Username.valueOf(username, "用户名")).map(userDTOAssembler::toAuthInfo);
   }
 
   @Override
@@ -55,8 +53,7 @@ public class UserAppServiceImpl implements UserAppService {
   @Override
   public List<UserDTO> queryUsers(Set<Long> userIds) {
     return userDTOAssembler.toDTO(
-            userRepository.find(
-                    userIds.stream().map(l -> UserId.valueOf(l, "id"))
-                            .collect(Collectors.toSet())));
+        userRepository.find(
+            userIds.stream().map(l -> UserId.valueOf(l, "id")).collect(Collectors.toSet())));
   }
 }

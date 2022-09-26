@@ -3,11 +3,8 @@ package com.kk.ddd.sales.bo;
 import java.util.concurrent.CompletableFuture;
 
 /**
- *
- * <br/>
+ * <br>
  *
  * @author KaiKoo
  */
-public record StockOperateBO(String orderNo, Integer count, CompletableFuture<Boolean> future) {
-
-}
+public record StockOperateBO(String orderNo, Integer count, CompletableFuture<Boolean> future) {}

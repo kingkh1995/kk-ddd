@@ -20,8 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PageSize implements Type, Comparable<PageSize> {
 
-  @Getter @JsonValue
-  private final long value;
+  @Getter @JsonValue private final long value;
 
   // 默认分页大小，并添加缓存
   public static final PageSize DEFAULT = new PageSize(Constants.TYPE.defaultPageSize());

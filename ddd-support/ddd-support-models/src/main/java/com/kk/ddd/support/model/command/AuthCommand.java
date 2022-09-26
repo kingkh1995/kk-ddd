@@ -16,12 +16,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AuthCommand implements Serializable {
 
-  @NotNull
-  private UserAuthTypeEnum authType;
+  @NotNull private UserAuthTypeEnum authType;
 
-  @NotBlank
-  private String principal;
+  @NotBlank private String principal;
 
-  @NotBlank
-  private String credential;
+  @NotBlank private String credential;
 }

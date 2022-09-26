@@ -27,99 +27,110 @@ class SalesWebApplicationTests {
 
   @Test
   void grpcClientTest() {
-    var channel = ManagedChannelBuilder.forAddress("localhost", 18888)
+    var channel =
+        ManagedChannelBuilder.forAddress("localhost", 18888)
             .usePlaintext() // 普通文本传输
             .build();
     // 流式处理
     StockProviderGrpc.newStub(channel)
-            .operate(StockOperateRequest.newBuilder()
-                    .setOperateType(StockOperateEnum.DEDUCT)
-                    .setOrderNo("Stream")
-                    .setCount(1)
-                    .build(), new StreamObserver<>() {
+        .operate(
+            StockOperateRequest.newBuilder()
+                .setOperateType(StockOperateEnum.DEDUCT)
+                .setOrderNo("Stream")
+                .setCount(1)
+                .build(),
+            new StreamObserver<>() {
               @Override
               public void onNext(StockOperateReply value) {
-                  log.info("onNext: {}.", value);
+                log.info("onNext: {}.", value);
               }
 
               @Override
               public void onError(Throwable t) {
-                  log.error("onError!", t);
+                log.error("onError!", t);
               }
 
               @Override
               public void onCompleted() {
-                  log.info("onCompleted!");
+                log.info("onCompleted!");
               }
             });
-      // 异步方式
-      var future = StockProviderGrpc.newFutureStub(channel)
-              .operate(StockOperateRequest.newBuilder()
-                      .setOperateType(StockOperateEnum.DEDUCT)
-                      .setOrderNo("Future")
-                      .setCount(1)
-                      .build());
-      future.addListener(() -> {
+    // 异步方式
+    var future =
+        StockProviderGrpc.newFutureStub(channel)
+            .operate(
+                StockOperateRequest.newBuilder()
+                    .setOperateType(StockOperateEnum.DEDUCT)
+                    .setOrderNo("Future")
+                    .setCount(1)
+                    .build());
+    future.addListener(
+        () -> {
           try {
-              log.info("async get: {}.", future.get());
+            log.info("async get: {}.", future.get());
           } catch (Exception e) {
-              throw new RuntimeException(e);
+            throw new RuntimeException(e);
           }
-      }, ForkJoinPool.commonPool());
-      // 阻塞方式
-      var reply = StockProviderGrpc.newBlockingStub(channel)
-              .operate(StockOperateRequest.newBuilder()
-                      .setOperateType(StockOperateEnum.DEDUCT)
-                      .setOrderNo("Blocking")
-                      .setCount(2)
-                      .build());
-      log.info("blocking get: {}.", reply);
-      try {
-          Thread.sleep(2000);
-      } catch (InterruptedException e) {
-          throw new RuntimeException(e);
-      }
-      channel.shutdown();
+        },
+        ForkJoinPool.commonPool());
+    // 阻塞方式
+    var reply =
+        StockProviderGrpc.newBlockingStub(channel)
+            .operate(
+                StockOperateRequest.newBuilder()
+                    .setOperateType(StockOperateEnum.DEDUCT)
+                    .setOrderNo("Blocking")
+                    .setCount(2)
+                    .build());
+    log.info("blocking get: {}.", reply);
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    channel.shutdown();
   }
 
-  @Autowired
-  private PlatformTransactionManager platformTransactionManager;
+  @Autowired private PlatformTransactionManager platformTransactionManager;
 
-    @Test
-    @Transactional
-    void transactionTest() {
-        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
-        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
-        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCompletion(int status) {
-                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
-                    System.out.println("rollback1");
-                }
+  @Test
+  @Transactional
+  void transactionTest() {
+    System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+    System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+    System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+              System.out.println("rollback1");
             }
+          }
         });
-        var transaction = platformTransactionManager.getTransaction(
-                new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED));
-        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
-        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
-        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCompletion(int status) {
-                if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
-                    System.out.println("rollback2");
-                }
+    var transaction =
+        platformTransactionManager.getTransaction(
+            new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED));
+    System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+    System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+    System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            if (status == TransactionSynchronization.STATUS_ROLLED_BACK) {
+              System.out.println("rollback2");
             }
+          }
         });
-        platformTransactionManager.commit(transaction);
-        System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
-        System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
-        System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
-        try {
-            platformTransactionManager.commit(transaction);
-        } catch (TransactionException e) {
-            System.out.println(e.getMessage());
-        }
+    platformTransactionManager.commit(transaction);
+    System.out.println(TransactionSynchronizationManager.isSynchronizationActive());
+    System.out.println(TransactionSynchronizationManager.isActualTransactionActive());
+    System.out.println(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+    try {
+      platformTransactionManager.commit(transaction);
+    } catch (TransactionException e) {
+      System.out.println(e.getMessage());
     }
+  }
 }

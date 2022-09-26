@@ -37,7 +37,9 @@ public class JobServiceImpl implements JobService {
   // 最大重试次数
   int MAX_RETRY = 16;
 
-  private static final RedisScript<?> TRANSFER_SCRIPT = new DefaultRedisScript<>("""
+  private static final RedisScript<?> TRANSFER_SCRIPT =
+      new DefaultRedisScript<>(
+          """
           local max = tonumber(ARGV[1])
           local table = redis.call('ZRANGEBYSCORE', KEYS[1], 0, max)
           for i = 1, #table

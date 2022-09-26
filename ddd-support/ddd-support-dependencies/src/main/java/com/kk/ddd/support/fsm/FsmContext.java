@@ -1,14 +1,13 @@
 package com.kk.ddd.support.fsm;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 /**
  * 状态机上下文对象 <br>
  *
  * @author KaiKoo
  */
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 @RequiredArgsConstructor
 public abstract class FsmContext<E extends FsmEvent, T> {
 
