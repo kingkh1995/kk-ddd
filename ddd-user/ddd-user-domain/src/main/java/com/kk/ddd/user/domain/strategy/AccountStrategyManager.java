@@ -1,6 +1,6 @@
 package com.kk.ddd.user.domain.strategy;
 
-import com.kk.ddd.support.enums.AccountTypeEnum;
+import com.kk.ddd.support.constant.AccountTypeEnum;
 import com.kk.ddd.support.util.strategy.AbstractEStrategyManager;
 import com.kk.ddd.user.domain.entity.Account;
 import java.util.EnumSet;

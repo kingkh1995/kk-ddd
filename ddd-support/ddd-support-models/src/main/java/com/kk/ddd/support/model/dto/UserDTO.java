@@ -1,5 +1,6 @@
 package com.kk.ddd.support.model.dto;
 
+import com.kk.ddd.support.constant.UserStateEnum;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Data;
@@ -17,7 +18,7 @@ public class UserDTO implements Serializable {
   /**
    * 不直接使用枚举类型，因为无法向前兼容（新增枚举值，如果使用方未更新依赖，会发生转换异常）
    *
-   * @see com.kk.ddd.support.enums.UserStateEnum
+   * @see UserStateEnum
    */
   private String state;
 

@@ -16,7 +16,7 @@
   <name>ddd-support-parent</name>
 
   <modules>
-    <module>ddd-support-consts</module>
+    <module>ddd-support-constants</module>
     <module>ddd-support-tools</module>
     <module>ddd-support-types</module>
     <module>ddd-support-models</module>

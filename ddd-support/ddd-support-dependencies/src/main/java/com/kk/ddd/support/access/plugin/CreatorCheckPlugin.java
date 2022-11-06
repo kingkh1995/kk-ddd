@@ -26,7 +26,7 @@ public class CreatorCheckPlugin implements AccessConditionCheckPlugin {
             var field = o.getClass().getDeclaredField("creator");
             field.trySetAccessible();
             return Objects.equals(field.get(o), LocalRequestContextHolder.get().getOperatorId());
-          } catch (Throwable e) {
+          } catch (Exception e) {
             throw new AccessConditionCheckException(e);
           }
         });

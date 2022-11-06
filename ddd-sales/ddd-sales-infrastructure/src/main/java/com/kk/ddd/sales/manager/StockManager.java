@@ -1,16 +1,17 @@
 package com.kk.ddd.sales.manager;
 
-import com.kk.ddd.sales.bo.StockOperateBO;
+import com.kk.ddd.sales.bo.StockDeductBO;
 import com.kk.ddd.sales.persistence.StockDAO;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import javax.persistence.RollbackException;
 import lombok.extern.slf4j.Slf4j;
 import org.jctools.queues.MpscUnboundedArrayQueue;
 import org.springframework.beans.factory.DisposableBean;
@@ -35,7 +36,7 @@ public class StockManager implements InitializingBean, DisposableBean {
   private int maxWaitMillis;
   private TransactionTemplate transactionTemplate;
   private StockDAO stockDAO;
-  private Queue<StockOperateBO> queue;
+  private Queue<StockDeductBO> queue;
   private ExecutorService executorService;
   private Thread worker;
 
@@ -68,7 +69,7 @@ public class StockManager implements InitializingBean, DisposableBean {
 
   public Future<Boolean> deduct(String orderNo, int count) {
     var future = new CompletableFuture<Boolean>();
-    if (!queue.offer(new StockOperateBO(orderNo, count, future))) {
+    if (!queue.offer(new StockDeductBO(orderNo, count, future))) {
       future.complete(false);
     }
     return future;
@@ -103,9 +104,9 @@ public class StockManager implements InitializingBean, DisposableBean {
     }
   }
 
-  private static final Predicate<StockOperateBO> UNCANCELLED = bo -> !bo.future().isCancelled();
+  private static final Predicate<StockDeductBO> UNCANCELLED = bo -> !bo.future().isCancelled();
 
-  private List<StockOperateBO> drain() {
+  private List<StockDeductBO> drain() {
     // poll直到为空或元素个数达到限制并过滤掉已取消
     return Stream.generate(() -> queue.poll())
         .takeWhile(Objects::nonNull)
@@ -114,7 +115,7 @@ public class StockManager implements InitializingBean, DisposableBean {
         .toList();
   }
 
-  private void execute(List<StockOperateBO> bos) {
+  private void execute(List<StockDeductBO> bos) {
     if (bos.isEmpty()) {
       return;
     }
@@ -125,42 +126,48 @@ public class StockManager implements InitializingBean, DisposableBean {
           if (filtered.isEmpty()) {
             return;
           }
-          try {
+          try { // catch to prevent thread exit
             // merge deduct first
             if (mergeDeduct(filtered)) {
               return;
             }
             // merge deduct failed then single deduct each
             filtered.forEach(this::singleDeduct);
-          } catch (Throwable e) {
-            // when reach here means get transaction failed
-            log.error("stock operate execute failed.", e);
+          } catch (Exception e) {
+            // handle unexpected exception
+            log.error("deduct failed!", e);
+            bos.forEach(bo -> complete(bo, false));
           }
         });
   }
 
-  private boolean mergeDeduct(List<StockOperateBO> bos) {
-    var sum = bos.stream().mapToInt(StockOperateBO::count).sum();
-    var succeeded =
-        Boolean.TRUE.equals(
-            transactionTemplate.execute(
-                status -> {
-                  // deduct stock first
-                  if (stockDAO.deductStock(sum) == 0) {
-                    log.info("merge deduct failed because of update stock failed!");
-                    return false;
-                  }
-                  // deduct stock succeeded then save logs
-                  var OrderNos = bos.stream().map(StockOperateBO::orderNo).toList();
-                  if (stockDAO.insertStockOperateLog(OrderNos) < bos.size()) {
-                    // save logs failed throw to rollback
-                    log.info("merge deduct failed because of insert logs failed!");
-                    return false;
-                  }
-                  // all succeeded
-                  log.info("merge deduct succeeded, bos:{}.", bos);
-                  return true;
-                }));
+  private boolean mergeDeduct(List<StockDeductBO> bos) {
+    var sum = bos.stream().mapToInt(StockDeductBO::count).sum();
+    var succeeded = false;
+    try {
+      succeeded =
+          Boolean.TRUE.equals(
+              transactionTemplate.execute(
+                  status -> {
+                    // deduct stock first
+                    if (stockDAO.deductStock(sum) == 0) {
+                      // throw to rollback
+                      throw new RollbackException("update stock failed");
+                    }
+                    // deduct stock succeeded then save logs
+                    var OrderNos = bos.stream().map(StockDeductBO::orderNo).toList();
+                    if (stockDAO.insertStockOperateLog(OrderNos) < bos.size()) {
+                      // throw to rollback
+                      throw new RollbackException("save logs failed");
+                    }
+                    // all succeeded
+                    log.info("merge deduct succeeded, bos:{}.", bos);
+                    return true;
+                  }));
+    } catch (RollbackException e) {
+      // ignore thrown rollback exception
+      log.info("merge deduct failed by [{}].", e.getMessage());
+    }
     // if succeeded complete future
     if (succeeded) {
       bos.forEach(bo -> complete(bo, true));
@@ -168,25 +175,29 @@ public class StockManager implements InitializingBean, DisposableBean {
     return succeeded;
   }
 
-  private void singleDeduct(StockOperateBO bo) {
-    var succeeded =
-        Boolean.TRUE.equals(
-            transactionTemplate.execute(
-                status -> {
-                  if (stockDAO.deductStock(bo.count()) == 0) {
-                    log.info("single deduct failed because of update stock failed!");
-                    return false;
-                  } else if (stockDAO.insertStockOperateLog(bo.orderNo()) == 0) {
-                    log.info("single deduct failed because of insert log failed!");
-                    return false;
-                  }
-                  log.info("single deduct succeeded, bo:{}.", bo);
-                  return true;
-                }));
+  private void singleDeduct(StockDeductBO bo) {
+    var succeeded = false;
+    try {
+      succeeded =
+          Boolean.TRUE.equals(
+              transactionTemplate.execute(
+                  status -> {
+                    if (stockDAO.deductStock(bo.count()) == 0) {
+                      throw new RollbackException("update stock failed");
+                    } else if (stockDAO.insertStockOperateLog(bo.orderNo()) == 0) {
+                      throw new RollbackException("insert log failed");
+                    }
+                    log.info("single deduct succeeded, bo:{}.", bo);
+                    return true;
+                  }));
+    } catch (RollbackException e) {
+      log.info("single deduct failed by [{}].", e.getMessage());
+    }
+    // at last complete
     complete(bo, succeeded);
   }
 
-  private void complete(StockOperateBO bo, boolean result) {
+  private void complete(StockDeductBO bo, boolean result) {
     if (!bo.future().complete(result)) {
       log.info("compete failed, result: {}, orderNo: {}.", result, bo.orderNo());
       // todo... 发送告警消息
@@ -199,7 +210,7 @@ public class StockManager implements InitializingBean, DisposableBean {
       return;
     }
     queue = new MpscUnboundedArrayQueue<>(1024);
-    executorService = ForkJoinPool.commonPool();
+    executorService = Executors.newCachedThreadPool();
     startWorker();
   }
 
@@ -208,20 +219,16 @@ public class StockManager implements InitializingBean, DisposableBean {
     stopWorker();
   }
 
-  private void startWorker() {
-    synchronized (this) {
-      stopWorker();
-      this.worker = new Thread(new Worker(), "StockOperateThread");
-      this.worker.start();
-    }
+  private synchronized void startWorker() {
+    stopWorker();
+    this.worker = new Thread(new Worker(), "StockOperateThread");
+    this.worker.start();
   }
 
-  private void stopWorker() {
-    synchronized (this) {
-      if (this.worker == null) {
-        return;
-      }
-      this.worker.interrupt();
+  private synchronized void stopWorker() {
+    if (this.worker == null) {
+      return;
     }
+    this.worker.interrupt();
   }
 }

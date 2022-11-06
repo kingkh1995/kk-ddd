@@ -1,6 +1,6 @@
 package com.kk.ddd.support.model.command;
 
-import com.kk.ddd.support.enums.UserAuthTypeEnum;
+import com.kk.ddd.support.constant.UserAuthTypeEnum;
 import java.io.Serializable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

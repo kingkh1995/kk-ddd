@@ -4,7 +4,7 @@ import com.kk.ddd.job.domain.JobDAO;
 import com.kk.ddd.job.domain.JobDO;
 import com.kk.ddd.job.message.JobMessageSender;
 import com.kk.ddd.job.service.JobService;
-import com.kk.ddd.support.enums.JobStateEnum;
+import com.kk.ddd.support.constant.JobStateEnum;
 import com.kk.ddd.support.model.command.JobAddCommand;
 import com.kk.ddd.support.model.event.JobActionEvent;
 import com.kk.ddd.support.model.event.JobReverseEvent;

@@ -130,7 +130,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
     }
     try {
       return point.proceed();
-    } catch (Throwable e) {
+    } catch (Throwable e) { // 基础功能的代码可以捕获Throwable
       // 抛出异常前，降级并触发心跳检测
       doThrow(e, context);
       throw e;
@@ -167,7 +167,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
                 context.target.getClass().getCanonicalName());
             // 心跳正常，进行恢复
             context.degraded.set(false);
-          } catch (Throwable e) {
+          } catch (Exception e) { // 不应该捕获Throwable，因为Error发生时也不应该继续恢复心跳。
             log.warn(
                 "Degraded service '{}' health check throw!",
                 context.target.getClass().getCanonicalName(),

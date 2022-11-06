@@ -7,4 +7,4 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author KaiKoo
  */
-public record StockOperateBO(String orderNo, Integer count, CompletableFuture<Boolean> future) {}
+public record StockDeductBO(String orderNo, Integer count, CompletableFuture<Boolean> future) {}

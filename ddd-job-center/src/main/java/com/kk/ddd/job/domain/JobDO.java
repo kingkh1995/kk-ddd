@@ -1,7 +1,7 @@
 package com.kk.ddd.job.domain;
 
 import com.kk.ddd.support.bean.BasePersistable;
-import com.kk.ddd.support.enums.JobStateEnum;
+import com.kk.ddd.support.constant.JobStateEnum;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,7 +39,7 @@ public class JobDO extends BasePersistable<Long> {
   /**
    * 任务状态
    *
-   * @see com.kk.ddd.support.enums.JobStateEnum
+   * @see JobStateEnum
    */
   @Enumerated(EnumType.STRING) // 映射为枚举，并使用字符形式映射。
   @Column(name = "state", columnDefinition = "CHAR(1) NOT NULL")

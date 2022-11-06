@@ -1,9 +1,9 @@
 package com.kk.ddd.user.domain.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.kk.ddd.support.constant.UserStateEnum;
 import com.kk.ddd.support.core.Aggregate;
 import com.kk.ddd.support.diff.DiffIgnore;
-import com.kk.ddd.support.enums.UserStateEnum;
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.type.Version;
 import com.kk.ddd.support.util.NameGenerator;

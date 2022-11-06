@@ -1,4 +1,4 @@
-package com.kk.ddd.support.enums;
+package com.kk.ddd.support.constant;
 
 /**
  * 账户类型 <br>

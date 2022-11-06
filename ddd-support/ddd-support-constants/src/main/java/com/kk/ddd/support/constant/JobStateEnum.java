@@ -1,4 +1,4 @@
-package com.kk.ddd.support.enums;
+package com.kk.ddd.support.constant;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

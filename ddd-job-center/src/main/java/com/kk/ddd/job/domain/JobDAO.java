@@ -1,6 +1,6 @@
 package com.kk.ddd.job.domain;
 
-import com.kk.ddd.support.enums.JobStateEnum;
+import com.kk.ddd.support.constant.JobStateEnum;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

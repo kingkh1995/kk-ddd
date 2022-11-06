@@ -1,5 +1,6 @@
 package com.kk.ddd.user.persistence;
 
+import com.kk.ddd.support.constant.AccountTypeEnum;
 import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class AccountPO implements Serializable {
   /**
    * 账户类型 <br>
    *
-   * @see com.kk.ddd.support.enums.AccountTypeEnum
+   * @see AccountTypeEnum
    */
   private String type;
 

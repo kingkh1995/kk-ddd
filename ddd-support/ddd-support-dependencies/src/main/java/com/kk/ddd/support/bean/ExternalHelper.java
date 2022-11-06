@@ -30,7 +30,7 @@ public class ExternalHelper {
       return unwrapResult(resultSupplier.get());
     } catch (BusinessException e) {
       throw e;
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new ExternalServerException(e);
     }
   }
@@ -42,7 +42,7 @@ public class ExternalHelper {
       return unwrapResult(toResultFunction.apply(Kson.readJson(jsonSupplier.get())));
     } catch (BusinessException e) {
       throw e;
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new ExternalServerException(e);
     }
   }

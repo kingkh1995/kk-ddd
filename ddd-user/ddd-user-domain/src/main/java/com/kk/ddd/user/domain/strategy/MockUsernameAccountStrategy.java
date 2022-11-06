@@ -1,6 +1,6 @@
 package com.kk.ddd.user.domain.strategy;
 
-import com.kk.ddd.support.enums.AccountTypeEnum;
+import com.kk.ddd.support.constant.AccountTypeEnum;
 import com.kk.ddd.user.domain.entity.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,4 +1,4 @@
-package com.kk.ddd.support.enums;
+package com.kk.ddd.support.constant;
 
 public enum UserStateEnum {
   INIT,

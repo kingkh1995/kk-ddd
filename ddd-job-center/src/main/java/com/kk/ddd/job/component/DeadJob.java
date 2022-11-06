@@ -3,7 +3,7 @@ package com.kk.ddd.job.component;
 import com.kk.ddd.job.domain.JobDAO;
 import com.kk.ddd.job.domain.JobDO;
 import com.kk.ddd.job.service.JobService;
-import com.kk.ddd.support.enums.JobStateEnum;
+import com.kk.ddd.support.constant.JobStateEnum;
 import com.kk.ddd.support.model.event.JobReverseEvent;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

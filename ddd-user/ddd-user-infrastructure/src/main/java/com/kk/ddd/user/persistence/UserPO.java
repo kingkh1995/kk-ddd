@@ -1,5 +1,6 @@
 package com.kk.ddd.user.persistence;
 
+import com.kk.ddd.support.constant.UserStateEnum;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -24,8 +25,7 @@ public class UserPO implements Serializable {
   /**
    * 用户状态 <br>
    *
-   * @see com.kk.ddd.support.enums.UserStateEnum state用来标识可迁移的状态（如state
-   *     machine），status用来表示不可迁移的状态（如Http status code） <br>
+   * @see UserStateEnum state用来标识可迁移的状态（如state machine），status用来表示不可迁移的状态（如Http status code） <br>
    */
   private String state;
 

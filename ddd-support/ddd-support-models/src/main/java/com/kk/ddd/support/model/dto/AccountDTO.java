@@ -1,5 +1,6 @@
 package com.kk.ddd.support.model.dto;
 
+import com.kk.ddd.support.constant.AccountTypeEnum;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ public class AccountDTO implements Serializable {
   private Long userId;
 
   /**
-   * @see com.kk.ddd.support.enums.AccountTypeEnum
+   * @see AccountTypeEnum
    */
   private String type;
 

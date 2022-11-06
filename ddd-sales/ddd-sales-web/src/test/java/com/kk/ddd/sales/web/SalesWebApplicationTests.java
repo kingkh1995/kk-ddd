@@ -1,5 +1,7 @@
 package com.kk.ddd.sales.web;
 
+import com.kk.ddd.sales.persistence.StockDAO;
+import com.kk.ddd.sales.persistence.StockPO;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
@@ -25,8 +27,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @ActiveProfiles("dev")
 class SalesWebApplicationTests {
 
+  @Autowired private StockDAO stockDAO;
+
   @Test
   void grpcClientTest() {
+    var stockPO = new StockPO();
+    stockPO.setInventory(4);
+    stockDAO.save(stockPO);
     var channel =
         ManagedChannelBuilder.forAddress("localhost", 18888)
             .usePlaintext() // 普通文本传输
@@ -62,7 +69,7 @@ class SalesWebApplicationTests {
                 StockOperateRequest.newBuilder()
                     .setOperateType(StockOperateEnum.DEDUCT)
                     .setOrderNo("Future")
-                    .setCount(1)
+                    .setCount(2)
                     .build());
     future.addListener(
         () -> {
@@ -80,7 +87,7 @@ class SalesWebApplicationTests {
                 StockOperateRequest.newBuilder()
                     .setOperateType(StockOperateEnum.DEDUCT)
                     .setOrderNo("Blocking")
-                    .setCount(2)
+                    .setCount(3)
                     .build());
     log.info("blocking get: {}.", reply);
     try {
@@ -88,6 +95,7 @@ class SalesWebApplicationTests {
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+    System.out.println(stockDAO.findAll());
     channel.shutdown();
   }
 

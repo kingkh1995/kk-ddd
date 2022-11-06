@@ -2,7 +2,7 @@
 
 > 基础组件支持项目
 
-### consts
+### constants
 
 > 可对外暴露的常量类和枚举类
 
@@ -16,7 +16,7 @@
 - Utils类
 - Function接口
 
-### types （domain模块引用，依赖support-consts、support-tools）
+### types （domain模块引用，依赖support-constants、support-tools）
 
 > 可公用的DP
 
@@ -26,7 +26,7 @@
 - 数据模型的基类
 - Exception类
 
-### models （application模块引用，依赖support-consts）
+### models （application模块引用，依赖support-constants）
 
 > 对外暴露的数据模型
 

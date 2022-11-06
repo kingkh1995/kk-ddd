@@ -1,7 +1,7 @@
 package com.kk.ddd.user.domain.mapper;
 
-import com.kk.ddd.support.enums.AccountTypeEnum;
-import com.kk.ddd.support.enums.UserStateEnum;
+import com.kk.ddd.support.constant.AccountTypeEnum;
+import com.kk.ddd.support.constant.UserStateEnum;
 import com.kk.ddd.user.domain.type.AccountId;
 import com.kk.ddd.user.domain.type.AccountType;
 import com.kk.ddd.user.domain.type.AuthStrength;

@@ -15,7 +15,7 @@
   <dependencies>
     <dependency>
       <groupId>com.kk.ddd.support</groupId>
-      <artifactId>ddd-support-consts</artifactId>
+      <artifactId>ddd-support-constants</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

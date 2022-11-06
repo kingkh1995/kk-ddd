@@ -2,8 +2,8 @@ package com.kk.ddd.user.domain.type;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kk.ddd.support.constant.AccountTypeEnum;
 import com.kk.ddd.support.core.Type;
-import com.kk.ddd.support.enums.AccountTypeEnum;
 import com.kk.ddd.support.util.ParseUtils;
 import java.util.Arrays;
 import lombok.AccessLevel;
