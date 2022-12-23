@@ -26,7 +26,9 @@ public class NettyDelayer {
             512, // 会调整为2的幂
             false,
             -1,
-            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() << 1));
+            Executors.newFixedThreadPool(
+                Runtime.getRuntime().availableProcessors() << 1,
+                new DefaultThreadFactory("NettyDelayerTaskPool")));
   }
 
   public NettyDelayer(final HashedWheelTimer timer) {

@@ -44,12 +44,12 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     // 参考CompletableFuture.Delayer.delayer
     var doggy =
         new ScheduledThreadPoolExecutor(
-            1,
+            Runtime.getRuntime().availableProcessors(),
             r -> {
               var t = new Thread(r);
               // 设置为守护线程
               t.setDaemon(true);
-              t.setName("RedisDistributedLockDefaultDoggy");
+              t.setName(String.format("RedisDistributedLockDefaultDoggy[%d]", t.getId()));
               return t;
             });
     doggy.setRemoveOnCancelPolicy(true);

@@ -2,12 +2,12 @@ package com.kk.ddd.sales.manager;
 
 import com.kk.ddd.sales.bo.StockDeductBO;
 import com.kk.ddd.sales.persistence.StockDAO;
+import com.kk.ddd.support.bean.ThreadPoolManager;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -34,6 +34,7 @@ public class StockManager implements InitializingBean, DisposableBean {
 
   private int batchSize;
   private int maxWaitMillis;
+  private int threadSize;
   private TransactionTemplate transactionTemplate;
   private StockDAO stockDAO;
   private Queue<StockDeductBO> queue;
@@ -48,6 +49,11 @@ public class StockManager implements InitializingBean, DisposableBean {
   @Autowired
   public void setMaxWaitMillis(@Value("${stock.operate.max-wait-millis:20}") int maxWaitMillis) {
     this.maxWaitMillis = maxWaitMillis;
+  }
+
+  @Autowired
+  public void setThreadSize(@Value("${stock.operate.thread-size:10}") int threadSize) {
+    this.threadSize = threadSize;
   }
 
   @Autowired
@@ -210,7 +216,7 @@ public class StockManager implements InitializingBean, DisposableBean {
       return;
     }
     queue = new MpscUnboundedArrayQueue<>(1024);
-    executorService = Executors.newCachedThreadPool();
+    executorService = ThreadPoolManager.getOrInit("StockManager", threadSize, threadSize);
     startWorker();
   }
 

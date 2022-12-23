@@ -17,7 +17,8 @@ public class RocketMQMessageProducer extends AbstractMessageProducer {
 
   private final RocketMQTemplate rocketMQTemplate;
 
-  public RocketMQMessageProducer(MessageStorage messageStorage, RocketMQTemplate rocketMQTemplate) {
+  public RocketMQMessageProducer(
+      final MessageStorage messageStorage, final RocketMQTemplate rocketMQTemplate) {
     super(messageStorage);
     this.rocketMQTemplate = rocketMQTemplate;
   }

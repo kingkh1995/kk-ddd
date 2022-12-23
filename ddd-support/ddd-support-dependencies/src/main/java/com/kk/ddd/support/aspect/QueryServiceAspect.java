@@ -31,8 +31,13 @@ public class QueryServiceAspect extends AbstractMethodAspect {
   protected void pointcut() {}
 
   @Override
-  public void onSucceed(JoinPoint point, Object result) {
-    // 后置增强，成功查询出结果之后再判断是否允许访问
+  public boolean onBefore(JoinPoint point) { // todo... 前置增强，校验参数
+    Object[] args = point.getArgs();
+    return true;
+  }
+
+  @Override
+  public void onSucceed(JoinPoint point, Object result) { // 后置增强，成功查询出结果之后再判断是否允许访问
     var accessCondition = AccessConditionHelper.get();
     if (accessCondition == null) {
       return;

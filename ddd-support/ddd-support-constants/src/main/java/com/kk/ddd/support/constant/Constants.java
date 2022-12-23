@@ -27,4 +27,9 @@ public class Constants {
       ServiceLoader.load(TypeConstantsProvider.class)
           .findFirst()
           .orElseGet(() -> new TypeConstantsProvider() {});
+
+  public static final ExecutorConstantsProvider EXECUTOR =
+      ServiceLoader.load(ExecutorConstantsProvider.class)
+          .findFirst()
+          .orElseGet(() -> new ExecutorConstantsProvider() {});
 }

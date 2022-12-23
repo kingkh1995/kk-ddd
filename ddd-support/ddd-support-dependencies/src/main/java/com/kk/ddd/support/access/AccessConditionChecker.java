@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * AccessConditionChecker检查器 <br>
+ * AccessConditionChecker检查器 todo... 参考@pointcut
  *
  * @author KaiKoo
  */
