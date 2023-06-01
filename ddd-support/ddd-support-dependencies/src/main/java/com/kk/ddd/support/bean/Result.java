@@ -2,7 +2,7 @@ package com.kk.ddd.support.bean;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.kk.ddd.support.constant.Constants;
+import com.kk.ddd.support.util.Constants;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;

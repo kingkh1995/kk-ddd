@@ -1,4 +1,4 @@
-package com.kk.ddd.support.constant;
+package com.kk.ddd.support.util.spi;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
@@ -10,21 +10,25 @@ import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
  */
 public interface ExecutorConstantsProvider {
 
+  RejectedExecutionHandler DEFAULT_REJECTED_POLICY = new CallerRunsPolicy();
+
+  default RejectedExecutionHandler defaultRejectedPolicy() {
+    return DEFAULT_REJECTED_POLICY;
+  }
+
   default int defaultPoolSize() {
     return Runtime.getRuntime().availableProcessors();
   }
 
-  default long defaultKeepAliveSeconds() {
-    return 300L;
+  default int defaultKeepAliveSeconds() {
+    return 30 * 60;
   }
 
   default int defaultQueueCapacity() {
     return 2048;
   }
 
-  RejectedExecutionHandler DEFAULT_REJECTED_POLICY = new CallerRunsPolicy();
-
-  default RejectedExecutionHandler defaultRejectedPolicy() {
-    return DEFAULT_REJECTED_POLICY;
+  default boolean defaultAllowCoreThreadTimeOut() {
+    return false;
   }
 }

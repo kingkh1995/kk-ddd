@@ -1,6 +1,6 @@
 package com.kk.ddd.support.exception;
 
-import com.kk.ddd.support.constant.Constants;
+import com.kk.ddd.support.util.Constants;
 
 /**
  * domain层业务异常 <br>

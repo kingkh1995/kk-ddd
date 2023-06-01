@@ -1,6 +1,7 @@
 package com.kk.ddd.user.configuration;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -69,6 +70,10 @@ public class BeanConfiguration implements ApplicationContextAware {
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         // BigDecimal按plain方式序列化
         .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN)
+        // 序列化忽略null值
+        .serializationInclusion(Include.NON_NULL)
+        // 禁用类型功能，防止反序列化安全问题。
+        .deactivateDefaultTyping()
         .build();
   }
 

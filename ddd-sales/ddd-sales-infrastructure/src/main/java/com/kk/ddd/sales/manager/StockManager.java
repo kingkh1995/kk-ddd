@@ -2,7 +2,7 @@ package com.kk.ddd.sales.manager;
 
 import com.kk.ddd.sales.bo.StockDeductBO;
 import com.kk.ddd.sales.persistence.StockDAO;
-import com.kk.ddd.support.bean.ThreadPoolManager;
+import com.kk.ddd.support.util.ThreadPoolUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
@@ -216,13 +216,14 @@ public class StockManager implements InitializingBean, DisposableBean {
       return;
     }
     queue = new MpscUnboundedArrayQueue<>(1024);
-    executorService = ThreadPoolManager.getOrInit("StockManager", threadSize, threadSize);
+    executorService = ThreadPoolUtils.getOrInit("StockManager", threadSize, threadSize);
     startWorker();
   }
 
   @Override
   public void destroy() throws Exception {
     stopWorker();
+    this.executorService.shutdown();
   }
 
   private synchronized void startWorker() {

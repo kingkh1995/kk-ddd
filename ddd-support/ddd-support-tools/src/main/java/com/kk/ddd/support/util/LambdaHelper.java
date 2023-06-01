@@ -2,8 +2,8 @@ package com.kk.ddd.support.util;
 
 import java.lang.invoke.SerializedLambda;
 import java.lang.ref.SoftReference;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -16,7 +16,8 @@ public final class LambdaHelper {
     throw new IllegalAccessException();
   }
 
-  private static final Map<Class<? extends SFunction<?, ?>>, SoftReference<SerializedLambda>>
+  private static final ConcurrentMap<
+          Class<? extends SFunction<?, ?>>, SoftReference<SerializedLambda>>
       CACHE = new ConcurrentHashMap<>();
 
   /**

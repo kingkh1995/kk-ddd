@@ -1,5 +1,8 @@
-package com.kk.ddd.support.constant;
+package com.kk.ddd.support.util;
 
+import com.kk.ddd.support.util.spi.BaseConstantsProvider;
+import com.kk.ddd.support.util.spi.ExecutorConstantsProvider;
+import com.kk.ddd.support.util.spi.TypeConstantsProvider;
 import java.util.ServiceLoader;
 
 /**

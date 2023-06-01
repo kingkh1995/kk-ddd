@@ -25,14 +25,7 @@ public class Kson {
 
   // 静态域懒加载使用lazy initialization holder class idiom模式，首次调用时静态内部类才会初始化。
   private static class JsonMapperMapperHolder {
-    private static final JsonMapper INSTANCE =
-        JsonMapper.builder()
-            .findAndAddModules()
-            .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
-            .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-            .build();
+    private static final JsonMapper INSTANCE = newJsonMapper();
   }
 
   private static JsonMapper MAPPER;
@@ -46,6 +39,17 @@ public class Kson {
       MAPPER = JsonMapperMapperHolder.INSTANCE;
     }
     return MAPPER;
+  }
+
+  public static JsonMapper newJsonMapper() {
+    return JsonMapper.builder()
+        .findAndAddModules()
+        .visibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE)
+        .visibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY)
+        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+        .deactivateDefaultTyping()
+        .build();
   }
 
   public static String writeJson(Object value) {

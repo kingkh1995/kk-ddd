@@ -1,4 +1,4 @@
-package com.kk.ddd.support.constant;
+package com.kk.ddd.support.util.spi;
 
 /**
  * type constants spi provider <br>

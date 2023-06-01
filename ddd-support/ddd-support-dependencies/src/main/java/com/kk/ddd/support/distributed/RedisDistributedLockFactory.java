@@ -3,10 +3,10 @@ package com.kk.ddd.support.distributed;
 import com.kk.ddd.support.util.NameGenerator;
 import com.kk.ddd.support.util.SleepHelper;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -99,7 +99,7 @@ public class RedisDistributedLockFactory implements DistributedLockFactory {
     return new RedisMultiLock(names, this);
   }
 
-  private static final Map<String, Bone> BOWL = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<String, Bone> BOWL = new ConcurrentHashMap<>();
 
   private static class Bone {
     private final String name;

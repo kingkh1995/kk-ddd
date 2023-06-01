@@ -1,6 +1,6 @@
 package com.kk.ddd.user.configuration;
 
-import com.kk.ddd.support.constant.TypeConstantsProvider;
+import com.kk.ddd.support.util.spi.TypeConstantsProvider;
 
 /**
  * 自定义spi拓展点 <br>

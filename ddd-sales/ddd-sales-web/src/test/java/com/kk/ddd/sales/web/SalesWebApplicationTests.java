@@ -1,5 +1,8 @@
 package com.kk.ddd.sales.web;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kk.ddd.sales.persistence.StockDAO;
 import com.kk.ddd.sales.persistence.StockPO;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
@@ -8,7 +11,14 @@ import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,5 +150,36 @@ class SalesWebApplicationTests {
     } catch (TransactionException e) {
       System.out.println(e.getMessage());
     }
+  }
+
+  @Test
+  void csvTest() {
+    String path = "D:\\test.csv";
+    List<CsvVO> list = new ArrayList<>();
+    list.add(new CsvVO("Jun", "Wang", 1));
+    list.add(new CsvVO("San", "Zhang", 2));
+    EasyExcel.write(path, CsvVO.class)
+        .excelType(ExcelTypeEnum.CSV)
+        .charset(StandardCharsets.UTF_8)
+        .needHead(false) // 不写表头
+        .sheet()
+        .doWrite(list);
+    list.clear();
+    EasyExcel.read(path, CsvVO.class, new PageReadListener<CsvVO>(list::addAll))
+        .charset(StandardCharsets.UTF_8)
+        .headRowNumber(0) // 读取时无表头
+        .sheet()
+        .doRead();
+    System.out.println(list);
+    new File(path).deleteOnExit();
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class CsvVO {
+    private String first;
+    private String last;
+    private int n;
   }
 }
