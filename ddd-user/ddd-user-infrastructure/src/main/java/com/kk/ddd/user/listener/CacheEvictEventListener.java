@@ -2,7 +2,7 @@ package com.kk.ddd.user.listener;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.bean.NettyDelayer;
 import com.kk.ddd.support.cache.CacheEvictEvent;
 import com.kk.ddd.support.cache.EnhancedProxyCachingConfiguration;
@@ -34,7 +34,7 @@ public class CacheEvictEventListener {
     log.info(
         "receive event, cache:[{}], key:[{}], postTime:[{}].",
         event.getCache().getName(),
-        Kson.writeJson(event.getKey()),
+        Jackson.object2String(event.getKey()),
         event.getPostTime());
     // 延迟一秒执行，从事件发生时间开始。
     var delayNanos = 1_000_000_000L + event.getPostTime() - System.nanoTime();

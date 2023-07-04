@@ -1,7 +1,7 @@
 package com.kk.ddd.sales.web.provider;
 
 import com.kk.ddd.sales.manager.StockManager;
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc.StockProviderImplBase;
@@ -41,7 +41,7 @@ public class StockProviderImpl extends StockProviderImplBase {
       // todo... send rollback message
       throw new RuntimeException("deduct return false!");
     } catch (Exception e) {
-      log.error("deduct failed, request:{}.", Kson.writeJson(request), e);
+      log.error("deduct failed, request:{}.", Jackson.object2String(request), e);
       return StockOperateReply.newBuilder().setCode(99).setMessage("Deduct Failed").build();
     }
   }

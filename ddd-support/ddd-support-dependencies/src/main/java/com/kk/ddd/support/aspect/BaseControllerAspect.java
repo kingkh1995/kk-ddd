@@ -1,6 +1,6 @@
 package com.kk.ddd.support.aspect;
 
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,14 +39,14 @@ public class BaseControllerAspect extends AbstractMethodAspect {
         "[{}.{}()] ~ [request = {}]",
         signature.getDeclaringTypeName(),
         signature.getName(),
-        Kson.writeJson(getMethodParams(signature, point.getArgs())));
+        Jackson.object2String(getMethodParams(signature, point.getArgs())));
     return true;
   }
 
   @Override
   public void onSucceed(JoinPoint point, Object result) {
     // 后置增强，成功时打印响应信息
-    log.info("[response = {}]", Kson.writeJson(result));
+    log.info("[response = {}]", Jackson.object2String(result));
   }
 
   private Map<String, Object> getMethodParams(MethodSignature signature, Object[] args) {

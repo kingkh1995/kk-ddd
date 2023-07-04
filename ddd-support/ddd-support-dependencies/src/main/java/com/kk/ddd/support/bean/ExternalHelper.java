@@ -39,7 +39,7 @@ public class ExternalHelper {
       @NotNull Supplier<String> jsonSupplier,
       @NotNull Function<JsonNode, Result<T>> toResultFunction) {
     try {
-      return unwrapResult(toResultFunction.apply(Kson.readJson(jsonSupplier.get())));
+      return unwrapResult(toResultFunction.apply(Jackson.parse(jsonSupplier.get())));
     } catch (BusinessException e) {
       throw e;
     } catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.kk.ddd.user.repository.impl;
 
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.diff.Diff;
 import com.kk.ddd.support.exception.BusinessException;
 import com.kk.ddd.support.repository.AggregateRepositorySupport;
@@ -65,7 +65,7 @@ public class UserRepositoryImpl extends AggregateRepositorySupport<User, UserId>
     // 使用ThreadLocalAggregateTrackingManager
     super(
         ThreadLocalAggregateTrackingManager.<User, UserId>builder()
-            .snapshooter(user -> Kson.convertValue(user, User.class))
+            .snapshooter(user -> Jackson.convert(user, User.class))
             .build());
     this.userMapper = userMapper;
     this.accountMapper = accountMapper;

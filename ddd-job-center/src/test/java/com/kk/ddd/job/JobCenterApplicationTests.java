@@ -2,7 +2,7 @@ package com.kk.ddd.job;
 
 import com.kk.ddd.job.domain.JobDAO;
 import com.kk.ddd.job.domain.JobDO;
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.constant.JobStateEnum;
 import java.util.Date;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.OneOffJobBootstrap;
@@ -31,10 +31,11 @@ class JobCenterApplicationTests {
     jobDO.setActionTime(new Date());
     jobDO.setState(JobStateEnum.P);
     jobDAO.save(jobDO);
-    System.out.println(Kson.writeJson(jobDAO.findByState(JobStateEnum.P, PageRequest.ofSize(10))));
+    System.out.println(
+        Jackson.object2String(jobDAO.findByState(JobStateEnum.P, PageRequest.ofSize(10))));
     System.out.println(jobDAO.transferStateById(jobDO.getId(), JobStateEnum.P, JobStateEnum.D));
-    System.out.println(Kson.writeJson(jobDAO.findAllByState(JobStateEnum.P)));
-    System.out.println(Kson.writeJson(jobDAO.findAll()));
+    System.out.println(Jackson.object2String(jobDAO.findAllByState(JobStateEnum.P)));
+    System.out.println(Jackson.object2String(jobDAO.findAll()));
   }
 
   @Test

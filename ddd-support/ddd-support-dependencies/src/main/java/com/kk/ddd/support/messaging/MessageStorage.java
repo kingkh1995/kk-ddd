@@ -1,6 +1,6 @@
 package com.kk.ddd.support.messaging;
 
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import java.sql.SQLException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +32,8 @@ public final class MessageStorage implements InitializingBean {
                   model.setTopic(topic);
                   model.setHashKey(hashKey);
                   model.setCreateTime(message.getHeaders().getTimestamp());
-                  model.setHeader(Kson.writeJson(message.getHeaders()));
-                  model.setPayload(Kson.writeJson(message.getPayload()));
+                  model.setHeader(Jackson.object2String(message.getHeaders()));
+                  model.setPayload(Jackson.object2String(message.getPayload()));
                   return model;
                 })
             .toList();

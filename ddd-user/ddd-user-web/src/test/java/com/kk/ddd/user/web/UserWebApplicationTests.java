@@ -4,7 +4,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.pagehelper.PageHelper;
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.bean.NettyDelayer;
 import com.kk.ddd.support.constant.AccountTypeEnum;
 import com.kk.ddd.support.constant.UserStateEnum;
@@ -112,16 +112,16 @@ class UserWebApplicationTests {
   void testRepository() throws Exception {
     var all = userMapper.selectAll();
     var byUsername = userRepository.find(Username.of(all.get(0).getName())).get();
-    System.out.println(Kson.writeJson(byUsername));
+    System.out.println(Jackson.object2String(byUsername));
     userRepository.find(byUsername.getId());
     byUsername.getAccounts().get(3).unbind();
     userRepository.save(byUsername);
     var userIdSet = Set.of(UserId.of(1L), UserId.of(2L), UserId.of(3L));
     var map = userRepository.find(userIdSet);
-    System.out.println(Kson.writeJson(map));
+    System.out.println(Jackson.object2String(map));
     userRepository.remove(byUsername);
-    System.out.println(Kson.writeJson(userRepository.find(byUsername.getId())));
-    System.out.println(Kson.writeJson(userRepository.find(userIdSet)));
+    System.out.println(Jackson.object2String(userRepository.find(byUsername.getId())));
+    System.out.println(Jackson.object2String(userRepository.find(userIdSet)));
     // 等待延时删除完成
     Thread.sleep(2000);
   }
@@ -303,7 +303,7 @@ class UserWebApplicationTests {
   @Test
   void testMapstruct() {
     var account = accountRepository.find(AccountId.of(1L)).get();
-    System.out.println(Kson.writeJson(account));
+    System.out.println(Jackson.object2String(account));
     var accountDTO = accountDTOAssembler.toDTO(account);
     System.out.println(accountDTO);
     System.out.println(accountDTOAssembler.fromDTO(accountDTO));
@@ -317,51 +317,52 @@ class UserWebApplicationTests {
   @Transactional
   void testMybatis() {
     var userPOList = userMapper.selectAll();
-    System.out.println(Kson.writeJson(userPOList));
+    System.out.println(Jackson.object2String(userPOList));
     var userPO = userMapper.selectById(userPOList.get(0).getId()).get();
     userPO.setPhone(null);
     userPO.setEmail(null);
     userMapper.updateById(userPO);
-    System.out.println(Kson.writeJson(userMapper.selectById(userPO.getId())));
+    System.out.println(Jackson.object2String(userMapper.selectById(userPO.getId())));
     var accountPOS = accountMapper.selectByUserId(userPO.getId());
     var accountPO = accountPOS.get(0);
     accountPO.setType(null);
     accountMapper.updateById(accountPO);
-    System.out.println(Kson.writeJson(accountMapper.selectById(accountPO.getId())));
+    System.out.println(Jackson.object2String(accountMapper.selectById(accountPO.getId())));
     var page =
         PageHelper.startPage(2, 1).doSelectPage(() -> accountMapper.selectByUserId(userPO.getId()));
-    System.out.println(Kson.writeJson(page));
+    System.out.println(Jackson.object2String(page));
   }
 
   @Test
-  void testJacKsonWithType() {
-    System.out.println(Kson.writeJson(PageSize.DEFAULT));
+  void testJacksonWithType() {
+    System.out.println(Jackson.object2String(PageSize.DEFAULT));
     LongId longId = LongId.of(123456789L);
-    System.out.println(Kson.writeJson(longId));
+    System.out.println(Jackson.object2String(longId));
     AccountId accountId = AccountId.of(123456789L);
-    System.out.println(Kson.writeJson(accountId));
-    System.out.println(Kson.readJson(Kson.writeJson(accountId), AccountId.class));
-    var id1 = Kson.readJson("1234", new TypeReference<LongId>() {});
-    var id2 = Kson.readJson("111", new TypeReference<AccountId>() {});
+    System.out.println(Jackson.object2String(accountId));
+    System.out.println(Jackson.parse(Jackson.object2String(accountId), AccountId.class));
+    var id1 = Jackson.parse("1234", new TypeReference<LongId>() {});
+    var id2 = Jackson.parse("111", new TypeReference<AccountId>() {});
     System.out.println(id1.getValue());
     System.out.println(id2.getValue());
-    System.out.println(Kson.readJson(Kson.writeJson("66666"), new TypeReference<AccountId>() {}));
+    System.out.println(
+        Jackson.parse(Jackson.object2String("66666"), new TypeReference<AccountId>() {}));
     var accountState = UserState.of(UserStateEnum.INIT);
-    var json = Kson.writeJson(accountState);
-    System.out.println(Kson.readJson(json, new TypeReference<UserState>() {}).toEnum());
+    var json = Jackson.object2String(accountState);
+    System.out.println(Jackson.parse(json, new TypeReference<UserState>() {}).toEnum());
     var account =
         Account.builder()
             .id(AccountId.of(10))
             .type(AccountType.of(AccountTypeEnum.USERNAME))
             .build();
-    var s = Kson.writeJson(account);
+    var s = Jackson.object2String(account);
     System.out.println(s);
-    System.out.println(Kson.readJson(s, Account.class));
-    System.out.println(Kson.readJson(s, Account.class).getCreateTime());
+    System.out.println(Jackson.parse(s, Account.class));
+    System.out.println(Jackson.parse(s, Account.class).getCreateTime());
     System.out.println(MillionYuan.of(new BigDecimal("110.6")).toFormattedString());
-    var hashJson = Kson.writeJson(Hash.valueOf("MD5", "123456", 3, "Hash"));
+    var hashJson = Jackson.object2String(Hash.valueOf("MD5", "123456", 3, "Hash"));
     System.out.println(hashJson);
-    System.out.println(Kson.readJson(hashJson));
+    System.out.println(Jackson.parse(hashJson));
   }
 
   @Test

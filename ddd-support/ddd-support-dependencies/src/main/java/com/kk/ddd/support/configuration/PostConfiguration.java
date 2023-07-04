@@ -5,7 +5,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kk.ddd.support.annotation.LiteConfiguration;
 import com.kk.ddd.support.bean.DistributedLockHelper;
-import com.kk.ddd.support.bean.Kson;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -24,19 +24,19 @@ public class PostConfiguration implements ApplicationContextAware {
 
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    setJsonMapper2Kson(applicationContext);
+    setJsonMapper2Jackson(applicationContext);
     setFactory2EntityLocker(applicationContext);
     handleMDCAdapter();
   }
 
-  // 设置factory到EntityLocker
-  private void setJsonMapper2Kson(ApplicationContext applicationContext) {
+  // 设置jsonMapper到Jackson
+  private void setJsonMapper2Jackson(ApplicationContext applicationContext) {
     try {
       var jsonMapper = applicationContext.getBean(JsonMapper.class);
-      log.info("Set '{}' to Kson.", jsonMapper.getClass().getCanonicalName());
-      Kson.setMapper(jsonMapper);
+      log.info("Set '{}' to Jackson.", jsonMapper.getClass().getCanonicalName());
+      Jackson.setMapper(jsonMapper);
     } catch (BeansException e) {
-      log.error("Set JsonMapper to Kson error!");
+      log.error("Set JsonMapper to Jackson error!");
     }
   }
 
