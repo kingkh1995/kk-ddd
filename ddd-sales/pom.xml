@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>ddd-root</artifactId>
-    <groupId>com.kk.ddd</groupId>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ddd-root</artifactId>
+        <groupId>com.kk.ddd</groupId>
+        <version>2022.0.0</version>
+        <relativePath>../ddd-root/pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.kk.ddd.sales</groupId>
+    <artifactId>ddd-sales</artifactId>
+    <packaging>pom</packaging>
     <version>2022.0.0</version>
-    <relativePath>../ddd-root/pom.xml</relativePath>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.kk.ddd.sales</groupId>
-  <artifactId>ddd-sales</artifactId>
-  <packaging>pom</packaging>
-  <version>2022.0.0</version>
-  <name>ddd-sales-parent</name>
+    <name>ddd-sales-parent</name>
 
-  <modules>
-    <module>ddd-sales-domain</module>
-    <module>ddd-sales-application</module>
-    <module>ddd-sales-infrastructure</module>
-    <module>ddd-sales-web</module>
-  </modules>
+    <modules>
+        <module>ddd-sales-domain</module>
+        <module>ddd-sales-application</module>
+        <module>ddd-sales-infrastructure</module>
+        <module>ddd-sales-web</module>
+    </modules>
 
-  <dependencies>
-    <!--基础依赖-->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-configuration-processor</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-  </dependencies>
+    <dependencies>
+        <!--基础依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -48,6 +48,7 @@ public class DegradedServiceAspect extends ApplicationContextAwareSingleton {
     Class<? extends Throwable>[] permittedThrowables;
     Method health;
     Map<Method, Method> callbackMethods = Collections.emptyMap();
+
     /** 降级标记，使用原子类型，volatile只能保证每次取到的值都是最新值 */
     final AtomicBoolean degraded = new AtomicBoolean(false);
 

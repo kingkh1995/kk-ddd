@@ -33,7 +33,7 @@ public class StockProviderImpl extends StockProviderImplBase {
     responseObserver.onCompleted();
   }
 
-  private StockOperateReply deduct(StockOperateRequest request) {
+  protected StockOperateReply deduct(StockOperateRequest request) {
     try {
       if (stockManager.deduct(request.getOrderNo(), request.getCount()).get()) {
         return StockOperateReply.newBuilder().setCode(0).setMessage("Deduct Succeeded").build();
