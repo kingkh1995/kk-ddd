@@ -17,7 +17,7 @@
     <description>KK-DDD-ROOT</description>
 
     <properties>
-        <java.version>20</java.version>
+        <java.version>17</java.version>
         <spring-boot.version>2.7.15</spring-boot.version>
         <spring-cloud.version>2021.0.8</spring-cloud.version>
         <caffeine.version>3.1.8</caffeine.version>
@@ -28,7 +28,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <spring-kafka.version>2.9.12</spring-kafka.version>
         <rocketmq.version>2.2.3</rocketmq.version>
-        <grpc.version>1.57.2</grpc.version>
+        <grpc.version>1.59.0</grpc.version>
         <!--工具依赖-->
         <guava.version>32.1.2-jre</guava.version>
         <ttl.version>2.14.3</ttl.version>
@@ -39,15 +39,8 @@
         <springdoc.version>2.2.0</springdoc.version>
         <shiro.version>1.12.0</shiro.version>
         <jwt.version>4.4.0</jwt.version>
-        <elasticjob.version>3.0.3</elasticjob.version>
+        <elasticjob.version>3.0.4</elasticjob.version>
     </properties>
-
-    <modules>
-        <module>../ddd-support</module>
-        <module>../ddd-user</module>
-        <module>../ddd-sales</module>
-        <module>../ddd-job-center</module>
-    </modules>
 
     <!-- mvn clean install -Dmaven.test.skip=true -->
     <!--依赖管理-->

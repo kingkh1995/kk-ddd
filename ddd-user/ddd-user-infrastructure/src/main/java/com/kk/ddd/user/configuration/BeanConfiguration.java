@@ -11,20 +11,18 @@ import com.kk.ddd.support.cache.EnhancedProxyCachingConfiguration;
 import com.kk.ddd.support.distributed.CuratorDistributedLockFactory;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
 import com.kk.ddd.support.json.JsonJacksonCoder;
+import com.kk.ddd.support.util.ApplicationContextAwareSingleton;
 import java.util.concurrent.TimeUnit;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
@@ -35,14 +33,13 @@ import org.springframework.context.annotation.Import;
  */
 @LiteConfiguration
 @Import(EnhancedProxyCachingConfiguration.class)
-public class BeanConfiguration implements ApplicationContextAware {
+public class BeanConfiguration extends ApplicationContextAwareSingleton {
 
-  // 设置ApplicationContext构造完成后操作
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+  public void afterSingletonsInstantiated() {
     // 从spring容器获取sqlSessionFactory再获取到typeHandler注册器并添加typeHandler
     var typeHandlerRegistry =
-        applicationContext
+        this.getApplicationContext()
             .getBean(SqlSessionFactory.class)
             .getConfiguration()
             .getTypeHandlerRegistry();

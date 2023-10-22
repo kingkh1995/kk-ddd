@@ -6,7 +6,7 @@
 
 #### 组件依赖
 
-- java: 21
+- java: 17
 - spring-boot: 2.7.15
 - spring-cloud: 2021.0.8
 - caffeine: 3.1.8
@@ -17,7 +17,7 @@
 - mapstruct: 1.5.5.Final
 - kafka: 2.9.12
 - rocketmq: 2.2.3
-- grpc: 1.57.2
+- grpc: 1.59.0
 
 #### 工具依赖（support-tools项目中定义）
 
@@ -32,4 +32,4 @@
 - springdoc: 2.2.0
 - shiro: 1.12.0
 - jwt: 4.4.0
-- elasticjob: 3.0.3 (***incompatible***)
+- elasticjob: 3.0.4

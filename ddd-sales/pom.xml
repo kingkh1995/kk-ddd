@@ -12,7 +12,7 @@
     <groupId>com.kk.ddd.sales</groupId>
     <artifactId>ddd-sales</artifactId>
     <packaging>pom</packaging>
-    <version>2022.0.0</version>
+    <version>${project.parent.version}</version>
     <name>ddd-sales-parent</name>
 
     <modules>

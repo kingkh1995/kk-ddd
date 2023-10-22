@@ -45,7 +45,7 @@ class SalesWebApplicationTests {
     stockPO.setInventory(4);
     stockDAO.save(stockPO);
     var channel =
-        ManagedChannelBuilder.forAddress("localhost", 18888)
+        ManagedChannelBuilder.forAddress("localhost", 9595)
             .usePlaintext() // 普通文本传输
             .build();
     // 流式处理

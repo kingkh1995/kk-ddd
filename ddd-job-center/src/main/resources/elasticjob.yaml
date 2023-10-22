@@ -4,7 +4,7 @@ spring:
       on-profile: dev
 elasticjob:
   reg-center:
-    server-lists: localhost:2188
+    server-lists: localhost:6181
     namespace: dev/ddd/job/elasticjob
   tracing:
     type: RDB

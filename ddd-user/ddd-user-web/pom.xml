@@ -9,7 +9,7 @@
         <version>2022.0.0</version>
     </parent>
     <artifactId>ddd-user-web</artifactId>
-    <version>2022.0.0</version>
+    <version>${project.parent.version}</version>
     <name>ddd-user-web</name>
 
     <dependencies>

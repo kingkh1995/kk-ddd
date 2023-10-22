@@ -6,6 +6,7 @@ import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -14,10 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
  *
  * @author KaiKoo
  */
+@Slf4j
 @LiteConfiguration
 public class GrpcConfiguration extends ApplicationContextAwareSingleton implements DisposableBean {
 
-  @Value("${grpc.port:18888}")
+  @Value("${grpc.port:9595}")
   private int port;
 
   private Server server;
@@ -32,6 +34,7 @@ public class GrpcConfiguration extends ApplicationContextAwareSingleton implemen
     server = serverBuilder.build();
     try {
       server.start();
+      log.info("Grpc server started at [{}]", server.getPort());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

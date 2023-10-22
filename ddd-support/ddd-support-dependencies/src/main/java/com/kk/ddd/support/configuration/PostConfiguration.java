@@ -7,11 +7,11 @@ import com.kk.ddd.support.annotation.LiteConfiguration;
 import com.kk.ddd.support.bean.DistributedLockHelper;
 import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.distributed.DistributedLockFactory;
+import com.kk.ddd.support.util.ApplicationContextAwareSingleton;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * 后置配置 <br>
@@ -20,12 +20,12 @@ import org.springframework.context.ApplicationContextAware;
  */
 @Slf4j
 @LiteConfiguration
-public class PostConfiguration implements ApplicationContextAware {
+public class PostConfiguration extends ApplicationContextAwareSingleton {
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    setJsonMapper2Jackson(applicationContext);
-    setFactory2EntityLocker(applicationContext);
+  public void afterSingletonsInstantiated() {
+    setJsonMapper2Jackson(getApplicationContext());
+    setFactory2EntityLocker(getApplicationContext());
     handleMDCAdapter();
   }
 
