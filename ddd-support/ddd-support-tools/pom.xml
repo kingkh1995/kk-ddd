@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ddd-support-tools</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
 
     <dependencies>
         <!--ttl：InheritableThreadLocal增强-->
@@ -28,6 +27,11 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>

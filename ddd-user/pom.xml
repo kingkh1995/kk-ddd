@@ -12,7 +12,6 @@
     <groupId>com.kk.ddd.user</groupId>
     <artifactId>ddd-user</artifactId>
     <packaging>pom</packaging>
-    <version>${project.parent.version}</version>
     <name>ddd-user-parent</name>
 
     <modules>

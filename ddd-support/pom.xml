@@ -12,7 +12,6 @@
     <groupId>com.kk.ddd.support</groupId>
     <artifactId>ddd-support</artifactId>
     <packaging>pom</packaging>
-    <version>${project.parent.version}</version>
     <name>ddd-support-parent</name>
 
     <modules>

@@ -12,7 +12,6 @@
     <groupId>com.kk.ddd.sales</groupId>
     <artifactId>ddd-sales</artifactId>
     <packaging>pom</packaging>
-    <version>${project.parent.version}</version>
     <name>ddd-sales-parent</name>
 
     <modules>

@@ -5,7 +5,7 @@ ADD ddd-user-web-2022.0.0.jar /ddd-user-web-2022.0.0.jar
 # 添加临时文件目录（用于tomcat）
 VOLUME /tmp
 # 运行过程中创建一个jar文件
-RUN bash -c 'touch /ddd-user-web-2021.0.0.jar'
+RUN bash -c 'touch /ddd-user-web-2022.0.0.jar'
 # 声明服务运行在8080端口（只是声明非暴露）
 EXPOSE 8080
 # 指定维护者的名字

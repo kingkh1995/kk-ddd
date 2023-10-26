@@ -26,6 +26,7 @@
 - jctools: 4.0.1
 - zxing: 3.5.2
 - easyexcel: 3.3.2
+- jgrapht: 1.5.2
 
 #### 接口层依赖（web项目中定义）
 

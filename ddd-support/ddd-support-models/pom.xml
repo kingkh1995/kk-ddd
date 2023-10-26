@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>ddd-support-models</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
 
     <properties>
         <protoc.version>3.21.7</protoc.version>
@@ -43,7 +42,7 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>annotations-api</artifactId>
             <version>6.0.53</version>
-            <scope>provided</scope>
+            <scope>provided</scope> <!--表示该依赖是必选的，但是是由tomcat容器提供。-->
         </dependency>
     </dependencies>
 

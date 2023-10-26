@@ -9,9 +9,9 @@ public interface FsmEventProcessStep<E extends FsmEvent, T, C extends FsmContext
 
   /**
    * 处理前准备（主要是查询数据）及上下文校验，横向拆分流程，并复用校验器 <br>
-   * paramChecker -> prepare - > syncChecker -> asyncChecker
+   * check args -> build context - > check context -> async check context
    */
-  void prepareAndCheck(C context);
+  void prepare(C context);
 
   /** 获取当前状态处理器处理完毕后，所处于的下一个状态 */
   String getDestState(C context);

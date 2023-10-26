@@ -3,13 +3,10 @@ package com.kk.ddd.job.controller;
 import com.kk.ddd.job.service.JobService;
 import com.kk.ddd.support.annotation.BaseController;
 import com.kk.ddd.support.model.command.JobAddCommand;
-import lombok.Setter;
+import com.kk.ddd.support.util.ApplicationContextAwareSingleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.OneOffJobBootstrap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +24,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Validated
 @BaseController
 @RequestMapping("/api/v1")
-public class JobController implements ApplicationContextAware, CommandLineRunner {
+public class JobController extends ApplicationContextAwareSingleton {
 
   private JobService jobService;
 
-  @Setter private ApplicationContext applicationContext;
   private OneOffJobBootstrap deadJobBootstrap;
 
   @Autowired
@@ -39,16 +35,11 @@ public class JobController implements ApplicationContextAware, CommandLineRunner
     this.jobService = jobService;
   }
 
-  /*@Autowired
-  @Qualifier("deadJobBootstrap") // 一次性调度作业会自动创建一个OneOffJobBootstrap
-  public void setDeadJobBootstrap(OneOffJobBootstrap deadJobBootstrap) {
-    this.deadJobBootstrap = deadJobBootstrap;
-  }*/
-
   @Override
-  public void run(String... args) throws Exception { // 或org.springframework.boot.ApplicationRunner
+  public void afterSingletonsInstantiated() {
+    // OneOffJobBootstrap无法被自动注入，设置@Lazy也不行，因为OneOffJobBootstrap是final的
     this.deadJobBootstrap =
-        (OneOffJobBootstrap) this.applicationContext.getBean("deadJobBootstrap");
+        (OneOffJobBootstrap) getApplicationContext().getBean("deadJobBootstrap");
   }
 
   @PostMapping("/job")

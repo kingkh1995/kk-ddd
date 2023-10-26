@@ -12,7 +12,6 @@
     <groupId>com.kk.ddd.job</groupId>
     <artifactId>ddd-job-center</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
     <name>ddd-job-center</name>
 
     <dependencies>

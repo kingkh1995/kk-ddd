@@ -7,7 +7,6 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.15</version>
-        <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.kk.ddd</groupId>
     <artifactId>ddd-root</artifactId>
@@ -35,12 +34,20 @@
         <jctools.version>4.0.1</jctools.version>
         <zxing.version>3.5.2</zxing.version>
         <easyexcel.version>3.3.2</easyexcel.version>
+        <jgrapht.version>1.5.2</jgrapht.version>
         <!--接口层依赖-->
         <springdoc.version>2.2.0</springdoc.version>
         <shiro.version>1.12.0</shiro.version>
         <jwt.version>4.4.0</jwt.version>
         <elasticjob.version>3.0.4</elasticjob.version>
     </properties>
+
+    <modules>
+        <module>../ddd-support</module>
+        <module>../ddd-user</module>
+        <module>../ddd-sales</module>
+        <module>../ddd-job-center</module>
+    </modules>
 
     <!-- mvn clean install -Dmaven.test.skip=true -->
     <!--依赖管理-->
@@ -140,6 +147,11 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>easyexcel</artifactId>
                 <version>${easyexcel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
             </dependency>
             <!--接口层依赖-->
             <dependency>
