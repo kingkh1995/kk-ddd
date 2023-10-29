@@ -10,8 +10,6 @@ public class TaskContainers {
     throw new IllegalAccessException();
   }
 
-  public static final int ASYNC_TIMEOUT_SECONDS = 60;
-
   private static class EmptyTaskContainer<C> extends TaskContainer<C> {
 
     protected EmptyTaskContainer(String name) {
@@ -31,7 +29,7 @@ public class TaskContainers {
     }
 
     @Override
-    public TaskResult execute(C context) {
+    public TaskResult execute(C context, int timeout) {
       return TaskResult.succeed();
     }
   }
@@ -46,5 +44,9 @@ public class TaskContainers {
 
   public static <C> TaskContainer.Builder<C> newBuilder(final String name) {
     return new TaskContainer.Builder<>(name);
+  }
+
+  public static <C> AsyncTaskContainer.Builder<C> newAsyncBuilder(final String name) {
+    return new AsyncTaskContainer.Builder<>(name);
   }
 }

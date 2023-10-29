@@ -9,13 +9,18 @@ import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc;
+import com.kk.ddd.support.util.task.TaskContainers;
+import com.kk.ddd.support.util.task.TaskResult;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadLocalRandom;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -181,5 +186,74 @@ class SalesWebApplicationTests {
     private String first;
     private String last;
     private int n;
+  }
+
+  @Test
+  void testTaskContainer() {
+    var taskContainer =
+        TaskContainers.newBuilder("testTaskContainer")
+            .addTask("task1", o -> newTask("task1", true, 2000).join())
+            .addTask("task2", o -> newTask("task2", true).join())
+            .addTask("task3", o -> newTask("task3", true).join())
+            .addTask("task4", o -> newTask("task4", true).join())
+            .addTask("task5", o -> newTask("task5", true).join())
+            .addTask("task6", o -> newTask("task6", true).join())
+            .addTask("task7", o -> newTask("task7", true).join())
+            .addTask("task8", o -> newTask("task8", false).join())
+            .addDependsOn("task3", "task1")
+            .addDependsOn("task3", "task2")
+            .addDependsOn("task6", "task3")
+            .addDependsOn("task5", "task4")
+            .addDependsOn("task7", "task5")
+            .addDependsOn("task7", "task6")
+            .build();
+    // always end by task8
+    for (int i = 0; i < 5; i++) {
+      System.out.println("Round" + i + ": " + taskContainer.execute(new Object()));
+    }
+  }
+
+  @Test
+  void testAsyncTaskContainer() {
+    var taskContainer =
+        TaskContainers.newAsyncBuilder("testTaskContainer")
+            .addTask("task1", o -> newTask("task1", true, 2000))
+            .addTask("task2", o -> newTask("task2", true))
+            .addTask("task3", o -> newTask("task3", true))
+            .addTask("task4", o -> newTask("task4", true))
+            .addTask("task5", o -> newTask("task5", true))
+            .addTask("task6", o -> newTask("task6", true))
+            .addTask("task7", o -> newTask("task7", true))
+            .addTask("task8", o -> newTask("task8", false))
+            .addDependsOn("task3", "task1")
+            .addDependsOn("task3", "task2")
+            .addDependsOn("task6", "task3")
+            .addDependsOn("task5", "task4")
+            .addDependsOn("task7", "task5")
+            .addDependsOn("task7", "task6")
+            .buildAsync();
+    // always end by task8
+    for (int i = 0; i < 5; i++) {
+      System.out.println("Round" + i + ": " + taskContainer.execute(new Object()));
+    }
+  }
+
+  private CompletableFuture<TaskResult> newTask(String name, boolean result) {
+    return newTask(name, result, 200);
+  }
+
+  private CompletableFuture<TaskResult> newTask(String name, boolean result, int origin) {
+    return CompletableFuture.supplyAsync(
+        () -> {
+          var uuid = UUID.randomUUID();
+          log.info("[{}]({}) begin to execute.", name, uuid);
+          try {
+            Thread.sleep(ThreadLocalRandom.current().nextInt(origin, 5 * origin));
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+          log.info("[{}]({}) execute end, result: {}.", name, uuid, result);
+          return result ? TaskResult.succeed() : TaskResult.fail(name);
+        });
   }
 }
