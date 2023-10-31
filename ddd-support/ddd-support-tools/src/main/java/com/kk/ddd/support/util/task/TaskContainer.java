@@ -62,16 +62,4 @@ public class TaskContainer<C> implements Container<C> {
         .findAny()
         .orElseGet(TaskResult::succeed);
   }
-
-  public static class Builder<C> extends AbstractContainerBuilder<C, TaskResult> {
-
-    protected Builder(String name) {
-      super(name);
-    }
-
-    @Override
-    public TaskContainer<C> build() {
-      return new TaskContainer<>(name, graph, tasks);
-    }
-  }
 }

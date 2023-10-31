@@ -190,51 +190,42 @@ class SalesWebApplicationTests {
 
   @Test
   void testTaskContainer() {
-    var taskContainer =
+    var builder =
         TaskContainers.newBuilder("testTaskContainer")
-            .addTask("task1", o -> newTask("task1", true, 2000).join())
-            .addTask("task2", o -> newTask("task2", true).join())
-            .addTask("task3", o -> newTask("task3", true).join())
-            .addTask("task4", o -> newTask("task4", true).join())
+            .addFutureTask("task1", o -> newTask("task1", true))
+            .addFutureTask("task2", o -> newTask("task2", true, 2000))
+            .addFutureTask("task3", o -> newTask("task3", true))
+            .addFutureTask("task4", o -> newTask("task4", true))
             .addTask("task5", o -> newTask("task5", true).join())
             .addTask("task6", o -> newTask("task6", true).join())
             .addTask("task7", o -> newTask("task7", true).join())
             .addTask("task8", o -> newTask("task8", false).join())
+            .addTask("task9", o -> newTask("task9", false).join())
+            .addFutureTask("task0", o -> newTask("task0", true))
             .addDependsOn("task3", "task1")
             .addDependsOn("task3", "task2")
             .addDependsOn("task6", "task3")
             .addDependsOn("task5", "task4")
             .addDependsOn("task7", "task5")
             .addDependsOn("task7", "task6")
-            .build();
+            .addDependsOn("task0", "task9")
+            .addDependsOn("task1", "task0")
+            .removeTask("task9")
+            .removeDependsOn("task1", "task0");
+    var asyncTaskContainer = builder.buildAsync();
+    // always end by task8
+    for (int i = 0; i < 8; i++) {
+      System.out.println("AsyncRound" + i + ": " + asyncTaskContainer.execute(new Object()));
+    }
+    var taskContainer = builder.build();
     // always end by task8
     for (int i = 0; i < 5; i++) {
       System.out.println("Round" + i + ": " + taskContainer.execute(new Object()));
     }
-  }
-
-  @Test
-  void testAsyncTaskContainer() {
-    var taskContainer =
-        TaskContainers.newAsyncBuilder("testTaskContainer")
-            .addTask("task1", o -> newTask("task1", true, 2000))
-            .addTask("task2", o -> newTask("task2", true))
-            .addTask("task3", o -> newTask("task3", true))
-            .addTask("task4", o -> newTask("task4", true))
-            .addTask("task5", o -> newTask("task5", true))
-            .addTask("task6", o -> newTask("task6", true))
-            .addTask("task7", o -> newTask("task7", true))
-            .addTask("task8", o -> newTask("task8", false))
-            .addDependsOn("task3", "task1")
-            .addDependsOn("task3", "task2")
-            .addDependsOn("task6", "task3")
-            .addDependsOn("task5", "task4")
-            .addDependsOn("task7", "task5")
-            .addDependsOn("task7", "task6")
-            .buildAsync();
+    asyncTaskContainer = builder.buildAsync();
     // always end by task8
-    for (int i = 0; i < 5; i++) {
-      System.out.println("Round" + i + ": " + taskContainer.execute(new Object()));
+    for (int i = 0; i < 3; i++) {
+      System.out.println("AsyncRound" + i + ": " + asyncTaskContainer.execute(new Object()));
     }
   }
 
@@ -250,7 +241,7 @@ class SalesWebApplicationTests {
           try {
             Thread.sleep(ThreadLocalRandom.current().nextInt(origin, 5 * origin));
           } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            log.info("[{}]({}) interrupted.", name, uuid);
           }
           log.info("[{}]({}) execute end, result: {}.", name, uuid, result);
           return result ? TaskResult.succeed() : TaskResult.fail(name);

@@ -1,10 +1,9 @@
 package com.kk.ddd.support.util.task;
 
 import com.kk.ddd.support.util.GraphUtils;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.Function;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,20 +14,19 @@ import org.jgrapht.graph.SimpleDirectedGraph;
  * <br>
  * 快速失败机制：所有后置任务完成时都判断是否有任务失败了，并触发complete。<br>
  * 使用同步回调执行触发后置任务，能保证回调的顺序执行。<br>
- * todo... 快速失败后取消任务
+ * CompletableFuture不支持打断操作，因为它本身并没有与任何线程绑定。
  *
  * @author KaiKoo
  */
 @Slf4j
 public class AsyncTaskContainer<C> implements AsyncContainer<C> {
-
-  private static final int DEFAULT_TIMEOUT = 60;
   private static final String DUMMY = "DUMMY";
   private static final TaskResult FAIL_FAST = TaskResult.fail("fail fast.");
 
   @Getter private final String name;
   private SimpleDirectedGraph<String, DefaultEdge> graph;
-  private Map<String, Function<C, CompletableFuture<TaskResult>>> tasks;
+  private List<Function<C, CompletableFuture<TaskResult>>> tasks;
+  private Map<String /*taskName*/, Integer /*index*/> index;
 
   protected AsyncTaskContainer(final String name) {
     this.name = name;
@@ -40,7 +38,7 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
       Map<String, Function<C, CompletableFuture<TaskResult>>> tasks) {
     this.name = name;
     this.graph = Objects.requireNonNull(graph, "graph is null.");
-    this.tasks = Objects.requireNonNull(tasks, "tasks is null.");
+    Objects.requireNonNull(tasks, "tasks is null.");
     if (!Objects.equals(graph.vertexSet(), tasks.keySet())) {
       throw new IllegalArgumentException("graph can't match tasks.");
     }
@@ -51,38 +49,51 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
     if (tasks.containsKey(DUMMY)) {
       throw new IllegalArgumentException("taskName can't be [" + DUMMY + "].");
     }
+    this.tasks = new ArrayList<>(tasks.size());
+    this.index = new HashMap<>(tasks.size());
+    tasks.forEach(
+        (key, value) -> {
+          this.index.put(key, this.tasks.size());
+          this.tasks.add(value);
+        });
+    // add dummy
     graph.addVertex(DUMMY);
-    tasks.put(DUMMY, (context) -> CompletableFuture.completedFuture(TaskResult.succeed()));
+    this.index.put(DUMMY, this.tasks.size());
+    this.tasks.add((context) -> CompletableFuture.completedFuture(TaskResult.succeed()));
+    var joiner = new StringJoiner(", ", "[", "]");
     graph
         .vertexSet()
         .forEach(
             v -> {
               if (!Objects.equals(DUMMY, v) && graph.inDegreeOf(v) == 0) {
                 graph.addEdge(DUMMY, v);
+                joiner.add(v);
               }
             });
+    log.info("TaskContainer[{}] will execute from the following tasks: {}.", this.name, joiner);
   }
 
   @Override
   public TaskResult execute(C context) {
-    return execute(context, DEFAULT_TIMEOUT);
-  }
-
-  @Override
-  public TaskResult execute(C context, int timeout) {
     try {
-      return new Task().execute(context).get(timeout, TimeUnit.SECONDS);
-    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      return execute(context, TaskContainers.TIMEOUT);
+    } catch (ExecutionException | InterruptedException | TimeoutException e) {
       return TaskResult.fail(e.getLocalizedMessage());
     }
   }
 
+  @Override
+  public TaskResult execute(C context, int timeout)
+      throws ExecutionException, InterruptedException, TimeoutException {
+    return new Task().execute(context).get(timeout, TimeUnit.SECONDS);
+  }
+
   private class Task extends CompletableFuture<TaskResult> {
-    private final Map<String, AtomicInteger> notifications;
-    volatile boolean failed;
+    private final AtomicIntegerArray notifications;
+    private volatile boolean failed;
 
     public Task() {
-      this.notifications = new ConcurrentHashMap<>(tasks.size());
+      this.notifications = new AtomicIntegerArray(tasks.size() - 1);
     }
 
     CompletableFuture<TaskResult> execute(C context) {
@@ -92,7 +103,7 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
     CompletableFuture<TaskResult> signal(String taskName, C context) {
       var completableFuture = new CompletableFuture<TaskResult>();
       tasks
-          .get(taskName)
+          .get(index.get(taskName))
           .apply(context) // 获取CompletableFuture，即提交异步任务。
           .whenComplete( // 添加当前任务执行完成后同步回调
               (result, throwable) -> {
@@ -110,15 +121,14 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
                   }
                   return;
                 }
-                // 触发后置任务
+                // 任务执行成功后触发后置任务
+                // 快速失败机制，每个子任务执行完成后都判断是否有任务失败，然后提前complete。
                 var subFutures =
                     graph.outgoingEdgesOf(taskName).stream()
                         .map(graph::getEdgeTarget)
                         .filter(
                             successor ->
-                                notifications
-                                        .computeIfAbsent(successor, key -> new AtomicInteger())
-                                        .addAndGet(1) // 通知信号加一
+                                notifications.addAndGet(index.get(successor), 1) // 通知信号加一
                                     == graph.inDegreeOf(successor)) // 后置任务只会被触发一次
                         .map(successor -> signal(successor, context)) // 触发后置任务
                         .peek( // 添加后置任务完成时同步回调
@@ -138,25 +148,6 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
                         (ignoredResult, ignoredThrowable) -> completableFuture.complete(result));
               });
       return completableFuture;
-    }
-  }
-
-  public static class Builder<C>
-      extends AbstractContainerBuilder<C, CompletableFuture<TaskResult>> {
-
-    protected Builder(String name) {
-      super(name);
-    }
-
-    @Override
-    public Builder<C> addTask(String taskName, Function<C, CompletableFuture<TaskResult>> task) {
-      super.addTask(taskName, task);
-      return this;
-    }
-
-    @Override
-    public AsyncTaskContainer<C> buildAsync() {
-      return new AsyncTaskContainer<>(name, graph, tasks);
     }
   }
 }

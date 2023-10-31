@@ -1,11 +1,19 @@
 package com.kk.ddd.support.util.task;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeoutException;
+
 /**
  * <br>
  *
  * @author KaiKoo
  */
 public class TaskContainers {
+  public static final int TIMEOUT = 60;
+  public static final Executor EXECUTOR = ForkJoinPool.commonPool();
+
   private TaskContainers() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
@@ -29,7 +37,8 @@ public class TaskContainers {
     }
 
     @Override
-    public TaskResult execute(C context, int timeout) {
+    public TaskResult execute(C context, int timeout)
+        throws ExecutionException, InterruptedException, TimeoutException {
       return TaskResult.succeed();
     }
   }
@@ -42,11 +51,7 @@ public class TaskContainers {
     return new EmptyAsyncTaskContainer<>(name);
   }
 
-  public static <C> TaskContainer.Builder<C> newBuilder(final String name) {
-    return new TaskContainer.Builder<>(name);
-  }
-
-  public static <C> AsyncTaskContainer.Builder<C> newAsyncBuilder(final String name) {
-    return new AsyncTaskContainer.Builder<>(name);
+  public static <C> TaskContainerBuilder<C> newBuilder(final String name) {
+    return new TaskContainerBuilder<>(name);
   }
 }
