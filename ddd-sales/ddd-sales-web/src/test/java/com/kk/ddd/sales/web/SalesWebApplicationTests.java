@@ -202,19 +202,18 @@ class SalesWebApplicationTests {
             .addTask("task8", o -> newTask("task8", false).join())
             .addTask("task9", o -> newTask("task9", false).join())
             .addFutureTask("task0", o -> newTask("task0", true))
-            .addDependsOn("task3", "task1")
-            .addDependsOn("task3", "task2")
+            .addDependsOn("task2")
+            .addDependsOn("task3", "task1", "task2")
             .addDependsOn("task6", "task3")
             .addDependsOn("task5", "task4")
-            .addDependsOn("task7", "task5")
-            .addDependsOn("task7", "task6")
+            .addDependsOn("task7", "task5", "task6")
             .addDependsOn("task0", "task9")
             .addDependsOn("task1", "task0")
             .removeTask("task9")
             .removeDependsOn("task1", "task0");
     var asyncTaskContainer = builder.buildAsync();
     // always end by task8
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
       System.out.println("AsyncRound" + i + ": " + asyncTaskContainer.execute(new Object()));
     }
     var taskContainer = builder.build();

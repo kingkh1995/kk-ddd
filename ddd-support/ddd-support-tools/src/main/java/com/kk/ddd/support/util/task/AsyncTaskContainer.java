@@ -20,16 +20,17 @@ import org.jgrapht.graph.SimpleDirectedGraph;
  */
 @Slf4j
 public class AsyncTaskContainer<C> implements AsyncContainer<C> {
-  private static final String DUMMY = "DUMMY";
   private static final TaskResult FAIL_FAST = TaskResult.fail("fail fast.");
 
   @Getter private final String name;
+  private final String dummy;
   private SimpleDirectedGraph<String, DefaultEdge> graph;
   private List<Function<C, CompletableFuture<TaskResult>>> tasks;
   private Map<String /*taskName*/, Integer /*index*/> index;
 
   protected AsyncTaskContainer(final String name) {
     this.name = name;
+    this.dummy = name;
   }
 
   protected AsyncTaskContainer(
@@ -46,27 +47,30 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
     if (Objects.nonNull(cycles) && !cycles.isEmpty()) {
       throw new IllegalArgumentException("circle found in graph, tasks in circle: " + cycles + ".");
     }
-    if (tasks.containsKey(DUMMY)) {
-      throw new IllegalArgumentException("taskName can't be [" + DUMMY + "].");
-    }
-    this.tasks = new ArrayList<>(tasks.size());
-    this.index = new HashMap<>(tasks.size());
+    int size = tasks.size() + 1;
+    this.tasks = new ArrayList<>(size);
+    this.index = new HashMap<>(size);
     tasks.forEach(
         (key, value) -> {
           this.index.put(key, this.tasks.size());
           this.tasks.add(value);
         });
-    // add dummy
-    graph.addVertex(DUMMY);
-    this.index.put(DUMMY, this.tasks.size());
+    // init dummy
+    String dummy = name;
+    while (tasks.containsKey(dummy)) {
+      dummy = UUID.randomUUID().toString();
+    }
+    this.dummy = dummy;
+    graph.addVertex(this.dummy);
+    this.index.put(this.dummy, this.tasks.size());
     this.tasks.add((context) -> CompletableFuture.completedFuture(TaskResult.succeed()));
     var joiner = new StringJoiner(", ", "[", "]");
     graph
         .vertexSet()
         .forEach(
             v -> {
-              if (!Objects.equals(DUMMY, v) && graph.inDegreeOf(v) == 0) {
-                graph.addEdge(DUMMY, v);
+              if (!Objects.equals(this.dummy, v) && graph.inDegreeOf(v) == 0) {
+                graph.addEdge(this.dummy, v);
                 joiner.add(v);
               }
             });
@@ -97,7 +101,7 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
     }
 
     CompletableFuture<TaskResult> execute(C context) {
-      return signal(DUMMY, context);
+      return signal(dummy, context);
     }
 
     CompletableFuture<TaskResult> signal(String taskName, C context) {

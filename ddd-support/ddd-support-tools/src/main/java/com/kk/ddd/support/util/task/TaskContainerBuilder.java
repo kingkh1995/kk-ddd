@@ -67,16 +67,23 @@ public final class TaskContainerBuilder<C> {
     return this;
   }
 
-  public TaskContainerBuilder<C> addDependsOn(String taskName, String dependsOn) {
+  public TaskContainerBuilder<C> addDependsOn(String taskName, String... paths) {
+    if (paths.length == 0) {
+      return this;
+    }
     checkTaskName(taskName);
-    checkTaskName(dependsOn);
     if (!tasks.containsKey(taskName) && !fTasks.containsKey(taskName)) {
       throw new IllegalArgumentException("task doesn't exist.");
     }
-    if (!tasks.containsKey(dependsOn) && !fTasks.containsKey(dependsOn)) {
-      throw new IllegalArgumentException("dependsOn doesn't exist.");
+    for (String dependsOn : paths) {
+      checkTaskName(dependsOn);
+      if (!tasks.containsKey(dependsOn) && !fTasks.containsKey(dependsOn)) {
+        throw new IllegalArgumentException("dependsOn doesn't exist.");
+      }
     }
-    graph.addEdge(dependsOn, taskName);
+    for (String dependsOn : paths) {
+      graph.addEdge(dependsOn, taskName);
+    }
     return this;
   }
 
