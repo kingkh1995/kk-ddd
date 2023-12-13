@@ -1,10 +1,9 @@
 package com.kk.ddd.sales.web.configuration;
 
+import com.kk.ddd.sales.web.interceptor.MyServerInterceptor;
 import com.kk.ddd.support.annotation.LiteConfiguration;
 import com.kk.ddd.support.util.ApplicationContextAwareSingleton;
-import io.grpc.BindableService;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.*;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
@@ -27,9 +26,11 @@ public class GrpcConfiguration extends ApplicationContextAwareSingleton implemen
   @Override
   public void afterSingletonsInstantiated() {
     ServerBuilder<?> serverBuilder = ServerBuilder.forPort(port);
-    this.getApplicationContext()
-        .getBeansOfType(BindableService.class)
-        .values()
+    this.getApplicationContext().getBeansOfType(BindableService.class).values().stream()
+        // 添加拦截器，interceptForward：第一个拦截器会被最先调用；intercept：最后一个拦截器会被最先调用。
+        .map(
+            bindableService ->
+                ServerInterceptors.interceptForward(bindableService, new MyServerInterceptor()))
         .forEach(serverBuilder::addService);
     server = serverBuilder.build();
     try {

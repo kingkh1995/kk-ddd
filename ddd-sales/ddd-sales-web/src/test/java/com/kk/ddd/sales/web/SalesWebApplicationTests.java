@@ -5,13 +5,14 @@ import com.alibaba.excel.read.listener.PageReadListener;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kk.ddd.sales.persistence.StockDAO;
 import com.kk.ddd.sales.persistence.StockPO;
+import com.kk.ddd.sales.web.interceptor.MyClientInterceptor;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc;
 import com.kk.ddd.support.util.task.TaskContainers;
 import com.kk.ddd.support.util.task.TaskResult;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -49,10 +50,13 @@ class SalesWebApplicationTests {
     var stockPO = new StockPO();
     stockPO.setInventory(4);
     stockDAO.save(stockPO);
-    var channel =
+    // 创建客户端channel
+    var managedChannel =
         ManagedChannelBuilder.forAddress("localhost", 9595)
             .usePlaintext() // 普通文本传输
             .build();
+    // 添加客户端拦截器
+    var channel = ClientInterceptors.intercept(managedChannel, new MyClientInterceptor());
     // 流式处理
     StockProviderGrpc.newStub(channel)
         .operate(
@@ -111,7 +115,7 @@ class SalesWebApplicationTests {
       throw new RuntimeException(e);
     }
     System.out.println(stockDAO.findAll());
-    channel.shutdown();
+    managedChannel.shutdown();
   }
 
   @Autowired private PlatformTransactionManager platformTransactionManager;
