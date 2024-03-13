@@ -17,7 +17,7 @@ public interface FsmEventProcessStep<E extends FsmEvent, T, C extends FsmContext
   String getDestState(C context);
 
   /** 状态动作方法，主要状态流转逻辑，需要处理异常。 */
-  void action(String destState, C context) throws Exception;
+  void action(String destState, C context) throws Throwable;
 
   /** 状态数据持久化 */
   void save(String destState, C context);

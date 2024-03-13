@@ -7,5 +7,5 @@ package com.kk.ddd.support.fsm;
  */
 public interface FsmEventProcessor<E extends FsmEvent, T, C extends FsmContext<E, T>> {
 
-  void process(C context) throws Exception;
+  void process(C context) throws Throwable;
 }

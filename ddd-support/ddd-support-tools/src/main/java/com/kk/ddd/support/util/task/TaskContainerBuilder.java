@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
@@ -38,7 +39,20 @@ public final class TaskContainerBuilder<C> {
     Objects.requireNonNull(task);
   }
 
-  public TaskContainerBuilder<C> addTask(String taskName, Function<C, TaskResult> task) {
+  private void addLast(String taskName) {
+    checkTaskName(taskName);
+    if (tasks.containsKey(taskName) || fTasks.containsKey(taskName)) {
+      throw new IllegalArgumentException("task exists.");
+    }
+    var vertexSet = graph.vertexSet();
+    graph.addVertex(taskName);
+    vertexSet.stream()
+        .filter(Predicate.not(Predicate.isEqual(taskName)))
+        .forEach(v -> graph.addEdge(v, taskName));
+  }
+
+  public synchronized TaskContainerBuilder<C> addTask(
+      String taskName, Function<C, TaskResult> task) {
     checkTaskName(taskName);
     checkTask(task);
     if (fTasks.containsKey(taskName) || Objects.nonNull(tasks.putIfAbsent(taskName, task))) {
@@ -48,7 +62,15 @@ public final class TaskContainerBuilder<C> {
     return this;
   }
 
-  public TaskContainerBuilder<C> addFutureTask(
+  public synchronized TaskContainerBuilder<C> addLastTask(
+      String taskName, Function<C, TaskResult> task) {
+    checkTask(task);
+    addLast(taskName);
+    tasks.put(taskName, task);
+    return this;
+  }
+
+  public synchronized TaskContainerBuilder<C> addFutureTask(
       String taskName, Function<C, CompletableFuture<TaskResult>> task) {
     checkTaskName(taskName);
     checkTask(task);
@@ -59,7 +81,15 @@ public final class TaskContainerBuilder<C> {
     return this;
   }
 
-  public TaskContainerBuilder<C> removeTask(String taskName) {
+  public synchronized TaskContainerBuilder<C> addLastFutureTask(
+      String taskName, Function<C, CompletableFuture<TaskResult>> task) {
+    checkTask(task);
+    addLast(taskName);
+    fTasks.put(taskName, task);
+    return this;
+  }
+
+  public synchronized TaskContainerBuilder<C> removeTask(String taskName) {
     checkTaskName(taskName);
     if (Objects.nonNull(tasks.remove(taskName)) || Objects.nonNull(fTasks.remove(taskName))) {
       graph.removeVertex(taskName);
@@ -67,7 +97,7 @@ public final class TaskContainerBuilder<C> {
     return this;
   }
 
-  public TaskContainerBuilder<C> addDependsOn(String taskName, String... paths) {
+  public synchronized TaskContainerBuilder<C> addDependsOn(String taskName, String... paths) {
     if (paths.length == 0) {
       return this;
     }
@@ -87,7 +117,7 @@ public final class TaskContainerBuilder<C> {
     return this;
   }
 
-  public TaskContainerBuilder<C> removeDependsOn(String taskName, String dependsOn) {
+  public synchronized TaskContainerBuilder<C> removeDependsOn(String taskName, String dependsOn) {
     checkTaskName(taskName);
     checkTaskName(dependsOn);
     graph.removeEdge(taskName, dependsOn);

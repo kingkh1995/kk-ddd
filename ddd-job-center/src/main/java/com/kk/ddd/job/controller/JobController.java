@@ -7,6 +7,7 @@ import com.kk.ddd.support.util.ApplicationContextAwareSingleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.OneOffJobBootstrap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,11 @@ public class JobController extends ApplicationContextAwareSingleton {
     this.jobService = jobService;
   }
 
+  @Lookup("deadJobBootstrap") // 可以注入，因为每次都是去动态获取bean。
+  public OneOffJobBootstrap getDeadJobBootstrap() {
+    return null;
+  }
+
   @Override
   public void afterSingletonsInstantiated() {
     // OneOffJobBootstrap无法被自动注入，设置@Lazy也不行，因为OneOffJobBootstrap是final的
@@ -50,6 +56,6 @@ public class JobController extends ApplicationContextAwareSingleton {
 
   @GetMapping("/deadJob")
   public void executeDeadJob() {
-    deadJobBootstrap.execute();
+    getDeadJobBootstrap().execute();
   }
 }

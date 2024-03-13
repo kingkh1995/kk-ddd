@@ -204,7 +204,7 @@ class SalesWebApplicationTests {
             .addTask("task6", o -> newTask("task6", true).join())
             .addTask("task7", o -> newTask("task7", true).join())
             .addTask("task8", o -> newTask("task8", false).join())
-            .addTask("task9", o -> newTask("task9", false).join())
+            .addLastTask("task9", o -> newTask("task9", false).join())
             .addFutureTask("task0", o -> newTask("task0", true))
             .addDependsOn("task2")
             .addDependsOn("task3", "task1", "task2")
@@ -214,6 +214,7 @@ class SalesWebApplicationTests {
             .addDependsOn("task0", "task9")
             .addDependsOn("task1", "task0")
             .removeTask("task9")
+            .addLastFutureTask("task9", o -> newTask("task9", false))
             .removeDependsOn("task1", "task0");
     var asyncTaskContainer = builder.buildAsync();
     // always end by task8

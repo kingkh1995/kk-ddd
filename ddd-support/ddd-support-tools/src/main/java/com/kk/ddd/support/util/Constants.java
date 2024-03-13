@@ -15,7 +15,7 @@ import java.util.ServiceLoader;
  *
  * @author KaiKoo
  */
-public class Constants {
+public final class Constants {
 
   private Constants() throws IllegalAccessException {
     throw new IllegalAccessException();

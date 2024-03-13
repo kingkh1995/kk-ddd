@@ -16,6 +16,7 @@ elasticjob:
       shardingTotalCount: 8
       overwrite: true
       disabled: false
+      jobErrorHandlerType: LOG
     # 一次性调度作业，不能定义cron，需要指定jobBootstrapBeanName
     deadJob:
       jobBootstrapBeanName: deadJobBootstrap

@@ -29,7 +29,7 @@ public abstract class FsmEngineSupport<
     extends ApplicationContextAwareSingleton implements FsmEngine<E, T> {
 
   @Override
-  public void sendEvent(E event) throws Exception {
+  public void sendEvent(E event) throws Throwable {
     if (event.newCreate()) {
       throw new FsmEngineException("Entity can't be null!");
     }
@@ -39,7 +39,7 @@ public abstract class FsmEngineSupport<
   protected abstract T findEntity(String entityId);
 
   @Override
-  public void sendEvent(E event, T entity) throws Exception {
+  public void sendEvent(E event, T entity) throws Throwable {
     // 构造当前事件上下文
     var context = this.buildContext(event, entity);
     // 获取当前事件处理器

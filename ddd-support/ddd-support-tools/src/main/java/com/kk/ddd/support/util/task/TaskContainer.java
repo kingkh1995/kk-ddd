@@ -51,7 +51,11 @@ public class TaskContainer<C> implements Container<C> {
       this.sortedTasks.add(tasks.get(taskName));
       joiner.add(taskName);
     }
-    log.info("TaskContainer[{}] will execute in the following order: {}.", this.name, joiner);
+    log.info(
+        "TaskContainer[{}]{{}} will execute in the following order: {}.",
+        this.name,
+        tasks.size(),
+        joiner);
   }
 
   @Override

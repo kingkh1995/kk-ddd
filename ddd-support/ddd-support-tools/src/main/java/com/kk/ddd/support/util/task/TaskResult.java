@@ -26,4 +26,10 @@ public record TaskResult(boolean succeeded, String message) {
       throw new RuntimeException(this.message);
     }
   }
+
+  public void throwCheckedIfFail() throws Throwable {
+    if (failed()) {
+      throw new Exception(this.message);
+    }
+  }
 }

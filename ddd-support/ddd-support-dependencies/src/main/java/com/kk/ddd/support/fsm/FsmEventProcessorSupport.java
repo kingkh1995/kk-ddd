@@ -1,5 +1,6 @@
 package com.kk.ddd.support.fsm;
 
+import com.kk.ddd.support.util.task.Container;
 import java.util.Optional;
 
 /**
@@ -15,16 +16,21 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
   /** 准备阶段任务容器，需要自定义任务顺序。 */
   protected final PrepareTaskContainer<E, T, C> prepareTaskContainer;
 
-  public FsmEventProcessorSupport() {
-    this(PrepareTaskContainer.empty());
+  /** 执行阶段任务容器，需要自定义任务顺序。 */
+  protected final Container<C> actionTaskContainer;
+
+  public FsmEventProcessorSupport(Container<C> actionTaskContainer) {
+    this(PrepareTaskContainer.empty(), actionTaskContainer);
   }
 
-  public FsmEventProcessorSupport(PrepareTaskContainer<E, T, C> prepareTaskContainer) {
+  public FsmEventProcessorSupport(
+      PrepareTaskContainer<E, T, C> prepareTaskContainer, Container<C> actionTaskContainer) {
     this.prepareTaskContainer = prepareTaskContainer;
+    this.actionTaskContainer = actionTaskContainer;
   }
 
   @Override
-  public void process(C context) throws Exception {
+  public void process(C context) throws Throwable {
     // 准备
     this.prepare(context);
     // 获取流转目标状态，getNextState需要prepare作为前置，因为部分情况下nextState转换自prepare之后的数据
@@ -47,6 +53,11 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
     checkContext(context);
     // 第四步异步校验（注意防止出现并发问题）
     asyncCheckContext(context);
+  }
+
+  @Override
+  public void action(String destState, C context) throws Throwable {
+    this.actionTaskContainer.execute(context).throwCheckedIfFail();
   }
 
   protected void checkArgs(C context) {

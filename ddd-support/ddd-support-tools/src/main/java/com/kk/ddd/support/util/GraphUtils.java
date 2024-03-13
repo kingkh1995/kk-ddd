@@ -9,7 +9,7 @@ import org.jgrapht.alg.cycle.CycleDetector;
  *
  * @author KaiKoo
  */
-public class GraphUtils {
+public final class GraphUtils {
   private GraphUtils() throws IllegalAccessException {
     throw new IllegalAccessException();
   }

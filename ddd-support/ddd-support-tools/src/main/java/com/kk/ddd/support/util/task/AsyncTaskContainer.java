@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jgrapht.graph.DefaultEdge;
@@ -64,17 +65,26 @@ public class AsyncTaskContainer<C> implements AsyncContainer<C> {
     graph.addVertex(this.dummy);
     this.index.put(this.dummy, this.tasks.size());
     this.tasks.add((context) -> CompletableFuture.completedFuture(TaskResult.succeed()));
-    var joiner = new StringJoiner(", ", "[", "]");
-    graph
-        .vertexSet()
+    var sJoiner = new StringJoiner(", ", "[", "]");
+    var eJoiner = new StringJoiner(", ", "[", "]");
+    graph.vertexSet().stream()
+        .filter(Predicate.not(Predicate.isEqual(this.dummy)))
         .forEach(
             v -> {
-              if (!Objects.equals(this.dummy, v) && graph.inDegreeOf(v) == 0) {
+              if (graph.inDegreeOf(v) == 0) {
                 graph.addEdge(this.dummy, v);
-                joiner.add(v);
+                sJoiner.add(v);
+              }
+              if (graph.outDegreeOf(v) == 0) {
+                eJoiner.add(v);
               }
             });
-    log.info("TaskContainer[{}] will execute from the following tasks: {}.", this.name, joiner);
+    log.info(
+        "TaskContainer[{}]{{}} will execute from {} and end with {}.",
+        this.name,
+        graph.vertexSet().size() - 1,
+        sJoiner,
+        eJoiner);
   }
 
   @Override
