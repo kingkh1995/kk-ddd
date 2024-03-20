@@ -18,25 +18,25 @@ import javax.validation.constraints.NotNull;
  *
  * @author KaiKoo
  */
-public class Jackson {
+public final class Jackson {
 
-  private static JsonMapper MAPPER;
+  private static volatile JsonMapper MAPPER;
 
   private Jackson() throws IllegalAccessException {
     throw new IllegalAccessException();
   }
 
   // 静态域懒加载使用lazy initialization holder class idiom模式，首次调用时静态内部类才会初始化。
-  private static class JsonMapperMapperHolder {
+  private static class JsonMapperHolder {
     private static final JsonMapper INSTANCE = newJsonMapperBuilder().build();
+  }
+
+  private static JsonMapper getMapper() {
+    return Objects.isNull(MAPPER) ? JsonMapperHolder.INSTANCE : MAPPER;
   }
 
   public static void setMapper(@NotNull JsonMapper jsonMapper) {
     MAPPER = Objects.requireNonNull(jsonMapper);
-  }
-
-  private static JsonMapper getMapper() {
-    return Objects.isNull(MAPPER) ? JsonMapperMapperHolder.INSTANCE : MAPPER;
   }
 
   public static JsonMapper.Builder newJsonMapperBuilder() {

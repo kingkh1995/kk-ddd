@@ -6,10 +6,13 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.kk.ddd.sales.persistence.StockDAO;
 import com.kk.ddd.sales.persistence.StockPO;
 import com.kk.ddd.sales.web.interceptor.MyClientInterceptor;
+import com.kk.ddd.support.access.AccessConditionForbiddenException;
+import com.kk.ddd.support.bean.Jackson;
 import com.kk.ddd.support.model.proto.StockOperateEnum;
 import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc;
+import com.kk.ddd.support.type.LongId;
 import com.kk.ddd.support.util.task.TaskContainers;
 import com.kk.ddd.support.util.task.TaskResult;
 import io.grpc.*;
@@ -26,6 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -189,11 +193,11 @@ class SalesWebApplicationTests {
   public static class CsvVO {
     private String first;
     private String last;
-    private int n;
+    private Integer n;
   }
 
   @Test
-  void testTaskContainer() {
+  void taskContainerTest() {
     var builder =
         TaskContainers.newBuilder("testTaskContainer")
             .addFutureTask("task1", o -> newTask("task1", true))
@@ -250,5 +254,18 @@ class SalesWebApplicationTests {
           log.info("[{}]({}) execute end, result: {}.", name, uuid, result);
           return result ? TaskResult.succeed() : TaskResult.fail(name);
         });
+  }
+
+  @Autowired private MockAppService mockAppService;
+
+  @Test
+  void testAccessCheck() {
+    Assertions.assertThrows(
+        AccessConditionForbiddenException.class, () -> mockAppService.find(LongId.of(100L)));
+    MockQueryService.ENTITY.setName("test");
+    Assertions.assertThrows(
+        AccessConditionForbiddenException.class, () -> mockAppService.find(LongId.of(100L)));
+    var entity = mockAppService.find(LongId.of(1L));
+    System.out.println(Jackson.object2String(entity));
   }
 }

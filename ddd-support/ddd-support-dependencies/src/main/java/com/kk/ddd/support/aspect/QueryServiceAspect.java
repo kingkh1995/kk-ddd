@@ -1,8 +1,6 @@
 package com.kk.ddd.support.aspect;
 
-import com.kk.ddd.support.access.AccessConditionChecker;
 import com.kk.ddd.support.access.AccessConditionForbiddenException;
-import com.kk.ddd.support.access.AccessConditionHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -24,26 +22,26 @@ import org.springframework.core.annotation.Order;
 @RequiredArgsConstructor
 public class QueryServiceAspect extends AbstractMethodAspect {
 
-  private final AccessConditionChecker checker;
+  private final QueryServiceChecker checker;
 
   @Override
   @Pointcut("target(com.kk.ddd.support.core.QueryService)") // 拦截所有QueryService的实现类
   protected void pointcut() {}
 
   @Override
-  public boolean onBefore(JoinPoint point) { // todo... 前置增强，校验参数
-    Object[] args = point.getArgs();
-    return true;
+  public boolean onBefore(JoinPoint point) { // 前置增强，校验参数
+    return checker.checkBefore(point.getTarget(), point.getArgs());
   }
 
   @Override
-  public void onSucceed(JoinPoint point, Object result) { // 后置增强，成功查询出结果之后再判断是否允许访问
-    var accessCondition = AccessConditionHelper.get();
-    if (accessCondition == null) {
-      return;
-    }
+  public Object getOnForbid(JoinPoint point) {
+    throw AccessConditionForbiddenException.INSTANCE;
+  }
+
+  @Override
+  public void onSucceed(JoinPoint point, Object result) { // 后置增强，校验结果
     // 禁止访问则抛出异常
-    if (!this.checker.analyzeThenCheck(result, accessCondition)) {
+    if (!this.checker.checkAfter(point.getTarget(), result)) {
       throw AccessConditionForbiddenException.INSTANCE;
     }
   }

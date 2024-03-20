@@ -13,10 +13,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author KaiKoo
  */
 @Slf4j
-public class AccessConditionPluginManager
+public class SimpleAccessConditionPluginManager
     extends AbstractStrategyManager<String, AccessConditionCheckPlugin> {
 
-  public AccessConditionPluginManager() {
+  public SimpleAccessConditionPluginManager() {
     super(EnumSet.of(CollectTactic.PRIMARY));
   }
 
