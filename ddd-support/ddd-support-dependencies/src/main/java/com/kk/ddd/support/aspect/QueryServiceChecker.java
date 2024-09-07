@@ -6,7 +6,7 @@ package com.kk.ddd.support.aspect;
  * @author kingk
  */
 public interface QueryServiceChecker {
-    boolean checkBefore(Object target, Object[] args);
+  boolean checkBefore(Object target, Object[] args);
 
-    boolean checkAfter(Object target, Object Result);
+  boolean checkAfter(Object target, Object Result);
 }

@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author kingk
  */
 @Slf4j
-public abstract class MultiTask<C extends TaskContext> extends Task<C> {
+public abstract class MultiTask<C> extends Task<C> {
 
   protected MultiTask(String name) {
     super(name);
@@ -30,28 +30,21 @@ public abstract class MultiTask<C extends TaskContext> extends Task<C> {
   }
 
   @Override
-  protected Function<C, CompletableFuture<Void>> asyncAction() {
+  protected final Function<C, CompletableFuture<Void>> asyncAction() {
     return context ->
         CompletableFuture.allOf(
             IntStream.range(0, getCount().applyAsInt(context))
                 .mapToObj(
                     index ->
                         CompletableFuture.runAsync(
-                                () -> {
-                                  if (context.isFailed()) {
-                                    log.info("Task[{}] cancel.", name());
-                                  } else {
-                                    subAction().accept(context, index);
-                                  }
-                                },
-                                executor())
+                                () -> subAction().accept(context, index), executor())
                             .whenComplete(
                                 (unused, throwable) ->
-                                    whenSubActionComplete(context, index, throwable)))
+                                    whenSubCompleteAction(context, index, throwable)))
                 .toArray(CompletableFuture[]::new));
   }
 
-  protected void whenSubActionComplete(C context, int index, Throwable throwable) {
+  protected void whenSubCompleteAction(C context, int index, Throwable throwable) {
     if (throwable == null) {
       log.info("MultiTask[{}]({}) finish.", name(), index);
     } else {

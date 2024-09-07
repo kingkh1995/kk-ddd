@@ -15,7 +15,6 @@ import com.kk.ddd.support.model.proto.StockProviderGrpc;
 import com.kk.ddd.support.type.LongId;
 import com.kk.ddd.support.util.task.MultiTask;
 import com.kk.ddd.support.util.task.Task;
-import com.kk.ddd.support.util.task.TaskContext;
 import com.kk.ddd.support.util.task.TaskFlow;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
@@ -25,6 +24,9 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -213,8 +215,8 @@ class SalesWebApplicationTests {
     var task8 = new TestMultiTask("task8", 5000, 5);
     var task9 = new TestMultiTask("task9", 8000, 10);
     var task10 = new TestTask("task10", 200000);
-    var task11 = new TestTask("task11", 0);
-    var test =
+    var task11 = new TestMultiTask("task11", 100, 100);
+    var builder =
         TaskFlow.<TestContext>newBuilder("test")
             .add(task1, task11)
             .add(task3, task0, task1, task2)
@@ -227,17 +229,26 @@ class SalesWebApplicationTests {
             .add(task10, task0, task1, task2, task3, task4, task5, task6, task7)
             .addHead(task0)
             .remove(task11)
-            .addTail(task10)
-            .buildSequential();
+            .addTail(task10);
+    var test = builder.buildSequential();
     test.setExecutor(new ThreadPerTaskExecutor(new DefaultThreadFactory("test")));
+    var context = new TestContext();
     try {
-      test.apply(new TestContext()).join();
+      test.apply(context).join();
     } catch (Exception e) {
       log.error("error:", e);
     }
+    try {
+      test.parallel().apply(context).join();
+    } catch (Exception e) {
+      log.error("error:", e);
+    }
+    builder.remove(task10).addTail(task11).build().apply(context).join();
   }
 
-  static class TestContext extends TaskContext {}
+  static ExecutorService POOL = Executors.newCachedThreadPool(new DefaultThreadFactory("cache"));
+
+  static class TestContext {}
 
   static class TestTask extends Task<TestContext> {
 
@@ -246,6 +257,11 @@ class SalesWebApplicationTests {
     protected TestTask(String name, long sleep) {
       super(name);
       this.sleep = sleep;
+    }
+
+    @Override
+    public Executor executor() {
+      return POOL;
     }
 
     @Override
@@ -269,6 +285,11 @@ class SalesWebApplicationTests {
       super(name);
       this.sleep = sleep;
       this.count = count;
+    }
+
+    @Override
+    public Executor executor() {
+      return POOL;
     }
 
     @Override

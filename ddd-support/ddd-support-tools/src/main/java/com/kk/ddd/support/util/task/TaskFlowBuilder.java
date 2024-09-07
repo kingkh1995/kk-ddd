@@ -15,7 +15,7 @@ import org.jgrapht.graph.SimpleDirectedGraph;
  *
  * @author kingk
  */
-public class TaskFlowBuilder<C extends TaskContext> {
+public class TaskFlowBuilder<C> {
 
   private final String name;
   private final SimpleDirectedGraph<String, DefaultEdge> graph;

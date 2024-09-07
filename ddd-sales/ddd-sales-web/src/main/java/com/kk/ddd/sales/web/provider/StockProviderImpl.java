@@ -27,8 +27,9 @@ public class StockProviderImpl extends StockProviderImplBase {
       StockOperateRequest request, StreamObserver<StockOperateReply> responseObserver) {
     switch (request.getOperateType()) {
       case DEDUCT -> responseObserver.onNext(deduct(request));
-      default -> responseObserver.onNext(
-          StockOperateReply.newBuilder().setCode(999).setMessage("Type Not Allowed").build());
+      default ->
+          responseObserver.onNext(
+              StockOperateReply.newBuilder().setCode(999).setMessage("Type Not Allowed").build());
     }
     responseObserver.onCompleted();
   }

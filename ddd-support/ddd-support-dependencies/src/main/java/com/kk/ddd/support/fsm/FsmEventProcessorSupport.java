@@ -52,7 +52,7 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
     // 第三步同步校验
     checkContext(context);
     // 第四步异步校验（注意防止出现并发问题）
-    asyncCheckContext(context);
+    checkContextAsync(context);
   }
 
   @Override
@@ -75,7 +75,7 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
         .ifPresent(container -> container.sequential().apply(context).join());
   }
 
-  protected void asyncCheckContext(C context) {
+  protected void checkContextAsync(C context) {
     Optional.ofNullable(prepareTaskFlow.getContextAsyncChecker())
         .ifPresent(container -> container.parallel().apply(context).join());
   }

@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author kingk
  */
 @Slf4j
-public abstract class Task<C extends TaskContext> implements Function<C, CompletableFuture<Void>> {
+public abstract class Task<C> implements Function<C, CompletableFuture<Void>> {
 
   protected final String name;
 
@@ -35,40 +35,32 @@ public abstract class Task<C extends TaskContext> implements Function<C, Complet
   }
 
   @Override
-  public CompletableFuture<Void> apply(C context) {
-    if (context.isFailed()) { // fail fast when submit
-      log.info("Task[{}] cancel.", name());
-      return CompletableFuture.completedFuture(null);
-    }
+  public final CompletableFuture<Void> apply(C context) {
     return asyncAction()
         .apply(context)
         .orTimeout(timeout(), TimeUnit.MILLISECONDS)
-        .whenComplete(
+        .whenCompleteAsync(
             (unused, throwable) -> {
-              if (throwable == null) {
-                log.info("Task[{}] finish.", name());
-              } else { // fall fast if error
-                context.failFast();
-              }
-            });
+              whenCompleteAction(context, throwable);
+            },
+            executor());
   }
 
   protected abstract Consumer<C> action();
 
   protected Function<C, CompletableFuture<Void>> asyncAction() {
-    return context ->
-        CompletableFuture.runAsync(
-            () -> {
-              if (context.isFailed()) { // fall fast when run
-                log.info("Task[{}] cancel.", name());
-              } else {
-                action().accept(context);
-              }
-            },
-            executor());
+    return context -> CompletableFuture.runAsync(() -> action().accept(context), executor());
   }
 
-  static class EmptyTask<C extends TaskContext> extends Task<C> {
+  protected void whenCompleteAction(C context, Throwable throwable) {
+    if (throwable == null) {
+      log.info("Task[{}] finish.", name());
+    } else {
+      log.error("Task[{}] error.", name(), throwable);
+    }
+  }
+
+  static class EmptyTask<C> extends Task<C> {
 
     public EmptyTask(String name) {
       super(name);
@@ -76,7 +68,7 @@ public abstract class Task<C extends TaskContext> implements Function<C, Complet
 
     @Override
     protected Consumer<C> action() {
-      return c -> log.info("this is a empty task [{}].", name());
+      return c -> log.info("this is a empty action.");
     }
   }
 }

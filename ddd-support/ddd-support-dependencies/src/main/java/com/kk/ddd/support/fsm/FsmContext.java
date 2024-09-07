@@ -1,6 +1,5 @@
 package com.kk.ddd.support.fsm;
 
-import com.kk.ddd.support.util.task.TaskContext;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,7 +9,7 @@ import lombok.RequiredArgsConstructor;
  * @author KaiKoo
  */
 @RequiredArgsConstructor
-public abstract class FsmContext<E extends FsmEvent, T> extends TaskContext {
+public abstract class FsmContext<E extends FsmEvent, T> {
 
   @Getter private final E event;
 
