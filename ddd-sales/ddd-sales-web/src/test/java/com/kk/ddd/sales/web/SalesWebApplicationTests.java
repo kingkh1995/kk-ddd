@@ -13,18 +13,22 @@ import com.kk.ddd.support.model.proto.StockOperateReply;
 import com.kk.ddd.support.model.proto.StockOperateRequest;
 import com.kk.ddd.support.model.proto.StockProviderGrpc;
 import com.kk.ddd.support.type.LongId;
-import com.kk.ddd.support.util.task.TaskContainers;
-import com.kk.ddd.support.util.task.TaskResult;
+import com.kk.ddd.support.util.task.MultiTask;
+import com.kk.ddd.support.util.task.Task;
+import com.kk.ddd.support.util.task.TaskContext;
+import com.kk.ddd.support.util.task.TaskFlow;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.ThreadPerTaskExecutor;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
+import java.util.function.ToIntFunction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -197,63 +201,91 @@ class SalesWebApplicationTests {
   }
 
   @Test
-  void taskContainerTest() {
-    var builder =
-        TaskContainers.newBuilder("testTaskContainer")
-            .addFutureTask("task1", o -> newTask("task1", true))
-            .addFutureTask("task2", o -> newTask("task2", true, 2000))
-            .addFutureTask("task3", o -> newTask("task3", true))
-            .addFutureTask("task4", o -> newTask("task4", true))
-            .addTask("task5", o -> newTask("task5", true).join())
-            .addTask("task6", o -> newTask("task6", true).join())
-            .addTask("task7", o -> newTask("task7", true).join())
-            .addTask("task8", o -> newTask("task8", false).join())
-            .addLastTask("task9", o -> newTask("task9", false).join())
-            .addFutureTask("task0", o -> newTask("task0", true))
-            .addDependsOn("task2")
-            .addDependsOn("task3", "task1", "task2")
-            .addDependsOn("task6", "task3")
-            .addDependsOn("task5", "task4")
-            .addDependsOn("task7", "task5", "task6")
-            .addDependsOn("task0", "task9")
-            .addDependsOn("task1", "task0")
-            .removeTask("task9")
-            .addLastFutureTask("task9", o -> newTask("task9", false))
-            .removeDependsOn("task1", "task0");
-    var asyncTaskContainer = builder.buildAsync();
-    // always end by task8
-    for (int i = 0; i < 7; i++) {
-      System.out.println("AsyncRound" + i + ": " + asyncTaskContainer.execute(new Object()));
-    }
-    var taskContainer = builder.build();
-    // always end by task8
-    for (int i = 0; i < 5; i++) {
-      System.out.println("Round" + i + ": " + taskContainer.execute(new Object()));
-    }
-    asyncTaskContainer = builder.buildAsync();
-    // always end by task8
-    for (int i = 0; i < 3; i++) {
-      System.out.println("AsyncRound" + i + ": " + asyncTaskContainer.execute(new Object()));
+  void testTask() {
+    var task0 = new TestTask("task0", 0);
+    var task1 = new TestTask("task1", 2000);
+    var task2 = new TestTask("task2", 4000);
+    var task3 = new TestTask("task3", 4000);
+    var task4 = new TestTask("task4", 8000);
+    var task5 = new TestTask("task5", 8000);
+    var task6 = new TestMultiTask("task6", 1000, 20);
+    var task7 = new TestMultiTask("task7", 1000, 3);
+    var task8 = new TestMultiTask("task8", 5000, 5);
+    var task9 = new TestMultiTask("task9", 8000, 10);
+    var task10 = new TestTask("task10", 200000);
+    var task11 = new TestTask("task11", 0);
+    var test =
+        TaskFlow.<TestContext>newBuilder("test")
+            .add(task1, task11)
+            .add(task3, task0, task1, task2)
+            .add(task4, task0, task1, task3)
+            .add(task5, task0)
+            .add(task6, task0, task2, task4)
+            .add(task7, task0, task3, task4)
+            .add(task8, task0, task1, task2, task5)
+            .add(task9, task0, task3, task6, task6)
+            .add(task10, task0, task1, task2, task3, task4, task5, task6, task7)
+            .addHead(task0)
+            .remove(task11)
+            .addTail(task10)
+            .buildSequential();
+    test.setExecutor(new ThreadPerTaskExecutor(new DefaultThreadFactory("test")));
+    try {
+      test.apply(new TestContext()).join();
+    } catch (Exception e) {
+      log.error("error:", e);
     }
   }
 
-  private CompletableFuture<TaskResult> newTask(String name, boolean result) {
-    return newTask(name, result, 200);
+  static class TestContext extends TaskContext {}
+
+  static class TestTask extends Task<TestContext> {
+
+    private final long sleep;
+
+    protected TestTask(String name, long sleep) {
+      super(name);
+      this.sleep = sleep;
+    }
+
+    @Override
+    protected Consumer<TestContext> action() {
+      return context -> {
+        try {
+          log.info("task[{}] start.", name());
+          Thread.sleep(sleep);
+        } catch (InterruptedException e) {
+        }
+      };
+    }
   }
 
-  private CompletableFuture<TaskResult> newTask(String name, boolean result, int origin) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          var uuid = UUID.randomUUID();
-          log.info("[{}]({}) begin to execute.", name, uuid);
-          try {
-            Thread.sleep(ThreadLocalRandom.current().nextInt(origin, 5 * origin));
-          } catch (InterruptedException e) {
-            log.info("[{}]({}) interrupted.", name, uuid);
-          }
-          log.info("[{}]({}) execute end, result: {}.", name, uuid, result);
-          return result ? TaskResult.succeed() : TaskResult.fail(name);
-        });
+  static class TestMultiTask extends MultiTask<TestContext> {
+
+    private final long sleep;
+    private final int count;
+
+    public TestMultiTask(String name, long sleep, int count) {
+      super(name);
+      this.sleep = sleep;
+      this.count = count;
+    }
+
+    @Override
+    protected ToIntFunction<TestContext> getCount() {
+      return c -> this.count;
+    }
+
+    @Override
+    protected ObjIntConsumer<TestContext> subAction() {
+      return (c, i) -> {
+        try {
+          log.info("multi task[{}]-{} start.", name(), i);
+          Thread.sleep(sleep);
+        } catch (InterruptedException e) {
+        }
+      };
+    }
   }
 
   @Autowired private MockAppService mockAppService;

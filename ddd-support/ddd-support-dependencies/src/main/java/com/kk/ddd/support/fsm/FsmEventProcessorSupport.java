@@ -1,6 +1,6 @@
 package com.kk.ddd.support.fsm;
 
-import com.kk.ddd.support.util.task.Container;
+import com.kk.ddd.support.util.task.TaskFlow;
 import java.util.Optional;
 
 /**
@@ -14,19 +14,19 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
     implements FsmEventProcessor<E, T, C>, FsmEventProcessStep<E, T, C> {
 
   /** 准备阶段任务容器，需要自定义任务顺序。 */
-  protected final PrepareTaskContainer<E, T, C> prepareTaskContainer;
+  protected final FsmPrepareTaskFlow<E, T, C> prepareTaskFlow;
 
   /** 执行阶段任务容器，需要自定义任务顺序。 */
-  protected final Container<C> actionTaskContainer;
+  protected final TaskFlow<C> actionTaskFlow;
 
-  public FsmEventProcessorSupport(Container<C> actionTaskContainer) {
-    this(PrepareTaskContainer.empty(), actionTaskContainer);
+  public FsmEventProcessorSupport(TaskFlow<C> actionTaskFlow) {
+    this(FsmPrepareTaskFlow.empty(), actionTaskFlow);
   }
 
   public FsmEventProcessorSupport(
-      PrepareTaskContainer<E, T, C> prepareTaskContainer, Container<C> actionTaskContainer) {
-    this.prepareTaskContainer = prepareTaskContainer;
-    this.actionTaskContainer = actionTaskContainer;
+      FsmPrepareTaskFlow<E, T, C> prepareTaskFlow, TaskFlow<C> actionTaskFlow) {
+    this.prepareTaskFlow = prepareTaskFlow;
+    this.actionTaskFlow = actionTaskFlow;
   }
 
   @Override
@@ -57,27 +57,27 @@ public abstract class FsmEventProcessorSupport<E extends FsmEvent, T, C extends 
 
   @Override
   public void action(String destState, C context) throws Throwable {
-    this.actionTaskContainer.execute(context).throwCheckedIfFail();
+    this.actionTaskFlow.apply(context).get();
   }
 
   protected void checkArgs(C context) {
-    Optional.ofNullable(prepareTaskContainer.getArgsChecker())
-        .ifPresent(container -> container.execute(context).throwIfFail());
+    Optional.ofNullable(prepareTaskFlow.getArgsChecker())
+        .ifPresent(container -> container.sequential().apply(context).join());
   }
 
   protected void buildContext(C context) {
-    Optional.ofNullable(prepareTaskContainer.getContextBuilder())
-        .ifPresent(container -> container.execute(context).throwIfFail());
+    Optional.ofNullable(prepareTaskFlow.getContextBuilder())
+        .ifPresent(container -> container.parallel().apply(context).join());
   }
 
   protected void checkContext(C context) {
-    Optional.ofNullable(prepareTaskContainer.getContextChecker())
-        .ifPresent(container -> container.execute(context).throwIfFail());
+    Optional.ofNullable(prepareTaskFlow.getContextChecker())
+        .ifPresent(container -> container.sequential().apply(context).join());
   }
 
   protected void asyncCheckContext(C context) {
-    Optional.ofNullable(prepareTaskContainer.getContextAsyncChecker())
-        .ifPresent(container -> container.execute(context).throwIfFail());
+    Optional.ofNullable(prepareTaskFlow.getContextAsyncChecker())
+        .ifPresent(container -> container.parallel().apply(context).join());
   }
 
   @Override

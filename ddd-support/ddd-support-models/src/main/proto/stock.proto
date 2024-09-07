@@ -2,7 +2,6 @@ syntax = "proto3";
 
 option java_package = "com.kk.ddd.support.model.proto";
 option java_multiple_files = true;
-option optimize_for = CODE_SIZE;
 
 message StockOperateRequest {
   string order_no = 1;

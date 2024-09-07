@@ -20,16 +20,4 @@ public record TaskResult(boolean succeeded, String message) {
   public boolean failed() {
     return !succeeded();
   }
-
-  public void throwIfFail() {
-    if (failed()) {
-      throw new RuntimeException(this.message);
-    }
-  }
-
-  public void throwCheckedIfFail() throws Throwable {
-    if (failed()) {
-      throw new Exception(this.message);
-    }
-  }
 }
