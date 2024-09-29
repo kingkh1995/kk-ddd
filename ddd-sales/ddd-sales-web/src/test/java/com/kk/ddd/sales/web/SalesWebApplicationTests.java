@@ -209,7 +209,12 @@ class SalesWebApplicationTests {
     var task2 = new TestTask("task2", 4000);
     var task3 = new TestTask("task3", 4000);
     var task4 = new TestTask("task4", 8000);
-    var task5 = new TestTask("task5", 8000);
+    var task5 =
+        TaskFlow.<TestContext>newBuilder("sub")
+            .add(new TestTask("sub1", 100), new TestTask("sub0", 100))
+            .add(new TestTask("sub2", 100))
+            .addTail(new TestMultiTask("sub3", 100, 3))
+            .buildSequential();
     var task6 = new TestMultiTask("task6", 1000, 20);
     var task7 = new TestMultiTask("task7", 1000, 3);
     var task8 = new TestMultiTask("task8", 5000, 5);
@@ -217,7 +222,7 @@ class SalesWebApplicationTests {
     var task10 = new TestTask("task10", 200000);
     var task11 = new TestMultiTask("task11", 100, 100);
     var builder =
-        TaskFlow.<TestContext>newBuilder("test")
+        TaskFlow.<TestContext>newBuilder("flow")
             .add(task1, task11)
             .add(task3, task0, task1, task2)
             .add(task4, task0, task1, task3)
@@ -230,16 +235,16 @@ class SalesWebApplicationTests {
             .addHead(task0)
             .remove(task11)
             .addTail(task10);
-    var test = builder.buildSequential();
-    test.setExecutor(new ThreadPerTaskExecutor(new DefaultThreadFactory("test")));
+    var flow = builder.buildSequential();
+    flow.setExecutor(new ThreadPerTaskExecutor(new DefaultThreadFactory("test")));
     var context = new TestContext();
     try {
-      test.apply(context).join();
+      flow.apply(context).join();
     } catch (Exception e) {
       log.error("error:", e);
     }
     try {
-      test.parallel().apply(context).join();
+      flow.parallel().apply(context).join();
     } catch (Exception e) {
       log.error("error:", e);
     }
@@ -262,6 +267,11 @@ class SalesWebApplicationTests {
     @Override
     public Executor executor() {
       return POOL;
+    }
+
+    @Override
+    public long timeout() {
+      return 10_000L;
     }
 
     @Override
@@ -290,6 +300,11 @@ class SalesWebApplicationTests {
     @Override
     public Executor executor() {
       return POOL;
+    }
+
+    @Override
+    public long timeout() {
+      return 10_000L;
     }
 
     @Override

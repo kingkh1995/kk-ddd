@@ -22,7 +22,7 @@ public class TaskFlowBuilder<C> {
   private final Map<String, Task<C>> map;
 
   TaskFlowBuilder(final String name) {
-    this(name, new Task.EmptyTask<>(name));
+    this(name, new EmptyTask<>(name));
   }
 
   TaskFlowBuilder(final String name, final Task<C> initTask) {

@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
@@ -26,24 +27,27 @@ public abstract class Task<C> implements Function<C, CompletableFuture<Void>> {
     return this.name;
   }
 
-  public long timeout() {
-    return 10_000L;
-  }
-
   public Executor executor() {
     return ForkJoinPool.commonPool();
   }
+
+  public abstract long timeout();
 
   @Override
   public final CompletableFuture<Void> apply(C context) {
     return asyncAction()
         .apply(context)
         .orTimeout(timeout(), TimeUnit.MILLISECONDS)
-        .whenCompleteAsync(
-            (unused, throwable) -> {
-              whenCompleteAction(context, throwable);
-            },
-            executor());
+        .thenApply(
+            unused -> {
+              done().accept(context);
+              return unused;
+            })
+        .exceptionallyCompose(
+            throwable -> {
+              exceptionally().accept(context, throwable);
+              return CompletableFuture.failedFuture(throwable);
+            });
   }
 
   protected abstract Consumer<C> action();
@@ -52,23 +56,11 @@ public abstract class Task<C> implements Function<C, CompletableFuture<Void>> {
     return context -> CompletableFuture.runAsync(() -> action().accept(context), executor());
   }
 
-  protected void whenCompleteAction(C context, Throwable throwable) {
-    if (throwable == null) {
-      log.info("Task[{}] finish.", name());
-    } else {
-      log.error("Task[{}] error.", name(), throwable);
-    }
+  protected Consumer<C> done() {
+    return context -> log.info("Task[{}] finish.", name());
   }
 
-  static class EmptyTask<C> extends Task<C> {
-
-    public EmptyTask(String name) {
-      super(name);
-    }
-
-    @Override
-    protected Consumer<C> action() {
-      return c -> log.info("this is a empty action.");
-    }
+  protected BiConsumer<C, Throwable> exceptionally() {
+    return (context, throwable) -> log.error("Task[{}] error.", name(), throwable);
   }
 }
