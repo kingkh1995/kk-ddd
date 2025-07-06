@@ -21,12 +21,13 @@
 
 #### 工具依赖（support-tools项目中定义）
 
-- guava: 32.1.2-jre
+- guava: 33.4.8-jre
 - transmittable-thread-local: 2.14.3
 - jctools: 4.0.1
 - zxing: 3.5.2
 - easyexcel: 3.3.2
 - jgrapht: 1.5.2
+- scalecube: 2.7.1
 
 #### 接口层依赖（web项目中定义）
 

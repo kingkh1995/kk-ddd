@@ -29,12 +29,13 @@
         <rocketmq.version>2.2.3</rocketmq.version>
         <grpc.version>1.59.0</grpc.version>
         <!--工具依赖-->
-        <guava.version>32.1.2-jre</guava.version>
+        <guava.version>33.4.8-jre</guava.version>
         <ttl.version>2.14.3</ttl.version>
         <jctools.version>4.0.1</jctools.version>
         <zxing.version>3.5.2</zxing.version>
         <easyexcel.version>3.3.2</easyexcel.version>
         <jgrapht.version>1.5.2</jgrapht.version>
+        <scalecube.version>2.7.1</scalecube.version>
         <!--接口层依赖-->
         <springdoc.version>2.2.0</springdoc.version>
         <shiro.version>1.12.0</shiro.version>
@@ -152,6 +153,16 @@
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.scalecube</groupId>
+                <artifactId>scalecube-cluster</artifactId>
+                <version>${scalecube.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.scalecube</groupId>
+                <artifactId>scalecube-transport-netty</artifactId>
+                <version>${scalecube.version}</version>
             </dependency>
             <!--接口层依赖-->
             <dependency>
