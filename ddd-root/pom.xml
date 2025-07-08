@@ -28,6 +28,7 @@
         <spring-kafka.version>2.9.12</spring-kafka.version>
         <rocketmq.version>2.2.3</rocketmq.version>
         <grpc.version>1.59.0</grpc.version>
+        <netty.version>4.1.118.Final</netty.version>
         <!--工具依赖-->
         <guava.version>33.4.8-jre</guava.version>
         <ttl.version>2.14.3</ttl.version>
@@ -36,6 +37,7 @@
         <easyexcel.version>3.3.2</easyexcel.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <scalecube.version>2.7.1</scalecube.version>
+        <vertx.version>4.5.13</vertx.version>
         <!--接口层依赖-->
         <springdoc.version>2.2.0</springdoc.version>
         <shiro.version>1.12.0</shiro.version>
@@ -123,6 +125,13 @@
                 <artifactId>grpc-stub</artifactId>
                 <version>${grpc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>${netty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!--工具依赖-->
             <dependency>
                 <groupId>com.google.guava</groupId>
@@ -163,6 +172,11 @@
                 <groupId>io.scalecube</groupId>
                 <artifactId>scalecube-transport-netty</artifactId>
                 <version>${scalecube.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.vertx</groupId>
+                <artifactId>vertx-core</artifactId>
+                <version>${vertx.version}</version>
             </dependency>
             <!--接口层依赖-->
             <dependency>

@@ -18,6 +18,7 @@
 - kafka: 2.9.12
 - rocketmq: 2.2.3
 - grpc: 1.59.0
+- netty: 4.1.118.Final
 
 #### 工具依赖（support-tools项目中定义）
 
@@ -28,6 +29,7 @@
 - easyexcel: 3.3.2
 - jgrapht: 1.5.2
 - scalecube: 2.7.1
+- vertx: 4.5.13
 
 #### 接口层依赖（web项目中定义）
 
