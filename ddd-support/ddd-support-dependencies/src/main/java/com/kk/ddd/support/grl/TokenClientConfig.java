@@ -12,5 +12,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class TokenClientConfig extends ClusterClientConfig {
   private String key;
-  private int permitsPerRequest;
+  private int permitsAcquiredPerRequest = 20;
+  private int maxPermitsPerRequest = 200;
 }

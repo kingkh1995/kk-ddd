@@ -1,5 +1,6 @@
 package com.kk.ddd.support.grl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
@@ -15,6 +16,6 @@ public class ClusterServerConfig {
   private String host;
   private int port;
   private int listenPort = 0;
-  private List<String> servers;
+  private List<String> servers = Collections.emptyList();
   private int heartbeatInterval = 1_000;
 }

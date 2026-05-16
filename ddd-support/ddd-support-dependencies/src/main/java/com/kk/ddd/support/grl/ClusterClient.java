@@ -1,15 +1,11 @@
 package com.kk.ddd.support.grl;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import lombok.Getter;
 
 /**
  * <br>
@@ -18,55 +14,50 @@ import java.util.stream.IntStream;
  */
 public class ClusterClient {
 
-  private static final HashFunction HASHING = Hashing.murmur3_32_fixed();
-  private static final String VIRTUAL_SPLITER = "@@";
-
+  protected final ConsistentHashRing ring = new ConsistentHashRing();
   private final ClusterClientConfig clientConfig;
-  private final ArrayList<String> servers;
-  protected TreeMap<Long, String> ketamaMap;
+  private final List<String> servers;
   private long lastCheckTimestamp;
+
+  @Getter private volatile boolean running = true;
 
   public ClusterClient(ClusterClientConfig clientConfig) {
     this.clientConfig = clientConfig;
-    this.servers = new ArrayList<>(clientConfig.getServers());
-  }
-
-  private static long hash(String s) {
-    return HASHING.hashBytes(s.getBytes()).asLong();
+    this.servers =
+        new ArrayList<>(
+            Objects.requireNonNull(clientConfig.getServers(), "servers must not be null"));
   }
 
   private static String getServers(String address) {
-    // todo..
-    return null;
+    // todo.. RPC to cluster node, e.g. call ClusterServer.allMembers()
+    return "";
+  }
+
+  /** Gracefully stop the client. Subclasses may override to add wake-up logic. */
+  public void stop() {
+    this.running = false;
   }
 
   protected void doCheckServer() {
-    if (System.currentTimeMillis() - lastCheckTimestamp < clientConfig.getCheckInterval()) {
+    if (!running
+        || System.currentTimeMillis() - lastCheckTimestamp < clientConfig.getCheckInterval()) {
       return;
     }
+    // shuffle to randomize which server we query
     Collections.shuffle(this.servers);
+    // pick a random server and fetch the live cluster member list via RPC (stub below)
     this.servers.stream()
         .map(ClusterClient::getServers)
+        .filter(Predicate.not(String::isBlank))
         .findAny()
         .ifPresent(
             ret -> {
-              ketamaMap =
-                  Arrays.stream(ret.split(","))
-                      .flatMap(
-                          address ->
-                              IntStream.range(0, 10)
-                                  .mapToObj(index -> address + VIRTUAL_SPLITER + index))
-                      .collect(
-                          Collectors.toMap(
-                              ClusterClient::hash, Function.identity(), (o, n) -> n, TreeMap::new));
+              ring.rebuild(ret);
               lastCheckTimestamp = System.currentTimeMillis();
             });
   }
 
   protected String findServer(String key) {
-    return Optional.ofNullable(ketamaMap.ceilingEntry(hash(key)))
-        .orElse(ketamaMap.firstEntry())
-        .getValue()
-        .split(VIRTUAL_SPLITER)[0];
+    return ring.findServer(key);
   }
 }

@@ -9,6 +9,9 @@ import io.scalecube.cluster.membership.MembershipConfig;
 import io.scalecube.cluster.membership.MembershipEvent;
 import io.scalecube.cluster.transport.api.Message;
 import io.scalecube.transport.netty.tcp.TcpTransportFactory;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +23,17 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ClusterServer {
+
   private final Cluster cluster;
+  private final ClusterServerConfig serverConfig;
+
   @Getter private final String address;
-  @Getter private final int memberSize;
   @Getter private final long maxRemoveTimeout;
-  @Getter private volatile boolean running;
+  private final AtomicBoolean running = new AtomicBoolean();
 
   public ClusterServer(ClusterServerConfig serverConfig) {
-    cluster =
+    this.serverConfig = serverConfig;
+    this.cluster =
         new ClusterImpl()
             .config(
                 clusterConfig -> {
@@ -69,36 +75,42 @@ public class ClusterServer {
                         log.info("[{}] onMembershipEvent: {}.", cc.member().alias(), event);
                       }
                     })
-            .startAwait();
-    running = true;
+            .start().block(Duration.ofSeconds(30));
+    running.set(true);
     log.info("start [{}] succeeded, address: {}.", cluster.member().alias(), cluster.address());
     address = cluster.address();
-    memberSize = serverConfig.getServers().size();
     maxRemoveTimeout =
         ClusterMath.suspicionTimeout(
                 MembershipConfig.DEFAULT_SUSPICION_MULT,
-                memberSize,
+                serverConfig.getServers().size(),
                 serverConfig.getHeartbeatInterval())
             + 3L * serverConfig.getHeartbeatInterval();
     log.info("The maxRemoveTimeout of this cluster is {}ms.", maxRemoveTimeout);
-    Runtime.getRuntime().addShutdownHook(new Thread(this::leave));
+    Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
   }
 
-  public void leave() {
-    cluster.shutdown();
-    cluster.onShutdown().doOnSuccess(unused -> running = false).block();
+  public boolean isRunning() {
+    return running.get();
   }
 
-  public String allMembers() {
-    if (!running) {
-      return "NOT_RUNNING";
+  public void stop() {
+    if (running.compareAndSet(true, false)) {
+      cluster.shutdown();
+      cluster.onShutdown().block();
+    }
+  }
+
+  public ClusterMembersResult allMembers() {
+    if (!running.get()) {
+      return ClusterMembersResult.notRunning();
     }
     var members = cluster.members();
-    var address = members.stream().map(Member::address).collect(Collectors.joining(","));
-    if (members.size() <= memberSize / 2) {
-      log.warn("[{}] left the cluster.", address);
-      return "LEFT";
+    List<String> addressList = members.stream().map(Member::address).collect(Collectors.toList());
+    // majority-quorum: if remaining members <= half of expected (configured) cluster size
+    if (members.size() <= serverConfig.getServers().size() / 2) {
+      log.warn("[{}] left the cluster.", addressList);
+      return ClusterMembersResult.left(addressList);
     }
-    return address;
+    return ClusterMembersResult.running(addressList);
   }
 }

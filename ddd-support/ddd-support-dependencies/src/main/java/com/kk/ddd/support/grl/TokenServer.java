@@ -1,8 +1,10 @@
 package com.kk.ddd.support.grl;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
-import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -13,31 +15,39 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TokenServer extends ClusterServer {
 
-  // todo... clean outdated
-  private final ConcurrentHashMap<String, RateLimiter> rlMap = new ConcurrentHashMap<>();
+  private final Cache<String, RateLimiter> rlCache;
 
   public TokenServer(TokenServerConfig serverConfig) {
     super(serverConfig);
+    this.rlCache =
+        CacheBuilder.newBuilder()
+            .maximumSize(10_000)
+            .expireAfterAccess(1, TimeUnit.HOURS)
+            .recordStats()
+            .build();
   }
 
   public void register(String name, int permitsPerSecond) {
-    rlMap.compute(
-        name,
-        (k, rateLimiter) -> {
-          if (rateLimiter == null) {
-            rateLimiter = RateLimiter.create(permitsPerSecond);
-          } else {
-            rateLimiter.setRate(permitsPerSecond);
-          }
-          return rateLimiter;
-        });
+    rlCache
+        .asMap()
+        .compute(
+            name,
+            (k, rl) -> {
+              if (rl == null) {
+                log.info(
+                    "Create RateLimiter: name={}, permitsPerSecond={}", name, permitsPerSecond);
+                return RateLimiter.create(permitsPerSecond);
+              } else {
+                rl.setRate(permitsPerSecond);
+                return rl;
+              }
+            });
   }
 
-  public int acquire(String name, int permits) {
-    var rateLimiter = rlMap.get(name);
-    if (rateLimiter == null || Double.compare(rateLimiter.getRate(), permits) < 0) {
-      return 0;
-    }
-    return rateLimiter.tryAcquire(permits, Duration.ofMillis(1_000L)) ? permits : 0;
+  public boolean acquire(String name, int permits) {
+    return Optional.ofNullable(rlCache.getIfPresent(name))
+        .filter(rl -> permits <= (int) rl.getRate())
+        .map(rl -> rl.tryAcquire(permits))
+        .orElse(false);
   }
 }

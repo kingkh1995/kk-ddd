@@ -43,8 +43,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <version>1.18.46</version>
+            <scope>provided</scope>
         </dependency>
         <!--validation注解-->
         <dependency>
