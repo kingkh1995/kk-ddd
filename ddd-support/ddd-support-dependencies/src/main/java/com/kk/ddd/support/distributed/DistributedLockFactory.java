@@ -19,4 +19,7 @@ public interface DistributedLockFactory {
   DistributedLock getLock(@NotBlank String name);
 
   DistributedLock getMultiLock(@Size(min = 2) List<String> names);
+
+  /** 初始化底层资源（如表创建），启动时调用一次。 */
+  default void init() {}
 }

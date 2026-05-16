@@ -40,12 +40,14 @@ public class PostConfiguration extends ApplicationContextAwareSingleton {
     }
   }
 
-  // 设置factory到EntityLocker
+  // 设置factory到EntityLocker并初始化
   private void setFactory2EntityLocker(ApplicationContext applicationContext) {
     try {
       var factory = applicationContext.getBean(DistributedLockFactory.class);
       log.info("Set '{}' to EntityLocker.", factory.getClass().getCanonicalName());
       DistributedLockHelper.setFactory(factory);
+      factory.init();
+      log.info("DistributedLockFactory initialized.");
     } catch (BeansException e) {
       log.error("Set DistributedLockFactory to EntityLocker error!");
     }
